@@ -5,6 +5,8 @@ import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 import { SiteFooter } from "@/src/ui/SiteFooter";
+import AppHeader from "@/src/ui/header/AppHeader";
+
 
 const lexend = Lexend({
   subsets: ["latin"],
@@ -69,9 +71,7 @@ export const metadata: Metadata = {
       { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
       { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
     ],
-    apple: [
-      { url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" },
-    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
     other: [
       {
         rel: "icon",
@@ -132,8 +132,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "Organization",
     name: SITE_NAME,
     url: SITE_URL,
-    // TODO: replace with your actual Panthart logo asset path in /public
-    logo: `${SITE_URL}/PANTHART-ICON.png`,
+    // ✅ Panthart is a Decentroneum subsidiary → use Decentroneum icon as requested
+    logo: `${SITE_URL}/DECENT-ICON.png`,
     sameAs: [
       "https://x.com/decentroneum",
       "https://t.me/DecentroneumGroupChat",
@@ -168,8 +168,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
 
         <Providers>
-          {/* Flex shell keeps footer pinned to bottom on short pages */}
           <div className="min-h-screen flex flex-col">
+            {/* ✅ Header on all pages */}
+            <AppHeader />
+
             <main className="flex-1">{children}</main>
             <SiteFooter />
           </div>
