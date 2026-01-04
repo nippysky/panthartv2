@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
+/* Tailwind v4 (CSS-first): make `dark:` respond to `.dark` class */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =========================
+   Shared Theme Tokens (Decentroneum family)
+   ========================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light */
+  --background: #faf7f2;
+  --foreground: #0b1220;
+
+  --muted: #6b7280;
+  --border: #e6ded5;
+  --card: #ffffff;
+
+  --primary: #0b1220;
+  --accent: #4dee54;
+  --success: #4dee54;
+  --danger: #ef4444;
+
+  color-scheme: light;
 }
 
+.dark {
+  /* Dark */
+  --background: #060807;
+  --foreground: #eafbea;
+
+  --muted: #9aa49a;
+  --border: #1b1f1c;
+  --card: #0b0f0c;
+
+  --primary: #4dee54;
+  --accent: #4dee54;
+  --success: #4dee54;
+  --danger: #f87171;
+
+  color-scheme: dark;
+}
+
+/* =========================
+   Tailwind theme variables
+   ========================= */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  /* Brand font from next/font variable set on <html> */
+  --font-sans: var(--font-lexend);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* =========================
+   Base styles
+   ========================= */
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lexend), system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+/* =========================
+   Micro-interactions
+   ========================= */
+::selection {
+  background: color-mix(in oklab, var(--accent) 28%, transparent);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+.page-enter {
+  animation: fadeUp 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .page-enter {
+    animation: none !important;
+  }
+
+  body {
+    transition: none !important;
+  }
+}
+
+/* =========================
+   Subtle shimmer (for loading buttons)
+   ========================= */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--accent) 18%, transparent),
+    transparent
+  );
+  animation: shimmer 1.25s ease-in-out infinite;
+  pointer-events: none;
 }
