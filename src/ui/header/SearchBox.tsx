@@ -130,7 +130,6 @@ export function SearchBox() {
       {hasQuery ? (
         <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
           <IconButton
-            size="sm"
             aria-label="Clear search"
             onClick={() => {
               setQ("");
@@ -138,7 +137,7 @@ export function SearchBox() {
               setData(null);
             }}
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 cursor-pointer" />
           </IconButton>
         </div>
       ) : null}
