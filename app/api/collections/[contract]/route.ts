@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/collections/[contract]/route.ts
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -28,6 +26,9 @@ type HeaderDTO = {
   discord?: string | null;
   telegram?: string | null;
 
+  // ✅ needed for gating owner actions in UI
+  ownerAddress?: string | null;
+
   floorPrice?: number | null; // ETN
   volume?: number | null; // ETN
 
@@ -44,11 +45,13 @@ type HeaderDTO = {
 
 function ipfsToHttp(url?: string | null) {
   if (!url) return null;
-  if (url.startsWith("ipfs://")) {
-    const cid = url.replace("ipfs://", "");
+  const u = String(url).trim();
+  if (!u) return null;
+  if (u.startsWith("ipfs://")) {
+    const cid = u.replace("ipfs://", "");
     return `https://ipfs.io/ipfs/${cid}`;
   }
-  return url;
+  return u;
 }
 
 function toNumber(x: any): number {
@@ -66,11 +69,24 @@ function weiToEtn(wei: any): number {
   return Number(s) / 1e18;
 }
 
-/** Compute ETN floor + ETN all-time volume (native rule = currencyId NULL OR currency.kind NATIVE). */
+function safeStr(u?: any): string | null {
+  if (u == null) return null;
+  const s = String(u).trim();
+  return s || null;
+}
+
+function normalizeUrl(u?: string | null): string | null {
+  if (!u) return null;
+  const s = String(u).trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s}`;
+}
+
+/** Native ETN floor + native ETN all-time volume. */
 async function computeNativeStats(contract: string) {
   const now = new Date();
 
-  // floor (native)
   const cheapest = await prisma.marketplaceListing.findFirst({
     where: {
       status: ListingStatus.ACTIVE,
@@ -87,7 +103,6 @@ async function computeNativeStats(contract: string) {
 
   const floorPrice = cheapest?.priceEtnWei ? weiToEtn(cheapest.priceEtnWei) : null;
 
-  // all-time volume (native)
   const rows = await prisma.$queryRaw<Array<{ sumWei: any }>>(Prisma.sql`
     SELECT COALESCE(SUM(s."priceEtnWei")::numeric, 0) AS "sumWei"
     FROM "MarketplaceSale" s
@@ -123,16 +138,8 @@ export async function GET(
   context: { params: Promise<{ contract: string }> }
 ) {
   await prismaReady;
-
   const { contract: rawContract } = await context.params;
 
-  // NOTE: You call this as /api/collections/[contract]?header=1
-  // We don’t actually need header=1 (this route is “header-only” by design),
-  // but keeping it compatible is good.
-  const url = new URL(req.url);
-  const _headerOnly = url.searchParams.get("header") != null;
-
-  // Resolve canonical contract (case-insensitive lookup)
   const col = await prisma.collection.findFirst({
     where: { contract: { equals: rawContract, mode: "insensitive" } },
     select: {
@@ -150,17 +157,15 @@ export async function GET(
       supply: true,
       ownersCount: true,
       itemsCount: true,
+      ownerAddress: true, // ✅
     },
   });
 
-  if (!col) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  if (!col) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const canon = col.contract;
   const now = new Date();
 
-  // Items count (source of truth = NFTs successfully indexed)
   const itemsCount = await prisma.nFT.count({
     where: { contract: canon, status: NftStatus.SUCCESS },
   });
@@ -204,6 +209,8 @@ export async function GET(
     discord: col.discord ?? null,
     telegram: col.telegram ?? null,
 
+    ownerAddress: col.ownerAddress ?? null,
+
     floorPrice,
     volume,
 
@@ -221,4 +228,53 @@ export async function GET(
   const resp = NextResponse.json(header, { status: 200 });
   resp.headers.set("Cache-Control", "no-store");
   return resp;
+}
+
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ contract: string }> }
+) {
+  await prismaReady;
+  const { contract: rawParam } = await context.params;
+
+  try {
+    const col = await prisma.collection.findFirst({
+      where: { contract: { equals: rawParam, mode: "insensitive" } },
+      select: { id: true, ownerAddress: true },
+    });
+    if (!col) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    const ownerHeader = req.headers.get("x-owner-wallet");
+    if (!ownerHeader) {
+      return NextResponse.json({ error: "Missing x-owner-wallet" }, { status: 401 });
+    }
+    if (String(col.ownerAddress || "").toLowerCase() !== ownerHeader.toLowerCase()) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const data: Prisma.CollectionUpdateInput = {};
+    if ("description" in body) data.description = safeStr((body as any).description);
+    if ("website" in body) data.website = normalizeUrl(safeStr((body as any).website));
+    if ("x" in body) data.x = normalizeUrl(safeStr((body as any).x));
+    if ("instagram" in body) data.instagram = normalizeUrl(safeStr((body as any).instagram));
+    if ("telegram" in body) data.telegram = normalizeUrl(safeStr((body as any).telegram));
+    if ("discord" in body) data.discord = normalizeUrl(safeStr((body as any).discord));
+    if ("logoUrl" in body) data.logoUrl = safeStr((body as any).logoUrl);
+    if ("coverUrl" in body) data.coverUrl = safeStr((body as any).coverUrl);
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "No updatable fields provided" }, { status: 400 });
+    }
+
+    await prisma.collection.update({ where: { id: col.id }, data });
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error("[PATCH /api/collections/[contract]]", err);
+    return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
+  }
 }

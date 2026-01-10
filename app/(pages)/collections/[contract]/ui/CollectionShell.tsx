@@ -1,6 +1,5 @@
-// app/collections/[contract]/ui/CollectionShell.tsx
-
 import CollectionHeader from "./CollectionHeader";
+import CollectionOwnerActions from "./CollectionOwnerActions";
 import CollectionTabsClient from "./CollectionTabsClient";
 
 
@@ -16,6 +15,8 @@ type HeaderDTO = {
   x?: string | null;
   discord?: string | null;
   telegram?: string | null;
+
+  ownerAddress?: string | null;
 
   floorPrice?: number | null;
   volume?: number | null;
@@ -34,10 +35,11 @@ type HeaderDTO = {
 export default function CollectionShell({ header }: { header: HeaderDTO }) {
   return (
     <div className="min-h-screen">
-      {/* Server-rendered hero + stats = fast + SEO */}
-      <CollectionHeader header={header} />
+      <CollectionHeader
+        header={header}
+        actionsSlot={<CollectionOwnerActions header={header} />}
+      />
 
-      {/* Client tabs only (Items / Activity / About) */}
       <div className="mx-auto w-full max-w-7xl px-4 pb-16">
         <CollectionTabsClient header={header} />
       </div>

@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { detectMediaType, ipfsToHttp, isVideoType } from "@/src/lib/media";
 
 const BLUR_1x1 =
@@ -42,18 +42,15 @@ export default function NftModal({
   const title = item?.name ?? (item ? `#${item.tokenId}` : "NFT");
 
   const mediaUrl = useMemo(() => {
-    // prefer animationUrl for video, else imageUrl
     const a = ipfsToHttp(item?.animationUrl);
     const i = ipfsToHttp(item?.imageUrl);
     return a || i || null;
   }, [item?.animationUrl, item?.imageUrl]);
 
   const posterUrl = useMemo(() => {
-    // poster should be an image if possible
     const i = ipfsToHttp(item?.imageUrl);
     if (i) return i;
 
-    // sometimes animationUrl is actually an image
     const a = ipfsToHttp(item?.animationUrl);
     const t = detectMediaType(a);
     return t === "image" ? a : null;
@@ -62,7 +59,7 @@ export default function NftModal({
   const mediaType = useMemo(() => detectMediaType(mediaUrl), [mediaUrl]);
   const isVideo = isVideoType(mediaType) || Boolean(item?.hasVideo);
 
-  // lock scroll + ESC close (no setState inside effects)
+  // lock scroll + ESC close
   useEffect(() => {
     if (!open) return;
 
@@ -81,33 +78,47 @@ export default function NftModal({
     };
   }, [open, onClose]);
 
-  // reset “playing” when token changes / modal closes (NO effect setState needed)
-  // we do it by keying the media box
+  // reset “playing” when token changes / modal closes (NO effect setState)
   const mediaKey = `${open ? "1" : "0"}-${item?.id ?? "none"}`;
 
-  // ---- render ----
+  // ---- render gate (after hooks) ----
   if (!open || !item) return null;
 
   const detailsHref = `/collections/${contract}/${encodeURIComponent(
     String(item.tokenId)
   )}`;
 
-  return (
-    <div className="fixed inset-0 z-[999]">
+  // Build modal content once; we’ll portal it to <body>
+  const modal = (
+    <div
+      className="fixed inset-0 z-1000"
+      role="dialog"
+      aria-modal="true"
+      aria-label="NFT preview"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      {/* Centering wrapper: fixed to viewport (not scroll), mobile-safe top padding */}
-      <div className="absolute inset-0 flex items-start justify-center p-3 pt-24 sm:items-center sm:p-6 sm:pt-6">
-        {/* Panel */}
+      {/* True viewport centering + safe padding (no weird pt-24 offset) */}
+      <div
+        className={cx(
+          "absolute inset-0 flex items-center justify-center",
+          "p-3 sm:p-6",
+          // iOS safe-area friendly without changing content
+          "pt-[calc(env(safe-area-inset-top)+0.75rem)]",
+          "pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
+        )}
+      >
+        {/* Panel (flex column so header stays fixed; body scrolls inside) */}
         <div
           className={cx(
             "w-full max-w-5xl overflow-hidden rounded-[22px] border border-border",
             "bg-background/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]",
-            "backdrop-blur-xl"
+            "backdrop-blur-xl",
+            "flex max-h-[calc(100svh-1.5rem)] flex-col"
           )}
           onClick={(e) => e.stopPropagation()}
         >
@@ -137,8 +148,8 @@ export default function NftModal({
             </div>
           </div>
 
-          {/* Body (scroll inside modal if needed) */}
-          <div className="max-h-[calc(100dvh-8rem)] overflow-y-auto p-4 sm:max-h-[calc(100dvh-4rem)]">
+          {/* Body (scroll inside modal) */}
+          <div className="flex-1 overflow-y-auto p-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Media */}
               <div
@@ -148,7 +159,6 @@ export default function NftModal({
                 <div className="relative aspect-square">
                   {isVideo ? (
                     <>
-                      {/* Always render video so click can call play() reliably */}
                       <video
                         ref={videoRef}
                         src={mediaUrl ?? undefined}
@@ -159,18 +169,14 @@ export default function NftModal({
                         crossOrigin="anonymous"
                       />
 
-                      {/* Overlay when not playing */}
                       {!playing ? (
                         <button
                           type="button"
                           className="absolute inset-0 grid place-items-center bg-black/25"
                           onClick={() => {
                             setPlaying(true);
-                            // user gesture -> play should work
                             window.setTimeout(() => {
-                              videoRef.current?.play().catch(() => {
-                                // if it still fails, user can click controls after
-                              });
+                              videoRef.current?.play().catch(() => {});
                             }, 0);
                           }}
                         >
@@ -196,7 +202,6 @@ export default function NftModal({
                     <div className="absolute inset-0 bg-[radial-gradient(100%_100%_at_50%_0%,rgba(77,238,84,0.12),transparent_55%),linear-gradient(to_bottom,rgba(255,255,255,0.03),transparent)]" />
                   )}
 
-                  {/* Small “Video” pill top-left */}
                   {isVideo ? (
                     <div className="absolute left-3 top-3 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
                       Video
@@ -233,7 +238,6 @@ export default function NftModal({
                   This modal stays lightweight on purpose.
                 </div>
 
-                {/* keep CTA visible in-modal */}
                 <Link
                   href={detailsHref}
                   className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-95"
@@ -247,6 +251,10 @@ export default function NftModal({
       </div>
     </div>
   );
+
+  // ✅ Portal to <body> so it behaves like a “real modal” even if parents use transforms
+  if (typeof document === "undefined") return null;
+  return createPortal(modal, document.body);
 }
 
 function Chip({ label, value }: { label: string; value: string }) {

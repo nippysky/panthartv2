@@ -24,6 +24,8 @@ type HeaderDTO = {
   supply?: number | null;
   itemsCount?: number | null;
   ownersCount?: number | null;
+  ownerAddress?: string | null;
+
 
   listingActiveCount?: number | null;
   auctionActiveCount?: number | null;
