@@ -17,10 +17,6 @@ function tabFrom(sp: URLSearchParams): TabKey {
   return t === "activity" ? "activity" : "items";
 }
 
-function cx(...cls: Array<string | false | undefined | null>) {
-  return cls.filter(Boolean).join(" ");
-}
-
 export default function CollectionTabsClient({ header }: { header: HeaderDTO }) {
   const sp = useSearchParams();
   const router = useRouter();
@@ -75,12 +71,12 @@ function Tab({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={cx(
+      className={[
         "h-10 rounded-full px-4 text-sm font-medium transition",
         active
-          ? "bg-foreground text-background shadow-[0_10px_28px_rgba(0,0,0,0.12)]"
-          : "text-foreground/80 hover:bg-background/60"
-      )}
+          ? "bg-foreground text-background shadow-[0_10px_28px_rgba(0,0,0,0.10)]"
+          : "text-foreground/80 hover:bg-background/60",
+      ].join(" ")}
     >
       {children}
     </button>
