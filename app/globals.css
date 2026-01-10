@@ -154,9 +154,3 @@ html {
   animation: shimmer 1.25s ease-in-out infinite;
   pointer-events: none;
 }
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
