@@ -32,14 +32,17 @@ type HeaderDTO = {
   rarityPopulation?: number | null;
 };
 
+type RouteParams = { contract: string };
+
 async function getSiteUrl() {
   const env = process.env.NEXT_PUBLIC_BASE_URL;
   if (env) return env.replace(/\/$/, "");
 
-  const h = await headers(); // ✅ FIX: headers() is async here
+  // Next.js (newer) exposes headers() as async
+  const h = await headers();
   const proto = h.get("x-forwarded-proto") ?? "https";
   const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (!host) return "";
+  if (!host) return "http://localhost:3000"; // safe fallback for local dev
   return `${proto}://${host}`;
 }
 
@@ -68,9 +71,11 @@ async function toAbs(maybeUrl?: string | null) {
 export async function generateMetadata({
   params,
 }: {
-  params: { contract: string };
+  params: Promise<RouteParams>;
 }): Promise<Metadata> {
-  const header = await getHeader(params.contract);
+  const { contract } = await params;
+
+  const header = await getHeader(contract);
 
   const base = (await getSiteUrl()) || "https://panth.art";
   const metadataBase = new URL(base);
@@ -88,7 +93,8 @@ export async function generateMetadata({
   const description =
     header.description?.slice(0, 160) || `View ${name} on Panth.art`;
 
-  const ogImage = (await toAbs(header.coverUrl)) ?? (await toAbs(header.logoUrl));
+  const ogImage =
+    (await toAbs(header.coverUrl)) ?? (await toAbs(header.logoUrl));
   const canonicalPath = `/collections/${header.contract}`;
 
   return {
@@ -112,8 +118,14 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({ params }: { params: { contract: string } }) {
-  const header = await getHeader(params.contract);
+export default async function Page({
+  params,
+}: {
+  params: Promise<RouteParams>;
+}) {
+  const { contract } = await params;
+
+  const header = await getHeader(contract);
   if (!header) return notFound();
 
   return <CollectionShell header={header} />;

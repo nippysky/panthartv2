@@ -15,8 +15,8 @@ export type CollectionListItem = {
   itemsCount: number;
   ownersCount: number;
   indexStatus: "PENDING" | "QUEUED" | "INDEXING" | "COMPLETED" | "ERROR";
-  floorActive: number | null;     // currency-aware
-  volumeAllTime: number;          // currency-aware
+  floorActive: number | null; // currency-aware (ACTIVE listings)
+  volumeAllTime: number; // currency-aware (all-time sales)
 };
 
 export type CollectionsPageResp = {
@@ -24,129 +24,66 @@ export type CollectionsPageResp = {
   nextCursor: string | null;
 };
 
-function toNumber(x: any): number {
-  if (x == null) return 0;
-  try { return Number((x as any).toString()); } catch { return Number(x) || 0; }
+type CurrencyMeta =
+  | { kind: "NATIVE"; id?: undefined; symbol: string; decimals: number }
+  | { kind: "ERC20"; id: string; symbol: string; decimals: number };
+
+type CursorObj =
+  | { id: string; v: number } // volume/floor sort value (coalesced)
+  | { id: string; t: string }; // newest timestamp ISO
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
 }
 
-async function resolveCurrencyMeta(currencyQ: string | null) {
-  if (!currencyQ || currencyQ.trim().toLowerCase() === "native") {
-    return { id: undefined as string | undefined, symbol: "ETN", decimals: 18, kind: "NATIVE" as const };
+function safeNumber(x: any): number | null {
+  if (x == null) return null;
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
+function encodeCursor(obj: CursorObj) {
+  return Buffer.from(JSON.stringify(obj), "utf8").toString("base64");
+}
+
+function decodeCursor(raw: string | null): CursorObj | null {
+  if (!raw) return null;
+  try {
+    const json = Buffer.from(raw, "base64").toString("utf8");
+    const d = JSON.parse(json);
+
+    if (d && typeof d.id === "string" && typeof d.v === "number") {
+      return { id: d.id, v: d.v };
+    }
+    if (d && typeof d.id === "string" && typeof d.t === "string") {
+      return { id: d.id, t: d.t };
+    }
+    return null;
+  } catch {
+    return null;
   }
+}
+
+async function resolveCurrencyMeta(currencyQ: string | null): Promise<CurrencyMeta> {
+  if (!currencyQ || currencyQ.trim().toLowerCase() === "native") {
+    return { kind: "NATIVE", symbol: "ETN", decimals: 18 };
+  }
+
   const cur = await prisma.currency.findFirst({
     where: { id: currencyQ, active: true },
     select: { id: true, symbol: true, decimals: true, kind: true },
   });
+
   if (!cur) throw new Error("Unknown currency");
-  return {
-    id: cur.id,
-    symbol: cur.symbol,
-    decimals: cur.decimals ?? 18,
-    kind: cur.kind === CurrencyKind.ERC20 ? ("ERC20" as const) : ("NATIVE" as const),
-  };
-}
 
-/** FLOOR per currency (omit when none; UI shows “—”). */
-async function fetchMinFloorsCurrency(
-  collectionIds: string[],
-  currencyMeta: { id?: string; kind: "NATIVE" | "ERC20"; decimals: number }
-) {
-  if (collectionIds.length === 0) return new Map<string, number | null>();
+  const decimals = cur.decimals ?? 18;
 
-  const now = new Date();
-
-  const listings = await prisma.marketplaceListing.findMany({
-    where: {
-      status: "ACTIVE",
-      startTime: { lte: now },
-      AND: [
-        { OR: [{ endTime: null }, { endTime: { gt: now } }] },
-        ...(currencyMeta.kind === "NATIVE"
-          ? [{ OR: [{ currencyId: null }, { currency: { kind: CurrencyKind.NATIVE } }] }]
-          : [{ currencyId: currencyMeta.id! }]),
-      ],
-      nft: { collectionId: { in: collectionIds } },
-    },
-    select: {
-      priceEtnWei: true,
-      priceTokenAmount: true,
-      currency: { select: { decimals: true } },
-      nft: { select: { collectionId: true } },
-    },
-    orderBy: [{ priceEtnWei: "asc" }, { priceTokenAmount: "asc" }],
-    take: 10000,
-  });
-
-  const map = new Map<string, number | null>();
-
-  for (const rec of listings) {
-    const cid = rec.nft.collectionId!;
-    let human: number | null = null;
-
-    if (currencyMeta.kind === "NATIVE") {
-      const base = (rec.priceEtnWei as any)?.toString?.();
-      if (!base) continue;
-      human = Number(base) / 1e18;
-    } else {
-      const base = (rec.priceTokenAmount as any)?.toString?.();
-      if (!base) continue;
-      const dec = rec.currency?.decimals ?? currencyMeta.decimals;
-      human = Number(base) / 10 ** dec;
-    }
-
-    const prev = map.get(cid);
-    if (prev == null || (human != null && human < prev)) map.set(cid, human);
+  if (cur.kind === CurrencyKind.ERC20) {
+    return { kind: "ERC20", id: cur.id, symbol: cur.symbol, decimals };
   }
 
-  return map;
-}
-
-/** ALL-TIME volume per currency (fast aggregate). */
-async function fetchAllTimeVolumesCurrency(
-  collectionIds: string[],
-  currencyMeta: { id?: string; kind: "NATIVE" | "ERC20"; decimals: number }
-) {
-  const map = new Map<string, number>();
-  if (collectionIds.length === 0) return map;
-
-  // NOTE: uses the same native rule as production floor:
-  // native = currencyId NULL OR currency.kind = NATIVE
-  if (currencyMeta.kind === "NATIVE") {
-    const rows = await prisma.$queryRaw<Array<{ collectionId: string; sumWei: any }>>(Prisma.sql`
-      SELECT n."collectionId" AS "collectionId",
-             COALESCE(SUM(s."priceEtnWei")::numeric, 0) AS "sumWei"
-      FROM "MarketplaceSale" s
-      JOIN "NFT" n ON n."id" = s."nftId"
-      LEFT JOIN "Currency" c ON c."id" = s."currencyId"
-      WHERE n."collectionId" IN (${Prisma.join(collectionIds)})
-        AND (s."currencyId" IS NULL OR c."kind" = 'NATIVE')
-      GROUP BY n."collectionId"
-    `);
-
-    for (const r of rows) {
-      const wei = toNumber(r.sumWei);
-      map.set(r.collectionId, wei / 1e18);
-    }
-    return map;
-  }
-
-  // ERC20: sum token amount, divide by decimals
-  const rows = await prisma.$queryRaw<Array<{ collectionId: string; sumToken: any }>>(Prisma.sql`
-    SELECT n."collectionId" AS "collectionId",
-           COALESCE(SUM(s."priceTokenAmount")::numeric, 0) AS "sumToken"
-    FROM "MarketplaceSale" s
-    JOIN "NFT" n ON n."id" = s."nftId"
-    WHERE n."collectionId" IN (${Prisma.join(collectionIds)})
-      AND s."currencyId" = ${currencyMeta.id!}
-    GROUP BY n."collectionId"
-  `);
-
-  const scale = 10 ** (currencyMeta.decimals ?? 18);
-  for (const r of rows) {
-    const amt = toNumber(r.sumToken);
-    map.set(r.collectionId, amt / scale);
-  }
-  return map;
+  // If it's a "native" currency row, treat it like native rules.
+  return { kind: "NATIVE", symbol: cur.symbol, decimals };
 }
 
 export function normalizeCollectionsQuery(sp: Record<string, string | string[] | undefined>) {
@@ -163,6 +100,13 @@ export function normalizeCollectionsQuery(sp: Record<string, string | string[] |
   };
 }
 
+/**
+ * Currency-aware collection paging:
+ * - floor = MIN(active listing price) in chosen currency
+ * - volume = SUM(all-time sales) in chosen currency
+ * - sorting uses computed values (not stale collection columns)
+ * - cursor is base64 JSON: {id, v} for floor/volume, {id, t} for newest
+ */
 export async function getCollectionsPage(args: {
   sort: SortKey;
   currency: string;
@@ -171,53 +115,274 @@ export async function getCollectionsPage(args: {
 }): Promise<CollectionsPageResp> {
   await prismaReady;
 
-  const limit = Math.min(Math.max(args.limit || 24, 6), 30);
+  const limit = clamp(args.limit || 24, 6, 30);
   const currencyMeta = await resolveCurrencyMeta(args.currency);
+  const now = new Date();
 
-  const orderBy =
-    args.sort === "newest" ? [{ createdAt: "desc" as const }, { id: "asc" as const }]
-    : args.sort === "floor" ? [{ floorPrice: "desc" as const }, { id: "asc" as const }]
-    : [{ volume: "desc" as const }, { id: "asc" as const }];
+  const cur = decodeCursor(args.cursor);
 
-  const raw = await prisma.collection.findMany({
-    orderBy,
-    select: {
-      id: true,
-      name: true,
-      symbol: true,
-      contract: true,
-      logoUrl: true,
-      coverUrl: true,
-      itemsCount: true,
-      ownersCount: true,
-      indexStatus: true,
-    },
-    take: limit,
-    ...(args.cursor ? { cursor: { id: args.cursor }, skip: 1 } : {}),
-  });
+  // -------------------------
+  // NEWEST (createdAt desc)
+  // -------------------------
+  if (args.sort === "newest") {
+    const cursorTime =
+      cur && "t" in cur ? new Date(cur.t) : null;
+    const cursorId =
+      cur && "t" in cur ? cur.id : null;
 
-  const nextCursor = raw.length === limit ? raw[raw.length - 1].id : null;
+    const rows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        name: string;
+        symbol: string;
+        contract: string;
+        logoUrl: string | null;
+        coverUrl: string | null;
+        itemsCount: number | null;
+        ownersCount: number | null;
+        indexStatus: string | null;
+        createdAt: Date;
+        floorActive: number | null;
+        volumeAllTime: number | null;
+      }>
+    >(Prisma.sql`
+      WITH
+      floor_cte AS (
+        ${currencyMeta.kind === "NATIVE"
+          ? Prisma.sql`
+            SELECT n."collectionId" AS "collectionId",
+                   (MIN(ml."priceEtnWei")::numeric / 1e18)::double precision AS "floorActive"
+            FROM "MarketplaceListing" ml
+            JOIN "NFT" n ON n."id" = ml."nftId"
+            LEFT JOIN "Currency" ccur ON ccur."id" = ml."currencyId"
+            WHERE ml."status" = 'ACTIVE'
+              AND ml."startTime" <= ${now}
+              AND (ml."endTime" IS NULL OR ml."endTime" > ${now})
+              AND (ml."currencyId" IS NULL OR ccur."kind" = 'NATIVE')
+            GROUP BY n."collectionId"
+          `
+          : Prisma.sql`
+            SELECT n."collectionId" AS "collectionId",
+                   (MIN(ml."priceTokenAmount")::numeric / power(10, ${currencyMeta.decimals}))::double precision AS "floorActive"
+            FROM "MarketplaceListing" ml
+            JOIN "NFT" n ON n."id" = ml."nftId"
+            WHERE ml."status" = 'ACTIVE'
+              AND ml."startTime" <= ${now}
+              AND (ml."endTime" IS NULL OR ml."endTime" > ${now})
+              AND ml."currencyId" = ${currencyMeta.id}
+            GROUP BY n."collectionId"
+          `}
+      ),
+      volume_cte AS (
+        ${currencyMeta.kind === "NATIVE"
+          ? Prisma.sql`
+            SELECT n."collectionId" AS "collectionId",
+                   (COALESCE(SUM(s."priceEtnWei")::numeric, 0) / 1e18)::double precision AS "volumeAllTime"
+            FROM "MarketplaceSale" s
+            JOIN "NFT" n ON n."id" = s."nftId"
+            LEFT JOIN "Currency" ccur ON ccur."id" = s."currencyId"
+            WHERE (s."currencyId" IS NULL OR ccur."kind" = 'NATIVE')
+            GROUP BY n."collectionId"
+          `
+          : Prisma.sql`
+            SELECT n."collectionId" AS "collectionId",
+                   (COALESCE(SUM(s."priceTokenAmount")::numeric, 0) / power(10, ${currencyMeta.decimals}))::double precision AS "volumeAllTime"
+            FROM "MarketplaceSale" s
+            JOIN "NFT" n ON n."id" = s."nftId"
+            WHERE s."currencyId" = ${currencyMeta.id}
+            GROUP BY n."collectionId"
+          `}
+      )
+      SELECT
+        c."id",
+        c."name",
+        c."symbol",
+        c."contract",
+        c."logoUrl",
+        c."coverUrl",
+        c."itemsCount",
+        c."ownersCount",
+        c."indexStatus",
+        c."createdAt",
+        f."floorActive" AS "floorActive",
+        v."volumeAllTime" AS "volumeAllTime"
+      FROM "Collection" c
+      LEFT JOIN floor_cte f ON f."collectionId" = c."id"
+      LEFT JOIN volume_cte v ON v."collectionId" = c."id"
+      WHERE
+        ${
+          cursorTime && cursorId
+            ? Prisma.sql`(c."createdAt" < ${cursorTime} OR (c."createdAt" = ${cursorTime} AND c."id" > ${cursorId}))`
+            : Prisma.sql`TRUE`
+        }
+      ORDER BY c."createdAt" DESC, c."id" ASC
+      LIMIT ${limit}
+    `);
 
-  const ids = raw.map((c) => c.id);
+    const items: CollectionListItem[] = rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      symbol: r.symbol,
+      contract: r.contract,
+      logoUrl: r.logoUrl,
+      coverUrl: r.coverUrl,
+      itemsCount: r.itemsCount ?? 0,
+      ownersCount: r.ownersCount ?? 0,
+      indexStatus: (String(r.indexStatus || "PENDING").toUpperCase() as any),
+      floorActive: safeNumber(r.floorActive),
+      volumeAllTime: safeNumber(r.volumeAllTime) ?? 0,
+    }));
 
-  const [floorMap, volumeMap] = await Promise.all([
-    fetchMinFloorsCurrency(ids, currencyMeta),
-    fetchAllTimeVolumesCurrency(ids, currencyMeta),
-  ]);
+    const last = rows[rows.length - 1];
+    const nextCursor =
+      rows.length === limit && last
+        ? encodeCursor({ id: last.id, t: last.createdAt.toISOString() })
+        : null;
 
-  const items: CollectionListItem[] = raw.map((c) => ({
-    id: c.id,
-    name: c.name,
-    symbol: c.symbol,
-    contract: c.contract,
-    logoUrl: c.logoUrl,
-    coverUrl: c.coverUrl,
-    itemsCount: c.itemsCount ?? 0,
-    ownersCount: c.ownersCount ?? 0,
-    indexStatus: (String(c.indexStatus || "PENDING").toUpperCase() as any),
-    floorActive: (floorMap.get(c.id) ?? null) as number | null,
-    volumeAllTime: volumeMap.get(c.id) ?? 0,
+    return { items, nextCursor };
+  }
+
+  // -------------------------
+  // FLOOR / VOLUME (computed)
+  // -------------------------
+  const isFloor = args.sort === "floor";
+
+  // sorting keys:
+  // - floor: null should go LAST -> coalesce to -1 (assuming prices are never negative)
+  // - volume: null treated as 0
+  const cursorVal =
+    cur && "v" in cur ? cur.v : null;
+  const cursorId =
+    cur && "v" in cur ? cur.id : null;
+
+  const rows = await prisma.$queryRaw<
+    Array<{
+      id: string;
+      name: string;
+      symbol: string;
+      contract: string;
+      logoUrl: string | null;
+      coverUrl: string | null;
+      itemsCount: number | null;
+      ownersCount: number | null;
+      indexStatus: string | null;
+      floorActive: number | null;
+      volumeAllTime: number | null;
+    }>
+  >(Prisma.sql`
+    WITH
+    floor_cte AS (
+      ${currencyMeta.kind === "NATIVE"
+        ? Prisma.sql`
+          SELECT n."collectionId" AS "collectionId",
+                 (MIN(ml."priceEtnWei")::numeric / 1e18)::double precision AS "floorActive"
+          FROM "MarketplaceListing" ml
+          JOIN "NFT" n ON n."id" = ml."nftId"
+          LEFT JOIN "Currency" ccur ON ccur."id" = ml."currencyId"
+          WHERE ml."status" = 'ACTIVE'
+            AND ml."startTime" <= ${now}
+            AND (ml."endTime" IS NULL OR ml."endTime" > ${now})
+            AND (ml."currencyId" IS NULL OR ccur."kind" = 'NATIVE')
+          GROUP BY n."collectionId"
+        `
+        : Prisma.sql`
+          SELECT n."collectionId" AS "collectionId",
+                 (MIN(ml."priceTokenAmount")::numeric / power(10, ${currencyMeta.decimals}))::double precision AS "floorActive"
+          FROM "MarketplaceListing" ml
+          JOIN "NFT" n ON n."id" = ml."nftId"
+          WHERE ml."status" = 'ACTIVE'
+            AND ml."startTime" <= ${now}
+            AND (ml."endTime" IS NULL OR ml."endTime" > ${now})
+            AND ml."currencyId" = ${currencyMeta.id}
+          GROUP BY n."collectionId"
+        `}
+    ),
+    volume_cte AS (
+      ${currencyMeta.kind === "NATIVE"
+        ? Prisma.sql`
+          SELECT n."collectionId" AS "collectionId",
+                 (COALESCE(SUM(s."priceEtnWei")::numeric, 0) / 1e18)::double precision AS "volumeAllTime"
+          FROM "MarketplaceSale" s
+          JOIN "NFT" n ON n."id" = s."nftId"
+          LEFT JOIN "Currency" ccur ON ccur."id" = s."currencyId"
+          WHERE (s."currencyId" IS NULL OR ccur."kind" = 'NATIVE')
+          GROUP BY n."collectionId"
+        `
+        : Prisma.sql`
+          SELECT n."collectionId" AS "collectionId",
+                 (COALESCE(SUM(s."priceTokenAmount")::numeric, 0) / power(10, ${currencyMeta.decimals}))::double precision AS "volumeAllTime"
+          FROM "MarketplaceSale" s
+          JOIN "NFT" n ON n."id" = s."nftId"
+          WHERE s."currencyId" = ${currencyMeta.id}
+          GROUP BY n."collectionId"
+        `}
+    )
+    SELECT
+      c."id",
+      c."name",
+      c."symbol",
+      c."contract",
+      c."logoUrl",
+      c."coverUrl",
+      c."itemsCount",
+      c."ownersCount",
+      c."indexStatus",
+      f."floorActive" AS "floorActive",
+      v."volumeAllTime" AS "volumeAllTime"
+    FROM "Collection" c
+    LEFT JOIN floor_cte f ON f."collectionId" = c."id"
+    LEFT JOIN volume_cte v ON v."collectionId" = c."id"
+    WHERE
+      ${
+        cursorVal != null && cursorId
+          ? isFloor
+            ? Prisma.sql`
+              (
+                COALESCE(f."floorActive", -1) < ${cursorVal}
+                OR (COALESCE(f."floorActive", -1) = ${cursorVal} AND c."id" > ${cursorId})
+              )
+            `
+            : Prisma.sql`
+              (
+                COALESCE(v."volumeAllTime", 0) < ${cursorVal}
+                OR (COALESCE(v."volumeAllTime", 0) = ${cursorVal} AND c."id" > ${cursorId})
+              )
+            `
+          : Prisma.sql`TRUE`
+      }
+    ORDER BY
+      ${
+        isFloor
+          ? Prisma.sql`COALESCE(f."floorActive", -1) DESC, c."id" ASC`
+          : Prisma.sql`COALESCE(v."volumeAllTime", 0) DESC, c."id" ASC`
+      }
+    LIMIT ${limit}
+  `);
+
+  const items: CollectionListItem[] = rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    symbol: r.symbol,
+    contract: r.contract,
+    logoUrl: r.logoUrl,
+    coverUrl: r.coverUrl,
+    itemsCount: r.itemsCount ?? 0,
+    ownersCount: r.ownersCount ?? 0,
+    indexStatus: (String(r.indexStatus || "PENDING").toUpperCase() as any),
+    floorActive: safeNumber(r.floorActive),
+    volumeAllTime: safeNumber(r.volumeAllTime) ?? 0,
   }));
+
+  const last = rows[rows.length - 1];
+  const nextCursor =
+    rows.length === limit && last
+      ? encodeCursor({
+          id: last.id,
+          v: isFloor
+            ? (safeNumber(last.floorActive) ?? -1)
+            : (safeNumber(last.volumeAllTime) ?? 0),
+        })
+      : null;
 
   return { items, nextCursor };
 }

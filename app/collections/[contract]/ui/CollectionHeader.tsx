@@ -31,10 +31,27 @@ type HeaderDTO = {
   rarityPopulation?: number | null;
 };
 
+function cx(...cls: Array<string | false | undefined | null>) {
+  return cls.filter(Boolean).join(" ");
+}
+
+function safeUrl(u?: string | null) {
+  if (!u) return null;
+  const s = String(u).trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s}`;
+}
+
+function shortAddr(a: string) {
+  if (!a) return "";
+  if (a.length <= 14) return a;
+  return `${a.slice(0, 6)}…${a.slice(-4)}`;
+}
+
 function compact(n: any) {
   const v = Number(n);
   if (!isFinite(v)) return "—";
-  // compact notation but still “premium”
   return new Intl.NumberFormat(undefined, {
     notation: "compact",
     maximumFractionDigits: v < 10 ? 2 : 1,
@@ -44,28 +61,48 @@ function compact(n: any) {
 function fmt2(n: any) {
   const v = Number(n);
   if (!isFinite(v)) return "—";
-  return new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: 2,
-  }).format(v);
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(v);
 }
 
-function shortAddr(a: string) {
-  if (!a) return "";
-  if (a.length <= 12) return a;
-  return `${a.slice(0, 6)}…${a.slice(-4)}`;
-}
-
-function SocialLink({ href, label }: { href?: string | null; label: string }) {
-  if (!href) return null;
+function SocialPill({ href, label }: { href?: string | null; label: string }) {
+  const u = safeUrl(href);
+  if (!u) return null;
   return (
     <a
-      href={href}
+      href={u}
       target="_blank"
       rel="noreferrer"
-      className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background/60"
+      className="inline-flex items-center rounded-full border border-border bg-background/70 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-background"
     >
       {label}
     </a>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  suffix,
+  subtle,
+}: {
+  label: string;
+  value: string;
+  suffix?: string;
+  subtle?: boolean;
+}) {
+  return (
+    <div
+      className={cx(
+        "rounded-2xl border border-border bg-background/70 p-3",
+        subtle && "bg-background/50"
+      )}
+    >
+      <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
+      <div className="mt-1 flex items-baseline gap-1">
+        <div className="text-base font-semibold tracking-[-0.01em]">{value}</div>
+        {suffix ? <div className="text-[11px] text-muted-foreground">{suffix}</div> : null}
+      </div>
+    </div>
   );
 }
 
@@ -73,10 +110,18 @@ export default function CollectionHeader({ header }: { header: HeaderDTO }) {
   const name = header.name ?? "Collection";
   const items = header.itemsCount ?? header.supply ?? null;
 
+  const links = [
+    header.website ? { k: "website", label: "Website", href: header.website } : null,
+    header.x ? { k: "x", label: "X", href: header.x } : null,
+    header.discord ? { k: "discord", label: "Discord", href: header.discord } : null,
+    header.telegram ? { k: "telegram", label: "Telegram", href: header.telegram } : null,
+    header.instagram ? { k: "instagram", label: "Instagram", href: header.instagram } : null,
+  ].filter(Boolean) as Array<{ k: string; label: string; href: string }>;
+
   return (
     <div className="relative">
       {/* Cover */}
-      <div className="relative h-55 w-full overflow-hidden sm:h-70">
+      <div className="relative h-52 w-full overflow-hidden sm:h-64 md:h-72">
         {header.coverUrl ? (
           <Image
             src={header.coverUrl}
@@ -87,19 +132,34 @@ export default function CollectionHeader({ header }: { header: HeaderDTO }) {
             sizes="100vw"
           />
         ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(77,238,84,0.12),transparent_55%),linear-gradient(to_bottom,rgba(255,255,255,0.02),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(77,238,84,0.12),transparent_55%),linear-gradient(to_bottom,rgba(255,255,255,0.03),transparent)]" />
         )}
 
-        {/* Darken / soften */}
-        <div className="absolute inset-0 bg-linear-to-b from-black/35 via-black/30 to-background" />
+        {/* premium overlays */}
+        <div className="absolute inset-0 bg-linear-to-b from-black/45 via-black/30 to-background" />
+        <div className="absolute inset-0 [background:radial-gradient(900px_circle_at_25%_20%,rgba(77,238,84,0.10),transparent_55%)]" />
       </div>
 
-      {/* Content */}
+      {/* Floating content card */}
       <div className="mx-auto w-full max-w-7xl px-4">
-        <div className="-mt-10 rounded-[28px] border border-border bg-card/80 p-5 backdrop-blur md:-mt-14 md:p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="flex gap-4">
-              <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-border bg-background md:h-20 md:w-20">
+        <div className="-mt-10 rounded-[28px] border border-border bg-card/75 p-5 shadow-[0_18px_70px_rgba(0,0,0,0.18)] backdrop-blur-xl md:-mt-14 md:p-6">
+          {/* Breadcrumb */}
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <Link href="/" className="hover:text-foreground">
+              Home
+            </Link>
+            <span className="opacity-60">/</span>
+            <Link href="/collections" className="hover:text-foreground">
+              Collections
+            </Link>
+            <span className="opacity-60">/</span>
+            <span className="text-foreground/90">{name}</span>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            {/* Identity */}
+            <div className="flex min-w-0 gap-4">
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-background md:h-20 md:w-20">
                 {header.logoUrl ? (
                   <Image
                     src={header.logoUrl}
@@ -107,82 +167,66 @@ export default function CollectionHeader({ header }: { header: HeaderDTO }) {
                     fill
                     className="object-cover"
                     sizes="80px"
+                    priority
                   />
-                ) : null}
+                ) : (
+                  <div className="absolute inset-0 bg-muted" />
+                )}
               </div>
 
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="truncate text-xl font-semibold md:text-2xl">
+                  <h1 className="truncate text-[22px] font-semibold tracking-[-0.02em] md:text-[28px]">
                     {name}
                   </h1>
 
                   {header.rarityEnabled ? (
-                    <span className="rounded-full border border-border bg-background px-2 py-1 text-[11px] font-semibold">
+                    <span className="rounded-full border border-border bg-background/70 px-2.5 py-1 text-[11px] font-semibold">
                       Rarity: {compact(header.rarityPopulation ?? 0)}
                     </span>
                   ) : null}
                 </div>
 
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                  <span className="rounded-full border border-border bg-background px-2 py-1 text-xs">
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  <span className="rounded-full border border-border bg-background/70 px-2.5 py-1 text-xs">
                     {shortAddr(header.contract)}
                   </span>
                   <CopyButton value={header.contract} />
-
-                  <Link
-                    href="/collections"
-                    className="text-xs underline decoration-border underline-offset-4 hover:decoration-foreground/40"
-                  >
-                    Browse collections
-                  </Link>
                 </div>
 
                 <p className="mt-3 line-clamp-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                   {header.description || "—"}
                 </p>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <SocialLink href={header.website} label="Website" />
-                  <SocialLink href={header.x} label="X" />
-                  <SocialLink href={header.discord} label="Discord" />
-                  <SocialLink href={header.telegram} label="Telegram" />
-                  <SocialLink href={header.instagram} label="Instagram" />
-                </div>
+                {links.length ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {links.slice(0, 5).map((l) => (
+                      <SocialPill key={l.k} href={l.href} label={l.label} />
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
 
-            {/* Premium stats pills */}
+            {/* Stats */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:w-105">
-              <Stat label="Floor" value={header.floorPrice != null ? fmt2(header.floorPrice) : "—"} suffix="ETN" />
-              <Stat label="Volume" value={header.volume != null ? compact(header.volume) : "—"} suffix="ETN" />
+              <Stat
+                label="Floor"
+                value={header.floorPrice != null ? fmt2(header.floorPrice) : "—"}
+                suffix="ETN"
+              />
+              <Stat
+                label="Volume"
+                value={header.volume != null ? compact(header.volume) : "—"}
+                suffix="ETN"
+              />
               <Stat label="Items" value={items != null ? compact(items) : "—"} />
-              <Stat label="Owners" value={header.ownersCount != null ? compact(header.ownersCount) : "—"} />
-              <Stat label="Listed" value={header.listingActiveCount != null ? compact(header.listingActiveCount) : "—"} />
-              <Stat label="Auctions" value={header.auctionActiveCount != null ? compact(header.auctionActiveCount) : "—"} />
+              <Stat label="Owners" value={header.ownersCount != null ? compact(header.ownersCount) : "—"} subtle />
+              <Stat label="Listed" value={header.listingActiveCount != null ? compact(header.listingActiveCount) : "—"} subtle />
+              <Stat label="Auctions" value={header.auctionActiveCount != null ? compact(header.auctionActiveCount) : "—"} subtle />
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  suffix,
-}: {
-  label: string;
-  value: string;
-  suffix?: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-background/60 p-3">
-      <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
-      <div className="mt-1 flex items-baseline gap-1">
-        <div className="text-base font-semibold">{value}</div>
-        {suffix ? <div className="text-[11px] text-muted-foreground">{suffix}</div> : null}
       </div>
     </div>
   );

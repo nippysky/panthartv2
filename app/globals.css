@@ -154,3 +154,7 @@ html {
   animation: shimmer 1.25s ease-in-out infinite;
   pointer-events: none;
 }
+
+button {
+  cursor: pointer;
+}
