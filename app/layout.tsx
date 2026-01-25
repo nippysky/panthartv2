@@ -6,6 +6,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { SiteFooter } from "@/src/ui/SiteFooter";
 import AppHeader from "@/src/ui/header/AppHeader";
+import { Toaster } from "sonner";
 
 
 const lexend = Lexend({
@@ -174,6 +175,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <main className="flex-1">{children}</main>
             <SiteFooter />
+             <Toaster richColors position="top-right" />
           </div>
         </Providers>
       </body>

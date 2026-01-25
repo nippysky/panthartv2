@@ -53,9 +53,11 @@ export default function TopCollectionsSection({
 
           <div className="flex items-center justify-between gap-3 sm:justify-end">
             <TopCollectionsFilters active={windowKey} />
-            <Button href="/collections" variant="secondary" size="sm">
-              View all
-            </Button>
+            <Link href="/collections">
+              <Button variant="secondary" size="sm">
+                View all
+              </Button>
+            </Link>
           </div>
         </div>
 

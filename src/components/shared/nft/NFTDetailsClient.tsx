@@ -1,4 +1,3 @@
-// src/components/shared/nft/NFTDetailsClient.tsx
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -6,9 +5,7 @@ import { Button } from "@/src/ui/Button";
 import { shortenAddress } from "@/src/lib/utils";
 import { useMarketplaceLive } from "@/src/lib/hooks/useMarketplaceLive";
 
-import NFTitemsTab from "@/src/components/shared/NFTitemsTab";
 import NFTMarketPanel from "@/src/components/shared/nft/NFTMarketPanel";
-
 import type { Standard } from "@/src/lib/services/marketplace";
 import ActivityTab from "@/app/(pages)/collections/[contract]/ui/ActivityTab";
 
@@ -38,7 +35,7 @@ export default function NFTDetailsClient({
   const ownerLabel = useMemo(() => {
     if (!owner) return "—";
     if (account && owner.toLowerCase() === account.toLowerCase()) return "You";
-    return shortenAddress(owner, 6, 4);
+    return shortenAddress(String(owner), 6, 4);
   }, [owner, account]);
 
   const std: Standard = standard === "ERC1155" ? "ERC1155" : "ERC721";
@@ -50,9 +47,7 @@ export default function NFTDetailsClient({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-xs text-muted-foreground">Owner</div>
-            <div className="mt-1 text-sm font-semibold font-mono truncate">
-              {ownerLabel}
-            </div>
+            <div className="mt-1 text-sm font-semibold font-mono truncate">{ownerLabel}</div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -84,24 +79,13 @@ export default function NFTDetailsClient({
           >
             Activity
           </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => void live.invalidateAll()}
-            className="ml-auto"
-          >
-            Refresh
-          </Button>
         </div>
       </div>
 
       {tab === "market" ? (
         <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
           <h3 className="font-semibold">Marketplace</h3>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Live listing/auction state + actions.
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">Live listing/auction state + actions.</p>
 
           <div className="mt-4">
             <NFTMarketPanel
@@ -112,13 +96,7 @@ export default function NFTDetailsClient({
             />
           </div>
 
-          <div className="mt-6">
-            <NFTitemsTab
-              contract={contract}
-              excludeTokenId={tokenId}
-              title="More from this collection"
-            />
-          </div>
+          {/* ✅ removed "More from this collection" from the right rail */}
         </div>
       ) : (
         <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">

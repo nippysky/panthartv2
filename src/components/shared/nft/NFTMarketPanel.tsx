@@ -7,6 +7,7 @@ import { Button } from "@/src/ui/Button";
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 import { useActiveAccount } from "thirdweb/react";
 import { marketplace, Standard } from "@/src/lib/services/marketplace";
+import { toast } from "sonner";
 
 type ListingActiveItem = {
   id: string;
@@ -68,6 +69,10 @@ function ButtonLink({
       {children}
     </a>
   );
+}
+
+function errorMessage(e: any, fallback: string) {
+  return e?.reason || e?.shortMessage || e?.message || fallback;
 }
 
 export default function NFTMarketPanel({
@@ -138,15 +143,10 @@ export default function NFTMarketPanel({
   const listingSeller = listing?.sellerAddress ?? null;
   const canManageListing = !!account && !!listingSeller && lc(account) === lc(listingSeller);
 
-  // ✅ FIX: define auctionSeller (was referenced in JSX)
   const auctionSeller = auction?.seller?.address ?? null;
 
-  // Auction end/finalize logic
   const auctionEndMs = parseIsoToMs(auction?.endTime ?? null);
   const auctionEnded = !!auctionEndMs && Date.now() > auctionEndMs;
-
-  // NOTE: /api/auction/active returns only ACTIVE auctions, so we don't have "settled".
-  // finalize is safe to show when ended; contract will revert if not finalizable.
   const canFinalize = !!auction && auctionEnded;
 
   const listingPriceLabel = useMemo(() => {
@@ -165,21 +165,29 @@ export default function NFTMarketPanel({
 
   const buyNow = useCallback(async () => {
     if (!account) {
+      toast.error("Connect your wallet to continue.");
       setErr("Connect your wallet to continue.");
       return;
     }
+
+    const tId = toast.loading("Buying…");
     setLoading(true);
     setErr(null);
+
     try {
       await marketplace.buyListingJustInTime({
         collection: contract as `0x${string}`,
         tokenId: BigInt(tokenId),
         standard,
       });
+
+      toast.success("Purchase successful.", { id: tId });
       await refresh();
       onAfterAction?.();
     } catch (e: any) {
-      setErr(e?.reason || e?.message || "Buy failed");
+      const msg = errorMessage(e, "Buy failed");
+      toast.error(msg, { id: tId });
+      setErr(msg);
     } finally {
       setLoading(false);
     }
@@ -187,18 +195,27 @@ export default function NFTMarketPanel({
 
   const cancelListing = useCallback(async () => {
     if (!listing?.id) return;
+
     if (!account) {
+      toast.error("Connect your wallet to continue.");
       setErr("Connect your wallet to continue.");
       return;
     }
+
+    const tId = toast.loading("Canceling listing…");
     setLoading(true);
     setErr(null);
+
     try {
       await marketplace.cancelListing(BigInt(listing.id));
+      toast.success("Listing canceled.", { id: tId });
+
       await refresh();
       onAfterAction?.();
     } catch (e: any) {
-      setErr(e?.reason || e?.message || "Cancel listing failed");
+      const msg = errorMessage(e, "Cancel listing failed");
+      toast.error(msg, { id: tId });
+      setErr(msg);
     } finally {
       setLoading(false);
     }
@@ -206,23 +223,28 @@ export default function NFTMarketPanel({
 
   const placeBid = useCallback(async () => {
     if (!account) {
+      toast.error("Connect your wallet to continue.");
       setErr("Connect your wallet to continue.");
       return;
     }
 
     if (auctionEnded) {
+      toast.error("Auction has ended. Finalize to settle.");
       setErr("Auction has ended. Finalize to settle.");
       return;
     }
 
     const amt = (bidAmount || "").trim();
     if (!amt || Number(amt) <= 0) {
+      toast.error("Enter a valid bid amount.");
       setErr("Enter a valid bid amount.");
       return;
     }
 
+    const tId = toast.loading("Placing bid…");
     setLoading(true);
     setErr(null);
+
     try {
       await marketplace.placeBidJustInTime({
         collection: contract as `0x${string}`,
@@ -230,12 +252,17 @@ export default function NFTMarketPanel({
         standard,
         amountHuman: amt,
       });
+
+      toast.success("Bid placed.", { id: tId });
       setBidOpen(false);
       setBidAmount("");
+
       await refresh();
       onAfterAction?.();
     } catch (e: any) {
-      setErr(e?.reason || e?.message || "Bid failed");
+      const msg = errorMessage(e, "Bid failed");
+      toast.error(msg, { id: tId });
+      setErr(msg);
     } finally {
       setLoading(false);
     }
@@ -243,23 +270,33 @@ export default function NFTMarketPanel({
 
   const finalizeAuction = useCallback(async () => {
     if (!auction?.id) return;
+
     if (!account) {
+      toast.error("Connect your wallet to continue.");
       setErr("Connect your wallet to continue.");
       return;
     }
+
     if (!auctionEnded) {
+      toast.error("Auction has not ended yet.");
       setErr("Auction has not ended yet.");
       return;
     }
 
+    const tId = toast.loading("Finalizing auction…");
     setLoading(true);
     setErr(null);
+
     try {
       await marketplace.finalizeAuction(BigInt(auction.id));
+      toast.success("Auction finalized.", { id: tId });
+
       await refresh();
       onAfterAction?.();
     } catch (e: any) {
-      setErr(e?.reason || e?.message || "Finalize failed");
+      const msg = errorMessage(e, "Finalize failed");
+      toast.error(msg, { id: tId });
+      setErr(msg);
     } finally {
       setLoading(false);
     }
@@ -282,9 +319,7 @@ export default function NFTMarketPanel({
             ) : null}
           </div>
 
-          <Button variant="ghost" size="sm" onClick={() => void refresh()} disabled={loading}>
-            Refresh
-          </Button>
+          {/* ✅ removed per-card refresh */}
         </div>
 
         {listing ? (
@@ -325,9 +360,7 @@ export default function NFTMarketPanel({
             ) : null}
           </div>
 
-          <Button variant="ghost" size="sm" onClick={() => void refresh()} disabled={loading}>
-            Refresh
-          </Button>
+          {/* ✅ removed per-card refresh */}
         </div>
 
         {auction ? (

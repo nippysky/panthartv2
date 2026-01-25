@@ -20,7 +20,7 @@ type TokenDetails = {
   description?: string | null;
   image?: string | null;
   animation_url?: string | null;
-  owner?: string | null; // ✅ wallet address string
+  owner?: string | null; // wallet address string
   collectionName?: string | null;
   attributes?: Attribute[] | null;
 };
@@ -81,9 +81,11 @@ async function getTokenDetails(contract: string, tokenId: string): Promise<Token
     description: api.nft.description ?? null,
     image: api.nft.image ?? null,
     animation_url: pickAnimationUrl(api.rawMetadata),
-    owner: api.owner?.walletAddress ?? null, // ✅ string now
+    owner: api.owner?.walletAddress ?? null,
     collectionName: api.collection?.name ?? null,
-    attributes: (Array.isArray(api.nft.attributes) ? api.nft.attributes : null) as Attribute[] | null,
+    attributes: (Array.isArray(api.nft.attributes) ? api.nft.attributes : null) as
+      | Attribute[]
+      | null,
   };
 }
 
@@ -91,7 +93,7 @@ export async function generateMetadata(ctx: PageContext) {
   const { contract, tokenId } = await ctx.params;
   const token = await getTokenDetails(contract, tokenId);
 
-  const title = token?.name ? `${token.name} #${tokenId}` : `Token #${tokenId}`;
+  const title = token?.name ? `${token.name}` : `Token #${tokenId}`;
   const description =
     token?.description?.slice(0, 160) ?? `View token #${tokenId} on Panth.art.`;
 
@@ -112,7 +114,7 @@ export default async function Page(ctx: PageContext) {
   const collectionLabel = token.collectionName || "Collection";
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-6 sm:py-10">
+    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:py-10">
       {/* top bar */}
       <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div className="min-w-0">
@@ -122,9 +124,9 @@ export default async function Page(ctx: PageContext) {
             </Link>
           </div>
 
+          {/* ✅ removed tokenId beside name */}
           <h1 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight truncate">
             {title}
-            <span className="text-muted-foreground font-normal"> #{tokenId}</span>
           </h1>
 
           <div className="mt-1 text-xs text-muted-foreground">
@@ -135,6 +137,14 @@ export default async function Page(ctx: PageContext) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* ✅ single refresh pill (refreshes EVERYTHING via re-navigation) */}
+          <Link
+            href={`/collections/${contract}/${tokenId}`}
+            className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+          >
+            Refresh
+          </Link>
+
           <Link
             href={`/collections/${contract}`}
             className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
@@ -222,6 +232,7 @@ export default async function Page(ctx: PageContext) {
         </div>
       </section>
 
+      {/* ✅ only ONE "More from this collection", under the main content */}
       <div className="mt-10">
         <NFTitemsTab contract={contract} excludeTokenId={tokenId} title="More from this collection" />
       </div>

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/src/ui/Button";
-import { cn, formatNumber } from "@/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 type Item = {
   tokenId: string;
@@ -61,10 +60,6 @@ function getNextCursor(data: unknown): string | null {
   return typeof c === "string" ? c : null;
 }
 
-/**
- * Wrapper: key-based remount avoids “reset effects”.
- * (Keeps this component lint-friendly.)
- */
 export default function NFTitemsTab({
   contract,
   excludeTokenId,
@@ -105,7 +100,6 @@ function NFTitemsTabInner({
   const [error, setError] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-
   const excluded = excludeTokenId != null ? String(excludeTokenId) : null;
 
   const loadMore = useCallback(async () => {
@@ -175,16 +169,12 @@ function NFTitemsTabInner({
     <section className="mt-8">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold">{title}</h3>
-        <Button size="sm" variant="outline" onClick={() => window.location.reload()}>
-          Refresh
-        </Button>
+        {/* ✅ removed refresh button here */}
       </div>
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {items.map((it) => {
           const href = `/collections/${contract}/${it.tokenId}`;
-          const currency = it.currencySymbol ?? "ETN";
-
           const imgSrc = (it.imageUrl || "").trim();
 
           return (
@@ -213,25 +203,10 @@ function NFTitemsTabInner({
                 )}
               </div>
 
+              {/* ✅ Only name */}
               <div className="p-3">
                 <div className="text-sm font-semibold truncate">
                   {it.name ?? `#${it.tokenId}`}
-                </div>
-
-                <div className="mt-2 text-xs text-muted-foreground flex items-center justify-between">
-                  <span>Floor</span>
-                  <span className="text-foreground">
-                    {it.floorPrice != null ? `${formatNumber(it.floorPrice)} ${currency}` : "—"}
-                  </span>
-                </div>
-
-                <div className="mt-1 text-xs text-muted-foreground flex items-center justify-between">
-                  <span>Last</span>
-                  <span className="text-foreground">
-                    {it.lastSalePrice != null
-                      ? `${formatNumber(it.lastSalePrice)} ${currency}`
-                      : "—"}
-                  </span>
                 </div>
               </div>
             </Link>
@@ -246,10 +221,8 @@ function NFTitemsTabInner({
                 className="rounded-2xl border bg-white/50 dark:bg-white/5 overflow-hidden"
               >
                 <div className="aspect-square bg-black/5 dark:bg-white/5 animate-pulse" />
-                <div className="p-3 space-y-2">
+                <div className="p-3">
                   <div className="h-4 w-3/4 bg-black/10 dark:bg-white/10 rounded animate-pulse" />
-                  <div className="h-3 w-full bg-black/10 dark:bg-white/10 rounded animate-pulse" />
-                  <div className="h-3 w-5/6 bg-black/10 dark:bg-white/10 rounded animate-pulse" />
                 </div>
               </div>
             ))
@@ -259,10 +232,14 @@ function NFTitemsTabInner({
       {error ? (
         <div className="mt-4 rounded-2xl border p-4 text-sm">
           <div className="text-red-500">{error}</div>
+          {/* keep this retry (not a "refresh pill everywhere") */}
           <div className="mt-3">
-            <Button variant="primary" onClick={() => void loadMore()}>
+            <button
+              className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+              onClick={() => void loadMore()}
+            >
               Retry
-            </Button>
+            </button>
           </div>
         </div>
       ) : null}
