@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 
 type Entry<T> = { value: T; expiresAt: number };

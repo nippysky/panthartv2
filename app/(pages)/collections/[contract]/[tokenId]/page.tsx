@@ -6,10 +6,12 @@ export const revalidate = 0;
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { ethers } from "ethers";
 
 import { ipfsToHttp, detectMediaType } from "@/src/lib/media";
 import NFTDetailsClient from "@/src/components/shared/nft/NFTDetailsClient";
 import NFTitemsTab from "@/src/components/shared/NFTitemsTab";
+import type { Standard } from "@/src/lib/services/marketplace";
 
 type Attribute = { trait_type?: string; value?: string | number };
 
@@ -64,9 +66,14 @@ function pickAnimationUrl(rawMetadata: any): string | null {
   );
 }
 
-async function getTokenDetails(contract: string, tokenId: string): Promise<TokenDetails | null> {
+async function getTokenDetails(
+  contract: string,
+  tokenId: string
+): Promise<TokenDetails | null> {
   const baseUrl = await getBaseUrlFromHeaders();
-  const url = `${baseUrl}/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(tokenId)}`;
+  const url = `${baseUrl}/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(
+    tokenId
+  )}`;
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) return null;
@@ -89,6 +96,34 @@ async function getTokenDetails(contract: string, tokenId: string): Promise<Token
   };
 }
 
+/**
+ * Detect token standard on-chain (cheap eth_call).
+ * This avoids “assuming ERC721” and lets your owner actions work for ERC1155 too.
+ */
+async function detectTokenStandard(contract: string): Promise<Standard> {
+  try {
+    const RPC_URL =
+      process.env.NEXT_PUBLIC_RPC_URL ||
+      process.env.RPC_URL ||
+      "https://rpc.ankr.com/electroneum";
+
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const c = new ethers.Contract(
+      contract,
+      ["function supportsInterface(bytes4 interfaceId) view returns (bool)"],
+      provider
+    );
+
+    const is721 = await c.supportsInterface("0x80ac58cd").catch(() => false);
+    const is1155 = await c.supportsInterface("0xd9b67a26").catch(() => false);
+
+    if (is1155 && !is721) return "ERC1155";
+    return "ERC721";
+  } catch {
+    return "ERC721";
+  }
+}
+
 export async function generateMetadata(ctx: PageContext) {
   const { contract, tokenId } = await ctx.params;
   const token = await getTokenDetails(contract, tokenId);
@@ -105,6 +140,8 @@ export default async function Page(ctx: PageContext) {
 
   const token = await getTokenDetails(contract, tokenId);
   if (!token) notFound();
+
+  const standard = await detectTokenStandard(contract);
 
   const rawMedia = token.animation_url || token.image || "";
   const mediaUrl = rawMedia ? (ipfsToHttp(rawMedia) ?? "") : "";
@@ -124,7 +161,6 @@ export default async function Page(ctx: PageContext) {
             </Link>
           </div>
 
-          {/* ✅ removed tokenId beside name */}
           <h1 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight truncate">
             {title}
           </h1>
@@ -133,11 +169,12 @@ export default async function Page(ctx: PageContext) {
             <span className="font-mono">{contract}</span>
             <span className="mx-2 opacity-50">•</span>
             <span>{collectionLabel}</span>
+            <span className="mx-2 opacity-50">•</span>
+            <span className="font-mono">{standard}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* ✅ single refresh pill (refreshes EVERYTHING via re-navigation) */}
           <Link
             href={`/collections/${contract}/${tokenId}`}
             className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
@@ -227,14 +264,22 @@ export default async function Page(ctx: PageContext) {
         {/* right rail */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24">
-            <NFTDetailsClient contract={contract} tokenId={tokenId} owner={token.owner ?? null} />
+            <NFTDetailsClient
+              contract={contract}
+              tokenId={tokenId}
+              owner={token.owner ?? null}
+              standard={standard}
+            />
           </div>
         </div>
       </section>
 
-      {/* ✅ only ONE "More from this collection", under the main content */}
       <div className="mt-10">
-        <NFTitemsTab contract={contract} excludeTokenId={tokenId} title="More from this collection" />
+        <NFTitemsTab
+          contract={contract}
+          excludeTokenId={tokenId}
+          title="More from this collection"
+        />
       </div>
     </main>
   );

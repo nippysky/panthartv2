@@ -16,7 +16,6 @@ type Sink = {
 type Topic = string;
 
 declare global {
-  // eslint-disable-next-line no-var
   var __SSE_TOPICS__: Map<Topic, Set<Sink>> | undefined;
 }
 

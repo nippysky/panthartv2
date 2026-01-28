@@ -89,7 +89,7 @@ export function useMarketplaceLive(opts: {
       getJson<ListingResp>(
         `/api/listing/active?contract=${encodeURIComponent(
           contract
-        )}&tokenId=${encodeURIComponent(tokenIdStr)}&limit=1`
+        )}&tokenId=${encodeURIComponent(tokenIdStr)}&limit=1&strictOwner=1`
       ),
     refetchInterval: canPoll() ? 20_000 : false,
   });
@@ -100,7 +100,7 @@ export function useMarketplaceLive(opts: {
       getJson<AuctionResp>(
         `/api/auction/active?contract=${encodeURIComponent(
           contract
-        )}&tokenId=${encodeURIComponent(tokenIdStr)}&limit=1`
+        )}&tokenId=${encodeURIComponent(tokenIdStr)}&limit=1&strictOwner=1`
       ),
     refetchInterval: canPoll() ? 20_000 : false,
   });

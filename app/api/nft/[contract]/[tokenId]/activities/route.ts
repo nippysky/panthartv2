@@ -125,17 +125,33 @@ export async function GET(
     Math.min(100, parseInt(url.searchParams.get("limit") ?? "20", 10))
   );
 
+  // optional filter from UI
+  const typeParam = url.searchParams.get("type");
+  const typeFilter = typeParam ? canonType(typeParam) : null;
+
   try {
     const nft = await prisma.nFT.findFirst({
       where: { contract: { equals: contract, mode: "insensitive" }, tokenId },
       select: { id: true },
     });
-    if (!nft)
-      return NextResponse.json([], { headers: { "Cache-Control": "no-store" } });
+
+    // ✅ Always return the SAME shape the client expects
+    if (!nft) {
+      return NextResponse.json(
+        { items: [], nextCursor: null },
+        { headers: { "Cache-Control": "no-store" } }
+      );
+    }
 
     // Load currencies (id + tokenAddress)
     const allCurrencies = await prisma.currency.findMany({
-      select: { id: true, tokenAddress: true, symbol: true, decimals: true, active: true },
+      select: {
+        id: true,
+        tokenAddress: true,
+        symbol: true,
+        decimals: true,
+        active: true,
+      },
     });
 
     const currenciesByAddr = new Map<string, CurrencyMeta>();
@@ -148,7 +164,7 @@ export async function GET(
       currenciesById.set(c.id, meta);
     }
 
-    // Activities (client + server created)
+    // Activities
     const actRows = await prisma.nFTActivity.findMany({
       where: {
         contract: { equals: contract, mode: "insensitive" },
@@ -171,7 +187,7 @@ export async function GET(
       },
     });
 
-    // Confirmed sales (canonical source of truth for sales)
+    // Sales (canonical)
     const saleRows = await prisma.marketplaceSale.findMany({
       where: { nftId: nft.id },
       orderBy: [{ timestamp: "desc" }, { id: "desc" }],
@@ -198,16 +214,14 @@ export async function GET(
       price: number | null;
       currencySymbol?: string | null;
       timestamp: string;
-      txHash: string; // blank string means: do not render a link
+      txHash: string;
       marketplace?: string | null;
     };
 
-    /* ---- 1) Map confirmed sales (token-first) ---- */
     const mappedSales: UiRow[] = saleRows.map((s) => {
       let amount: number | null = null;
       let symbol: string | null = null;
 
-      // If token price is present, prefer it over ETN
       if (s.priceTokenAmount != null && s.currencyId) {
         const weiStr = (s.priceTokenAmount as any).toString();
         const meta = currenciesById.get(s.currencyId);
@@ -228,24 +242,22 @@ export async function GET(
         price: amount,
         currencySymbol: symbol,
         timestamp: s.timestamp.toISOString(),
-        txHash: isRealHash(s.txHash) ? s.txHash : "", // should be real, but guard anyway
+        txHash: isRealHash(s.txHash) ? s.txHash : "",
         marketplace: "Panthart",
       };
     });
 
-    // Build a quick lookup for sale tx hashes to suppress same-tx transfers
     const saleHashSet = new Set<string>(
       mappedSales.map((r) => (isRealHash(r.txHash) ? r.txHash : "")).filter(Boolean)
     );
 
-    /* ---- 2) Map activity rows (and suppress noise) ---- */
     const mappedActs: UiRow[] = actRows
       .map((r) => {
         const priceMeta = priceFromActivityRow(r, currenciesByAddr, currenciesById);
 
-        // Normalize some labels for UI
         let uiType = r.type?.toUpperCase?.() || "";
         let via: string | null = r.marketplace ?? null;
+
         if (uiType === "AUCTION") {
           uiType = "LISTING";
           via = "Auction";
@@ -254,7 +266,6 @@ export async function GET(
           via = "Auction";
         }
 
-        // Only treat as "real" if it's a full hash
         const tx = isRealHash(r.txHash) ? r.txHash : "";
 
         return {
@@ -270,22 +281,18 @@ export async function GET(
         };
       })
       .filter((row) => {
-        // 2a) Drop synthetic Sale rows (we keep canonical sale list only)
         if (row.type === "Sale" && !isRealHash(row.txHash)) return false;
-        // 2b) Suppress Transfer rows that share a tx with a Sale (the Sale card is the one we want)
         if (row.type === "Transfer" && isRealHash(row.txHash) && saleHashSet.has(row.txHash)) {
           return false;
         }
         return true;
       });
 
-    /* ---- 3) Merge, de-dupe, and sort ---- */
     const rawMerged = [...mappedActs, ...mappedSales];
 
     const seen = new Set<string>();
     const deduped: UiRow[] = [];
     for (const row of rawMerged) {
-      // Prefer a real tx hash when present; otherwise fall back to a composite fingerprint.
       const key = isRealHash(row.txHash)
         ? `${row.type}|${row.txHash}`
         : `${row.type}|${row.timestamp}|${row.fromAddress}|${row.toAddress}|${row.price ?? ""}`;
@@ -294,19 +301,23 @@ export async function GET(
       deduped.push(row);
     }
 
-    deduped.sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    deduped.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    return NextResponse.json(deduped.slice(0, limit), {
-      headers: { "Cache-Control": "no-store" },
-    });
+    // ✅ Apply filter AFTER mapping (so SALE matches "Sale", etc.)
+    const filtered = typeFilter
+      ? deduped.filter((r) => r.type.toUpperCase() === typeFilter)
+      : deduped;
+
+    return NextResponse.json(
+      { items: filtered.slice(0, limit), nextCursor: null },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (err) {
     console.error("[api/nft/activities] error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
 
 /* ---------- POST: log an app-side activity row ----------
    Accepts either:

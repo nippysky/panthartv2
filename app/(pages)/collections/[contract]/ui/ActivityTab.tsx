@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -62,6 +63,41 @@ function normalizeToRow(it: unknown, fallbackTokenId?: string): Row | null {
     txHash,
     marketplace: getStr(it, "marketplace"),
   };
+}
+
+// ✅ Only treat full EVM tx hashes as “real”
+function isRealTxHash(h: string | null | undefined) {
+  return /^0x[0-9a-fA-F]{64}$/.test(String(h ?? ""));
+}
+
+// ✅ Explorer base (change here if your ETN explorer uses a different URL)
+const ETN_TX_BASE = "https://blockexplorer.electroneum.com/tx/";
+
+function txUrl(hash: string) {
+  return `${ETN_TX_BASE}${hash}`;
+}
+
+function formatHashShort(hash: string) {
+  return `${hash.slice(0, 10)}…`;
+}
+
+function ExternalIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14 3h7v7" />
+      <path d="M10 14L21 3" />
+      <path d="M21 14v7H3V3h7" />
+    </svg>
+  );
 }
 
 /**
@@ -138,11 +174,23 @@ function ActivityTabInner({
     const res = await fetch(url.toString(), { cache: "no-store" });
     const data = await res.json().catch(() => null);
 
-    const rawItems =
-      isObject(data) && Array.isArray(data.items) ? (data.items as unknown[]) : [];
+    let rawItems: unknown[] = [];
+    let nextCursor: string | null = null;
 
-    const nextCursor =
-      isObject(data) && typeof data.nextCursor === "string" ? data.nextCursor : null;
+    // ✅ support BOTH shapes: []  OR  { items: [] }
+    if (Array.isArray(data)) {
+      rawItems = data;
+    } else if (isObject(data)) {
+      if (Array.isArray((data as any).items)) rawItems = (data as any).items;
+      if (typeof (data as any).nextCursor === "string")
+        nextCursor = (data as any).nextCursor;
+    }
+
+    if (!res.ok) {
+      setDone(true);
+      setLoading(false);
+      return;
+    }
 
     const normalized: Row[] = [];
     for (const it of rawItems) {
@@ -208,36 +256,53 @@ function ActivityTabInner({
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border">
-        {items.map((r) => (
-          <div
-            key={r.id}
-            className="flex items-center justify-between gap-3 border-b p-4 last:border-b-0"
-          >
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">
-                {r.type} <span className="text-muted-foreground">#{r.tokenId}</span>
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                {new Date(r.timestamp).toLocaleString()}
-              </div>
-            </div>
+        {items.map((r) => {
+          const hasTx = isRealTxHash(r.txHash);
+          const href = hasTx ? txUrl(r.txHash) : null;
 
-            <div className="text-right">
-              {r.price != null ? (
-                <div className="text-sm font-semibold">
-                  {r.price} {r.currencySymbol ?? ""}
+          return (
+            <div
+              key={r.id}
+              className="flex items-center justify-between gap-3 border-b p-4 last:border-b-0"
+            >
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">
+                  {r.type} <span className="text-muted-foreground">#{r.tokenId}</span>
                 </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">—</div>
-              )}
-              {r.txHash ? (
                 <div className="mt-1 text-xs text-muted-foreground">
-                  {r.txHash.slice(0, 10)}…
+                  {new Date(r.timestamp).toLocaleString()}
                 </div>
-              ) : null}
+              </div>
+
+              <div className="text-right">
+                {r.price != null ? (
+                  <div className="text-sm font-semibold">
+                    {r.price} {r.currencySymbol ?? ""}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">—</div>
+                )}
+
+                {/* ✅ Replace dash/short hash area with a proper explorer link */}
+                {href ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={r.txHash}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 px-2.5 py-1 text-xs font-medium text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+                  >
+                    <span>View txn</span>
+                    <span className="text-muted-foreground">{formatHashShort(r.txHash)}</span>
+                    <ExternalIcon className="h-3.5 w-3.5 opacity-80" />
+                  </a>
+                ) : (
+                  <div className="mt-2 text-xs text-muted-foreground">—</div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div ref={sentinelRef} className="h-10" />
