@@ -17,6 +17,7 @@ function getRpcUrl() {
 }
 
 function normAddr(a: string) {
+  // ✅ Always checksum; never lowercase
   return ethers.getAddress(a);
 }
 
@@ -79,9 +80,15 @@ type SyncBody =
 async function assertTxSuccess(txHash: string) {
   const rpcUrl = getRpcUrl();
   if (!rpcUrl) throw new Error("Missing RPC url env (ETN_RPC_URL/RPC_URL)");
+
   const provider = new ethers.JsonRpcProvider(rpcUrl);
   const receipt = await provider.getTransactionReceipt(txHash);
-  if (!receipt || receipt.status !== BigInt(1)) throw new Error("Tx not confirmed/success");
+
+  // ✅ receipt.status is (number | null) in ethers v6 typings
+  if (!receipt || receipt.status !== 1) {
+    throw new Error("Tx not confirmed/success");
+  }
+
   return receipt;
 }
 
@@ -94,7 +101,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    // verify on-chain success so nobody can spoof DB updates
+    // ✅ verify on-chain success so nobody can spoof DB updates with failed tx
     await assertTxSuccess(body.txHash);
 
     if (body.type === "LISTING_CREATE") {
@@ -106,6 +113,10 @@ export async function POST(req: Request) {
       });
 
       const isNative = body.currencyId === "native";
+      const status = "ACTIVE" as const;
+
+      const startTime = new Date(body.startTimeIso);
+      const endTime = body.endTimeIso ? new Date(body.endTimeIso) : null;
 
       if (existing) {
         await prisma.marketplaceListing.update({
@@ -115,10 +126,10 @@ export async function POST(req: Request) {
             currencyId: isNative ? null : body.currencyId,
             priceEtnWei: isNative ? body.priceWei : "0",
             priceTokenAmount: isNative ? null : body.priceWei,
-            startTime: new Date(body.startTimeIso),
-            endTime: body.endTimeIso ? new Date(body.endTimeIso) : null,
+            startTime,
+            endTime,
             txHashCreated: body.txHash,
-            status: "ACTIVE",
+            status,
           },
         });
       } else {
@@ -130,10 +141,10 @@ export async function POST(req: Request) {
             currencyId: isNative ? null : body.currencyId,
             priceEtnWei: isNative ? body.priceWei : "0",
             priceTokenAmount: isNative ? null : body.priceWei,
-            startTime: new Date(body.startTimeIso),
-            endTime: body.endTimeIso ? new Date(body.endTimeIso) : null,
+            startTime,
+            endTime,
             txHashCreated: body.txHash,
-            status: "ACTIVE",
+            status,
           },
         });
       }
@@ -141,6 +152,8 @@ export async function POST(req: Request) {
 
     if (body.type === "LISTING_CANCEL") {
       const seller = normAddr(body.sellerAddress);
+
+      // ✅ Only cancel ACTIVE. Won’t touch SOLD/EXPIRED (prevents downgrades).
       await prisma.marketplaceListing.updateMany({
         where: { nftId: body.nftId, sellerAddress: seller, status: "ACTIVE" },
         data: { status: "CANCELLED", txHashCancelled: body.txHash },
@@ -149,6 +162,7 @@ export async function POST(req: Request) {
 
     if (body.type === "AUCTION_CREATE") {
       const seller = normAddr(body.sellerAddress);
+
       const existing = await prisma.auction.findFirst({
         where: { nftId: body.nftId, sellerAddress: seller, status: "ACTIVE" },
         select: { id: true },
@@ -179,14 +193,14 @@ export async function POST(req: Request) {
       const bidder = normAddr(body.bidderAddress);
       const ts = body.timestampIso ? new Date(body.timestampIso) : new Date();
 
-      // create bid row (best-effort: blockNumber/logIndex usually from indexer, but txHash unique+logIndex)
-      // we can safely set logIndex=0 here; indexer will later insert the real ones, but this gives instant UI feedback.
       await prisma.auctionBid.create({
         data: {
-          auctionId: (await prisma.auction.findFirstOrThrow({
-            where: { nftId: body.nftId, status: "ACTIVE" },
-            select: { id: true },
-          })).id,
+          auctionId: (
+            await prisma.auction.findFirstOrThrow({
+              where: { nftId: body.nftId, status: "ACTIVE" },
+              select: { id: true },
+            })
+          ).id,
           bidderAddress: bidder,
           amountWei: body.amountWei,
           currencyId: body.currencyId === "native" ? null : body.currencyId,
@@ -197,7 +211,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // update auction top bid quickly
       await prisma.auction.updateMany({
         where: { nftId: body.nftId, status: "ACTIVE" },
         data: {
@@ -227,6 +240,9 @@ export async function POST(req: Request) {
     resp.headers.set("Cache-Control", "no-store");
     return resp;
   } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? "sync failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: e?.message ?? "sync failed" },
+      { status: 500 }
+    );
   }
 }

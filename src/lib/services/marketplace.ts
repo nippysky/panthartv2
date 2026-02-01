@@ -1,449 +1,312 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/lib/services/marketplace.ts
+"use client";
+
+/**
+ * High-level Marketplace service used by UI components.
+ *
+ * Wraps `lib/evm/marketplace-actions.ts` and adds:
+ * - "Just in time" checks (time window, settled state)
+ * - Currency helpers for bid minimum display
+ */
+
 import { ethers } from "ethers";
-import { MARKETPLACE_CORE_ABI } from "@/src/lib/abis/marketplace-core/marketPlaceCoreABI";
-import { getBrowserSigner, ZERO_ADDRESS } from "@/src/lib/evm/getSigner";
+import type { Standard, Currency } from "@/src/lib/evm/marketplace-actions";
+import { ZERO_ADDRESS } from "@/src/lib/evm/getSigner";
 import {
-  readActiveListing as readActiveListingCore,
-  readActiveAuction as readActiveAuctionCore,
-  createListingOnChain as createListingCore,
-  createAuctionOnChain as createAuctionCore,
-  cancelListingOnChain as cancelListingCore,
-  cancelAuctionOnChain as cancelAuctionCore,
-  getErc20Meta as getErc20MetaCore,
-  type Standard as StdForHelper,
+  createListingOnChain,
+  createAuctionOnChain,
+  cancelListingOnChain,
+  cancelAuctionOnChain,
+  readActiveListing,
+  readActiveAuction,
+  readListingById,
+  readAuctionById,
+  getErc20Meta,
 } from "@/src/lib/evm/marketplace-actions";
 
-const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || 52014);
+export type { Standard };
 
-// Public provider for read-only helpers (no wallet dependency)
-const RPC_URL =
-  process.env.NEXT_PUBLIC_RPC_URL ||
-  process.env.RPC_URL ||
-  "https://rpc.ankr.com/electroneum";
-const publicProvider = new ethers.JsonRpcProvider(RPC_URL);
+export const ZERO_ADDR = ZERO_ADDRESS as `0x${string}`;
 
-async function ensureRightNetwork() {
-  const { chainId } = await getBrowserSigner();
-  if (Number(chainId) !== CHAIN_ID) {
-    throw new Error("Wrong network. Please switch to Electroneum.");
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+function nowSec(): bigint {
+  return BigInt(Math.floor(Date.now() / 1000));
+}
+
+function requireWindowActive(args: { start: bigint; end: bigint }) {
+  const n = nowSec();
+  const start = args.start ?? BigInt(0);
+  const end = args.end ?? BigInt(0);
+
+  if (start > BigInt(0) && n < start) throw new Error("Not started yet.");
+  if (end > BigInt(0) && n > end) throw new Error("Expired.");
+}
+
+function safeAddr(a: string): `0x${string}` {
+  if (!ethers.isAddress(a)) throw new Error("Invalid address.");
+  return ethers.getAddress(a) as `0x${string}`;
+}
+
+function parseUnitsSafe(amountHuman: string, decimals: number): bigint {
+  const s = (amountHuman || "").trim();
+  if (!s) return BigInt(0);
+  return ethers.parseUnits(s, decimals);
+}
+
+function formatUnitsSafe(amountWei: bigint, decimals: number): string {
+  try {
+    return ethers.formatUnits(amountWei, decimals);
+  } catch {
+    return "0";
   }
 }
 
-function toWeiHuman(amount: string, decimals: number): bigint {
-  return ethers.parseUnits((amount || "0").trim(), decimals);
+/* ------------------------------------------------------------------ */
+/* Currency helpers                                                     */
+/* ------------------------------------------------------------------ */
+async function resolveCurrencyMeta(currency: `0x${string}`): Promise<{
+  symbol: string;
+  decimals: number;
+}> {
+  if (!currency || currency === ZERO_ADDR) return { symbol: "ETN", decimals: 18 };
+  const meta = await getErc20Meta(currency);
+  return { symbol: meta.symbol || "TOKEN", decimals: meta.decimals || 18 };
 }
 
-function stdEnum(standard: StdForHelper): number {
-  // Contract enum Panthart.TokenStandard is almost certainly: 0=ERC721, 1=ERC1155
-  return standard === "ERC1155" ? 1 : 0;
-}
-
-const ERC721_ABI = [
-  "function isApprovedForAll(address owner, address operator) view returns (bool)",
-  "function setApprovalForAll(address operator, bool approved)",
-  "function safeTransferFrom(address from, address to, uint256 tokenId)",
-  "function transferFrom(address from, address to, uint256 tokenId)",
-] as const;
-
-const ERC1155_ABI = [
-  "function isApprovedForAll(address owner, address operator) view returns (bool)",
-  "function setApprovalForAll(address operator, bool approved)",
-  "function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes data)",
-] as const;
-
-async function ensureMarketplaceApproval(args: {
-  collection: `0x${string}`;
-  standard: StdForHelper;
-  owner: `0x${string}`;
-  operator: `0x${string}`;
-  signer: ethers.Signer;
-}) {
-  if (args.standard === "ERC1155") {
-    const c = new ethers.Contract(args.collection, ERC1155_ABI, args.signer);
-    const ok: boolean = await c.isApprovedForAll(args.owner, args.operator);
-    if (ok) return;
-    const tx = await c.setApprovalForAll(args.operator, true);
-    await tx.wait();
-    return;
-  }
-
-  const c = new ethers.Contract(args.collection, ERC721_ABI, args.signer);
-  const ok: boolean = await c.isApprovedForAll(args.owner, args.operator);
-  if (ok) return;
-  const tx = await c.setApprovalForAll(args.operator, true);
-  await tx.wait();
-}
-
+/* ------------------------------------------------------------------ */
+/* Public API                                                           */
+/* ------------------------------------------------------------------ */
 export const marketplace = {
-  ZERO_ADDRESS,
+  ZERO_ADDRESS: ZERO_ADDR,
 
-  /* ------------------------------------------------------------------ */
-  /* Read helpers (existing)                                            */
-  /* ------------------------------------------------------------------ */
-  readActiveListing: readActiveListingCore,
-  readActiveAuction: readActiveAuctionCore,
-  getErc20Meta: getErc20MetaCore,
+  readActiveListing,
+  readActiveAuction,
+  readListingById,
+  readAuctionById,
 
-  /* ------------------------------------------------------------------ */
-  /* Seller-scoped readers for ERC1155                                  */
-  /* ------------------------------------------------------------------ */
-  async readActiveListingForSeller(args: {
-    collection: `0x${string}`;
-    tokenId: bigint;
-    standard: StdForHelper;
-    seller: `0x${string}`;
-  }) {
-    return readActiveListingCore({
-      collection: args.collection,
-      tokenId: args.tokenId,
-      standard: args.standard,
-      seller: args.seller,
-    });
-  },
-
-  async readActiveAuctionForSeller(args: {
-    collection: `0x${string}`;
-    tokenId: bigint;
-    standard: StdForHelper;
-    seller: `0x${string}`;
-  }) {
-    return readActiveAuctionCore({
-      collection: args.collection,
-      tokenId: args.tokenId,
-      standard: args.standard,
-      seller: args.seller,
-    });
-  },
-
-  /* ------------------------------------------------------------------ */
-  /* By-ID readers (public provider)                                    */
-  /* ------------------------------------------------------------------ */
-  async readListingById(listingId: bigint) {
-    const mktAddr = process.env
-      .NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, publicProvider);
-    const raw = await mkt.listings(listingId);
-    if (!raw) return null;
-
-    const row = {
-      seller: raw.seller as `0x${string}`,
-      currency: raw.currency as `0x${string}`,
-      price: raw.price as bigint,
-      quantity: raw.quantity as bigint,
-      start: raw.startTime as bigint,
-      end: raw.endTime as bigint,
-      standard: raw.standard as bigint,
-      active: Boolean(raw.active),
-    };
-
-    return { id: listingId, row };
-  },
-
-  async readAuctionById(auctionId: bigint) {
-    const mktAddr = process.env
-      .NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, publicProvider);
-    const raw = await mkt.auctions(auctionId);
-    if (!raw) return null;
-
-    const row = {
-      seller: raw.seller as `0x${string}`,
-      currency: raw.currency as `0x${string}`,
-      startPrice: raw.startPrice as bigint,
-      minIncrement: raw.minIncrement as bigint,
-      start: raw.startTime as bigint,
-      end: raw.endTime as bigint,
-      highestBidder: raw.highestBidder as `0x${string}`,
-      highestBid: raw.highestBid as bigint,
-      bidsCount: Number(raw.bidsCount || 0),
-      standard: raw.standard as bigint,
-      settled: Boolean(raw.settled),
-    };
-
-    return { id: auctionId, row };
-  },
-
-  /* ------------------------------------------------------------------ */
-  /* Create/Cancel (existing exports)                                   */
-  /* ------------------------------------------------------------------ */
-  createListing: createListingCore,
-  createAuction: createAuctionCore,
-  cancelListing: cancelListingCore,
-  cancelAuction: cancelAuctionCore,
-
-  /* ------------------------------------------------------------------ */
-  /* NEW: Just-in-time create listing/auction with approvals            */
-  /* ------------------------------------------------------------------ */
   async createListingJustInTime(args: {
     collection: `0x${string}`;
     tokenId: bigint;
-    standard: StdForHelper;
+    quantity: bigint;
+    standard: Standard;
     priceHuman: string;
-    currency?: `0x${string}`; // default ZERO_ADDRESS
-    quantity?: bigint; // default 1
-    durationDays?: number; // default 7
-    startTimeSec?: number; // optional override
-    endTimeSec?: number; // optional override
-  }) {
-    await ensureRightNetwork();
+    currency: `0x${string}`;
+    startTimeSec: number;
+    endTimeSec: number;
+  }): Promise<string> {
+    const currencyAddr = safeAddr(args.currency);
+    const meta = await resolveCurrencyMeta(currencyAddr);
 
-    const { signer } = await getBrowserSigner();
-    const seller = (await signer.getAddress()) as `0x${string}`;
+    const cur: Currency =
+      currencyAddr === ZERO_ADDR
+        ? { kind: "NATIVE", tokenAddress: null, symbol: "ETN", decimals: 18 }
+        : {
+            kind: "ERC20",
+            tokenAddress: currencyAddr,
+            symbol: meta.symbol,
+            decimals: meta.decimals,
+          };
 
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+    const startISO = new Date(args.startTimeSec * 1000).toISOString();
+    const endISO = new Date(args.endTimeSec * 1000).toISOString();
 
-    await ensureMarketplaceApproval({
+    const rc = await createListingOnChain({
       collection: args.collection,
+      tokenId: args.tokenId,
+      quantity: args.quantity,
       standard: args.standard,
-      owner: seller,
-      operator: mktAddr,
-      signer,
+      currency: cur,
+      price: args.priceHuman,
+      startTimeISO: startISO,
+      endTimeISO: endISO,
     });
 
-    const currency = (args.currency ?? ZERO_ADDRESS) as `0x${string}`;
-    const decimals =
-      currency === ZERO_ADDRESS ? 18 : (await getErc20MetaCore(currency)).decimals;
-
-    const priceWei = toWeiHuman(args.priceHuman, decimals);
-
-    const qty = args.standard === "ERC1155" ? (args.quantity ?? BigInt(1)) : BigInt(1);
-
-    const now = Math.floor(Date.now() / 1000);
-    const start = args.startTimeSec ?? now;
-    const durationDays = args.durationDays ?? 7;
-    const end = args.endTimeSec ?? start + Math.max(1, durationDays) * 24 * 60 * 60;
-
-    const tx = await mkt.createListing(
-      args.collection,
-      args.tokenId,
-      qty,
-      currency,
-      priceWei,
-      start,
-      end,
-      stdEnum(args.standard)
-    );
-
-    const rc = await tx.wait();
-    return rc?.hash ?? tx.hash;
+    return rc.txHash;
   },
 
   async createAuctionJustInTime(args: {
     collection: `0x${string}`;
     tokenId: bigint;
-    standard: StdForHelper;
+    quantity: bigint;
+    standard: Standard;
     startPriceHuman: string;
     minIncrementHuman: string;
-    currency?: `0x${string}`; // default ZERO_ADDRESS
-    quantity?: bigint; // default 1
-    durationDays?: number; // default 7
-    startTimeSec?: number; // optional override
-    endTimeSec?: number; // optional override
-  }) {
-    await ensureRightNetwork();
+    currency: `0x${string}`;
+    startTimeSec: number;
+    endTimeSec: number;
+  }): Promise<string> {
+    const currencyAddr = safeAddr(args.currency);
+    const meta = await resolveCurrencyMeta(currencyAddr);
 
-    const { signer } = await getBrowserSigner();
-    const seller = (await signer.getAddress()) as `0x${string}`;
+    const cur: Currency =
+      currencyAddr === ZERO_ADDR
+        ? { kind: "NATIVE", tokenAddress: null, symbol: "ETN", decimals: 18 }
+        : {
+            kind: "ERC20",
+            tokenAddress: currencyAddr,
+            symbol: meta.symbol,
+            decimals: meta.decimals,
+          };
 
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+    const startISO = new Date(args.startTimeSec * 1000).toISOString();
+    const endISO = new Date(args.endTimeSec * 1000).toISOString();
 
-    await ensureMarketplaceApproval({
-      collection: args.collection,
-      standard: args.standard,
-      owner: seller,
-      operator: mktAddr,
-      signer,
-    });
-
-    const currency = (args.currency ?? ZERO_ADDRESS) as `0x${string}`;
-    const decimals =
-      currency === ZERO_ADDRESS ? 18 : (await getErc20MetaCore(currency)).decimals;
-
-    const startPriceWei = toWeiHuman(args.startPriceHuman, decimals);
-    const minIncWei = toWeiHuman(args.minIncrementHuman || "0", decimals);
-
-    const qty = args.standard === "ERC1155" ? (args.quantity ?? BigInt(1)) : BigInt(1);
-
-    const now = Math.floor(Date.now() / 1000);
-    const start = args.startTimeSec ?? now;
-    const durationDays = args.durationDays ?? 7;
-    const end = args.endTimeSec ?? start + Math.max(1, durationDays) * 24 * 60 * 60;
-
-    const tx = await mkt.createAuction(
-      args.collection,
-      args.tokenId,
-      qty,
-      currency,
-      startPriceWei,
-      minIncWei,
-      start,
-      end,
-      stdEnum(args.standard)
-    );
-
-    const rc = await tx.wait();
-    return rc?.hash ?? tx.hash;
-  },
-
-  /* ------------------------------------------------------------------ */
-  /* Cleanup expired listing                                            */
-  /* ------------------------------------------------------------------ */
-  async cleanupExpired(listingId: bigint) {
-    await ensureRightNetwork();
-    const { signer } = await getBrowserSigner();
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-    const tx = await mkt.cleanupExpiredListing(listingId);
-    const rc = await tx.wait();
-    return rc?.hash ?? tx.hash;
-  },
-
-  /* ------------------------------------------------------------------ */
-  /* Buy/Bid/Finalize (existing)                                        */
-  /* ------------------------------------------------------------------ */
-  async buyListingJustInTime(args: {
-    collection: `0x${string}`;
-    tokenId: bigint;
-    standard: StdForHelper;
-  }) {
-    await ensureRightNetwork();
-
-    const li = await readActiveListingCore(args);
-    if (!li) throw new Error("Listing unavailable.");
-
-    const listingId = li.id;
-    const currency = li.row.currency as `0x${string}`;
-    const price = li.row.price as bigint;
-
-    const { signer } = await getBrowserSigner();
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-
-    if (currency && currency !== ZERO_ADDRESS) {
-      const erc20 = new ethers.Contract(
-        currency,
-        [
-          "function allowance(address owner, address spender) view returns (uint256)",
-          "function approve(address spender, uint256 value) returns (bool)",
-        ],
-        signer
-      );
-      const ownerAddr = await signer.getAddress();
-      const allowance: bigint = await erc20.allowance(ownerAddr, mktAddr);
-      if (allowance < price) {
-        const txA = await erc20.approve(mktAddr, price);
-        await txA.wait();
-      }
-      const tx = await mkt.buy(listingId);
-      const rc = await tx.wait();
-      return rc?.hash ?? tx.hash;
-    } else {
-      const tx = await mkt.buy(listingId, { value: price });
-      const rc = await tx.wait();
-      return rc?.hash ?? tx.hash;
-    }
-  },
-
-  async placeBidJustInTime(args: {
-    collection: `0x${string}`;
-    tokenId: bigint;
-    standard: StdForHelper;
-    amountHuman: string;
-  }) {
-    await ensureRightNetwork();
-
-    const au = await readActiveAuctionCore({
+    const rc = await createAuctionOnChain({
       collection: args.collection,
       tokenId: args.tokenId,
+      quantity: args.quantity,
       standard: args.standard,
+      currency: cur,
+      startPrice: args.startPriceHuman,
+      minIncrement: args.minIncrementHuman,
+      startTimeISO: startISO,
+      endTimeISO: endISO,
     });
-    if (!au) throw new Error("Auction unavailable.");
 
-    const auctionId = au.id;
-    const currency = au.row.currency as `0x${string}`;
-
-    const decimals =
-      currency === ZERO_ADDRESS ? 18 : (await getErc20MetaCore(currency)).decimals;
-
-    const amountWei = toWeiHuman(args.amountHuman, decimals);
-
-    const { signer } = await getBrowserSigner();
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-
-    if (currency !== ZERO_ADDRESS) {
-      const erc20 = new ethers.Contract(
-        currency,
-        [
-          "function allowance(address owner, address spender) view returns (uint256)",
-          "function approve(address spender, uint256 value) returns (bool)",
-        ],
-        signer
-      );
-      const ownerAddr = await signer.getAddress();
-      const allowance: bigint = await erc20.allowance(ownerAddr, mktAddr);
-      if (allowance < amountWei) {
-        const txA = await erc20.approve(mktAddr, amountWei);
-        await txA.wait();
-      }
-      const tx = await mkt.bid(auctionId, amountWei);
-      const rc = await tx.wait();
-      return { txHash: rc?.hash ?? tx.hash, auctionId, currency, decimals };
-    } else {
-      const tx = await mkt.bid(auctionId, amountWei, { value: amountWei });
-      const rc = await tx.wait();
-      return { txHash: rc?.hash ?? tx.hash, auctionId, currency, decimals };
-    }
+    return rc.txHash;
   },
 
-  async finalizeAuction(auctionId: bigint) {
-    await ensureRightNetwork();
-    const { signer } = await getBrowserSigner();
+  async cancelListing(listingId: bigint): Promise<string> {
+    const rc = await cancelListingOnChain(listingId);
+    return rc.txHash;
+  },
+
+  async cancelAuction(auctionId: bigint): Promise<string> {
+    const rc = await cancelAuctionOnChain(auctionId);
+    return rc.txHash;
+  },
+
+  async finalizeAuction(auctionId: bigint): Promise<void> {
+    const { signer } = await import("@/src/lib/evm/getSigner").then((m) => m.getBrowserSigner());
+    const { MARKETPLACE_CORE_ABI } = await import(
+      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+    );
+
     const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
     const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+
+    const on = await readAuctionById(auctionId);
+    if (!on) throw new Error("Auction not found on-chain.");
+    if (on.row.settled) throw new Error("Auction is already settled.");
+
+    const n = Number(nowSec());
+    const end = Number(on.row.end);
+    if (end > 0 && n <= end) throw new Error("Auction has not ended yet.");
+
     const tx = await mkt.finalize(auctionId);
-    const rc = await tx.wait();
-    return rc?.hash ?? tx.hash;
+    await tx.wait();
   },
 
-  /* ------------------------------------------------------------------ */
-  /* NEW: Transfer helper                                               */
-  /* ------------------------------------------------------------------ */
+  async buyListingByIdJustInTime(listingId: bigint): Promise<void> {
+    const { signer } = await import("@/src/lib/evm/getSigner").then((m) => m.getBrowserSigner());
+    const { MARKETPLACE_CORE_ABI } = await import(
+      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+    );
+
+    const on = await readListingById(listingId);
+    if (!on) throw new Error("Listing not found on-chain.");
+
+    requireWindowActive({ start: on.row.start, end: on.row.end });
+
+    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+
+    const isNative = on.row.currency === ZERO_ADDR;
+
+    const overrides: any = {};
+    if (isNative) overrides.value = on.row.price;
+
+    const tx = await mkt.buy(listingId, overrides);
+    await tx.wait();
+  },
+
+  async getBidMinimum(auctionId: bigint): Promise<{
+    minWei: bigint;
+    minHuman: string;
+    symbol: string;
+    decimals: number;
+  }> {
+    const on = await readAuctionById(auctionId);
+    if (!on) throw new Error("Auction not found on-chain.");
+
+    const { symbol, decimals } = await resolveCurrencyMeta(on.row.currency);
+    const base = on.row.highestBid > BigInt(0) ? on.row.highestBid : on.row.startPrice;
+    const minWei = base + on.row.minIncrement;
+    const minHuman = formatUnitsSafe(minWei, decimals);
+
+    return { minWei, minHuman, symbol, decimals };
+  },
+
+  async placeBidByAuctionIdJustInTime(args: {
+    auctionId: bigint;
+    amountHuman: string;
+  }): Promise<void> {
+    const on = await readAuctionById(args.auctionId);
+    if (!on) throw new Error("Auction not found on-chain.");
+
+    if (on.row.settled) throw new Error("Auction is already settled.");
+    requireWindowActive({ start: on.row.start, end: on.row.end });
+
+    const { symbol, decimals } = await resolveCurrencyMeta(on.row.currency);
+
+    const amountWei = parseUnitsSafe(args.amountHuman, decimals);
+    if (amountWei <= BigInt(0)) throw new Error("Invalid bid amount.");
+
+    const base = on.row.highestBid > BigInt(0) ? on.row.highestBid : on.row.startPrice;
+    const minWei = base + on.row.minIncrement;
+    if (amountWei < minWei) {
+      const minHuman = formatUnitsSafe(minWei, decimals);
+      throw new Error(`Bid too low. Minimum is ${minHuman} ${symbol}.`);
+    }
+
+    const { signer } = await import("@/src/lib/evm/getSigner").then((m) => m.getBrowserSigner());
+    const { MARKETPLACE_CORE_ABI } = await import(
+      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+    );
+
+    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+
+    const isNative = on.row.currency === ZERO_ADDR;
+
+    const overrides: any = {};
+    if (isNative) overrides.value = amountWei;
+
+    const tx = await mkt.bid(args.auctionId, amountWei, overrides);
+    await tx.wait();
+  },
+
   async transferNft(args: {
     collection: `0x${string}`;
     tokenId: bigint;
-    standard: StdForHelper;
+    standard: Standard;
     to: `0x${string}`;
-    amount?: bigint; // ERC1155 only
-  }) {
-    await ensureRightNetwork();
+    amount: bigint;
+  }): Promise<void> {
+    const { signer } = await import("@/src/lib/evm/getSigner").then((m) => m.getBrowserSigner());
 
-    const { signer } = await getBrowserSigner();
+    if (args.standard === "ERC721") {
+      const ERC721_ABI = [
+        "function safeTransferFrom(address from, address to, uint256 tokenId)",
+      ] as const;
+
+      const nft = new ethers.Contract(args.collection, ERC721_ABI, signer);
+      const from = (await signer.getAddress()) as `0x${string}`;
+      const tx = await nft.safeTransferFrom(from, args.to, args.tokenId);
+      await tx.wait();
+      return;
+    }
+
+    const ERC1155_ABI = [
+      "function safeTransferFrom(address from,address to,uint256 id,uint256 amount,bytes data)",
+    ] as const;
+
+    const nft = new ethers.Contract(args.collection, ERC1155_ABI, signer);
     const from = (await signer.getAddress()) as `0x${string}`;
-
-    if (args.standard === "ERC1155") {
-      const c = new ethers.Contract(args.collection, ERC1155_ABI, signer);
-      const amt = args.amount ?? BigInt(1);
-      const tx = await c.safeTransferFrom(from, args.to, args.tokenId, amt, "0x");
-      const rc = await tx.wait();
-      return rc?.hash ?? tx.hash;
-    }
-
-    // ERC721: prefer safeTransferFrom, fallback to transferFrom
-    const c = new ethers.Contract(args.collection, ERC721_ABI, signer);
-
-    try {
-      const tx = await c.safeTransferFrom(from, args.to, args.tokenId);
-      const rc = await tx.wait();
-      return rc?.hash ?? tx.hash;
-    } catch {
-      const tx = await c.transferFrom(from, args.to, args.tokenId);
-      const rc = await tx.wait();
-      return rc?.hash ?? tx.hash;
-    }
+    const tx = await nft.safeTransferFrom(from, args.to, args.tokenId, args.amount, "0x");
+    await tx.wait();
   },
 };
-
-export type { StdForHelper as Standard };

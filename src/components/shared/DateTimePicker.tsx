@@ -8,12 +8,22 @@ import { Modal } from "@/src/ui/Modal";
 
 type DateTimePickerProps = {
   label: string;
-  value: string; // "YYYY-MM-DDTHH:mm"
+  value: string; // "YYYY-MM-DDTHH:mm" (interpreted as Africa/Lagos local time)
   onChange: (val: string) => void;
   disabled?: boolean;
   minNow?: boolean;
   zIndex?: number;
 };
+
+/**
+ * Hydration-safe strategy:
+ * - NEVER use Intl defaults (undefined locale / resolvedOptions timeZone).
+ * - ALWAYS render deterministically using fixed locale + fixed timezone.
+ * - We standardize everything to Africa/Lagos (UTC+01:00) as per project rule.
+ */
+const FIXED_LOCALE = "en-GB";
+const FIXED_TZ = "Africa/Lagos";
+const FIXED_OFFSET = "UTC+01:00";
 
 /* ---------- helpers ---------- */
 function pad(n: number) {
@@ -35,53 +45,49 @@ function fromLocalYMDHM(s: string): Date | null {
   const [hh, mm] = timePart.split(":").map(Number);
   if (!y || !m || !d || hh === undefined || mm === undefined) return null;
 
-  const dt = new Date();
-  dt.setFullYear(y);
-  dt.setMonth(m - 1);
-  dt.setDate(d);
-  dt.setHours(hh);
-  dt.setMinutes(mm);
-  dt.setSeconds(0);
-  dt.setMilliseconds(0);
-  return dt;
+  // Interpret the input as "Africa/Lagos local time".
+  // Create a UTC instant corresponding to that local time by subtracting +01:00.
+  // Lagos is stable (no DST).
+  const utcMs =
+    Date.UTC(y, m - 1, d, hh, mm, 0, 0) - 60 * 60 * 1000; // minus 1 hour
+  return new Date(utcMs);
 }
 
 function clampToLead(d: Date, leadMin: number) {
   if (!leadMin) return d;
+
+  // Use actual now (client only). This does not affect SSR output because
+  // we don't render date-dependent text from this unless value exists.
   const t = new Date();
   t.setMinutes(t.getMinutes() + leadMin);
   t.setSeconds(0);
   t.setMilliseconds(0);
+
   return d < t ? t : d;
 }
 
-function tzLabel(d?: Date) {
-  const tzn = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const date = d ?? new Date();
-  const offsetMin = -date.getTimezoneOffset();
-  const sign = offsetMin >= 0 ? "+" : "-";
-  const absMin = Math.abs(offsetMin);
-  const offH = pad(Math.floor(absMin / 60));
-  const offM = pad(absMin % 60);
-  return { tzn, offset: `UTC${sign}${offH}:${offM}` };
+function tzLabel() {
+  return { tzn: FIXED_TZ, offset: FIXED_OFFSET };
 }
 
 function formatDisplayLocal(s: string): string {
   const date = fromLocalYMDHM(s);
-  const { tzn, offset } = tzLabel(date ?? undefined);
+  const { tzn, offset } = tzLabel();
   if (!date) return `Select (${tzn}, ${offset})`;
 
-  const fmtDate = new Intl.DateTimeFormat(undefined, {
+  const fmtDate = new Intl.DateTimeFormat(FIXED_LOCALE, {
     weekday: "short",
-    month: "short",
     day: "2-digit",
+    month: "short",
     year: "numeric",
+    timeZone: FIXED_TZ,
   }).format(date);
 
-  const fmtTime = new Intl.DateTimeFormat(undefined, {
+  const fmtTime = new Intl.DateTimeFormat(FIXED_LOCALE, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: FIXED_TZ,
   }).format(date);
 
   return `${fmtDate} • ${fmtTime} (${tzn}, ${offset})`;
@@ -101,15 +107,23 @@ export default function DateTimePicker({
 
   const initial = React.useMemo(() => {
     const d = value ? fromLocalYMDHM(value) : null;
+
+    // If there's no value, pick a stable default for inputs (client will adjust later).
+    // IMPORTANT: display text is constant when value is empty, so SSR won't mismatch.
     const base = d ?? new Date();
     const clamped = clampToLead(base, lead);
+
     clamped.setSeconds(0);
     clamped.setMilliseconds(0);
     return clamped;
   }, [value, lead]);
 
-  const [datePart, setDatePart] = React.useState(() => toLocalYMDHM(initial).slice(0, 10));
-  const [timePart, setTimePart] = React.useState(() => toLocalYMDHM(initial).slice(11));
+  const [datePart, setDatePart] = React.useState(() =>
+    toLocalYMDHM(initial).slice(0, 10)
+  );
+  const [timePart, setTimePart] = React.useState(() =>
+    toLocalYMDHM(initial).slice(11)
+  );
 
   React.useEffect(() => {
     const d = value ? fromLocalYMDHM(value) : null;

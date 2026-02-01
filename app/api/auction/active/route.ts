@@ -32,11 +32,7 @@ function formatUnitsSafe(wei: bigint, decimals: number): string {
 }
 
 function getRpcUrl() {
-  return (
-    process.env.RPC_URL ||
-    process.env.NEXT_PUBLIC_RPC_URL ||
-    "https://rpc.ankr.com/electroneum"
-  );
+  return process.env.RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://rpc.ankr.com/electroneum";
 }
 
 function getMarketplaceAddress(): `0x${string}` {
@@ -107,6 +103,7 @@ async function chainTruthForAuction(row: DbRow) {
   const qty = (A[3] as bigint) ?? BigInt(0);
   const currencyAddr = String(A[5] ?? "");
   const startPrice = (A[6] as bigint) ?? BigInt(0);
+  const startTime = Number(A[8] as bigint);
   const endTime = Number(A[9] as bigint);
   const highestBid = (A[11] as bigint) ?? BigInt(0);
   const bidsCount = Number(A[12] as number);
@@ -121,6 +118,7 @@ async function chainTruthForAuction(row: DbRow) {
   const now = Math.floor(Date.now() / 1000);
   if (now >= endTime) return null;
 
+  const isLive = now >= startTime && now < endTime;
   const currentWei = bidsCount > 0 ? highestBid : startPrice;
 
   return {
@@ -129,7 +127,9 @@ async function chainTruthForAuction(row: DbRow) {
     quantity: qty > BigInt(0) ? Number(qty) : Number(row.quantity ?? 1),
     currencyAddr: currencyAddr && ethers.isAddress(currencyAddr) ? currencyAddr : null,
     currentWei,
+    startTimeISO: new Date(startTime * 1000).toISOString(),
     endTimeISO: new Date(endTime * 1000).toISOString(),
+    isLive,
   };
 }
 
@@ -140,14 +140,11 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(searchParams.get("limit") || 24), 60);
   const cursor = searchParams.get("cursor");
 
-  // ✅ strict truth filter: for ERC721, seller MUST equal current DB owner
   const strictOwner = searchParams.get("strictOwner") === "1";
 
-  // optional filters
   const contractParam = searchParams.get("contract") || undefined;
   const tokenIdParam = searchParams.get("tokenId") || undefined;
 
-  // chain-truth auto for token page (strictOwner + token filter)
   const chainTruth =
     searchParams.get("chain") === "1" || (strictOwner && !!contractParam && !!tokenIdParam);
 
@@ -245,7 +242,6 @@ export async function GET(req: NextRequest) {
         const symbol = isNative ? "ETN" : dbCur?.symbol ?? "ERC20";
         const tokenAddress = isNative ? null : (dbCur?.tokenAddress ?? chainCurrencyAddr);
 
-        // price resolution (chain wins)
         let currentWei: bigint | null = null;
 
         if (chainTruth && truth?.currentWei != null) {
@@ -254,7 +250,6 @@ export async function GET(req: NextRequest) {
           const highest = isNative ? row.highestBidEtnWei : row.highestBidTokenAmount;
           const start = isNative ? row.startPriceEtnWei : row.startPriceTokenAmount;
 
-          // best-effort bigint conversion
           const highestStr = highest?.toString?.() ?? highest ?? null;
           const startStr = start?.toString?.() ?? start ?? null;
 
@@ -276,16 +271,27 @@ export async function GET(req: NextRequest) {
           ? (truth!.sellerAddress ?? row.sellerAddress)
           : row.sellerAddress;
 
+        const startISO = chainTruth ? truth!.startTimeISO : row.startTime.toISOString();
         const endISO = chainTruth ? truth!.endTimeISO : row.endTime.toISOString();
+
+        const isLive = chainTruth
+          ? Boolean(truth!.isLive)
+          : (() => {
+              const now = Date.now();
+              const s = row.startTime.getTime();
+              const e = row.endTime.getTime();
+              return now >= s && now < e;
+            })();
 
         return {
           id: row.id,
-          startTime: row.startTime.toISOString(),
+          startTime: startISO,
           endTime: endISO,
+          isLive,
           quantity: truth?.quantity ?? row.quantity ?? 1,
           seller: {
             address: sellerAddress,
-            username: null as string | null, // filled after username lookup
+            username: null as string | null,
           },
           nft: {
             contract: row.nft.contract,
@@ -310,7 +316,6 @@ export async function GET(req: NextRequest) {
         };
       });
 
-    // username lookup only for the final items (fast)
     const sellers = Array.from(
       new Set(
         filteredTruth
@@ -328,17 +333,13 @@ export async function GET(req: NextRequest) {
           })
         : [];
 
-    const userByWalletLC = new Map(
-      users.map((u) => [u.walletAddress.toLowerCase(), u.username || null])
-    );
+    const userByWalletLC = new Map(users.map((u) => [u.walletAddress.toLowerCase(), u.username || null]));
 
     const items = filteredTruth.map((x) => ({
       ...x,
       seller: {
         ...x.seller,
-        username: x.seller.address
-          ? userByWalletLC.get(x.seller.address.toLowerCase()) ?? null
-          : null,
+        username: x.seller.address ? userByWalletLC.get(x.seller.address.toLowerCase()) ?? null : null,
       },
     }));
 

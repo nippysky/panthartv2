@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/listing/active/route.ts
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const runtime = "nodejs";
 
 import prisma, { prismaReady } from "@/src/lib/db";
 import { CurrencyKind, ListingStatus } from "@/src/lib/generated/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
+import { MARKETPLACE_CORE_ABI } from "@/src/lib/abis/marketplace-core/marketPlaceCoreABI";
 
 function lower(s?: string | null) {
   return (s ?? "").toLowerCase();
@@ -29,20 +31,13 @@ function expandSciToIntegerString(s: string): string {
   if (exp >= 0) {
     const needed = exp - fracPart.length;
     if (needed >= 0) {
-      return (sign + intPart + fracPart + "0".repeat(needed)).replace(
-        /^(-?)0+(\d)/,
-        "$1$2"
-      );
+      return (sign + intPart + fracPart + "0".repeat(needed)).replace(/^(-?)0+(\d)/, "$1$2");
     } else {
-      const split = fracPart.length + needed; // needed is negative
-      return (sign + intPart + fracPart.slice(0, split)).replace(
-        /^(-?)0+(\d)/,
-        "$1$2"
-      );
+      const split = fracPart.length + needed;
+      return (sign + intPart + fracPart.slice(0, split)).replace(/^(-?)0+(\d)/, "$1$2");
     }
   }
 
-  // value < 1; for base units we return "0"
   return "0";
 }
 
@@ -50,7 +45,6 @@ function expandSciToIntegerString(s: string): string {
 function toBigIntSafe(x: any): bigint | null {
   if (x == null) return null;
 
-  // Prisma Decimal: prefer toFixed(0) to avoid exponent output
   if (typeof x === "object" && typeof x.toFixed === "function") {
     const s = x.toFixed(0);
     return BigInt(s.replace(/^0+$/, "0"));
@@ -58,8 +52,8 @@ function toBigIntSafe(x: any): bigint | null {
 
   let s = String(x).trim();
   if (/e/i.test(s)) s = expandSciToIntegerString(s);
-  s = s.replace(/\..*$/, ""); // drop any fractional part
-  s = s.replace(/^[-+]?0+(?=\d)/, (m) => (m.startsWith("-") ? "-" : "")); // strip leading zeros
+  s = s.replace(/\..*$/, "");
+  s = s.replace(/^[-+]?0+(?=\d)/, (m) => (m.startsWith("-") ? "-" : ""));
   if (s === "" || s === "-" || s === "+") s = "0";
   return BigInt(s);
 }
@@ -80,17 +74,12 @@ function formatUnitsSafe(wei: bigint, decimals: number): string {
   if (frac === BigInt(0)) return whole.toString();
 
   let fracStr = frac.toString().padStart(decimals, "0");
-  // trim trailing zeros
   fracStr = fracStr.replace(/0+$/, "");
   return `${whole.toString()}.${fracStr}`;
 }
 
 function getRpcUrl() {
-  return (
-    process.env.RPC_URL ||
-    process.env.NEXT_PUBLIC_RPC_URL ||
-    "https://rpc.ankr.com/electroneum"
-  );
+  return process.env.RPC_URL || process.env.NEXT_PUBLIC_RPC_URL || "https://rpc.ankr.com/electroneum";
 }
 
 function getMarketplaceAddress(): `0x${string}` {
@@ -101,18 +90,20 @@ function getMarketplaceAddress(): `0x${string}` {
   return addr as `0x${string}`;
 }
 
-const MARKET_ABI = [
-  "function listings(uint256 listingId) view returns (address seller,address token,uint256 tokenId,uint256 quantity,uint8 standard,address currency,uint256 price,uint64 startTime,uint64 endTime,bool active)",
-] as const;
-
-// singleton-ish (per server instance)
 let _provider: ethers.JsonRpcProvider | null = null;
 let _market: ethers.Contract | null = null;
 
+const MARKET_IFACE = new ethers.Interface(MARKETPLACE_CORE_ABI as any);
+
+function getProvider() {
+  _provider = _provider ?? new ethers.JsonRpcProvider(getRpcUrl());
+  return _provider;
+}
+
 function getMarket() {
   if (_market) return _market;
-  _provider = _provider ?? new ethers.JsonRpcProvider(getRpcUrl());
-  _market = new ethers.Contract(getMarketplaceAddress(), MARKET_ABI, _provider);
+  const provider = getProvider();
+  _market = new ethers.Contract(getMarketplaceAddress(), MARKETPLACE_CORE_ABI as any, provider);
   return _market;
 }
 
@@ -124,6 +115,8 @@ type DbRow = {
   quantity: number | null;
   priceEtnWei: any;
   priceTokenAmount: any;
+  txHashCreated: string | null;
+
   currency: {
     id: string;
     symbol: string | null;
@@ -131,6 +124,7 @@ type DbRow = {
     kind: CurrencyKind;
     tokenAddress: string | null;
   } | null;
+
   nft: {
     contract: string;
     tokenId: string;
@@ -141,18 +135,55 @@ type DbRow = {
   };
 };
 
+async function resolveChainListingIdFromTx(row: DbRow): Promise<bigint | null> {
+  const txHash = (row.txHashCreated || "").trim();
+  if (!txHash || !ethers.isHexString(txHash, 32)) return null;
+
+  const provider = getProvider();
+  const receipt = await provider.getTransactionReceipt(txHash).catch(() => null);
+  if (!receipt) return null;
+
+  const marketAddr = lower(getMarketplaceAddress());
+  const wantContract = lower(row.nft.contract);
+  const wantTokenId = String(row.nft.tokenId);
+
+  for (const lg of receipt.logs || []) {
+    if (lower(lg.address) !== marketAddr) continue;
+
+    try {
+      const parsed = MARKET_IFACE.parseLog({
+        topics: lg.topics as any,
+        data: lg.data as any,
+      });
+
+      if (!parsed || parsed.name !== "ListingCreated") continue;
+
+      const args: any = parsed.args;
+
+      const listingId = args?.listingId as bigint | undefined;
+      const token = String(args?.token ?? "");
+      const tokenId = (args?.tokenId as bigint | undefined) ?? undefined;
+
+      if (!listingId || !tokenId) continue;
+
+      if (lower(token) !== wantContract) continue;
+      if (tokenId.toString() !== wantTokenId) continue;
+
+      return listingId;
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
 async function chainTruthForListing(row: DbRow) {
   const market = getMarket();
 
-  // listing id MUST be numeric string
-  let listingId: bigint;
-  try {
-    listingId = BigInt(String(row.id));
-  } catch {
-    return null;
-  }
+  const listingId = await resolveChainListingIdFromTx(row);
+  if (!listingId) return null;
 
-  // read on-chain struct
   const L = await market.listings(listingId).catch(() => null);
   if (!L) return null;
 
@@ -166,10 +197,8 @@ async function chainTruthForListing(row: DbRow) {
   const end = Number(L[8] as bigint);
   const active = Boolean(L[9]);
 
-  // must be active on-chain
   if (!active) return null;
 
-  // must match token
   if (lower(tokenAddr) !== lower(row.nft.contract)) return null;
   if (tokenId.toString() !== String(row.nft.tokenId)) return null;
 
@@ -195,19 +224,14 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(searchParams.get("limit") || 24), 60);
   const cursor = searchParams.get("cursor");
 
-  // ✅ strict truth filter: for ERC721, seller MUST equal current DB owner
   const strictOwner = searchParams.get("strictOwner") === "1";
 
-  // optional filters
   const contractParam = searchParams.get("contract") || undefined;
   const tokenIdParam = searchParams.get("tokenId") || undefined;
 
-  // fast-path count
   const countOnly = searchParams.get("count") === "1";
 
-  // chain-truth is auto-enabled for token page requests (strictOwner + token filter)
-  const chainTruth =
-    searchParams.get("chain") === "1" || (strictOwner && !!contractParam && !!tokenIdParam);
+  const chainTruth = searchParams.get("chain") === "1" || (!!contractParam && !!tokenIdParam);
 
   try {
     const whereBase: any = {
@@ -218,10 +242,7 @@ export async function GET(req: NextRequest) {
     if (contractParam || tokenIdParam) {
       whereBase.nft = {};
       if (contractParam) {
-        whereBase.nft.contract = {
-          equals: contractParam,
-          mode: "insensitive" as const,
-        };
+        whereBase.nft.contract = { equals: contractParam, mode: "insensitive" as const };
       }
       if (tokenIdParam) {
         whereBase.nft.tokenId = tokenIdParam;
@@ -246,6 +267,7 @@ export async function GET(req: NextRequest) {
         quantity: true,
         priceEtnWei: true,
         priceTokenAmount: true,
+        txHashCreated: true,
         currency: {
           select: {
             id: true,
@@ -271,7 +293,6 @@ export async function GET(req: NextRequest) {
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, -1) : rows;
 
-    // If chainTruth is enabled, validate each candidate (token page is usually limit=1)
     const truthResults = chainTruth
       ? await Promise.all(
           page.map(async (l) => {
@@ -287,7 +308,6 @@ export async function GET(req: NextRequest) {
 
     const filtered = truthResults
       .filter(({ row, truth }) => {
-        // if chainTruth enabled, drop non-truthy entries
         if (chainTruth && !truth) return false;
 
         if (!strictOwner) return true;
@@ -302,11 +322,9 @@ export async function GET(req: NextRequest) {
         return lower(seller) === lower(ownerWallet);
       })
       .map(({ row, truth }) => {
-        // currency resolution
         const chainCurrencyAddr = truth?.currencyAddr ?? null;
         const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
 
-        // If chain currency is ERC20, try to align decimals/symbol from DB currency (best-effort)
         const dbCur = row.currency;
         const dbIsNative = (dbCur?.kind ?? CurrencyKind.NATIVE) === CurrencyKind.NATIVE;
 
@@ -314,9 +332,8 @@ export async function GET(req: NextRequest) {
 
         const decimals = isNative ? 18 : dbCur?.decimals ?? 18;
         const symbol = isNative ? "ETN" : dbCur?.symbol ?? "ERC20";
-        const tokenAddress = isNative ? null : (dbCur?.tokenAddress ?? chainCurrencyAddr);
+        const tokenAddress = isNative ? null : dbCur?.tokenAddress ?? chainCurrencyAddr;
 
-        // price resolution
         const qty = Number(truth?.quantity ?? Number(row.quantity ?? 1)) || 1;
 
         const totalWei =
@@ -327,34 +344,39 @@ export async function GET(req: NextRequest) {
         const unitWei = totalWei != null && qty > 0 ? totalWei / BigInt(qty) : null;
 
         const startISO = chainTruth ? truth!.startTimeISO : row.startTime.toISOString();
-        const endISO = chainTruth ? truth!.endTimeISO : row.endTime ? row.endTime.toISOString() : null;
+        const endISO = chainTruth
+          ? truth!.endTimeISO
+          : row.endTime
+          ? row.endTime.toISOString()
+          : null;
 
         const now = Date.now();
-        const isLive =
-          chainTruth
-            ? Boolean(truth!.isLive)
-            : (() => {
-                const startMs = row.startTime.getTime();
-                const endMs = row.endTime ? row.endTime.getTime() : null;
-                return now >= startMs && (!endMs || now <= endMs);
-              })();
+        const isLive = chainTruth
+          ? Boolean(truth!.isLive)
+          : (() => {
+              const startMs = row.startTime.getTime();
+              const endMs = row.endTime ? row.endTime.getTime() : null;
+              return now >= startMs && (!endMs || now <= endMs);
+            })();
 
         const sellerAddr = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
 
         return {
-          id: row.id,
+          id: chainTruth ? truth!.listingIdStr : row.id,
+          dbId: row.id,
+
           nft: {
             contract: row.nft.contract,
             tokenId: row.nft.tokenId,
-            name:
-              row.nft.name ??
-              `${row.nft.contract.slice(0, 6)}…${row.nft.contract.slice(-4)} #${row.nft.tokenId}`,
+            name: row.nft.name ?? `${row.nft.contract.slice(0, 6)}…${row.nft.contract.slice(-4)} #${row.nft.tokenId}`,
             image: row.nft.imageUrl,
             standard: row.nft.standard ?? "ERC721",
           },
+
           startTime: startISO,
           endTime: endISO,
           isLive,
+
           currency: {
             id: dbCur?.id ?? null,
             kind: isNative ? "NATIVE" : "ERC20",
@@ -362,19 +384,61 @@ export async function GET(req: NextRequest) {
             decimals,
             tokenAddress: tokenAddress ?? null,
           },
+
           price: {
             unitWei: unitWei != null ? unitWei.toString() : null,
             unit: unitWei != null ? formatUnitsSafe(unitWei, decimals) : null,
             totalWei: totalWei != null ? totalWei.toString() : null,
             total: totalWei != null ? formatUnitsSafe(totalWei, decimals) : null,
           },
+
+          // keep old field
           sellerAddress: sellerAddr,
+
+          // new normalized seller object for username rendering
+          seller: {
+            address: sellerAddr,
+            username: null as string | null,
+          },
+
           quantity: qty,
         };
       });
 
+    // username lookup for the final items
+    const sellers = Array.from(
+      new Set(
+        filtered
+          .map((x) => x.seller?.address ?? x.sellerAddress)
+          .filter((a): a is string => typeof a === "string" && a.length > 0)
+          .map((a) => a.toLowerCase())
+      )
+    );
+
+    const users =
+      sellers.length > 0
+        ? await prisma.user.findMany({
+            where: { walletAddress: { in: sellers } },
+            select: { walletAddress: true, username: true },
+          })
+        : [];
+
+    const userByWalletLC = new Map(users.map((u) => [u.walletAddress.toLowerCase(), u.username || null]));
+
+    const items = filtered.map((x) => {
+      const addr = (x.seller?.address ?? x.sellerAddress) as string | null;
+      const username = addr ? userByWalletLC.get(addr.toLowerCase()) ?? null : null;
+      return {
+        ...x,
+        seller: {
+          address: addr,
+          username,
+        },
+      };
+    });
+
     const nextCursor = hasMore ? rows[rows.length - 1].id : null;
-    return NextResponse.json({ items: filtered, nextCursor });
+    return NextResponse.json({ items, nextCursor });
   } catch (e) {
     console.error("[api listing active] error:", e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
