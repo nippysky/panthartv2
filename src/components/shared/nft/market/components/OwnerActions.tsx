@@ -10,9 +10,15 @@ import DateTimePicker from "@/src/components/shared/DateTimePicker";
 import { CurrencySelect } from "@/src/components/shared/nft/CurrencySelector";
 
 import { marketplace, type Standard } from "@/src/lib/services/marketplace";
-import type { AuctionActiveItem, CurrencyOption, ListingActiveItem, OwnerMode } from "../types";
+import type {
+  AuctionActiveItem,
+  CurrencyOption,
+  ListingActiveItem,
+  OwnerMode,
+} from "../types";
 import {
   addDaysLocalYmdhm,
+  confirmAuctionRow,
   confirmListingRow,
   errorMessage,
   localYmdhmToUnix,
@@ -125,7 +131,10 @@ export function OwnerActions(props: {
   const ownerActionSubtitle = useMemo(() => {
     // ✅ keep server + first client render identical
     if (!accountStable) return "Connect your wallet to list, auction, or transfer.";
-    if (userOwns) return blockedByEscrow ? "You own this NFT (currently in market state)." : "You own this NFT.";
+    if (userOwns)
+      return blockedByEscrow
+        ? "You own this NFT (currently in market state)."
+        : "You own this NFT.";
     return "Not owned by your connected wallet.";
   }, [accountStable, userOwns, blockedByEscrow]);
 
@@ -257,7 +266,7 @@ export function OwnerActions(props: {
     setErr(null);
 
     try {
-      await marketplace.createAuctionJustInTime({
+      const txHash = await marketplace.createAuctionJustInTime({
         collection: contract as `0x${string}`,
         tokenId: BigInt(tokenId),
         standard,
@@ -268,6 +277,13 @@ export function OwnerActions(props: {
         startTimeSec: startUnix,
         endTimeSec: endUnix,
       });
+
+      await confirmAuctionRow({
+        txHashCreated: txHash,
+        contract,
+        tokenId,
+        account: accountStable,
+      }).catch(() => null);
 
       toast.success("Auction created.", { id: tId });
       closeOwnerPanels();

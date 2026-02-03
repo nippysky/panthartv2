@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ethers } from "ethers";
 
+/* ------------------------------------------------------------------ */
+/* Dates / Time                                                        */
+/* ------------------------------------------------------------------ */
 export function parseIsoToMs(iso?: string | null) {
   if (!iso) return null;
   const t = new Date(iso).getTime();
@@ -31,6 +34,9 @@ export function localYmdhmToUnix(local: string): number {
   return Math.floor(t / 1000);
 }
 
+/* ------------------------------------------------------------------ */
+/* Errors / Address helpers                                             */
+/* ------------------------------------------------------------------ */
 export function errorMessage(e: unknown, fallback: string) {
   const maybe = e as { reason?: string; shortMessage?: string; message?: string };
   return maybe?.reason || maybe?.shortMessage || maybe?.message || fallback;
@@ -54,6 +60,9 @@ export function eqAddress(a?: string | null, b?: string | null) {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Countdown                                                            */
+/* ------------------------------------------------------------------ */
 export function formatCountdown(targetMs: number, nowMs: number) {
   const diff = Math.max(0, targetMs - nowMs);
   const total = Math.floor(diff / 1000);
@@ -66,29 +75,61 @@ export function formatCountdown(targetMs: number, nowMs: number) {
   return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
 }
 
+/* ------------------------------------------------------------------ */
+/* Post-tx DB confirmation helpers                                      */
+/* ------------------------------------------------------------------ */
+
+type ConfirmOk = {
+  ok: true;
+  listingId?: string;
+  auctionId?: string;
+  dbId?: string;
+  status?: string;
+};
+
+type ConfirmFail = { ok: false; error: string };
+
+async function postJson<T>(url: string, body: any, timeoutMs: number): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify(body),
+    });
+
+    const json = (await res.json().catch(() => null)) as T | null;
+    // If server didn't return JSON, still throw a useful error
+    if (!res.ok || !json) {
+      const anyJson = json as any;
+      const msg =
+        anyJson?.error ||
+        anyJson?.message ||
+        `Confirm endpoint failed (${res.status})`;
+      throw new Error(msg);
+    }
+
+    return json;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
+ * Confirm listing row in DB by txHashCreated (decodes ListingCreated from receipt).
+ * Safe to call and ignore failures (UI will still work via normal polling/refresh).
+ */
 export async function confirmListingRow(params: {
   txHashCreated: string;
   contract: string;
   tokenId: string;
   account?: string | null;
-}) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
-
+}): Promise<ConfirmOk | ConfirmFail> {
   try {
-    const res = await fetch("/api/market/listing/confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: controller.signal,
-      body: JSON.stringify({
-        txHashCreated: params.txHashCreated,
-        contract: params.contract,
-        tokenId: params.tokenId,
-        account: params.account ?? undefined,
-      }),
-    });
-
-    const json = (await res.json().catch(() => null)) as
+    const json = await postJson<
       | {
           ok: boolean;
           listingId?: string;
@@ -96,10 +137,20 @@ export async function confirmListingRow(params: {
           status?: string;
           error?: string;
         }
-      | null;
+      | null
+    >(
+      "/api/market/listing/confirm",
+      {
+        txHashCreated: params.txHashCreated,
+        contract: params.contract,
+        tokenId: params.tokenId,
+        account: params.account ?? undefined,
+      },
+      12_000
+    );
 
-    if (!res.ok || !json?.ok) {
-      return { ok: false, error: json?.error || "Confirm endpoint failed" };
+    if (!json || !json.ok) {
+      return { ok: false, error: (json as any)?.error || "Confirm endpoint failed" };
     }
 
     return {
@@ -113,7 +164,54 @@ export async function confirmListingRow(params: {
       ok: false,
       error: e?.name === "AbortError" ? "Confirm timed out" : "Confirm failed",
     };
-  } finally {
-    clearTimeout(timeout);
+  }
+}
+
+/**
+ * Confirm auction row in DB by txHashCreated (decodes AuctionCreated from receipt).
+ * Safe to call and ignore failures (UI will still work via normal polling/refresh).
+ */
+export async function confirmAuctionRow(params: {
+  txHashCreated: string;
+  contract: string;
+  tokenId: string;
+  account?: string | null;
+}): Promise<ConfirmOk | ConfirmFail> {
+  try {
+    const json = await postJson<
+      | {
+          ok: boolean;
+          auctionId?: string;
+          dbId?: string;
+          status?: string;
+          error?: string;
+        }
+      | null
+    >(
+      "/api/market/auction/confirm",
+      {
+        txHashCreated: params.txHashCreated,
+        contract: params.contract,
+        tokenId: params.tokenId,
+        account: params.account ?? undefined,
+      },
+      12_000
+    );
+
+    if (!json || !json.ok) {
+      return { ok: false, error: (json as any)?.error || "Confirm endpoint failed" };
+    }
+
+    return {
+      ok: true,
+      auctionId: json.auctionId,
+      dbId: json.dbId,
+      status: json.status,
+    };
+  } catch (e: any) {
+    return {
+      ok: false,
+      error: e?.name === "AbortError" ? "Confirm timed out" : "Confirm failed",
+    };
   }
 }

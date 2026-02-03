@@ -316,7 +316,9 @@ export async function GET(req: NextRequest) {
         if (std === "ERC1155") return true;
 
         const ownerWallet = row.nft.owner?.walletAddress ?? null;
-        if (!ownerWallet) return false;
+
+        // ✅ FIX: if owner isn't synced in DB yet, don't hide listing
+        if (!ownerWallet) return true;
 
         const seller = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
         return lower(seller) === lower(ownerWallet);
@@ -368,7 +370,9 @@ export async function GET(req: NextRequest) {
           nft: {
             contract: row.nft.contract,
             tokenId: row.nft.tokenId,
-            name: row.nft.name ?? `${row.nft.contract.slice(0, 6)}…${row.nft.contract.slice(-4)} #${row.nft.tokenId}`,
+            name:
+              row.nft.name ??
+              `${row.nft.contract.slice(0, 6)}…${row.nft.contract.slice(-4)} #${row.nft.tokenId}`,
             image: row.nft.imageUrl,
             standard: row.nft.standard ?? "ERC721",
           },

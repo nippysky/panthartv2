@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/auction/active/route.ts
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const runtime = "nodejs";
 
-import { NextRequest, NextResponse } from "next/server";
 import prisma, { prismaReady } from "@/src/lib/db";
 import { AuctionStatus, CurrencyKind } from "@/src/lib/generated/prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
+import { MARKETPLACE_CORE_ABI } from "@/src/lib/abis/marketplace-core/marketPlaceCoreABI";
 
 function lower(s?: string | null) {
   return (s ?? "").toLowerCase();
@@ -18,6 +20,7 @@ function pow10BigInt(decimals: number): bigint {
   return p;
 }
 
+/** UI-friendly decimal string (no Number overflow) */
 function formatUnitsSafe(wei: bigint, decimals: number): string {
   if (decimals <= 0) return wei.toString();
   const base = pow10BigInt(decimals);
@@ -43,17 +46,20 @@ function getMarketplaceAddress(): `0x${string}` {
   return addr as `0x${string}`;
 }
 
-const MARKET_ABI = [
-  "function auctions(uint256 auctionId) view returns (address seller,address token,uint256 tokenId,uint256 quantity,uint8 standard,address currency,uint256 startPrice,uint256 minIncrement,uint64 startTime,uint64 endTime,address highestBidder,uint256 highestBid,uint32 bidsCount,bool settled)",
-] as const;
-
 let _provider: ethers.JsonRpcProvider | null = null;
 let _market: ethers.Contract | null = null;
 
+const MARKET_IFACE = new ethers.Interface(MARKETPLACE_CORE_ABI as any);
+
+function getProvider() {
+  _provider = _provider ?? new ethers.JsonRpcProvider(getRpcUrl());
+  return _provider;
+}
+
 function getMarket() {
   if (_market) return _market;
-  _provider = _provider ?? new ethers.JsonRpcProvider(getRpcUrl());
-  _market = new ethers.Contract(getMarketplaceAddress(), MARKET_ABI, _provider);
+  const provider = getProvider();
+  _market = new ethers.Contract(getMarketplaceAddress(), MARKETPLACE_CORE_ABI as any, provider);
   return _market;
 }
 
@@ -63,10 +69,14 @@ type DbRow = {
   endTime: Date;
   sellerAddress: string | null;
   quantity: number | null;
+
   startPriceEtnWei: any;
   highestBidEtnWei: any;
   startPriceTokenAmount: any;
   highestBidTokenAmount: any;
+
+  txHashCreated: string | null;
+
   currency: {
     id: string;
     symbol: string | null;
@@ -74,6 +84,7 @@ type DbRow = {
     kind: CurrencyKind;
     tokenAddress: string | null;
   } | null;
+
   nft: {
     contract: string;
     tokenId: string;
@@ -84,15 +95,92 @@ type DbRow = {
   };
 };
 
+// --------------------
+// ✅ Micro-opt cache: txHashCreated -> auctionId
+// --------------------
+const AUCTION_ID_BY_TX = new Map<string, { id: bigint; ts: number }>();
+const AUCTION_ID_CACHE_MAX = 5000;
+const AUCTION_ID_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function cacheGetAuctionId(txHash: string): bigint | null {
+  const key = txHash.toLowerCase();
+  const hit = AUCTION_ID_BY_TX.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > AUCTION_ID_CACHE_TTL_MS) {
+    AUCTION_ID_BY_TX.delete(key);
+    return null;
+  }
+  return hit.id;
+}
+
+function cacheSetAuctionId(txHash: string, id: bigint) {
+  const key = txHash.toLowerCase();
+  AUCTION_ID_BY_TX.set(key, { id, ts: Date.now() });
+  if (AUCTION_ID_BY_TX.size > AUCTION_ID_CACHE_MAX) {
+    // drop oldest-ish (simple sweep)
+    const entries = Array.from(AUCTION_ID_BY_TX.entries());
+    entries.sort((a, b) => a[1].ts - b[1].ts);
+    for (let i = 0; i < Math.max(0, entries.length - AUCTION_ID_CACHE_MAX); i++) {
+      AUCTION_ID_BY_TX.delete(entries[i][0]);
+    }
+  }
+}
+
+async function resolveChainAuctionIdFromTx(row: DbRow): Promise<bigint | null> {
+  const txHash = (row.txHashCreated || "").trim();
+  if (!txHash || !ethers.isHexString(txHash, 32)) return null;
+
+  // ✅ cache first
+  const cached = cacheGetAuctionId(txHash);
+  if (cached) return cached;
+
+  const provider = getProvider();
+  const receipt = await provider.getTransactionReceipt(txHash).catch(() => null);
+  if (!receipt) return null;
+
+  const marketAddr = lower(getMarketplaceAddress());
+  const wantContract = lower(row.nft.contract);
+  const wantTokenId = String(row.nft.tokenId);
+
+  for (const lg of receipt.logs || []) {
+    if (lower(lg.address) !== marketAddr) continue;
+
+    try {
+      const parsed = MARKET_IFACE.parseLog({
+        topics: lg.topics as any,
+        data: lg.data as any,
+      });
+
+      if (!parsed || parsed.name !== "AuctionCreated") continue;
+
+      const args: any = parsed.args;
+
+      const auctionId = args?.auctionId as bigint | undefined;
+      const token = String(args?.token ?? "");
+      const tokenId = (args?.tokenId as bigint | undefined) ?? undefined;
+
+      if (!auctionId || !tokenId) continue;
+
+      if (lower(token) !== wantContract) continue;
+      if (tokenId.toString() !== wantTokenId) continue;
+
+      // ✅ store for later calls
+      cacheSetAuctionId(txHash, auctionId);
+
+      return auctionId;
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
 async function chainTruthForAuction(row: DbRow) {
   const market = getMarket();
 
-  let auctionId: bigint;
-  try {
-    auctionId = BigInt(String(row.id));
-  } catch {
-    return null;
-  }
+  const auctionId = await resolveChainAuctionIdFromTx(row);
+  if (!auctionId) return null;
 
   const A = await market.auctions(auctionId).catch(() => null);
   if (!A) return null;
@@ -105,17 +193,18 @@ async function chainTruthForAuction(row: DbRow) {
   const startPrice = (A[6] as bigint) ?? BigInt(0);
   const startTime = Number(A[8] as bigint);
   const endTime = Number(A[9] as bigint);
+  const highestBidder = String(A[10] ?? "");
   const highestBid = (A[11] as bigint) ?? BigInt(0);
   const bidsCount = Number(A[12] as number);
   const settled = Boolean(A[13]);
 
   if (settled) return null;
 
-  // must match token
   if (lower(tokenAddr) !== lower(row.nft.contract)) return null;
   if (tokenId.toString() !== String(row.nft.tokenId)) return null;
 
   const now = Math.floor(Date.now() / 1000);
+
   if (now >= endTime) return null;
 
   const isLive = now >= startTime && now < endTime;
@@ -126,10 +215,14 @@ async function chainTruthForAuction(row: DbRow) {
     sellerAddress: seller && ethers.isAddress(seller) ? seller : row.sellerAddress,
     quantity: qty > BigInt(0) ? Number(qty) : Number(row.quantity ?? 1),
     currencyAddr: currencyAddr && ethers.isAddress(currencyAddr) ? currencyAddr : null,
-    currentWei,
+
     startTimeISO: new Date(startTime * 1000).toISOString(),
     endTimeISO: new Date(endTime * 1000).toISOString(),
     isLive,
+
+    currentWei,
+    highestBidder: highestBidder && ethers.isAddress(highestBidder) ? highestBidder : null,
+    bidsCount,
   };
 }
 
@@ -145,8 +238,7 @@ export async function GET(req: NextRequest) {
   const contractParam = searchParams.get("contract") || undefined;
   const tokenIdParam = searchParams.get("tokenId") || undefined;
 
-  const chainTruth =
-    searchParams.get("chain") === "1" || (strictOwner && !!contractParam && !!tokenIdParam);
+  const chainTruth = searchParams.get("chain") === "1" || (!!contractParam && !!tokenIdParam);
 
   try {
     const whereBase: any = {
@@ -181,6 +273,8 @@ export async function GET(req: NextRequest) {
         startPriceTokenAmount: true,
         highestBidTokenAmount: true,
 
+        txHashCreated: true,
+
         currency: {
           select: { id: true, symbol: true, decimals: true, kind: true, tokenAddress: true },
         },
@@ -213,7 +307,7 @@ export async function GET(req: NextRequest) {
         )
       : page.map((a) => ({ row: a, truth: null as any }));
 
-    const filteredTruth = truthResults
+    const filtered = truthResults
       .filter(({ row, truth }) => {
         if (chainTruth && !truth) return false;
 
@@ -223,76 +317,69 @@ export async function GET(req: NextRequest) {
         if (std === "ERC1155") return true;
 
         const ownerWallet = row.nft.owner?.walletAddress ?? null;
-        if (!ownerWallet) return false;
+
+        // ✅ if owner isn't synced in DB yet, don't hide the auction
+        if (!ownerWallet) return true;
 
         const seller = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
         return lower(seller) === lower(ownerWallet);
       })
       .map(({ row, truth }) => {
-        const dbCur = row.currency;
-
         const chainCurrencyAddr = truth?.currencyAddr ?? null;
         const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
 
-        const isNative = chainTruth
-          ? chainIsNative
-          : (dbCur?.kind ?? CurrencyKind.NATIVE) === CurrencyKind.NATIVE;
+        const dbCur = row.currency;
+        const dbIsNative = (dbCur?.kind ?? CurrencyKind.NATIVE) === CurrencyKind.NATIVE;
+
+        const isNative = chainTruth ? chainIsNative : dbIsNative;
 
         const decimals = isNative ? 18 : dbCur?.decimals ?? 18;
         const symbol = isNative ? "ETN" : dbCur?.symbol ?? "ERC20";
-        const tokenAddress = isNative ? null : (dbCur?.tokenAddress ?? chainCurrencyAddr);
-
-        let currentWei: bigint | null = null;
-
-        if (chainTruth && truth?.currentWei != null) {
-          currentWei = truth.currentWei as bigint;
-        } else {
-          const highest = isNative ? row.highestBidEtnWei : row.highestBidTokenAmount;
-          const start = isNative ? row.startPriceEtnWei : row.startPriceTokenAmount;
-
-          const highestStr = highest?.toString?.() ?? highest ?? null;
-          const startStr = start?.toString?.() ?? start ?? null;
-
-          try {
-            currentWei = highestStr != null ? BigInt(String(highestStr)) : null;
-          } catch {
-            currentWei = null;
-          }
-          if (currentWei == null) {
-            try {
-              currentWei = startStr != null ? BigInt(String(startStr)) : null;
-            } catch {
-              currentWei = null;
-            }
-          }
-        }
-
-        const sellerAddress = chainTruth
-          ? (truth!.sellerAddress ?? row.sellerAddress)
-          : row.sellerAddress;
+        const tokenAddress = isNative ? null : dbCur?.tokenAddress ?? chainCurrencyAddr;
 
         const startISO = chainTruth ? truth!.startTimeISO : row.startTime.toISOString();
         const endISO = chainTruth ? truth!.endTimeISO : row.endTime.toISOString();
 
+        const now = Date.now();
         const isLive = chainTruth
           ? Boolean(truth!.isLive)
           : (() => {
-              const now = Date.now();
               const s = row.startTime.getTime();
               const e = row.endTime.getTime();
               return now >= s && now < e;
             })();
 
+        const sellerAddr = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
+
+        const currentWei = chainTruth
+          ? (truth!.currentWei as bigint)
+          : (() => {
+              const highest = isNative ? row.highestBidEtnWei : row.highestBidTokenAmount;
+              const start = isNative ? row.startPriceEtnWei : row.startPriceTokenAmount;
+
+              const hStr = highest?.toString?.() ?? highest ?? null;
+              const sStr = start?.toString?.() ?? start ?? null;
+
+              let v: bigint | null = null;
+              try {
+                v = hStr != null ? BigInt(String(hStr)) : null;
+              } catch {
+                v = null;
+              }
+              if (v == null) {
+                try {
+                  v = sStr != null ? BigInt(String(sStr)) : null;
+                } catch {
+                  v = null;
+                }
+              }
+              return v ?? BigInt(0);
+            })();
+
         return {
-          id: row.id,
-          startTime: startISO,
-          endTime: endISO,
-          isLive,
-          quantity: truth?.quantity ?? row.quantity ?? 1,
-          seller: {
-            address: sellerAddress,
-            username: null as string | null,
-          },
+          id: chainTruth ? truth!.auctionIdStr : row.id,
+          dbId: row.id,
+
           nft: {
             contract: row.nft.contract,
             tokenId: row.nft.tokenId,
@@ -302,6 +389,11 @@ export async function GET(req: NextRequest) {
             image: row.nft.imageUrl,
             standard: row.nft.standard ?? "ERC721",
           },
+
+          startTime: startISO,
+          endTime: endISO,
+          isLive,
+
           currency: {
             id: dbCur?.id ?? null,
             kind: isNative ? "NATIVE" : "ERC20",
@@ -309,17 +401,30 @@ export async function GET(req: NextRequest) {
             decimals,
             tokenAddress: tokenAddress ?? null,
           },
+
           price: {
             currentWei: currentWei != null ? currentWei.toString() : null,
             current: currentWei != null ? formatUnitsSafe(currentWei, decimals) : null,
           },
+
+          sellerAddress: sellerAddr,
+
+          seller: {
+            address: sellerAddr,
+            username: null as string | null,
+          },
+
+          quantity: truth?.quantity ?? row.quantity ?? 1,
+
+          highestBidder: truth?.highestBidder ?? null,
+          bidsCount: truth?.bidsCount ?? null,
         };
       });
 
     const sellers = Array.from(
       new Set(
-        filteredTruth
-          .map((x) => x.seller.address)
+        filtered
+          .map((x) => x.seller?.address ?? x.sellerAddress)
           .filter((a): a is string => typeof a === "string" && a.length > 0)
           .map((a) => a.toLowerCase())
       )
@@ -335,13 +440,17 @@ export async function GET(req: NextRequest) {
 
     const userByWalletLC = new Map(users.map((u) => [u.walletAddress.toLowerCase(), u.username || null]));
 
-    const items = filteredTruth.map((x) => ({
-      ...x,
-      seller: {
-        ...x.seller,
-        username: x.seller.address ? userByWalletLC.get(x.seller.address.toLowerCase()) ?? null : null,
-      },
-    }));
+    const items = filtered.map((x) => {
+      const addr = (x.seller?.address ?? x.sellerAddress) as string | null;
+      const username = addr ? userByWalletLC.get(addr.toLowerCase()) ?? null : null;
+      return {
+        ...x,
+        seller: {
+          address: addr,
+          username,
+        },
+      };
+    });
 
     const nextCursor = hasMore ? rows[rows.length - 1].id : null;
     return NextResponse.json({ items, nextCursor });

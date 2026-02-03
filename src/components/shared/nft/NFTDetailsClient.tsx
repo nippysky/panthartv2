@@ -35,16 +35,11 @@ function extractItemsArray(data: unknown): unknown[] {
  */
 function useMounted(): boolean {
   return useSyncExternalStore(
-    // subscribe
     (onStoreChange) => {
-      // Run after hydration; triggers one update.
-      // Using queueMicrotask avoids any sync setState-in-effect patterns.
       queueMicrotask(onStoreChange);
       return () => {};
     },
-    // getSnapshot (client)
     () => true,
-    // getServerSnapshot (server)
     () => false
   );
 }
@@ -80,7 +75,7 @@ export default function NFTDetailsClient({
 
   const std: Standard = standard === "ERC1155" ? "ERC1155" : "ERC721";
 
-  // owner username resolution
+  // owner username resolution (✅ FIXED: use /api/users/lookup)
   const [ownerUsername, setOwnerUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -92,16 +87,20 @@ export default function NFTDetailsClient({
         return;
       }
 
-      const res = await fetch(`/api/user/resolve?address=${encodeURIComponent(owner)}`, {
+      const res = await fetch("/api/users/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         cache: "no-store",
+        body: JSON.stringify({ addresses: [owner] }),
       }).then((r) => r.json().catch(() => null));
 
+      const map = res && typeof res === "object" && res != null ? (res as any).map : null;
       const username =
-        res && isRecord(res) && typeof (res as any).username === "string"
-          ? ((res as any).username as string)
+        map && typeof map === "object" && map != null
+          ? (map[String(owner).toLowerCase()] as string | undefined) ?? null
           : null;
 
-      if (!cancelled) setOwnerUsername(username);
+      if (!cancelled) setOwnerUsername(typeof username === "string" ? username : null);
     })();
 
     return () => {
@@ -125,15 +124,15 @@ export default function NFTDetailsClient({
     try {
       const [lRes, aRes] = await Promise.all([
         fetch(
-          `/api/listing/active?contract=${encodeURIComponent(
-            contract
-          )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&strictOwner=1&chain=1`,
+          `/api/listing/active?contract=${encodeURIComponent(contract)}&tokenId=${encodeURIComponent(
+            tokenId
+          )}&limit=1&strictOwner=1&chain=1`,
           { cache: "no-store" }
         ).then((r) => r.json().catch((): unknown => null)),
         fetch(
-          `/api/auction/active?contract=${encodeURIComponent(
-            contract
-          )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&strictOwner=1&chain=1`,
+          `/api/auction/active?contract=${encodeURIComponent(contract)}&tokenId=${encodeURIComponent(
+            tokenId
+          )}&limit=1&strictOwner=1&chain=1`,
           { cache: "no-store" }
         ).then((r) => r.json().catch((): unknown => null)),
       ]);
@@ -238,9 +237,7 @@ export default function NFTDetailsClient({
       ) : (
         <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
           <h3 className="font-semibold">Activity</h3>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Latest sales, listings, bids, mints, transfers.
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">Latest sales, listings, bids, mints, transfers.</p>
 
           <div className="mt-4">
             <ActivityTab contract={contract} tokenId={tokenId} />

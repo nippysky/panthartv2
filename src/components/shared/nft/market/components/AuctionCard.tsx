@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Button } from "@/src/ui/Button";
 import { ButtonLink } from "./ButtonLink";
 

@@ -37,16 +37,39 @@ function getNum(o: Record<string, unknown>, k: string): number | null {
   return null;
 }
 
+/**
+ * Normalize/alias backend event types into your UI types.
+ * This is where we "wire AuctionSettled / ListingPurchased into Activity".
+ */
+function normalizeType(raw: string): string {
+  const t = (raw || "").trim();
+
+  // tolerate different casing/format coming from API
+  const upper = t.toUpperCase();
+
+  // ✅ canonicalize on-chain-ish / backend-ish names to existing UI categories
+  // ListingPurchased => SALE
+  if (upper === "LISTINGPURCHASED" || upper === "LISTING_PURCHASED") return "SALE";
+
+  // AuctionSettled => AUCTION_FINALIZE (that’s already in your dropdown)
+  if (upper === "AUCTIONSETTLED" || upper === "AUCTION_SETTLED") return "AUCTION_FINALIZE";
+
+  // keep as-is for your existing taxonomy
+  return upper;
+}
+
 function normalizeToRow(it: unknown, fallbackTokenId?: string): Row | null {
   if (!isObject(it)) return null;
 
   const id = getStr(it, "id") ?? "";
-  const type = (getStr(it, "type") ?? "").toUpperCase();
-  const tokenId = getStr(it, "tokenId") ?? fallbackTokenId ?? "";
+  const rawType = getStr(it, "type") ?? "";
+  const type = normalizeType(rawType);
 
+  const tokenId = getStr(it, "tokenId") ?? fallbackTokenId ?? "";
   const timestamp = getStr(it, "timestamp") ?? "";
   const txHash = getStr(it, "txHash") ?? "";
 
+  // minimal required fields
   if (!id || !timestamp) return null;
 
   return {
@@ -154,7 +177,11 @@ function ActivityTabInner({
   const qs = useMemo(() => {
     const p = new URLSearchParams();
     p.set("limit", "30");
+
+    // IMPORTANT: send requested type as-is.
+    // Backend may support "SALE", "AUCTION_FINALIZE", etc.
     if (type) p.set("type", type);
+
     return p.toString();
   }, [type]);
 
@@ -182,8 +209,7 @@ function ActivityTabInner({
       rawItems = data;
     } else if (isObject(data)) {
       if (Array.isArray((data as any).items)) rawItems = (data as any).items;
-      if (typeof (data as any).nextCursor === "string")
-        nextCursor = (data as any).nextCursor;
+      if (typeof (data as any).nextCursor === "string") nextCursor = (data as any).nextCursor;
     }
 
     if (!res.ok) {
@@ -225,6 +251,7 @@ function ActivityTabInner({
     io.observe(el);
     // Trigger initial load by forcing intersection check
     io.observe(el);
+
     return () => io.disconnect();
   }, [loadMore]);
 
@@ -233,9 +260,7 @@ function ActivityTabInner({
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm font-semibold">
           Activity{" "}
-          {mode === "token" ? (
-            <span className="text-muted-foreground">• Token</span>
-          ) : null}
+          {mode === "token" ? <span className="text-muted-foreground">• Token</span> : null}
         </div>
 
         <select
@@ -252,6 +277,11 @@ function ActivityTabInner({
           <option value="MINT">Mint</option>
           <option value="AUCTION_CREATE">Auction Create</option>
           <option value="AUCTION_FINALIZE">Auction Finalize</option>
+
+          {/* Optional aliases (won’t hurt even if backend ignores them).
+              If backend *does* support these raw types, you can filter directly. */}
+          <option value="LISTING_PURCHASED">Listing Purchased</option>
+          <option value="AUCTION_SETTLED">Auction Settled</option>
         </select>
       </div>
 
@@ -283,7 +313,6 @@ function ActivityTabInner({
                   <div className="text-sm text-muted-foreground">—</div>
                 )}
 
-                {/* ✅ Replace dash/short hash area with a proper explorer link */}
                 {href ? (
                   <a
                     href={href}
@@ -307,14 +336,10 @@ function ActivityTabInner({
 
       <div ref={sentinelRef} className="h-10" />
 
-      {loading ? (
-        <div className="mt-4 text-center text-sm text-muted-foreground">Loading…</div>
-      ) : null}
+      {loading ? <div className="mt-4 text-center text-sm text-muted-foreground">Loading…</div> : null}
 
       {!loading && done && items.length === 0 ? (
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          No activity found.
-        </div>
+        <div className="mt-4 text-center text-sm text-muted-foreground">No activity found.</div>
       ) : null}
     </div>
   );

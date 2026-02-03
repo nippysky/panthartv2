@@ -22,14 +22,33 @@ function canonType(input: string): string {
     case "LISTED":
     case "LISTING":
       return "LISTING";
+
     case "AUCTION_STARTED":
     case "AUCTION":
       return "AUCTION";
+
     case "CANCELLED_LISTING":
     case "UNLISTING":
       return "UNLISTING";
+
     case "CANCELLED_AUCTION":
       return "CANCELLED_AUCTION";
+
+    // ✅ wire ListingPurchased into Activity (treat as sale)
+    case "LISTINGPURCHASED":
+    case "LISTING_PURCHASED":
+    case "LISTING_PURCHASE":
+    case "PURCHASED":
+      return "SALE";
+
+    // ✅ wire AuctionSettled into Activity (treat as auction finalize)
+    case "AUCTIONSETTLED":
+    case "AUCTION_SETTLED":
+    case "AUCTION_FINALIZE":
+    case "AUCTION_FINALIZED":
+    case "FINALIZED":
+      return "AUCTION_FINALIZE";
+
     case "SALE":
       return "SALE";
     case "TRANSFER":
@@ -255,9 +274,11 @@ export async function GET(
       .map((r) => {
         const priceMeta = priceFromActivityRow(r, currenciesByAddr, currenciesById);
 
-        let uiType = r.type?.toUpperCase?.() || "";
+        // ✅ normalize types early
+        let uiType = canonType(r.type || "");
         let via: string | null = r.marketplace ?? null;
 
+        // Preserve your existing behavior for legacy AUCTION rows
         if (uiType === "AUCTION") {
           uiType = "LISTING";
           via = "Auction";
@@ -266,11 +287,15 @@ export async function GET(
           via = "Auction";
         }
 
+        // ✅ make AUCTION_FINALIZE show as "Auction finalize" in UI
+        const title =
+          uiType === "AUCTION_FINALIZE" ? "Auction finalize" : toTitle(uiType);
+
         const tx = isRealHash(r.txHash) ? r.txHash : "";
 
         return {
           id: `act-${r.id}`,
-          type: toTitle(uiType),
+          type: title,
           fromAddress: r.fromAddress,
           toAddress: r.toAddress,
           price: priceMeta.amount,
@@ -317,7 +342,6 @@ export async function GET(
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
 
 /* ---------- POST: log an app-side activity row ----------
    Accepts either:
@@ -366,10 +390,6 @@ export async function POST(
     });
     if (!nft) return NextResponse.json({ error: "NFT not found" }, { status: 404 });
 
-    // Decide how to store price:
-    // - If currencyId present: token price by id (preferred) -> rawData { currencyId, priceTokenAmount }
-    // - Else if currencyAddress present: legacy token by address -> rawData { currencyAddress, ...amountWei }
-    // - Else: native ETN -> priceEtnWei
     const isTokenById = Boolean(currencyId && priceTokenAmount != null);
     const isTokenByAddr = !isTokenById && Boolean(currencyAddress && priceWeiStr != null);
     const isNative = !isTokenById && !isTokenByAddr;
@@ -388,15 +408,12 @@ export async function POST(
       timestamp,
       marketplace: marketplace ?? undefined,
       rawData: isTokenById
-        ? {
-            currencyId,
-            priceTokenAmount, // string base units
-          }
+        ? { currencyId, priceTokenAmount }
         : isTokenByAddr
         ? {
             currencyAddress,
             currencySymbol: currencySymbol ?? undefined,
-            amountWei: priceWeiStr ?? undefined, // legacy name
+            amountWei: priceWeiStr ?? undefined,
           }
         : undefined,
     } as const;

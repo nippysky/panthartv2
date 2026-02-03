@@ -13,6 +13,7 @@ import { marketplace, type Standard } from "@/src/lib/services/marketplace";
 import { useNowTicker } from "./hooks/useNowTicker";
 import { useCurrencies } from "./hooks/useCurrencies";
 import { useMarketState } from "./hooks/useMarketState";
+import { useChainMirrors } from "./hooks/useChainMirrors";
 
 import type { OwnerMode } from "./types";
 import { errorMessage, formatCountdown, parseIsoToMs, safeChecksum } from "./utils";
@@ -21,7 +22,6 @@ import { ListingCard } from "./components/ListingCard";
 import { AuctionCard } from "./components/AuctionCard";
 import { OwnerActions } from "./components/OwnerActions";
 import { BidModal } from "./components/BidModal";
-import { useChainMirrors } from "./hooks/useChainMirrors";
 
 function pickUsername(x: any): string | null {
   const u = x?.seller?.username;
@@ -74,6 +74,8 @@ export default function NFTMarketPanel({
   });
 
   const { currencies, currLoading } = useCurrencies();
+
+  // IMPORTANT: listing.id + auction.id are CHAIN ids (strings)
   const { chainListing, chainAuction } = useChainMirrors({
     listingId: listing?.id ?? null,
     auctionId: auction?.id ?? null,
@@ -108,8 +110,7 @@ export default function NFTMarketPanel({
   }, [chainListing, listing?.endTime]);
 
   const listingNotStarted = !!listing && !!listingStartMs && nowMs < listingStartMs;
-  const listingEndedUi =
-    !!listing && !!listingEndMs && listingEndMs > 0 && nowMs > listingEndMs;
+  const listingEndedUi = !!listing && !!listingEndMs && listingEndMs > 0 && nowMs > listingEndMs;
 
   const auctionStartMs = useMemo(() => {
     if (chainAuction) return chainAuction.startSec * 1000;
@@ -125,7 +126,9 @@ export default function NFTMarketPanel({
   const auctionEndedUi = !!auction && !!auctionEndMs && nowMs > auctionEndMs;
 
   const listingSeller = listing?.sellerAddress ?? null;
-  const auctionSeller = auction?.seller?.address ?? null;
+
+  // ✅ CONSISTENT with listing: prefer seller.address but fallback to compat sellerAddress
+  const auctionSeller = (auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null;
 
   const canManageListing = !!account && !!listingSeller && safeEq(account, listingSeller);
   const canManageAuction = !!account && !!auctionSeller && safeEq(account, auctionSeller);
@@ -138,6 +141,7 @@ export default function NFTMarketPanel({
   // fallback seller-like logic if backend omitted sellerAddress (common for ERC721)
   const isSellerLikeForListing =
     canManageListing || (standard === "ERC721" && !!listing && userOwns && !listingSeller);
+
   const isSellerLikeForAuction =
     canManageAuction || (standard === "ERC721" && !!auction && userOwns && !auctionSeller);
 
@@ -178,10 +182,8 @@ export default function NFTMarketPanel({
   const listingSellerUsername = pickUsername(listing as any);
   const auctionSellerUsername = pickUsername(auction as any);
 
-  const displayListingSeller =
-    listingSellerUsername ?? safeChecksum(listingSeller);
-  const displayAuctionSeller =
-    auctionSellerUsername ?? safeChecksum(auctionSeller);
+  const displayListingSeller = listingSellerUsername ?? safeChecksum(listingSeller);
+  const displayAuctionSeller = auctionSellerUsername ?? safeChecksum(auctionSeller);
 
   const buyNow = useCallback(async () => {
     const listingIdStr = listing?.id;
@@ -247,7 +249,25 @@ export default function NFTMarketPanel({
     setErr(null);
 
     try {
-      await marketplace.cancelAuction(BigInt(auctionIdStr));
+      // 1) cancel on-chain
+      const tx: any = await marketplace.cancelAuction(BigInt(auctionIdStr));
+
+      // 2) confirm DB cancellation (✅ FIX)
+      const dbId = (auction as any)?.dbId ?? null;
+      const txHashCancelled =
+        typeof tx === "string" && tx.startsWith("0x") ? tx : (tx?.hash as string | undefined);
+
+      if (dbId) {
+        await fetch("/api/market/auction/cancel/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dbId,
+            txHashCancelled: txHashCancelled ?? null,
+          }),
+        }).catch(() => null);
+      }
+
       toast.success("Auction canceled.", { id: tId });
 
       await refresh();
@@ -260,7 +280,7 @@ export default function NFTMarketPanel({
     } finally {
       setLoading(false);
     }
-  }, [auction?.id, account, requireWalletToast, refresh, router, onAfterAction, setErr]);
+  }, [auction, account, requireWalletToast, refresh, router, onAfterAction, setErr]);
 
   const finalizeAuction = useCallback(async () => {
     const auctionIdStr = auction?.id;
@@ -339,9 +359,7 @@ export default function NFTMarketPanel({
         canFinalize={!!auction && auctionEndedUi}
         bidDisabled={bidDisabled}
         bidTitle={
-          auctionNotStarted && auctionStartMs
-            ? `Starts in ${formatCountdown(auctionStartMs, nowMs)}`
-            : undefined
+          auctionNotStarted && auctionStartMs ? `Starts in ${formatCountdown(auctionStartMs, nowMs)}` : undefined
         }
         endedUi={auctionEndedUi}
         onOpenBid={() => {

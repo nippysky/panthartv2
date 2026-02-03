@@ -33,11 +33,27 @@ function canonType(input: string): string {
     case "LISTED":
     case "LISTING":
       return "LISTING";
+
     case "UNLISTING":
     case "CANCELLED_LISTING":
     case "CANCELLED_AUCTION":
     case "EXPIRED":
       return "UNLISTING";
+
+    // ✅ wire ListingPurchased into Activity (treat as sale)
+    case "LISTINGPURCHASED":
+    case "LISTING_PURCHASED":
+    case "LISTING_PURCHASE":
+    case "PURCHASED":
+      return "SALE";
+
+    // ✅ wire AuctionSettled into Activity (treat as auction finalize)
+    case "AUCTIONSETTLED":
+    case "AUCTION_SETTLED":
+    case "AUCTION_FINALIZED":
+    case "FINALIZED":
+      return "AUCTION_FINALIZE";
+
     case "SALE":
       return "SALE";
     case "TRANSFER":
@@ -161,7 +177,6 @@ export async function GET(
   }
 
   try {
-    // Resolve canonical contract & prefetch NFT map (name/image by id)
     const collection = await prisma.collection.findFirst({
       where: { contract: { equals: contract, mode: "insensitive" } },
       select: { contract: true },
@@ -187,7 +202,7 @@ export async function GET(
     if (fromISO) timeWhere.gte = new Date(fromISO);
     if (toISO) timeWhere.lte = new Date(toISO);
 
-    // --- 1) Canonical sales (MarketplaceSale) — joined to NFT for tokenId/name/image
+    // --- 1) Canonical sales (MarketplaceSale)
     const saleRows = await prisma.marketplaceSale.findMany({
       where: {
         nft: { contract: { equals: canon, mode: "insensitive" } },
@@ -212,7 +227,6 @@ export async function GET(
 
     const mappedSales: UiRow[] = saleRows
       .map((s) => {
-        // price
         let amount: number | null = null;
         let symbol: string | null = null;
         if (s.priceTokenAmount != null && s.currencyId) {
@@ -252,14 +266,14 @@ export async function GET(
       mappedSales.map((r) => (isRealHash(r.txHash) ? r.txHash : "")).filter(Boolean)
     );
 
-    // --- 2) App/chain activities (NFTActivity) at collection scope
+    // --- 2) App/chain activities (NFTActivity)
     const actRows = await prisma.nFTActivity.findMany({
       where: {
         contract: { equals: canon, mode: "insensitive" },
         ...(Object.keys(timeWhere).length ? { timestamp: timeWhere } : {}),
       },
       orderBy: [{ timestamp: "desc" }, { id: "desc" }],
-      take: limit * 2, // we’ll dedupe vs sales; overfetch a bit
+      take: limit * 2,
       select: {
         id: true,
         tokenId: true,
@@ -279,25 +293,17 @@ export async function GET(
       .map((r) => {
         const priceMeta = priceFromActivityRow(r, currenciesByAddr, currenciesById);
 
-        let uiType = canonType(r.type);
-        // Soft-normalize some labels for UI
-        if (uiType === "AUCTION_CREATE") {
-          uiType = "AUCTION_CREATE";
-        } else if (uiType === "AUCTION_FINALIZE") {
-          uiType = "AUCTION_FINALIZE";
-        }
-
+        const uiType = canonType(r.type);
         const tx = isRealHash(r.txHash) ? r.txHash : "";
 
         return {
           id: `act-${r.id}`,
-          type: toTitle(
+          type:
             uiType === "AUCTION_CREATE"
               ? "Auction Create"
               : uiType === "AUCTION_FINALIZE"
               ? "Auction Finalize"
-              : uiType
-          ),
+              : toTitle(uiType),
           tokenId: r.tokenId,
           nftName: r.nft?.name ?? null,
           imageUrl: r.nft?.imageUrl ?? null,
@@ -311,9 +317,7 @@ export async function GET(
         };
       })
       .filter((row) => {
-        // Drop synthetic Sale rows; keep canonical sales only
         if (row.type === "Sale" && !isRealHash(row.txHash)) return false;
-        // Suppress Transfer rows that share a tx with a Sale
         if (row.type === "Transfer" && isRealHash(row.txHash) && saleHashSet.has(row.txHash)) {
           return false;
         }
@@ -327,9 +331,6 @@ export async function GET(
       );
 
     // --- 3) Listing lifecycle (MarketplaceListing)
-    // We treat:
-    //  - create → "Listing" at startTime/createdAt
-    //  - cancel/expire → "Unlisting" at updatedAt/endTime
     const listingRows = await prisma.marketplaceListing.findMany({
       where: {
         nft: { contract: { equals: canon, mode: "insensitive" } },
@@ -372,7 +373,6 @@ export async function GET(
           return null;
         }
 
-        // price
         let amount: number | null = null;
         let symbol: string | null = null;
 
@@ -431,7 +431,6 @@ export async function GET(
 
     const mappedAuctions: UiRow[] = auctionRows
       .map((a) => {
-        // create
         const create: UiRow = {
           id: `auc-${a.id}-create`,
           type: "Auction Create",
@@ -444,9 +443,7 @@ export async function GET(
             a.startPriceTokenAmount != null && a.currencyId
               ? (() => {
                   const meta = currenciesById.get(a.currencyId!);
-                  return meta
-                    ? decimalStrToFloat(String(a.startPriceTokenAmount), meta.decimals)
-                    : null;
+                  return meta ? decimalStrToFloat(String(a.startPriceTokenAmount), meta.decimals) : null;
                 })()
               : a.startPriceEtnWei != null
               ? decimalStrToFloat(String(a.startPriceEtnWei), ETN_DECIMALS)
@@ -462,7 +459,6 @@ export async function GET(
           marketplace: "Panthart",
         };
 
-        // finalize/cancel
         const finalize: UiRow | null =
           a.status === "ENDED" || a.status === "CANCELLED"
             ? {
@@ -496,7 +492,7 @@ export async function GET(
       select: {
         id: true,
         bidderAddress: true,
-        amountWei: true, // for native or token (we keep currencyId to interpret)
+        amountWei: true,
         currencyId: true,
         timestamp: true,
         txHash: true,
@@ -505,7 +501,6 @@ export async function GET(
     });
 
     const mappedBids: UiRow[] = bidRows.map((b) => {
-      // Interpret amountWei using currencyId (if null → it's native ETN)
       const isToken = Boolean(b.currencyId);
       const amount = decimalStrToFloat(
         String(b.amountWei),
@@ -529,7 +524,6 @@ export async function GET(
       };
     });
 
-    // --- Merge, filter by type/wallet if requested, sort, paginate w/ cursor
     const merged = [
       ...mappedSales,
       ...mappedActs,
@@ -538,12 +532,10 @@ export async function GET(
       ...mappedBids,
     ];
 
-    // Type filter (matches normalized UI label)
     const filteredByType = typeFilter
       ? merged.filter((r) => r.type.toUpperCase().replace(/\s+/g, "_") === typeFilter)
       : merged;
 
-    // Wallet filter is already applied to some branches; re-apply globally for safety
     const fullyFiltered = walletFilter
       ? filteredByType.filter(
           (r) =>
@@ -552,12 +544,10 @@ export async function GET(
         )
       : filteredByType;
 
-    // Sort DESC
     fullyFiltered.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
 
-    // Cursor filter (apply AFTER sort)
     const afterCursor =
       cursorTs && cursorId
         ? fullyFiltered.filter(
@@ -571,9 +561,7 @@ export async function GET(
     const last = page[page.length - 1];
     const nextCursor =
       page.length === limit && last
-        ? Buffer.from(JSON.stringify({ ts: last.timestamp, id: last.id }), "utf8").toString(
-            "base64"
-          )
+        ? Buffer.from(JSON.stringify({ ts: last.timestamp, id: last.id }), "utf8").toString("base64")
         : null;
 
     return NextResponse.json(

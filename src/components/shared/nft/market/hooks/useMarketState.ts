@@ -1,11 +1,73 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AuctionActiveItem, ListingActiveItem } from "../types";
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
+}
+
+function pickFirstItem<T>(data: unknown): T | null {
+  if (!data) return null;
+
+  // support { items: [] }
+  if (isRecord(data) && Array.isArray((data as any).items)) {
+    return ((data as any).items[0] as T) ?? null;
+  }
+
+  // support [] directly
+  if (Array.isArray(data)) {
+    return (data[0] as T) ?? null;
+  }
+
+  return null;
+}
+
+/** chain ids should be pure digits; anything else is not safe for BigInt() */
+function isChainIdString(id: unknown): id is string {
+  if (typeof id !== "string") return false;
+  const s = id.trim();
+  if (!s) return false;
+  return /^[0-9]+$/.test(s);
+}
+
+function normalizeListing(x: unknown): ListingActiveItem | null {
+  if (!x || !isRecord(x)) return null;
+
+  // MUST be chain id for on-chain actions
+  const id = (x as any).id;
+  if (!isChainIdString(id)) return null;
+
+  // Scheduled listings have isLive=false and must remain visible.
+  return x as ListingActiveItem;
+}
+
+function normalizeAuction(x: unknown): AuctionActiveItem | null {
+  if (!x || !isRecord(x)) return null;
+
+  const id = (x as any).id;
+  if (!isChainIdString(id)) return null;
+
+  // Make auction seller consistent with your updated API shape:
+  // prefer seller.address, fallback to sellerAddress for backwards compat.
+  const sellerObj = (x as any).seller;
+  const sellerAddressCompat = (x as any).sellerAddress;
+
+  if (!sellerObj || !isRecord(sellerObj)) {
+    (x as any).seller = {
+      address: typeof sellerAddressCompat === "string" ? sellerAddressCompat : null,
+      username: null,
+    };
+  } else if (!(sellerObj as any).address && typeof sellerAddressCompat === "string") {
+    (x as any).seller = { ...(sellerObj as any), address: sellerAddressCompat };
+  }
+
+  return x as AuctionActiveItem;
+}
+
+function rawLooksPresentButRejected(raw: unknown, norm: unknown) {
+  return raw != null && norm == null;
 }
 
 export function useMarketState(args: {
@@ -19,59 +81,86 @@ export function useMarketState(args: {
   const [auction, setAuction] = useState<AuctionActiveItem | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  // avoid setting state after unmount / param change
+  // ✅ request guard to prevent stale responses overwriting new state
+  const reqIdRef = useRef(0);
+
+  // ✅ alive flag should be scoped to current params (contract/tokenId)
   const aliveRef = useRef(true);
   useEffect(() => {
     aliveRef.current = true;
     return () => {
       aliveRef.current = false;
     };
-  }, []);
+  }, [contract, tokenId]);
+
+  const urlListing = useMemo(() => {
+    return `/api/listing/active?contract=${encodeURIComponent(
+      contract
+    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1&strictOwner=1`;
+  }, [contract, tokenId]);
+
+  const urlAuction = useMemo(() => {
+    return `/api/auction/active?contract=${encodeURIComponent(
+      contract
+    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1&strictOwner=1`;
+  }, [contract, tokenId]);
 
   const fetchState = useCallback(async () => {
     const [lRes, aRes] = await Promise.all([
-      fetch(
-        `/api/listing/active?contract=${encodeURIComponent(
-          contract
-        )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1`,
-        { cache: "no-store" }
-      ).then((r) => r.json().catch(() => null)),
-      fetch(
-        `/api/auction/active?contract=${encodeURIComponent(
-          contract
-        )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1`,
-        { cache: "no-store" }
-      ).then((r) => r.json().catch(() => null)),
+      fetch(urlListing, { cache: "no-store" }),
+      fetch(urlAuction, { cache: "no-store" }),
     ]);
 
-    const li =
-      lRes && isRecord(lRes) && Array.isArray((lRes as any).items)
-        ? ((lRes as any).items[0] as ListingActiveItem) ?? null
-        : null;
+    const [lJson, aJson] = await Promise.all([
+      lRes.json().catch(() => null),
+      aRes.json().catch(() => null),
+    ]);
 
-    const au =
-      aRes && isRecord(aRes) && Array.isArray((aRes as any).items)
-        ? ((aRes as any).items[0] as AuctionActiveItem) ?? null
-        : null;
+    const liRaw = pickFirstItem<ListingActiveItem>(lJson);
+    const auRaw = pickFirstItem<AuctionActiveItem>(aJson);
+
+    const li = normalizeListing(liRaw);
+    const au = normalizeAuction(auRaw);
 
     // IMPORTANT:
     // Do NOT null out listing/auction just because isLive === false.
     // Scheduled items must still show with disabled CTA + countdown.
-    return { li, au };
-  }, [contract, tokenId]);
+    return {
+      liRaw,
+      auRaw,
+      li,
+      au,
+      bad: !lRes.ok || !aRes.ok,
+    };
+  }, [urlListing, urlAuction]);
 
   // Imperative refresh for UI actions (buttons, after tx, etc.)
   const refresh = useCallback(async () => {
     setErr(null);
+    const myReq = ++reqIdRef.current;
+
     try {
-      const { li, au } = await fetchState();
+      const { liRaw, auRaw, li, au, bad } = await fetchState();
       if (!aliveRef.current) return;
+      if (myReq !== reqIdRef.current) return;
 
       setListing(li ?? null);
       setAuction(au ?? null);
+
+      if (bad) {
+        setErr("Failed to load market state.");
+      } else {
+        const rejectedListing = rawLooksPresentButRejected(liRaw, li);
+        const rejectedAuction = rawLooksPresentButRejected(auRaw, au);
+        if (rejectedListing || rejectedAuction) {
+          setErr("Market data looked inconsistent. Please refresh.");
+        }
+      }
+
       onAfterRefreshReset?.();
     } catch {
       if (!aliveRef.current) return;
+      if (myReq !== reqIdRef.current) return;
 
       setErr("Failed to load market state.");
       setListing(null);
@@ -80,33 +169,11 @@ export function useMarketState(args: {
     }
   }, [fetchState, onAfterRefreshReset]);
 
-  // Initial + param-change load (async inside effect)
+  // Initial + param-change load
   useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      setErr(null);
-      try {
-        const { li, au } = await fetchState();
-        if (cancelled || !aliveRef.current) return;
-
-        setListing(li ?? null);
-        setAuction(au ?? null);
-        onAfterRefreshReset?.();
-      } catch {
-        if (cancelled || !aliveRef.current) return;
-
-        setErr("Failed to load market state.");
-        setListing(null);
-        setAuction(null);
-        onAfterRefreshReset?.();
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchState, onAfterRefreshReset]);
+    const t = window.setTimeout(() => void refresh(), 0);
+    return () => window.clearTimeout(t);
+  }, [refresh]);
 
   // Better UX: refresh when user returns to tab + gentle polling while visible
   useEffect(() => {
@@ -138,7 +205,6 @@ export function useMarketState(args: {
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVis);
 
-    // initial
     if (document.visibilityState === "visible") start();
 
     return () => {

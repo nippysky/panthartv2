@@ -89,13 +89,7 @@ export function BidModal(props: {
   }, [auctionIdStr, account, bidAmount, setLoading, setErr, onClose, onAfterBid]);
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title="Place bid"
-      className="max-w-md"
-      zIndex={1_000_012}
-    >
+    <Modal open={open} onClose={onClose} title="Place bid" className="max-w-md" zIndex={1_000_012}>
       <div className="space-y-4">
         {bidMinLabel ? (
           <div className="text-xs text-muted-foreground">
