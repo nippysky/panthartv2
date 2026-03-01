@@ -18,6 +18,10 @@ function normAddr(a: string) {
   return ethers.getAddress(a);
 }
 
+function json(status: number, data: any) {
+  return NextResponse.json(data, { status });
+}
+
 export async function POST(req: NextRequest) {
   await prismaReady;
 
@@ -26,15 +30,14 @@ export async function POST(req: NextRequest) {
     | null;
 
   const dbId = (body?.dbId || "").trim();
-  const txHashCancelled = (body?.txHashCancelled || "").trim();
+  const txHashCancelledRaw = (body?.txHashCancelled || "").trim();
 
-  if (!dbId) {
-    return NextResponse.json({ error: "Missing dbId" }, { status: 400 });
+  if (!dbId) return json(400, { ok: false, error: "Missing dbId" });
+  if (!txHashCancelledRaw || !ethers.isHexString(txHashCancelledRaw, 32)) {
+    return json(400, { ok: false, error: "Invalid txHashCancelled" });
   }
 
-  if (!txHashCancelled || !ethers.isHexString(txHashCancelled, 32)) {
-    return NextResponse.json({ error: "Invalid txHashCancelled" }, { status: 400 });
-  }
+  const txHashCancelled = txHashCancelledRaw.toLowerCase();
 
   // Load row + NFT identity
   const row = await prisma.auction.findUnique({
@@ -42,16 +45,24 @@ export async function POST(req: NextRequest) {
     select: {
       id: true,
       status: true,
+      txHashCancelled: true,
       nftId: true,
       nft: { select: { contract: true, tokenId: true } },
     },
   });
 
   if (!row?.id || !row.nft?.contract || !row.nft?.tokenId) {
-    return NextResponse.json({ error: "Auction not found" }, { status: 404 });
+    return json(404, { ok: false, error: "Auction not found" });
   }
 
-  // Verify receipt contains AuctionCancelled for this NFT
+  // ✅ Idempotency: if already cancelled with same hash, return ok
+  if (
+    row.status === AuctionStatus.CANCELLED &&
+    (row.txHashCancelled || "").toLowerCase() === txHashCancelled
+  ) {
+    return json(200, { ok: true, updated: { id: row.id, status: row.status } });
+  }
+
   const RPC_HTTP_URL =
     process.env.RPC_HTTP_URL ||
     process.env.RPC_URL ||
@@ -64,10 +75,10 @@ export async function POST(req: NextRequest) {
     "";
 
   if (!MARKETPLACE_ADDR || !ethers.isAddress(MARKETPLACE_ADDR)) {
-    return NextResponse.json(
-      { error: "Missing MARKETPLACE_CORE_ADDRESS (or NEXT_PUBLIC_MARKETPLACE_ADDRESS)" },
-      { status: 500 }
-    );
+    return json(500, {
+      ok: false,
+      error: "Missing MARKETPLACE_CORE_ADDRESS (or NEXT_PUBLIC_MARKETPLACE_ADDRESS)",
+    });
   }
 
   const provider = new ethers.JsonRpcProvider(RPC_HTTP_URL);
@@ -75,20 +86,10 @@ export async function POST(req: NextRequest) {
   const marketplace = normAddr(MARKETPLACE_ADDR);
 
   const receipt = await provider.getTransactionReceipt(txHashCancelled).catch(() => null);
-  if (!receipt) {
-    return NextResponse.json(
-      { error: "Transaction receipt not found yet" },
-      { status: 404 }
-    );
-  }
-  if (receipt.status !== 1) {
-    return NextResponse.json(
-      { error: "Cancel transaction failed on-chain" },
-      { status: 409 }
-    );
-  }
+  if (!receipt) return json(404, { ok: false, error: "Transaction receipt not found yet" });
+  if (receipt.status !== 1) return json(409, { ok: false, error: "Cancel transaction failed on-chain" });
 
-  const wantContract = row.nft.contract;
+  const wantContract = normAddr(row.nft.contract);
   const wantTokenId = String(row.nft.tokenId);
 
   let found = false;
@@ -99,7 +100,11 @@ export async function POST(req: NextRequest) {
 
     try {
       const parsed = iface.parseLog({ topics: lg.topics as any, data: lg.data as any });
-      if (!parsed || parsed.name !== "AuctionCancelled") continue;
+      if (!parsed) continue;
+
+      // Accept a few likely cancel event names to avoid ABI naming mismatch surprises
+      const name = parsed.name;
+      if (name !== "AuctionCancelled" && name !== "AuctionCanceled") continue;
 
       const tokenAddr =
         (parsed.args?.token ?? parsed.args?.collection ?? "")?.toString?.() ?? "";
@@ -125,20 +130,20 @@ export async function POST(req: NextRequest) {
   }
 
   if (!found) {
-    return NextResponse.json(
-      { error: "No AuctionCancelled event found for this NFT in tx receipt" },
-      { status: 422 }
-    );
+    return json(422, {
+      ok: false,
+      error: "No AuctionCancelled event found for this NFT in tx receipt",
+    });
   }
 
   const updated = await prisma.auction.update({
     where: { id: dbId },
     data: {
       status: AuctionStatus.CANCELLED,
-      txHashCancelled: txHashCancelled.toLowerCase(),
+      txHashCancelled,
     },
-    select: { id: true, status: true },
+    select: { id: true, status: true, txHashCancelled: true },
   });
 
-  return NextResponse.json({ ok: true, updated });
+  return json(200, { ok: true, updated });
 }

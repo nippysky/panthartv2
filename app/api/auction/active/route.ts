@@ -117,7 +117,6 @@ function cacheSetAuctionId(txHash: string, id: bigint) {
   const key = txHash.toLowerCase();
   AUCTION_ID_BY_TX.set(key, { id, ts: Date.now() });
   if (AUCTION_ID_BY_TX.size > AUCTION_ID_CACHE_MAX) {
-    // drop oldest-ish (simple sweep)
     const entries = Array.from(AUCTION_ID_BY_TX.entries());
     entries.sort((a, b) => a[1].ts - b[1].ts);
     for (let i = 0; i < Math.max(0, entries.length - AUCTION_ID_CACHE_MAX); i++) {
@@ -130,9 +129,9 @@ async function resolveChainAuctionIdFromTx(row: DbRow): Promise<bigint | null> {
   const txHash = (row.txHashCreated || "").trim();
   if (!txHash || !ethers.isHexString(txHash, 32)) return null;
 
-  // ✅ cache first
   const cached = cacheGetAuctionId(txHash);
-  if (cached) return cached;
+  // NOTE: bigint 0n is valid; don’t rely on truthiness
+  if (cached !== null) return cached;
 
   const provider = getProvider();
   const receipt = await provider.getTransactionReceipt(txHash).catch(() => null);
@@ -159,14 +158,12 @@ async function resolveChainAuctionIdFromTx(row: DbRow): Promise<bigint | null> {
       const token = String(args?.token ?? "");
       const tokenId = (args?.tokenId as bigint | undefined) ?? undefined;
 
-      if (!auctionId || !tokenId) continue;
+      if (auctionId == null || tokenId == null) continue;
 
       if (lower(token) !== wantContract) continue;
       if (tokenId.toString() !== wantTokenId) continue;
 
-      // ✅ store for later calls
       cacheSetAuctionId(txHash, auctionId);
-
       return auctionId;
     } catch {
       // ignore
@@ -176,11 +173,22 @@ async function resolveChainAuctionIdFromTx(row: DbRow): Promise<bigint | null> {
   return null;
 }
 
-async function chainTruthForAuction(row: DbRow) {
+function toNumberLike(x: unknown, fallback = 0): number {
+  try {
+    if (typeof x === "number") return Number.isFinite(x) ? x : fallback;
+    if (typeof x === "bigint") return Number(x);
+    if (typeof x === "string" && x.trim()) return Number(x);
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function chainTruthForAuction(row: DbRow, preResolvedAuctionId?: bigint | null) {
   const market = getMarket();
 
-  const auctionId = await resolveChainAuctionIdFromTx(row);
-  if (!auctionId) return null;
+  const auctionId = preResolvedAuctionId ?? (await resolveChainAuctionIdFromTx(row));
+  if (auctionId == null) return null;
 
   const A = await market.auctions(auctionId).catch(() => null);
   if (!A) return null;
@@ -191,11 +199,11 @@ async function chainTruthForAuction(row: DbRow) {
   const qty = (A[3] as bigint) ?? BigInt(0);
   const currencyAddr = String(A[5] ?? "");
   const startPrice = (A[6] as bigint) ?? BigInt(0);
-  const startTime = Number(A[8] as bigint);
-  const endTime = Number(A[9] as bigint);
+  const startTime = toNumberLike(A[8], 0);
+  const endTime = toNumberLike(A[9], 0);
   const highestBidder = String(A[10] ?? "");
   const highestBid = (A[11] as bigint) ?? BigInt(0);
-  const bidsCount = Number(A[12] as number);
+  const bidsCount = toNumberLike(A[12], 0);
   const settled = Boolean(A[13]);
 
   if (settled) return null;
@@ -204,8 +212,7 @@ async function chainTruthForAuction(row: DbRow) {
   if (tokenId.toString() !== String(row.nft.tokenId)) return null;
 
   const now = Math.floor(Date.now() / 1000);
-
-  if (now >= endTime) return null;
+  if (now >= endTime) return null; // ended
 
   const isLive = now >= startTime && now < endTime;
   const currentWei = bidsCount > 0 ? highestBid : startPrice;
@@ -226,12 +233,31 @@ async function chainTruthForAuction(row: DbRow) {
   };
 }
 
+// simple concurrency limiter (no deps)
+async function mapLimit<T, R>(arr: T[], limit: number, fn: (item: T, idx: number) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(arr.length);
+  let i = 0;
+
+  const workers = new Array(Math.min(limit, arr.length)).fill(0).map(async () => {
+    while (i < arr.length) {
+      const idx = i++;
+      out[idx] = await fn(arr[idx], idx);
+    }
+  });
+
+  await Promise.all(workers);
+  return out;
+}
+
 export async function GET(req: NextRequest) {
   await prismaReady;
 
   const { searchParams } = new URL(req.url);
-  const limit = Math.min(Number(searchParams.get("limit") || 24), 60);
-  const cursor = searchParams.get("cursor");
+
+  const rawLimit = parseInt(searchParams.get("limit") || "24", 10);
+  const limit = Math.min(Number.isFinite(rawLimit) && rawLimit > 0 ? rawLimit : 24, 60);
+
+  const cursor = searchParams.get("cursor") || null;
 
   const strictOwner = searchParams.get("strictOwner") === "1";
 
@@ -294,91 +320,97 @@ export async function GET(req: NextRequest) {
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, -1) : rows;
 
-    const truthResults = chainTruth
-      ? await Promise.all(
-          page.map(async (a) => {
-            try {
-              const truth = await chainTruthForAuction(a);
-              return { row: a, truth };
-            } catch {
-              return { row: a, truth: null as any };
-            }
-          })
-        )
-      : page.map((a) => ({ row: a, truth: null as any }));
+    // ✅ ALWAYS try to resolve chain auctionId for returned rows,
+    // so frontend can safely treat auction.id as CHAIN id.
+    const withChainIds = await mapLimit(page, 6, async (row) => {
+      const chainId = await resolveChainAuctionIdFromTx(row).catch(() => null);
+      return { row, chainId };
+    });
 
+    const truthResults = chainTruth
+      ? await mapLimit(withChainIds, 4, async ({ row, chainId }) => {
+          try {
+            const truth = await chainTruthForAuction(row, chainId);
+            return { row, chainId, truth };
+          } catch {
+            return { row, chainId, truth: null as any };
+          }
+        })
+      : withChainIds.map(({ row, chainId }) => ({ row, chainId, truth: null as any }));
+
+    // ✅ IMPORTANT: do NOT drop auctions just because chain truth failed.
     const filtered = truthResults
       .filter(({ row, truth }) => {
-        if (chainTruth && !truth) return false;
-
         if (!strictOwner) return true;
 
         const std = (row.nft.standard ?? "ERC721").toUpperCase();
         if (std === "ERC1155") return true;
 
         const ownerWallet = row.nft.owner?.walletAddress ?? null;
-
-        // ✅ if owner isn't synced in DB yet, don't hide the auction
         if (!ownerWallet) return true;
 
-        const seller = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
+        const seller = truth?.sellerAddress ?? row.sellerAddress;
         return lower(seller) === lower(ownerWallet);
       })
-      .map(({ row, truth }) => {
-        const chainCurrencyAddr = truth?.currencyAddr ?? null;
-        const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
-
+      .map(({ row, chainId, truth }) => {
         const dbCur = row.currency;
         const dbIsNative = (dbCur?.kind ?? CurrencyKind.NATIVE) === CurrencyKind.NATIVE;
 
-        const isNative = chainTruth ? chainIsNative : dbIsNative;
+        const chainCurrencyAddr = truth?.currencyAddr ?? null;
+        const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
+
+        const isNative = truth ? chainIsNative : dbIsNative;
 
         const decimals = isNative ? 18 : dbCur?.decimals ?? 18;
         const symbol = isNative ? "ETN" : dbCur?.symbol ?? "ERC20";
         const tokenAddress = isNative ? null : dbCur?.tokenAddress ?? chainCurrencyAddr;
 
-        const startISO = chainTruth ? truth!.startTimeISO : row.startTime.toISOString();
-        const endISO = chainTruth ? truth!.endTimeISO : row.endTime.toISOString();
+        const startISO = truth?.startTimeISO ?? row.startTime.toISOString();
+        const endISO = truth?.endTimeISO ?? row.endTime.toISOString();
 
         const now = Date.now();
-        const isLive = chainTruth
-          ? Boolean(truth!.isLive)
-          : (() => {
-              const s = row.startTime.getTime();
-              const e = row.endTime.getTime();
-              return now >= s && now < e;
-            })();
+        const isLive =
+          truth?.isLive ??
+          (() => {
+            const s = row.startTime.getTime();
+            const e = row.endTime.getTime();
+            return now >= s && now < e;
+          })();
 
-        const sellerAddr = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
+        const sellerAddr = truth?.sellerAddress ?? row.sellerAddress;
 
-        const currentWei = chainTruth
-          ? (truth!.currentWei as bigint)
-          : (() => {
-              const highest = isNative ? row.highestBidEtnWei : row.highestBidTokenAmount;
-              const start = isNative ? row.startPriceEtnWei : row.startPriceTokenAmount;
+        const currentWei =
+          truth?.currentWei ??
+          (() => {
+            const highest = isNative ? row.highestBidEtnWei : row.highestBidTokenAmount;
+            const start = isNative ? row.startPriceEtnWei : row.startPriceTokenAmount;
 
-              const hStr = highest?.toString?.() ?? highest ?? null;
-              const sStr = start?.toString?.() ?? start ?? null;
+            const hStr = highest?.toString?.() ?? highest ?? null;
+            const sStr = start?.toString?.() ?? start ?? null;
 
-              let v: bigint | null = null;
+            let v: bigint | null = null;
+            try {
+              v = hStr != null ? BigInt(String(hStr)) : null;
+            } catch {
+              v = null;
+            }
+            if (v == null) {
               try {
-                v = hStr != null ? BigInt(String(hStr)) : null;
+                v = sStr != null ? BigInt(String(sStr)) : null;
               } catch {
                 v = null;
               }
-              if (v == null) {
-                try {
-                  v = sStr != null ? BigInt(String(sStr)) : null;
-                } catch {
-                  v = null;
-                }
-              }
-              return v ?? BigInt(0);
-            })();
+            }
+            return v ?? BigInt(0);
+          })();
+
+        // ✅ ID FIX:
+        // Prefer resolved chainId (even when chainTruth=0), else truth’s on-chain id, else DB id.
+        const publicId = (chainId ? chainId.toString() : null) ?? truth?.auctionIdStr ?? row.id;
 
         return {
-          id: chainTruth ? truth!.auctionIdStr : row.id,
-          dbId: row.id,
+          id: publicId, // CHAIN auctionId (string) whenever possible
+          dbId: row.id, // DB id (cuid)
 
           nft: {
             contract: row.nft.contract,
@@ -452,7 +484,9 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const nextCursor = hasMore ? rows[rows.length - 1].id : null;
+    // ✅ CURSOR FIX: use the last item of the returned page, NOT the extra (limit+1) row
+    const nextCursor = hasMore && page.length > 0 ? page[page.length - 1].id : null;
+
     return NextResponse.json({ items, nextCursor });
   } catch (e) {
     console.error("[api auction active] error:", e);

@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/auction/[auctionId]/bids/route.ts
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
-import prisma, { prismaReady } from "@/lib/db";
+import prisma, { prismaReady } from "@/src/lib/db";
 
 // ---- helpers ---------------------------------------------------------------
 

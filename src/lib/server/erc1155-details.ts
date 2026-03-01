@@ -1,13 +1,20 @@
 // lib/server/erc1155-mint-details.ts
-import type { PrismaClient } from "@prisma/client";
+import "server-only";
+import type { PrismaClient } from "../generated/prisma/client";
 import { ethers } from "ethers";
 import { ERC1155_SINGLE_ABI } from "../abis/ERC1155SingleDropABI";
-import prisma, { prismaReady } from "../db";
+import prisma, { prismaReady } from "@/src/lib/db";
 
 // ---- Small helpers ----
+const IPFS_GW = (process.env.IPFS_GATEWAY || process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://cloudflare-ipfs.com/ipfs/")
+  .replace(/\/?$/, "/");
+
 function httpFromIpfs(u?: string | null): string {
   if (!u) return "";
-  return u.startsWith("ipfs://") ? `https://ipfs.io/ipfs/${u.slice(7)}` : u;
+  if (u.startsWith("ipfs://")) return IPFS_GW + u.slice(7);
+  // allow bare CID
+  if (/^[a-z0-9]{46,}$/i.test(u) && !u.includes("/") && !u.includes(".")) return IPFS_GW + u;
+  return u;
 }
 
 function getProvider(): ethers.Provider | null {
@@ -53,26 +60,29 @@ async function readOnChain(contractAddr: string) {
   if (!provider) return null;
 
   const c = new ethers.Contract(contractAddr, ERC1155_SINGLE_ABI, provider);
+
   try {
-    const [name, symbol, maxSupply, mintPrice, maxPerWallet, totalMinted, tokenUri] =
-      await Promise.all([
-        c.name(),
-        c.symbol(),
-        c.maxSupply(),
-        c.mintPrice(),
-        c.maxPerWallet(),
-        c.totalMinted(),
-        c.uri(1n),
-      ]);
+    const [name, symbol, maxSupply, mintPrice, maxPerWallet, totalMinted, tokenUri] = await Promise.all([
+      c.name(),
+      c.symbol(),
+      c.maxSupply(),
+      c.mintPrice(),
+      c.maxPerWallet(),
+      c.totalMinted(),
+      c.uri(BigInt(1)), // ✅ BigInt() style
+    ]);
 
     // Fetch token JSON to get image/animation_url
     let imageUrl = "";
     let description: string | null = null;
+
     try {
       const jsonRes = await fetch(httpFromIpfs(String(tokenUri)), { cache: "no-store" });
       const j = await jsonRes.json();
+
       const anim = httpFromIpfs(j?.animation_url || "");
       const img = httpFromIpfs(j?.image || "");
+
       imageUrl = anim || img || "";
       description = (j?.description as string) ?? null;
     } catch {

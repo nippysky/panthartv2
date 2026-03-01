@@ -1,4 +1,5 @@
-// lib/hooks/useAuctionSSE.ts
+// src/lib/hooks/useAuctionSSE.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
@@ -57,46 +58,57 @@ type Options = {
 };
 
 function safeJSON<T = any>(s: string): T | undefined {
-  try { return JSON.parse(s) as T; } catch { return undefined; }
+  try {
+    return JSON.parse(s) as T;
+  } catch {
+    return undefined;
+  }
 }
 
 function makeManagedES(
   url: string,
-  onMessage: (es: EventSource) => void,
-  onOpen?: () => void,
+  wireHandlers: (es: EventSource) => void,
+  onReady?: () => void,
   onSilentTimeout?: () => void
 ) {
   const es = new EventSource(url, { withCredentials: false });
 
-  const pingWindowMs = 35000; // if we don't see ready/ping within 35s, recycle
+  const pingWindowMs = 35_000;
   let lastSeen = Date.now();
 
-  const bump = () => { lastSeen = Date.now(); };
+  const bump = () => {
+    lastSeen = Date.now();
+  };
 
   const t = setInterval(() => {
     if (Date.now() - lastSeen > pingWindowMs) {
       clearInterval(t);
-      try { es.close(); } catch {}
+      try {
+        es.close();
+      } catch {}
       onSilentTimeout?.();
     }
   }, 5000);
 
   es.addEventListener("ready", () => {
     bump();
-    onOpen?.();
+    onReady?.();
   });
   es.addEventListener("ping", () => bump());
 
-  es.onerror = () => { /* browser will try default reconnect; watchdog will also recycle */ };
+  es.onerror = () => {
+    // browser will try default reconnect; watchdog will recycle too
+  };
 
-  // consumer wires handlers after create
-  onMessage(es);
+  wireHandlers(es);
 
   return {
     close() {
       clearInterval(t);
-      try { es.close(); } catch {}
-    }
+      try {
+        es.close();
+      } catch {}
+    },
   };
 }
 
@@ -106,28 +118,34 @@ export function useAuctionSSE(
   handlers?: SSEHandlers,
   opts?: Options
 ) {
-  const stableHandlers = useRef(handlers);
-  stableHandlers.current = handlers;
+  const stableHandlers = useRef<SSEHandlers | undefined>(handlers);
+
+  // ✅ update ref *after* render
+  useEffect(() => {
+    stableHandlers.current = handlers;
+  }, [handlers]);
 
   const auctionUrl = useMemo(() => {
     if (auctionId == null) return null;
     const id = String(auctionId);
     if (opts?.auctionSubscribeUrlBuilder) return opts.auctionSubscribeUrlBuilder(id);
     return `/api/stream/auction/${encodeURIComponent(id)}`;
-  }, [auctionId, opts?.auctionSubscribeUrlBuilder]);
+  }, [auctionId, opts]);
 
   const walletUrl = useMemo(() => {
     if (!wallet) return null;
     if (opts?.walletSubscribeUrlBuilder) return opts.walletSubscribeUrlBuilder(wallet);
     return `/api/stream/wallet/${encodeURIComponent(wallet)}`;
-  }, [wallet, opts?.walletSubscribeUrlBuilder]);
+  }, [wallet, opts]);
 
-  // Simple backoff
-  const backoffRef = useRef(1000);
+  // Separate backoffs so wallet reconnect doesn’t slow auction
+  const backoffAuction = useRef(1000);
+  const backoffWallet = useRef(1000);
 
   // --- Auction room ---
   useEffect(() => {
     if (!auctionUrl) return;
+
     let stopped = false;
     let current: { close: () => void } | null = null;
 
@@ -188,17 +206,15 @@ export function useAuctionSSE(
         },
         () => stableHandlers.current?.onReady?.(),
         () => {
-          // silent timeout -> reconnect with backoff
           if (stopped) return;
-          const wait = backoffRef.current;
-          backoffRef.current = Math.min(wait * 2, 8000);
+          const wait = backoffAuction.current;
+          backoffAuction.current = Math.min(wait * 2, 8000);
           setTimeout(wire, wait + Math.floor(Math.random() * 400));
         }
       );
     };
 
-    // first connect
-    backoffRef.current = 1000;
+    backoffAuction.current = 1000;
     wire();
 
     return () => {
@@ -210,6 +226,7 @@ export function useAuctionSSE(
   // --- Wallet room (optional) ---
   useEffect(() => {
     if (!walletUrl) return;
+
     let stopped = false;
     let current: { close: () => void } | null = null;
 
@@ -237,14 +254,14 @@ export function useAuctionSSE(
         undefined,
         () => {
           if (stopped) return;
-          const wait = backoffRef.current;
-          backoffRef.current = Math.min(wait * 2, 8000);
+          const wait = backoffWallet.current;
+          backoffWallet.current = Math.min(wait * 2, 8000);
           setTimeout(wire, wait + Math.floor(Math.random() * 400));
         }
       );
     };
 
-    backoffRef.current = 1000;
+    backoffWallet.current = 1000;
     wire();
 
     return () => {

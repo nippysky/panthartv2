@@ -162,7 +162,7 @@ export default function NFTMarketPanel({
   const listingSubline = useMemo(() => {
     if (!listing) return null;
     if (listingNotStarted && listingStartMs)
-      return `Scheduled (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
+      return `Active (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
     if (listingEndedUi) return "Expired";
     return "Active";
   }, [listing, listingNotStarted, listingStartMs, listingEndedUi, nowMs]);
@@ -170,7 +170,7 @@ export default function NFTMarketPanel({
   const auctionSubline = useMemo(() => {
     if (!auction) return null;
     if (auctionNotStarted && auctionStartMs)
-      return `Scheduled (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
+      return `Active (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
     if (auctionEndedUi) return "Ended";
     return "Active";
   }, [auction, auctionNotStarted, auctionStartMs, auctionEndedUi, nowMs]);
@@ -358,9 +358,7 @@ export default function NFTMarketPanel({
         canCancel={!!auction && (canManageAuction || isSellerLikeForAuction)}
         canFinalize={!!auction && auctionEndedUi}
         bidDisabled={bidDisabled}
-        bidTitle={
-          auctionNotStarted && auctionStartMs ? `Starts in ${formatCountdown(auctionStartMs, nowMs)}` : undefined
-        }
+        bidTitle={auctionNotStarted && auctionStartMs ? `Starts in ${formatCountdown(auctionStartMs, nowMs)}` : undefined}
         endedUi={auctionEndedUi}
         onOpenBid={() => {
           if (bidDisabled) return;
@@ -406,9 +404,7 @@ export default function NFTMarketPanel({
       />
 
       {err ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
-          {err}
-        </div>
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">{err}</div>
       ) : null}
     </div>
   );

@@ -25,7 +25,6 @@ const NAV: { title: string; items: FooterLink[] }[] = [
   {
     title: "Explore",
     items: [
-      { label: "Explore Panthart", href: "/explore" },
       { label: "Create a Collection", href: "/create" },
       { label: "Submit a Collection", href: "/submit-collection" },
     ],

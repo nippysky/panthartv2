@@ -113,10 +113,17 @@ function CollectionCard({ c, currencySymbol }: { c: CollectionListItem; currency
       href={`/collections/${c.contract}`}
       className="group block rounded-3xl border border-border bg-card p-4 sm:p-5 transition hover:bg-card/80"
     >
-      <div className="flex items-start gap-3">
-        <div className="h-12 w-12 rounded-2xl border border-border bg-background overflow-hidden shrink-0">
+      {/* ✅ mobile-safe header row: wraps so nothing can force horizontal overflow */}
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-border bg-background">
           {c.logoUrl ? (
-            <Image src={c.logoUrl} alt={c.name} width={48} height={48} className="h-full w-full object-cover" />
+            <Image
+              src={c.logoUrl}
+              alt={c.name}
+              width={48}
+              height={48}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="h-full w-full" />
           )}
@@ -129,13 +136,18 @@ function CollectionCard({ c, currencySymbol }: { c: CollectionListItem; currency
           </div>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-            <span>Owners <span className="text-foreground/90">{c.ownersCount}</span></span>
-            <span>Items <span className="text-foreground/90">{c.itemsCount}</span></span>
+            <span>
+              Owners <span className="text-foreground/90">{c.ownersCount}</span>
+            </span>
+            <span>
+              Items <span className="text-foreground/90">{c.itemsCount}</span>
+            </span>
           </div>
         </div>
 
-        <div className="shrink-0">
-          <div className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold text-foreground/80">
+        {/* ✅ On xs this goes to a new line (right-aligned) instead of pushing layout wider */}
+        <div className="w-full sm:w-auto sm:shrink-0 sm:self-start flex justify-end">
+          <div className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold text-foreground/80 whitespace-nowrap">
             {c.indexStatus}
           </div>
         </div>
@@ -151,9 +163,7 @@ function CollectionCard({ c, currencySymbol }: { c: CollectionListItem; currency
 
         <div className="rounded-2xl border border-border bg-background p-3">
           <div className="text-[11px] text-muted">All-time volume</div>
-          <div className="mt-1 text-sm font-semibold">
-            {formatCompactAmount(c.volumeAllTime, currencySymbol)}
-          </div>
+          <div className="mt-1 text-sm font-semibold">{formatCompactAmount(c.volumeAllTime, currencySymbol)}</div>
         </div>
       </div>
 
@@ -214,8 +224,7 @@ export default function CollectionsClient(props: {
     string | null
   >({
     queryKey,
-    queryFn: ({ pageParam, signal }) =>
-      fetchCollectionsPage({ sort, currency, cursor: pageParam ?? null, signal }),
+    queryFn: ({ pageParam, signal }) => fetchCollectionsPage({ sort, currency, cursor: pageParam ?? null, signal }),
     getNextPageParam: (last) => last.nextCursor,
     initialPageParam: null,
     ...(shouldHydrate
@@ -259,11 +268,13 @@ export default function CollectionsClient(props: {
   }, [collectionsQ]);
 
   return (
-    <div className="page-enter">
+    // ✅ Hard guard: prevents any child from causing horizontal scroll/cutoff
+    <div className="page-enter overflow-x-hidden">
       <section className="pt-10 sm:pt-14">
         <Container>
-          <div className="flex items-end justify-between gap-3">
-            <div>
+          {/* ✅ Mobile: stack. Desktop: side-by-side. No overflow. */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Collections</h1>
               <p className="mt-2 text-sm text-muted max-w-[70ch]">
                 Floor is based on active listings. Volume is all-time.
@@ -274,11 +285,12 @@ export default function CollectionsClient(props: {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* ✅ Controls become full-width on mobile, wrap nicely, never push viewport */}
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-2 lg:w-auto">
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="rounded-2xl border border-border bg-card px-3 py-2 text-sm outline-none"
+                className="w-full sm:w-auto max-w-full min-w-0 rounded-2xl border border-border bg-card px-3 py-2 text-sm outline-none"
               >
                 {currencyOptions.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -290,7 +302,7 @@ export default function CollectionsClient(props: {
               <select
                 value={sort}
                 onChange={(e) => setSort(clampSort(e.target.value))}
-                className="rounded-2xl border border-border bg-card px-3 py-2 text-sm outline-none"
+                className="w-full sm:w-auto max-w-full min-w-0 rounded-2xl border border-border bg-card px-3 py-2 text-sm outline-none"
               >
                 <option value="volume">Sort: Volume</option>
                 <option value="floor">Sort: Floor</option>

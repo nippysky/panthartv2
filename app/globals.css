@@ -71,14 +71,18 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-lexend), system-ui, -apple-system, Segoe UI, Roboto,
-    Arial, sans-serif;
+  font-family: var(--font-lexend), system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
 
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   transition: background-color 180ms ease, color 180ms ease;
+}
+
+button {
+  cursor: pointer;
 }
 
 /* =========================
@@ -88,10 +92,11 @@ body {
   background: color-mix(in oklab, var(--accent) 28%, transparent);
 }
 
-@keyframes fadeUp {
+/* Premium page enter (used by app/template.tsx) */
+@keyframes panth-page-enter {
   from {
     opacity: 0;
-    transform: translate3d(0, 10px, 0);
+    transform: translate3d(0, 6px, 0);
     filter: blur(2px);
   }
   to {
@@ -102,30 +107,20 @@ body {
 }
 
 .page-enter {
-  animation: fadeUp 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: panth-page-enter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform, filter;
 }
 
+/* Keep scrolling predictable during route transitions */
 html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .page-enter {
-    animation: none !important;
-  }
-
-  body {
-    transition: none !important;
-  }
+  scroll-behavior: auto;
 }
 
 /* =========================
-   Subtle shimmer (for loading buttons)
+   Subtle shimmer (buttons + skeletons)
    ========================= */
+
+/* Existing shimmer (for .btn-shimmer) */
 @keyframes shimmer {
   0% {
     transform: translateX(-120%);
@@ -155,6 +150,33 @@ html {
   pointer-events: none;
 }
 
-button {
-  cursor: pointer;
+/* New: shimmer keyframes used by loading.tsx (animate-[panth-shimmer_...]) */
+@keyframes panth-shimmer {
+  0% {
+    transform: translateX(-60%);
+  }
+  100% {
+    transform: translateX(60%);
+  }
+}
+
+/* =========================
+   Reduced motion
+   ========================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .page-enter {
+    animation: none !important;
+  }
+
+  body {
+    transition: none !important;
+  }
+
+  .btn-shimmer::after {
+    animation: none !important;
+  }
 }

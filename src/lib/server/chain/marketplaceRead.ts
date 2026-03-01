@@ -1,6 +1,6 @@
 // lib/server/chain/marketplaceRead.ts
 import { ethers } from "ethers";
-import { MARKETPLACE_CORE_ABI } from "@/lib/abis/marketplace-core/marketPlaceCoreABI";
+import { MARKETPLACE_CORE_ABI } from "@/src/lib/abis/marketplace-core/marketPlaceCoreABI";
 
 function rpcUrl(): string {
   return (
@@ -42,10 +42,10 @@ export async function readActiveAuctionId(
       args.tokenId,
       args.seller
     );
-    return id && id !== 0n ? id : null;
+    return id && id !== BigInt(0) ? id : null;
   }
   const id: bigint = await c.activeAuctionForToken(args.collection, args.tokenId);
-  return id && id !== 0n ? id : null;
+  return id && id !== BigInt(0) ? id : null;
 }
 
 /**

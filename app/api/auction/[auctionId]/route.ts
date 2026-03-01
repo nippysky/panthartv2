@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma, { prismaReady } from "@/lib/db";
-import { CurrencyKind } from "@/lib/generated/prisma";
+import prisma, { prismaReady } from "@/src/lib/db";
+import { CurrencyKind } from "@/src/lib/generated/prisma/client";
 
 /* ----------------------------- helpers ----------------------------- */
 function toNum(x: any): number | undefined {

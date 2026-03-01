@@ -1,7 +1,8 @@
-// lib/server/mint-details.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/lib/server/mint-details.ts
 import { ERC721_DROP_ABI } from "../abis/ERC721DropABI";
 import prisma, { prismaReady } from "../db";
-import type { PrismaClient, User } from "../generated/prisma";
+import type { PrismaClient, User } from "../generated/prisma/client";
 import { ethers } from "ethers";
 
 // Premium placeholder
@@ -57,10 +58,7 @@ export type MintDetails = {
 };
 
 /** Ensure a user row exists for a wallet; fill defaults if missing. */
-async function ensureUserByWallet(
-  p: PrismaClient,
-  wallet: string
-): Promise<User> {
+async function ensureUserByWallet(p: PrismaClient, wallet: string): Promise<User> {
   let user = await p.user.findUnique({ where: { walletAddress: wallet } });
   if (!user) {
     user = await p.user.create({
@@ -78,12 +76,8 @@ async function ensureUserByWallet(
       user = await p.user.update({
         where: { id: user.id },
         data: {
-          username: needUsername
-            ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}`
-            : user.username,
-          profileAvatar: needAvatar
-            ? `https://api.dicebear.com/7.x/identicon/svg?seed=${wallet}`
-            : user.profileAvatar,
+          username: needUsername ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : user.username,
+          profileAvatar: needAvatar ? `https://api.dicebear.com/7.x/identicon/svg?seed=${wallet}` : user.profileAvatar,
           profileBanner: user.profileBanner ?? PLACEHOLDER,
         },
       });
@@ -104,10 +98,7 @@ function getProvider(): ethers.Provider | null {
   }
 }
 
-export async function getMintDetails(
-  p: PrismaClient,
-  contract: string
-): Promise<MintDetails | null> {
+export async function getMintDetails(p: PrismaClient, contract: string): Promise<MintDetails | null> {
   // Ensure Prisma engine is connected before any query
   await prismaReady;
 
@@ -131,49 +122,48 @@ export async function getMintDetails(
     return null;
   }
 
-  // ----- On-chain truth (best-effort)
+  // ----- On-chain truth (best-effort): minted only
   const provider = getProvider();
   let mintedOnChain: number | null = null;
-  let supplyOnChain: number | null = null;
 
   if (provider) {
     try {
       const c = new ethers.Contract(row.deployment.cloneAddress, ERC721_DROP_ABI, provider);
+
       // Prefer totalMinted() if present, else totalSupply() as a proxy for "minted so far"
       try {
         const tm: bigint = await c.totalMinted();
-        mintedOnChain = Number(tm);
+        const n = Number(tm);
+        mintedOnChain = Number.isFinite(n) ? n : null;
       } catch {}
+
       if (mintedOnChain == null) {
         try {
           const ts: bigint = await c.totalSupply();
-          mintedOnChain = Number(ts);
+          const n = Number(ts);
+          mintedOnChain = Number.isFinite(n) ? n : null;
         } catch {}
       }
-      // Some implementations expose totalSupply() as final cap; if present, take it
-      try {
-        const ts: bigint = await c.totalSupply();
-        supplyOnChain = Number(ts); // if this is actually "current minted", DB supply will still cap UI
-      } catch {}
     } catch {
       // ignore — fallback to DB below
     }
   }
 
-  // ----- Consolidate counts (DB fallback)
+  // ----- Consolidate counts
+  // DB is the source of truth for cap supply in your app; on-chain cap methods vary.
   const minted = mintedOnChain ?? (row._count.nfts ?? 0);
-  const supply = row.supply ?? supplyOnChain ?? 0;
+  const supply = row.supply ?? 0;
 
-  const mintedPct =
-    supply > 0 ? Math.min(100, Math.max(0, Math.round((minted / supply) * 100))) : 0;
+  const mintedPct = supply > 0 ? Math.min(100, Math.max(0, Math.round((minted / supply) * 100))) : 0;
 
   // ----- Flags from times
   const now = new Date();
-  const presaleActive =
-    !!row.presale && row.presale.startTime <= now && row.presale.endTime > now;
+  const presaleActive = !!row.presale && row.presale.startTime <= now && row.presale.endTime > now;
   const publicLive = row.publicSale.startTime <= now;
   const soldOut = supply > 0 && minted >= supply;
-  const upcoming = !publicLive && !(row.presale && row.presale.startTime <= now);
+
+  // Upcoming = public not live AND (no presale OR presale hasn't started yet)
+  const upcoming = !publicLive && (!row.presale || row.presale.startTime > now);
 
   // Creator safety (should already exist via FK, but keep robust)
   const creatorWallet = row.creator?.walletAddress ?? row.ownerAddress;
@@ -197,6 +187,7 @@ export async function getMintDetails(
       maxPerWallet: row.publicSale.maxPerWallet,
       maxPerTx: row.publicSale.maxPerTx,
     },
+
     presale: row.presale
       ? {
           startISO: row.presale.startTime.toISOString(),
@@ -209,11 +200,11 @@ export async function getMintDetails(
     flags: { presaleActive, publicLive, soldOut, upcoming },
 
     social: {
-      x: row.x ?? null,
-      instagram: row.instagram ?? null,
-      website: row.website ?? null,
-      discord: row.discord ?? null,
-      telegram: row.telegram ?? null,
+      x: (row as any).x ?? null,
+      instagram: (row as any).instagram ?? null,
+      website: (row as any).website ?? null,
+      discord: (row as any).discord ?? null,
+      telegram: (row as any).telegram ?? null,
     },
 
     creator: {

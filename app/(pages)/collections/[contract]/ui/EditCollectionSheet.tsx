@@ -1,8 +1,10 @@
+// app/(pages)/collections/[contract]/ui/EditCollectionSheet.tsx
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import Image from "next/image";
+import { createPortal } from "react-dom";
 import { useUnifiedAccount } from "@/src/lib/useUnifiedAccount";
 
 type CollectionHeaderLike = {
@@ -63,7 +65,7 @@ function useMiniToast() {
         "pointer-events-none fixed left-1/2 bottom-6 -translate-x-1/2 transition duration-200",
         t.show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
       )}
-      style={{ zIndex: 9999 }}
+      style={{ zIndex: 99999 }}
       aria-live="polite"
       aria-atomic="true"
     >
@@ -96,7 +98,7 @@ async function uploadImage(file: File): Promise<string> {
   return json.data.secure_url as string;
 }
 
-/** Small helper: lock body scroll while sheet is open */
+/** Lock body scroll while sheet is open */
 function useBodyScrollLock(locked: boolean) {
   React.useEffect(() => {
     if (!locked) return;
@@ -104,9 +106,7 @@ function useBodyScrollLock(locked: boolean) {
     const prevOverflow = document.body.style.overflow;
     const prevPaddingRight = document.body.style.paddingRight;
 
-    // Prevent layout shift when scrollbar disappears (desktop)
-    const scrollbarW =
-      window.innerWidth - document.documentElement.clientWidth;
+    const scrollbarW = window.innerWidth - document.documentElement.clientWidth;
     if (scrollbarW > 0) {
       document.body.style.paddingRight = `${scrollbarW}px`;
     }
@@ -118,6 +118,32 @@ function useBodyScrollLock(locked: boolean) {
       document.body.style.paddingRight = prevPaddingRight;
     };
   }, [locked]);
+}
+
+/** Create/get a stable portal mount in document.body */
+function usePortalRoot(id = "panthart-modal-root") {
+  const [root, setRoot] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    let el = document.getElementById(id) as HTMLElement | null;
+    let created = false;
+
+    if (!el) {
+      el = document.createElement("div");
+      el.id = id;
+      document.body.appendChild(el);
+      created = true;
+    }
+
+    setRoot(el);
+
+    return () => {
+      // If we created it, we can remove it. If it already existed, leave it.
+      if (created && el?.parentNode) el.parentNode.removeChild(el);
+    };
+  }, [id]);
+
+  return root;
 }
 
 function RightSheet({
@@ -135,7 +161,12 @@ function RightSheet({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const portalRoot = usePortalRoot();
+  const [mounted, setMounted] = React.useState(false);
+
   useBodyScrollLock(open);
+
+  React.useEffect(() => setMounted(true), []);
 
   React.useEffect(() => {
     if (!open) return;
@@ -146,59 +177,70 @@ function RightSheet({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted || !portalRoot) return null;
 
-  return (
-    <div className="fixed inset-0" style={{ zIndex: 240 }}>
+  const ui = (
+    <div className="fixed inset-0 z-99990">
       {/* Backdrop (click to close) */}
       <button
+        type="button"
         aria-label="Close"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Panel */}
-      <div
-        className={cx(
-          "absolute right-0 top-0 h-full w-[92vw] max-w-140",
-          "border-l border-border bg-card shadow-2xl",
-          "rounded-l-3xl overflow-hidden",
-          "translate-x-0 animate-[sheetIn_180ms_ease-out]"
-        )}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-border px-6 py-5">
-          <div className="min-w-0">
-            <div className="text-sm font-semibold">{title}</div>
-            {subtitle ? (
-              <div className="mt-1 text-xs text-muted-foreground">
-                {subtitle}
-              </div>
-            ) : null}
-          </div>
+<div
+  role="dialog"
+  aria-modal="true"
+  aria-label={title}
+  className={cx(
+    "absolute right-0 top-0 h-full w-[92vw] max-w-140",
+    "border-l border-border bg-card shadow-2xl",
+    "rounded-l-3xl overflow-hidden",
+    "flex flex-col", // ✅ important
+    "animate-[panth_sheetIn_180ms_ease-out]"
+  )}
+>
+  {/* Header */}
+  <div className="flex items-start justify-between gap-3 border-b border-border px-6 py-5">
+    <div className="min-w-0">
+      <div className="text-sm font-semibold">{title}</div>
+      {subtitle ? (
+        <div className="mt-1 text-xs text-muted-foreground">{subtitle}</div>
+      ) : null}
+    </div>
 
-          <button
-            onClick={onClose}
-            className="inline-flex h-9 items-center justify-center rounded-full border border-border bg-background px-3 text-xs font-semibold hover:bg-card"
-          >
-            Close
-          </button>
-        </div>
+    <button
+      type="button"
+      onClick={onClose}
+      className="inline-flex h-9 items-center justify-center rounded-full border border-border bg-background px-3 text-xs font-semibold hover:bg-card"
+    >
+      Close
+    </button>
+  </div>
 
-        {/* Content */}
-        <div className="h-[calc(100%-64px-76px)] overflow-y-auto px-6 py-5">
-          {children}
-        </div>
+  {/* Content */}
+  <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+    {children}
+  </div>
 
-        {/* Footer */}
-        <div className="border-t border-border bg-card/90 px-6 py-5 backdrop-blur">
-          {footer}
-        </div>
-      </div>
+  {/* Footer */}
+  <div
+    className={cx(
+      "border-t border-border bg-card/90 px-6 pt-5 backdrop-blur",
+      "pb-8", // ✅ fallback if safe-area is 0
+      "pb-[calc(env(safe-area-inset-bottom)+24px)]!" // ✅ always wins + adds breathing room
+    )}
+  >
+    {footer}
+  </div>
+</div>
 
-      {/* Keyframes (Tailwind arbitrary animation uses this name) */}
-      <style jsx>{`
-        @keyframes sheetIn {
+
+      {/* Global keyframes for Tailwind arbitrary animation */}
+      <style jsx global>{`
+        @keyframes panth_sheetIn {
           from {
             transform: translateX(24px);
             opacity: 0.8;
@@ -211,6 +253,8 @@ function RightSheet({
       `}</style>
     </div>
   );
+
+  return createPortal(ui, portalRoot);
 }
 
 export default function EditCollectionSheet({
@@ -232,12 +276,8 @@ export default function EditCollectionSheet({
   const [uploadingCover, setUploadingCover] = React.useState(false);
   const [uploadingLogo, setUploadingLogo] = React.useState(false);
 
-  const [coverUrl, setCoverUrl] = React.useState<string | null>(
-    collection.coverUrl || null
-  );
-  const [logoUrl, setLogoUrl] = React.useState<string | null>(
-    collection.logoUrl || null
-  );
+  const [coverUrl, setCoverUrl] = React.useState<string | null>(collection.coverUrl || null);
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(collection.logoUrl || null);
 
   const [description, setDescription] = React.useState(collection.description || "");
   const [website, setWebsite] = React.useState(collection.website || "");
@@ -246,7 +286,7 @@ export default function EditCollectionSheet({
   const [telegram, setTelegram] = React.useState(collection.telegram || "");
   const [discord, setDiscord] = React.useState(collection.discord || "");
 
-  // Reset fields each time we open (so the sheet always mirrors latest header)
+  // Reset fields each time we open (mirrors latest header)
   React.useEffect(() => {
     if (!open) return;
     setErr(null);
@@ -359,17 +399,14 @@ export default function EditCollectionSheet({
 
     setSaving(true);
     try {
-      const res = await fetch(
-        `/api/collections/${encodeURIComponent(collection.contract)}`,
-        {
-          method: "PATCH",
-          headers: {
-            "content-type": "application/json",
-            "x-owner-wallet": acct.address,
-          },
-          body: JSON.stringify(body),
-        }
-      );
+      const res = await fetch(`/api/collections/${encodeURIComponent(collection.contract)}`, {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          "x-owner-wallet": acct.address,
+        },
+        body: JSON.stringify(body),
+      });
 
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json?.error || "Failed to save changes");
@@ -408,6 +445,7 @@ export default function EditCollectionSheet({
         footer={
           <div className="flex items-center justify-between gap-2">
             <button
+              type="button"
               disabled={saving}
               onClick={() => setOpen(false)}
               className="h-10 rounded-full border border-border bg-background px-4 text-sm font-semibold hover:bg-card disabled:opacity-60"
@@ -416,6 +454,7 @@ export default function EditCollectionSheet({
             </button>
 
             <button
+              type="button"
               disabled={!somethingChanged || saving}
               onClick={save}
               className={cx(
@@ -438,13 +477,9 @@ export default function EditCollectionSheet({
         <div className="space-y-6">
           {/* Cover */}
           <div className="space-y-2">
-            <div className="text-xs font-semibold text-muted-foreground">
-              Cover Photo
-            </div>
+            <div className="text-xs font-semibold text-muted-foreground">Cover Photo</div>
             <div className="relative h-40 w-full overflow-hidden rounded-2xl border border-border bg-background">
-              {coverUrl ? (
-                <Image src={coverUrl} alt="Cover" fill className="object-cover" />
-              ) : null}
+              {coverUrl ? <Image src={coverUrl} alt="Cover" fill className="object-cover" /> : null}
               <div className="absolute inset-0 grid place-items-center bg-black/25 text-white text-xs font-semibold">
                 {uploadingCover ? "Uploading…" : "Click to upload / replace"}
               </div>
@@ -456,9 +491,7 @@ export default function EditCollectionSheet({
                 disabled={saving || uploadingCover}
               />
             </div>
-            <div className="text-[11px] text-muted-foreground">
-              Recommended ~1600×400. Max 3MB.
-            </div>
+            <div className="text-[11px] text-muted-foreground">Recommended ~1600×400. Max 3MB.</div>
           </div>
 
           {/* Logo */}
@@ -466,9 +499,7 @@ export default function EditCollectionSheet({
             <div className="text-xs font-semibold text-muted-foreground">Logo</div>
             <div className="flex items-center gap-4">
               <div className="relative h-22 w-22 overflow-hidden rounded-2xl border border-border bg-background">
-                {logoUrl ? (
-                  <Image src={logoUrl} alt="Logo" fill className="object-cover" />
-                ) : null}
+                {logoUrl ? <Image src={logoUrl} alt="Logo" fill className="object-cover" /> : null}
                 <div className="absolute inset-0 grid place-items-center bg-black/25 text-white text-[11px] font-semibold px-2 text-center">
                   {uploadingLogo ? "Uploading…" : "Click to replace"}
                 </div>
@@ -480,17 +511,13 @@ export default function EditCollectionSheet({
                   disabled={saving || uploadingLogo}
                 />
               </div>
-              <div className="text-[11px] text-muted-foreground">
-                Recommended ≥ 400×400. Max 3MB.
-              </div>
+              <div className="text-[11px] text-muted-foreground">Recommended ≥ 400×400. Max 3MB.</div>
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <div className="text-xs font-semibold text-muted-foreground">
-              Description
-            </div>
+            <div className="text-xs font-semibold text-muted-foreground">Description</div>
             <textarea
               rows={6}
               value={description}
@@ -511,9 +538,7 @@ export default function EditCollectionSheet({
               { label: "Discord", v: discord, set: setDiscord, ph: "https://discord.gg/invite" },
             ].map((f) => (
               <div key={f.label} className="space-y-1">
-                <div className="text-xs font-semibold text-muted-foreground">
-                  {f.label}
-                </div>
+                <div className="text-xs font-semibold text-muted-foreground">{f.label}</div>
                 <input
                   value={f.v}
                   onChange={(e) => f.set(e.target.value)}

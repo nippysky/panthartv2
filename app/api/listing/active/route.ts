@@ -135,9 +135,36 @@ type DbRow = {
   };
 };
 
+/**
+ * In-memory cache for txHashCreated -> listingId.
+ * This kills the “sometimes it resolves, sometimes it doesn’t” flicker.
+ * (No schema change needed; good enough in long-lived Node runtime.)
+ */
+const LISTING_ID_CACHE_TTL_MS = 1000 * 60 * 60 * 6; // 6 hours
+const listingIdByTxHash = new Map<string, { id: bigint; ts: number }>();
+
+function getCachedListingId(txHash: string): bigint | null {
+  const key = txHash.toLowerCase();
+  const hit = listingIdByTxHash.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > LISTING_ID_CACHE_TTL_MS) {
+    listingIdByTxHash.delete(key);
+    return null;
+  }
+  return hit.id;
+}
+
+function setCachedListingId(txHash: string, id: bigint) {
+  const key = txHash.toLowerCase();
+  listingIdByTxHash.set(key, { id, ts: Date.now() });
+}
+
 async function resolveChainListingIdFromTx(row: DbRow): Promise<bigint | null> {
   const txHash = (row.txHashCreated || "").trim();
   if (!txHash || !ethers.isHexString(txHash, 32)) return null;
+
+  const cached = getCachedListingId(txHash);
+  if (cached != null) return cached;
 
   const provider = getProvider();
   const receipt = await provider.getTransactionReceipt(txHash).catch(() => null);
@@ -160,15 +187,20 @@ async function resolveChainListingIdFromTx(row: DbRow): Promise<bigint | null> {
 
       const args: any = parsed.args;
 
-      const listingId = args?.listingId as bigint | undefined;
+      // ✅ IMPORTANT: tokenId and listingId can be 0; never use truthy checks here.
+      const listingIdRaw = args?.listingId;
+      const tokenIdRaw = args?.tokenId;
       const token = String(args?.token ?? "");
-      const tokenId = (args?.tokenId as bigint | undefined) ?? undefined;
 
-      if (!listingId || !tokenId) continue;
+      if (listingIdRaw == null || tokenIdRaw == null) continue;
+
+      const listingId = typeof listingIdRaw === "bigint" ? listingIdRaw : BigInt(listingIdRaw.toString());
+      const tokenId = typeof tokenIdRaw === "bigint" ? tokenIdRaw : BigInt(tokenIdRaw.toString());
 
       if (lower(token) !== wantContract) continue;
       if (tokenId.toString() !== wantTokenId) continue;
 
+      setCachedListingId(txHash, listingId);
       return listingId;
     } catch {
       // ignore
@@ -178,14 +210,42 @@ async function resolveChainListingIdFromTx(row: DbRow): Promise<bigint | null> {
   return null;
 }
 
-async function chainTruthForListing(row: DbRow) {
+type ChainListingSnap = {
+  listingId: bigint;
+  listingIdStr: string;
+
+  // these are best-effort; can be null if RPC read fails
+  onchainActive: boolean | null;
+  sellerAddress: string | null;
+  quantity: number | null;
+  currencyAddr: string | null;
+  priceWei: bigint | null;
+  startTimeISO: string | null;
+  endTimeISO: string | null;
+  isLive: boolean | null;
+};
+
+async function chainSnapshotForListing(row: DbRow): Promise<ChainListingSnap | null> {
   const market = getMarket();
 
   const listingId = await resolveChainListingIdFromTx(row);
   if (!listingId) return null;
 
+  const base: ChainListingSnap = {
+    listingId,
+    listingIdStr: listingId.toString(),
+    onchainActive: null,
+    sellerAddress: row.sellerAddress ?? null,
+    quantity: row.quantity ?? 1,
+    currencyAddr: null,
+    priceWei: null,
+    startTimeISO: null,
+    endTimeISO: null,
+    isLive: null,
+  };
+
   const L = await market.listings(listingId).catch(() => null);
-  if (!L) return null;
+  if (!L) return base;
 
   const seller = String(L[0] ?? "");
   const tokenAddr = String(L[1] ?? "");
@@ -197,21 +257,26 @@ async function chainTruthForListing(row: DbRow) {
   const end = Number(L[8] as bigint);
   const active = Boolean(L[9]);
 
-  if (!active) return null;
-
-  if (lower(tokenAddr) !== lower(row.nft.contract)) return null;
-  if (tokenId.toString() !== String(row.nft.tokenId)) return null;
+  // verify it matches the NFT row we’re querying
+  if (lower(tokenAddr) !== lower(row.nft.contract)) {
+    return { ...base, onchainActive: false, sellerAddress: null };
+  }
+  if (tokenId.toString() !== String(row.nft.tokenId)) {
+    return { ...base, onchainActive: false, sellerAddress: null };
+  }
 
   const now = Math.floor(Date.now() / 1000);
-  const isLive = now >= start && (end === 0 || now <= end);
+  const isLive = active && now >= start && (end === 0 || now <= end);
 
   return {
+    listingId,
     listingIdStr: listingId.toString(),
-    sellerAddress: seller && ethers.isAddress(seller) ? seller : row.sellerAddress,
+    onchainActive: active,
+    sellerAddress: seller && ethers.isAddress(seller) ? ethers.getAddress(seller) : (row.sellerAddress ?? null),
     quantity: qty > BigInt(0) ? Number(qty) : Number(row.quantity ?? 1),
-    currencyAddr: currencyAddr && ethers.isAddress(currencyAddr) ? currencyAddr : null,
+    currencyAddr: currencyAddr && ethers.isAddress(currencyAddr) ? ethers.getAddress(currencyAddr) : null,
     priceWei: price,
-    startTimeISO: new Date(start * 1000).toISOString(),
+    startTimeISO: start > 0 ? new Date(start * 1000).toISOString() : row.startTime.toISOString(),
     endTimeISO: end === 0 ? null : new Date(end * 1000).toISOString(),
     isLive,
   };
@@ -231,7 +296,17 @@ export async function GET(req: NextRequest) {
 
   const countOnly = searchParams.get("count") === "1";
 
-  const chainTruth = searchParams.get("chain") === "1" || (!!contractParam && !!tokenIdParam);
+  /**
+   * preferChain:
+   * - token page naturally wants chain timing (start/end) for “Starts in …”
+   * - but we should NOT drop items if RPC has a bad moment
+   *
+   * requireChain:
+   * - explicitly request to show ONLY listings confirmed active on-chain
+   *   (e.g. admin tools or strict feed modes)
+   */
+  const preferChain = searchParams.get("chain") === "1" || (!!contractParam && !!tokenIdParam);
+  const requireChain = searchParams.get("requireChain") === "1";
 
   try {
     const whereBase: any = {
@@ -293,22 +368,24 @@ export async function GET(req: NextRequest) {
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, -1) : rows;
 
-    const truthResults = chainTruth
+    const snaps = preferChain
       ? await Promise.all(
-          page.map(async (l) => {
+          page.map(async (row) => {
             try {
-              const truth = await chainTruthForListing(l);
-              return { row: l, truth };
+              return { row, snap: await chainSnapshotForListing(row) };
             } catch {
-              return { row: l, truth: null as any };
+              return { row, snap: null as any };
             }
           })
         )
-      : page.map((l) => ({ row: l, truth: null as any }));
+      : page.map((row) => ({ row, snap: null as any }));
 
-    const filtered = truthResults
-      .filter(({ row, truth }) => {
-        if (chainTruth && !truth) return false;
+    const filtered = snaps
+      .filter(({ row, snap }) => {
+        if (requireChain) {
+          // Require: must confirm on-chain active
+          return Boolean(snap?.onchainActive === true);
+        }
 
         if (!strictOwner) return true;
 
@@ -317,55 +394,59 @@ export async function GET(req: NextRequest) {
 
         const ownerWallet = row.nft.owner?.walletAddress ?? null;
 
-        // ✅ FIX: if owner isn't synced in DB yet, don't hide listing
+        // ✅ if owner isn't synced in DB yet, don't hide listing
         if (!ownerWallet) return true;
 
-        const seller = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
+        const seller = snap?.sellerAddress ?? row.sellerAddress;
         return lower(seller) === lower(ownerWallet);
       })
-      .map(({ row, truth }) => {
-        const chainCurrencyAddr = truth?.currencyAddr ?? null;
-        const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
-
+      .map(({ row, snap }) => {
         const dbCur = row.currency;
+
+        const chainCurrencyAddr = snap?.currencyAddr ?? null;
+        const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
         const dbIsNative = (dbCur?.kind ?? CurrencyKind.NATIVE) === CurrencyKind.NATIVE;
 
-        const isNative = chainTruth ? chainIsNative : dbIsNative;
+        // Use chain currency only if we actually have it; otherwise fall back to DB currency
+        const isNative = snap?.currencyAddr != null ? chainIsNative : dbIsNative;
 
         const decimals = isNative ? 18 : dbCur?.decimals ?? 18;
         const symbol = isNative ? "ETN" : dbCur?.symbol ?? "ERC20";
         const tokenAddress = isNative ? null : dbCur?.tokenAddress ?? chainCurrencyAddr;
 
-        const qty = Number(truth?.quantity ?? Number(row.quantity ?? 1)) || 1;
+        const qty = Number(snap?.quantity ?? Number(row.quantity ?? 1)) || 1;
 
         const totalWei =
-          chainTruth && truth?.priceWei != null
-            ? (truth.priceWei as bigint)
+          snap?.priceWei != null
+            ? (snap.priceWei as bigint)
             : toBigIntSafe(isNative ? row.priceEtnWei : row.priceTokenAmount);
 
         const unitWei = totalWei != null && qty > 0 ? totalWei / BigInt(qty) : null;
 
-        const startISO = chainTruth ? truth!.startTimeISO : row.startTime.toISOString();
-        const endISO = chainTruth
-          ? truth!.endTimeISO
-          : row.endTime
-          ? row.endTime.toISOString()
-          : null;
+        const startISO = snap?.startTimeISO ?? row.startTime.toISOString();
+        const endISO = snap?.endTimeISO ?? (row.endTime ? row.endTime.toISOString() : null);
 
         const now = Date.now();
-        const isLive = chainTruth
-          ? Boolean(truth!.isLive)
-          : (() => {
-              const startMs = row.startTime.getTime();
-              const endMs = row.endTime ? row.endTime.getTime() : null;
-              return now >= startMs && (!endMs || now <= endMs);
-            })();
+        const isLive =
+          snap?.isLive != null
+            ? Boolean(snap.isLive)
+            : (() => {
+                const startMs = row.startTime.getTime();
+                const endMs = row.endTime ? row.endTime.getTime() : null;
+                return now >= startMs && (!endMs || now <= endMs);
+              })();
 
-        const sellerAddr = chainTruth ? (truth!.sellerAddress ?? row.sellerAddress) : row.sellerAddress;
+        const sellerAddr = snap?.sellerAddress ?? row.sellerAddress;
+
+        // Keep backward compatibility:
+        // - id stays numeric when we can resolve it from txHashCreated (cached)
+        // - otherwise it falls back to dbId
+        const chainIdStr = snap?.listingIdStr ?? null;
 
         return {
-          id: chainTruth ? truth!.listingIdStr : row.id,
+          id: chainIdStr ?? row.id,
           dbId: row.id,
+          chainId: chainIdStr, // ✅ NEW: explicit chain id for UI to use safely
 
           nft: {
             contract: row.nft.contract,
@@ -380,6 +461,9 @@ export async function GET(req: NextRequest) {
           startTime: startISO,
           endTime: endISO,
           isLive,
+
+          // Optional: expose onchainActive for nicer UI messaging
+          onchainActive: snap?.onchainActive ?? null,
 
           currency: {
             id: dbCur?.id ?? null,
@@ -399,7 +483,7 @@ export async function GET(req: NextRequest) {
           // keep old field
           sellerAddress: sellerAddr,
 
-          // new normalized seller object for username rendering
+          // normalized seller object for username rendering
           seller: {
             address: sellerAddr,
             username: null as string | null,
@@ -441,7 +525,8 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const nextCursor = hasMore ? rows[rows.length - 1].id : null;
+    // ✅ Fix cursor: use last *returned* row, not the extra row.
+    const nextCursor = hasMore && page.length > 0 ? page[page.length - 1].id : null;
     return NextResponse.json({ items, nextCursor });
   } catch (e) {
     console.error("[api listing active] error:", e);

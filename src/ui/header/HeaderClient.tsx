@@ -11,6 +11,7 @@ import { MobileMenuDrawer } from "./MobileMenuDrawer";
 
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 import { useActiveAccount } from "thirdweb/react";
+import Link from "next/link";
 
 function useUnifiedAddress() {
   const dw = useDecentWalletAccount();
@@ -33,10 +34,12 @@ export function HeaderClient() {
       {/* Desktop: Create */}
       {address ? (
         <div className="hidden md:block">
-          <Button href="/create" variant="primary" size="md">
+          <Link href="/create">
+          <Button variant="primary" size="md">
             <Plus className="h-4 w-4" />
             <span className="ml-1">Create</span>
           </Button>
+          </Link>
         </div>
       ) : null}
 
