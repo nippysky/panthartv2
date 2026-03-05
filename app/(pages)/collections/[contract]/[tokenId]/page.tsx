@@ -8,10 +8,12 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { ethers } from "ethers";
 
-import { ipfsToHttp, detectMediaType } from "@/src/lib/media";
+import { ipfsToHttp } from "@/src/lib/media";
+import CardMedia from "@/src/components/shared/CardMedia";
 import NFTDetailsClient from "@/src/components/shared/nft/NFTDetailsClient";
 import NFTitemsTab from "@/src/components/shared/NFTitemsTab";
 import type { Standard } from "@/src/lib/services/marketplace";
+import { BackButton } from "@/src/ui/BackButton";
 
 type Attribute = { trait_type?: string; value?: string | number };
 
@@ -22,7 +24,7 @@ type TokenDetails = {
   description?: string | null;
   image?: string | null;
   animation_url?: string | null;
-  owner?: string | null; // wallet address string
+  owner?: string | null;
   collectionName?: string | null;
   attributes?: Attribute[] | null;
 };
@@ -58,22 +60,12 @@ async function getBaseUrlFromHeaders() {
 
 function pickAnimationUrl(rawMetadata: any): string | null {
   if (!rawMetadata) return null;
-  return (
-    rawMetadata.animation_url ??
-    rawMetadata.animationUrl ??
-    rawMetadata.animation ??
-    null
-  );
+  return rawMetadata.animation_url ?? rawMetadata.animationUrl ?? rawMetadata.animation ?? null;
 }
 
-async function getTokenDetails(
-  contract: string,
-  tokenId: string
-): Promise<TokenDetails | null> {
+async function getTokenDetails(contract: string, tokenId: string): Promise<TokenDetails | null> {
   const baseUrl = await getBaseUrlFromHeaders();
-  const url = `${baseUrl}/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(
-    tokenId
-  )}`;
+  const url = `${baseUrl}/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(tokenId)}`;
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) return null;
@@ -90,16 +82,10 @@ async function getTokenDetails(
     animation_url: pickAnimationUrl(api.rawMetadata),
     owner: api.owner?.walletAddress ?? null,
     collectionName: api.collection?.name ?? null,
-    attributes: (Array.isArray(api.nft.attributes) ? api.nft.attributes : null) as
-      | Attribute[]
-      | null,
+    attributes: (Array.isArray(api.nft.attributes) ? api.nft.attributes : null) as Attribute[] | null,
   };
 }
 
-/**
- * Detect token standard on-chain (cheap eth_call).
- * This avoids “assuming ERC721” and lets your owner actions work for ERC1155 too.
- */
 async function detectTokenStandard(contract: string): Promise<Standard> {
   try {
     const RPC_URL =
@@ -124,13 +110,25 @@ async function detectTokenStandard(contract: string): Promise<Standard> {
   }
 }
 
+async function getRarity(contract: string, tokenId: string) {
+  const baseUrl = await getBaseUrlFromHeaders();
+  const res = await fetch(
+    `${baseUrl}/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(tokenId)}/rarity`,
+    { cache: "no-store" }
+  )
+    .then((r) => (r.ok ? r.json().catch(() => null) : null))
+    .catch(() => null);
+
+  const rank = res && typeof res === "object" ? (res as any).rank : null;
+  return typeof rank === "number" ? rank : null;
+}
+
 export async function generateMetadata(ctx: PageContext) {
   const { contract, tokenId } = await ctx.params;
   const token = await getTokenDetails(contract, tokenId);
 
   const title = token?.name ? `${token.name}` : `Token #${tokenId}`;
-  const description =
-    token?.description?.slice(0, 160) ?? `View token #${tokenId} on Panth.art.`;
+  const description = token?.description?.slice(0, 160) ?? `View token #${tokenId} on Panth.art.`;
 
   return { title, description };
 }
@@ -145,10 +143,13 @@ export default async function Page(ctx: PageContext) {
 
   const rawMedia = token.animation_url || token.image || "";
   const mediaUrl = rawMedia ? (ipfsToHttp(rawMedia) ?? "") : "";
-  const mediaType = rawMedia ? detectMediaType(rawMedia) : "image";
 
   const title = token.name || `Token #${tokenId}`;
   const collectionLabel = token.collectionName || "Collection";
+
+  const rarityRank = await getRarity(contract, tokenId);
+
+  const is1155 = standard === "ERC1155";
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:py-10">
@@ -156,19 +157,19 @@ export default async function Page(ctx: PageContext) {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div className="min-w-0">
           <div className="text-xs text-muted-foreground">
-            <Link href={`/collections/${contract}`} className="hover:underline">
-              ← Back to collection
-            </Link>
+    <BackButton/>
           </div>
 
-          <h1 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight truncate">
-            {title}
-          </h1>
+          <h1 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight truncate">{title}</h1>
 
           <div className="mt-1 text-xs text-muted-foreground">
             <span className="font-mono">{contract}</span>
-            <span className="mx-2 opacity-50">•</span>
-            <span>{collectionLabel}</span>
+            {!is1155 ? (
+              <>
+                <span className="mx-2 opacity-50">•</span>
+                <span>{collectionLabel}</span>
+              </>
+            ) : null}
             <span className="mx-2 opacity-50">•</span>
             <span className="font-mono">{standard}</span>
           </div>
@@ -182,12 +183,15 @@ export default async function Page(ctx: PageContext) {
             Refresh
           </Link>
 
-          <Link
-            href={`/collections/${contract}`}
-            className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
-          >
-            View collection
-          </Link>
+          {/* ✅ ERC1155: remove view collection button */}
+          {!is1155 ? (
+            <Link
+              href={`/collections/${contract}`}
+              className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+            >
+              View collection
+            </Link>
+          ) : null}
         </div>
       </div>
 
@@ -198,32 +202,21 @@ export default async function Page(ctx: PageContext) {
           <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 overflow-hidden">
             <div className="p-3 sm:p-4 border-b border-black/5 dark:border-white/5">
               <div className="text-sm font-semibold">Media</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                {mediaType === "video" ? "Video" : "Image"}
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Smart preview</div>
             </div>
 
             <div className="relative w-full aspect-square bg-black/5 dark:bg-white/5">
-              {mediaType === "video" ? (
-                <video
-                  src={mediaUrl || undefined}
-                  controls
-                  playsInline
-                  className="h-full w-full object-contain"
-                />
-              ) : mediaUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mediaUrl}
-                  alt={title}
-                  className="h-full w-full object-contain"
-                  loading="eager"
-                />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
-                  No media
-                </div>
-              )}
+              <CardMedia
+                src={mediaUrl || undefined}
+                alt={title}
+                fit="contain"
+                className="absolute inset-0"
+           autoPlay
+  muted
+  loop
+  playsInline
+  audio="toggle"
+              />
             </div>
           </div>
 
@@ -235,7 +228,15 @@ export default async function Page(ctx: PageContext) {
           </div>
 
           <div className="mt-4 rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
-            <h2 className="font-semibold">Traits</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-semibold">Traits</h2>
+
+              {typeof rarityRank === "number" ? (
+                <div className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1 bg-white/40 dark:bg-white/5 font-semibold">
+                  Rank #{rarityRank}
+                </div>
+              ) : null}
+            </div>
 
             {token.attributes && token.attributes.length ? (
               <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -249,9 +250,7 @@ export default async function Page(ctx: PageContext) {
                       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
                         {a.trait_type}
                       </div>
-                      <div className="text-sm font-medium truncate">
-                        {String(a.value ?? "—")}
-                      </div>
+                      <div className="text-sm font-medium truncate">{String(a.value ?? "—")}</div>
                     </div>
                   ))}
               </div>
@@ -264,23 +263,17 @@ export default async function Page(ctx: PageContext) {
         {/* right rail */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24">
-            <NFTDetailsClient
-              contract={contract}
-              tokenId={tokenId}
-              owner={token.owner ?? null}
-              standard={standard}
-            />
+            <NFTDetailsClient contract={contract} tokenId={tokenId} owner={token.owner ?? null} standard={standard} />
           </div>
         </div>
       </section>
 
-      <div className="mt-10">
-        <NFTitemsTab
-          contract={contract}
-          excludeTokenId={tokenId}
-          title="More from this collection"
-        />
-      </div>
+      {/* ✅ ERC1155: remove “More from this collection” */}
+      {!is1155 ? (
+        <div className="mt-10">
+          <NFTitemsTab contract={contract} excludeTokenId={tokenId} title="More from this collection" />
+        </div>
+      ) : null}
     </main>
   );
 }

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Progress } from "@/src/ui/Progress";
 import type { MintingNowItem } from "@/src/types/minting-now";
-import { formatEtnFromWei} from "@/src/lib/utils";
+import { formatEtnFromWei } from "@/src/lib/utils";
 import { useIsMobile } from "@/src/lib/isMobile";
 
 function cx(...cls: Array<string | false | undefined | null>) {
@@ -16,23 +16,46 @@ function cx(...cls: Array<string | false | undefined | null>) {
 function ipfsToHttp(u?: string | null) {
   if (!u) return "";
   if (u.startsWith("ipfs://")) {
-    const gw = (
-      process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://cloudflare-ipfs.com/ipfs/"
-    ).replace(/\/?$/, "/");
+    const gw = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://cloudflare-ipfs.com/ipfs/").replace(
+      /\/?$/,
+      "/"
+    );
     return gw + u.slice(7);
   }
   return u;
 }
 
 function bypassOptimizer(u: string): boolean {
+  if (!u) return true;
   try {
     const host = new URL(u).host;
-    return /ipfs\.io$|cloudflare-ipfs\.com$|pinata\.cloud$|lighthouse\.storage$|arweave\.net$/.test(
-      host
-    );
+    return /ipfs\.io$|cloudflare-ipfs\.com$|pinata\.cloud$|lighthouse\.storage$|arweave\.net$/.test(host);
   } catch {
     return true;
   }
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = React.useState(false);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!mq) return;
+
+    const apply = () => setReduced(!!mq.matches);
+    apply();
+
+    // safari compat
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", apply);
+      return () => mq.removeEventListener("change", apply);
+    } else {
+      mq.addListener(apply);
+      return () => mq.removeListener(apply);
+    }
+  }, []);
+
+  return reduced;
 }
 
 export default function MintingCard({
@@ -47,6 +70,7 @@ export default function MintingCard({
   mediaPreference?: "cover" | "logo" | "logo-on-mobile" | "logo-strict";
 }) {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const coverUrl = ipfsToHttp(item.coverUrl || null);
   const logoUrl = ipfsToHttp(item.logoUrl || null);
@@ -56,28 +80,34 @@ export default function MintingCard({
 
   const forceLogo = mediaPreference === "logo-strict";
   let useLogoAsMain =
-    forceLogo ||
-    mediaPreference === "logo" ||
-    (mediaPreference === "logo-on-mobile" && isMobile);
+    forceLogo || mediaPreference === "logo" || (mediaPreference === "logo-on-mobile" && isMobile);
 
   if (useLogoAsMain && !logoUrl) useLogoAsMain = false;
 
   // Poster should always be an image if possible
   const posterUrl =
-    (logoType === "image" && logoUrl) ? logoUrl :
-    (coverType === "image" && coverUrl) ? coverUrl :
-    "/placeholder.svg";
+    logoType === "image" && logoUrl
+      ? logoUrl
+      : coverType === "image" && coverUrl
+      ? coverUrl
+      : "/placeholder.svg";
 
-  // Motion: pick the URL that is actually a video (even if no file extension)
+  // Motion: pick the URL that is actually a video
   const motionUrl =
-    (coverType === "video" && coverUrl) ? coverUrl :
-    (logoType === "video" && logoUrl) ? logoUrl :
-    "";
+    coverType === "video" && coverUrl
+      ? coverUrl
+      : logoType === "video" && logoUrl
+      ? logoUrl
+      : "";
 
   // Still: respect logo preference only when logo is an image
   const stillUrl = useLogoAsMain
-    ? (logoType === "image" ? (logoUrl as string) : posterUrl)
-    : (coverType === "image" ? (coverUrl as string) : posterUrl);
+    ? logoType === "image"
+      ? (logoUrl as string)
+      : posterUrl
+    : coverType === "image"
+    ? (coverUrl as string)
+    : posterUrl;
 
   let mediaBox = "relative w-full overflow-hidden rounded-2xl ring-1 ring-black/5";
   if (layoutVariant === "strip") mediaBox += " aspect-[16/9] md:h-[130px] md:aspect-auto";
@@ -86,13 +116,15 @@ export default function MintingCard({
   else mediaBox += " aspect-square";
 
   const priceWei =
-    item.status === "presale" ? item.presale!.priceEtnWei : item.publicSale.priceEtnWei;
-  const price = formatEtnFromWei(priceWei, 18, 4);
+    item.status === "presale" ? item.presale?.priceEtnWei : item.publicSale?.priceEtnWei;
+
+  const price =
+    priceWei == null
+      ? "—"
+      : formatEtnFromWei(priceWei, 18, 4);
 
   const statusLabel =
-    item.status === "presale" ? "Presale" :
-    item.status === "upcoming" ? "Upcoming" :
-    "Public";
+    item.status === "presale" ? "Presale" : item.status === "upcoming" ? "Upcoming" : "Public";
 
   const badge = item.kind === "erc1155" ? " • ERC1155" : "";
 
@@ -100,6 +132,14 @@ export default function MintingCard({
   const titleText = compact ? "text-[0.92rem]" : "text-sm";
   const priceText = compact ? "text-[11px]" : "text-xs";
   const progressH = compact ? "h-1.5" : "h-2";
+
+  // Video UX: only show when playable, and respect reduced motion.
+  const canUseVideo = !!motionUrl && !prefersReducedMotion;
+  const [videoReady, setVideoReady] = React.useState(false);
+  React.useEffect(() => {
+    // reset when item changes
+    setVideoReady(false);
+  }, [motionUrl]);
 
   return (
     <Link href={item.href} className="block group">
@@ -112,6 +152,7 @@ export default function MintingCard({
         )}
       >
         <div className={cx(mediaBox, "bg-foreground/5")}>
+          {/* Still image stays as baseline; fades slightly when video is ready */}
           <Image
             src={stillUrl}
             alt={item.name}
@@ -120,16 +161,22 @@ export default function MintingCard({
             sizes="(min-width: 1280px) 18vw, (min-width: 1024px) 22vw, 45vw"
             className={cx(
               "absolute inset-0 h-full w-full object-cover",
-              "transition-transform duration-300 group-hover:scale-[1.02]"
+              "transition-transform duration-300 group-hover:scale-[1.02]",
+              canUseVideo && videoReady ? "opacity-70" : "opacity-100",
+              "transition-opacity duration-300"
             )}
             priority={false}
           />
 
-          {motionUrl ? (
+          {canUseVideo ? (
             <video
               key={motionUrl}
               src={motionUrl}
-              className="absolute inset-0 h-full w-full object-cover"
+              className={cx(
+                "absolute inset-0 h-full w-full object-cover",
+                videoReady ? "opacity-100" : "opacity-0",
+                "transition-opacity duration-300"
+              )}
               autoPlay
               muted
               playsInline
@@ -137,10 +184,10 @@ export default function MintingCard({
               preload="metadata"
               controls={false}
               poster={posterUrl}
-              onError={(e) => {
-                try {
-                  (e.currentTarget as HTMLVideoElement).remove();
-                } catch {}
+              onCanPlay={() => setVideoReady(true)}
+              onError={() => {
+                // keep still image; never hard-crash layout
+                setVideoReady(false);
               }}
             />
           ) : null}
@@ -162,30 +209,27 @@ export default function MintingCard({
             </div>
           ) : null}
 
-               {/* ✅ FIXED: status chip works in BOTH light & dark */}
+          {/* status chip (light/dark safe) */}
           <div className="absolute right-3 top-3">
             <div
               className={cx(
                 "text-[10px] uppercase tracking-wider px-2 py-1 rounded-full",
-                // Always readable chip (dark glass)
                 "bg-neutral-900/70 text-white",
                 "backdrop-blur-md shadow-sm",
-                // Subtle ring that adapts to theme
                 "ring-1 ring-black/10 dark:ring-white/15"
               )}
             >
-              {statusLabel}{item.status === "upcoming" ? "" : " Live"}{badge}
+              {statusLabel}
+              {item.status === "upcoming" ? "" : " Live"}
+              {badge}
             </div>
           </div>
         </div>
-    
 
         <div className="mt-3 space-y-2">
           <div className="flex items-start justify-between gap-3">
             <h3 className={cx("font-semibold truncate", titleText)}>{item.name}</h3>
-            <div className={cx("shrink-0 text-muted text-right", priceText)}>
-              {price} ETN
-            </div>
+            <div className={cx("shrink-0 text-muted text-right", priceText)}>{price} ETN</div>
           </div>
 
           <Progress value={item.mintedPct} className={progressH} />

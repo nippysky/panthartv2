@@ -9,16 +9,14 @@ import { ArrowRight, Gavel, Timer } from "lucide-react";
 import { Container } from "@/src/ui/Container";
 import { Button } from "@/src/ui/Button";
 import { Badge } from "@/src/ui/Badge";
-import { Skeleton } from "@/src/ui/Skeleton";
 import TopCollectionsFilters from "@/src/ui/home/TopCollectionsFilters";
 import LiveEta from "./LiveETA";
-
 
 type WindowKey = "24h" | "7d" | "30d";
 
 type ActiveAuctionItem = {
   id: string; // chain auction id (string)
-  dbId?: string | null; // ✅ we’ll use this for routing
+  dbId?: string | null; // DB id for /auction-now/[id]
   nft: {
     contract: string;
     tokenId: string;
@@ -56,20 +54,26 @@ function formatInt(n: number) {
   }
 }
 
-async function fetchActiveAuctions(limit: number): Promise<{ items: ActiveAuctionItem[]; now: number }> {
+async function fetchActiveAuctions(limit: number): Promise<{
+  items: ActiveAuctionItem[];
+  now: number;
+  ok: boolean;
+}> {
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
   const proto = h.get("x-forwarded-proto") ?? "https";
-  if (!host) return { items: [], now: Date.now() };
+  if (!host) return { items: [], now: Date.now(), ok: false };
 
-  const url = `${proto}://${host}/api/auction/active?limit=${encodeURIComponent(String(limit))}&chain=1`;
+  const url = `${proto}://${host}/api/auction/active?limit=${encodeURIComponent(
+    String(limit)
+  )}&chain=1`;
 
   const res = await fetch(url, { cache: "no-store" }).catch(() => null);
-  if (!res?.ok) return { items: [], now: Date.now() };
+  if (!res?.ok) return { items: [], now: Date.now(), ok: false };
 
   const j = (await res.json().catch(() => null)) as any;
   const items = Array.isArray(j?.items) ? (j.items as ActiveAuctionItem[]) : [];
-  return { items, now: Date.now() };
+  return { items, now: Date.now(), ok: true };
 }
 
 function Pill({
@@ -92,8 +96,57 @@ function Pill({
   );
 }
 
+function SpotlightEmpty({
+  liveCount,
+  endingSoonCount,
+  totalBids,
+  ok,
+}: {
+  liveCount: number;
+  endingSoonCount: number;
+  totalBids: number;
+  ok: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <div className="min-w-0 flex-1">
+        <div className="text-xs font-semibold text-muted">Spotlight</div>
+        <div className="mt-1 text-sm sm:text-base font-semibold text-foreground">
+          {ok ? "No live auctions right now" : "Auctions are taking a moment"}
+        </div>
+        <div className="mt-1 text-xs text-muted">
+          {ok
+            ? "Check back soon — or explore collections and listings in the meantime."
+            : "Refresh in a bit — or keep exploring while we reconnect."}
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="rounded-full border border-border bg-card/70 px-2 py-1 text-[11px] text-muted">
+            Live: {liveCount}
+          </span>
+          <span className="rounded-full border border-border bg-card/70 px-2 py-1 text-[11px] text-muted">
+            Ending ≤ 1h: {endingSoonCount}
+          </span>
+          <span className="rounded-full border border-border bg-card/70 px-2 py-1 text-[11px] text-muted">
+            Bids today: {formatInt(totalBids)}
+          </span>
+        </div>
+      </div>
+
+      {/* ✅ No duplicate “Explore / View auctions” buttons here,
+          because the right-side Explore cards already handle that. */}
+      <div className="sm:ml-auto flex items-center gap-2">
+        <Badge variant="outline" className="gap-2">
+          <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400/70" />
+          Live
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
 export default async function MarketHeroStrip({ windowKey }: { windowKey: WindowKey }) {
-  const { items, now } = await fetchActiveAuctions(18);
+  const { items, now, ok } = await fetchActiveAuctions(18);
 
   const live = items.filter((x) => x.isLive);
 
@@ -119,15 +172,23 @@ export default async function MarketHeroStrip({ windowKey }: { windowKey: Window
         best = a;
       }
     }
-
     return best;
   })();
 
-  // Spotlight should be actionable, so prefer live -> else any
+  // Spotlight: prefer live -> else any
   const spotlight = live[0] ?? items[0] ?? null;
 
-  // ✅ route MUST use dbId (your auction-now page fetches by DB id)
-  const spotlightHref = spotlight?.dbId ? `/auction-now/${spotlight.dbId}` : spotlight ? `/auction-now/${spotlight.id}` : "/auction-now";
+  // route uses dbId when available
+  const spotlightHref = spotlight?.dbId
+    ? `/auction-now/${spotlight.dbId}`
+    : spotlight
+    ? `/auction-now/${spotlight.id}`
+    : "/auction-now";
+
+  const priceLine =
+    spotlight?.price?.current && spotlight?.currency?.symbol
+      ? `${spotlight.price.current} ${spotlight.currency.symbol}`
+      : "—";
 
   return (
     <section className="pt-2 sm:pt-4">
@@ -146,8 +207,12 @@ export default async function MarketHeroStrip({ windowKey }: { windowKey: Window
                 </Badge>
               </div>
 
+              {/* ✅ Fully fluid on mobile */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-                <TopCollectionsFilters active={windowKey} />
+                <div className="min-w-0">
+                  <TopCollectionsFilters active={windowKey} />
+                </div>
+
                 <Link href="/auction-now" className="sm:shrink-0">
                   <Button variant="secondary" size="sm" className="w-full sm:w-auto gap-2">
                     View auctions <ArrowRight className="h-4 w-4" />
@@ -156,7 +221,7 @@ export default async function MarketHeroStrip({ windowKey }: { windowKey: Window
               </div>
             </div>
 
-            {/* Pills — breathable on mobile */}
+            {/* Pills */}
             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-2.5 mt-3">
               <Pill label="Live auctions" value={liveCount} icon={<Gavel className="h-4 w-4" />} />
               <Pill label="Ending ≤ 1h" value={endingSoonCount} icon={<Timer className="h-4 w-4" />} />
@@ -178,12 +243,12 @@ export default async function MarketHeroStrip({ windowKey }: { windowKey: Window
             </div>
 
             {/* Spotlight + Actions */}
-<div className="mt-3 sm:mt-0 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+            <div className="mt-3 sm:mt-0 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
               {/* Spotlight */}
               <div className="lg:col-span-7 rounded-3xl border border-border bg-background/40 p-4 sm:p-5">
                 {spotlight ? (
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
                       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-foreground/5">
                         {spotlight.nft.image ? (
                           <Image
@@ -214,13 +279,14 @@ export default async function MarketHeroStrip({ windowKey }: { windowKey: Window
                           </span>
 
                           <span className="rounded-full border border-border bg-card/70 px-2 py-1">
-                            {spotlight.price?.current ? `${spotlight.price.current} ${spotlight.currency.symbol}` : "—"}
+                            {priceLine}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="sm:ml-auto">
+                    {/* ✅ Wrap-safe button */}
+                    <div className="sm:ml-auto w-full sm:w-auto">
                       <Link href={spotlightHref}>
                         <Button size="sm" className="w-full sm:w-auto gap-2">
                           Bid now <ArrowRight className="h-4 w-4" />
@@ -229,19 +295,16 @@ export default async function MarketHeroStrip({ windowKey }: { windowKey: Window
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="h-16 w-16 rounded-2xl" />
-                    <div className="min-w-0 flex-1">
-                      <Skeleton className="h-3 w-24 rounded-lg" />
-                      <Skeleton className="mt-2 h-4 w-[min(420px,80%)] rounded-lg" />
-                      <Skeleton className="mt-2 h-3 w-44 rounded-lg" />
-                    </div>
-                    <Skeleton className="h-9 w-28 rounded-full" />
-                  </div>
+                  <SpotlightEmpty
+                    liveCount={liveCount}
+                    endingSoonCount={endingSoonCount}
+                    totalBids={totalBids}
+                    ok={ok}
+                  />
                 )}
               </div>
 
-              {/* Actions */}
+              {/* Actions (mini cards) */}
               <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Link
                   href="/collections"

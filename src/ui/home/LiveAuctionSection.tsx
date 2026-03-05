@@ -9,15 +9,13 @@ import { ArrowRight, Gavel } from "lucide-react";
 import { Container } from "@/src/ui/Container";
 import { Button } from "@/src/ui/Button";
 import { Badge } from "@/src/ui/Badge";
-import { Skeleton } from "@/src/ui/Skeleton";
 import LiveEta from "./LiveETA";
-
 
 type WindowKey = "24h" | "7d" | "30d";
 
 type ActiveAuctionItem = {
   id: string; // chain auction id (string)
-  dbId?: string | null; // ✅ DB id for /auction-now/[id]
+  dbId?: string | null; // DB id for /auction-now/[id]
   nft: {
     contract: string;
     tokenId: string;
@@ -50,53 +48,64 @@ function formatInt(n: number) {
   }
 }
 
-async function fetchActiveAuctions(limit: number): Promise<{ items: ActiveAuctionItem[]; now: number }> {
+async function fetchActiveAuctions(limit: number): Promise<{
+  items: ActiveAuctionItem[];
+  now: number;
+  ok: boolean;
+}> {
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
   const proto = h.get("x-forwarded-proto") ?? "https";
-  if (!host) return { items: [], now: Date.now() };
+  if (!host) return { items: [], now: Date.now(), ok: false };
 
-  const url = `${proto}://${host}/api/auction/active?limit=${encodeURIComponent(String(limit))}&chain=1`;
+  const url = `${proto}://${host}/api/auction/active?limit=${encodeURIComponent(
+    String(limit)
+  )}&chain=1`;
 
   const res = await fetch(url, { cache: "no-store" }).catch(() => null);
-  if (!res?.ok) return { items: [], now: Date.now() };
+  if (!res?.ok) return { items: [], now: Date.now(), ok: false };
 
   const j = (await res.json().catch(() => null)) as any;
   const items = Array.isArray(j?.items) ? (j.items as ActiveAuctionItem[]) : [];
-  return { items, now: Date.now() };
+  return { items, now: Date.now(), ok: true };
 }
 
-function LiveAuctionsFallback({ cards = 4 }: { cards?: number }) {
+function EmptyState({ ok }: { ok: boolean }) {
   return (
-    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-      {Array.from({ length: cards }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-[28px] border border-border bg-card overflow-hidden"
-        >
-          <Skeleton className="h-44 w-full" />
-          <div className="p-4 sm:p-5">
-            <Skeleton className="h-4 w-[75%] rounded-lg" />
-            <Skeleton className="mt-2 h-3 w-[55%] rounded-lg" />
-            <div className="mt-5 flex items-center justify-between">
-              <Skeleton className="h-8 w-24 rounded-full" />
-              <Skeleton className="h-8 w-24 rounded-full" />
-            </div>
+    <div className="mt-6 rounded-[28px] border border-border bg-card p-5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="text-xs font-semibold text-muted">Market</div>
+          <div className="mt-1 text-lg sm:text-xl font-semibold tracking-tight">
+            {ok ? "No live auctions yet" : "Live auctions unavailable"}
+          </div>
+          <div className="mt-1 text-sm text-muted">
+            {ok
+              ? "When auctions go live, they’ll appear here instantly. Meanwhile, explore listings and collections."
+              : "We couldn’t load auctions right now. Try again shortly."}
           </div>
         </div>
-      ))}
+
+        {/* ✅ Wrap-safe actions */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
+          <Link href="/collections" className="w-full sm:w-auto">
+            <Button variant="secondary" size="sm" className="w-full sm:w-auto gap-2">
+              Explore collections <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href="/auction-now" className="w-full sm:w-auto">
+            <Button size="sm" className="w-full sm:w-auto gap-2">
+              View auctions <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
 
-function AuctionCard({
-  a,
-  now,
-}: {
-  a: ActiveAuctionItem;
-  now: number;
-}) {
-  const href = a.dbId ? `/auction-now/${a.dbId}` : `/auction-now/${a.id}`; // ✅ FIX ROUTING
+function AuctionCard({ a, now }: { a: ActiveAuctionItem; now: number }) {
+  const href = a.dbId ? `/auction-now/${a.dbId}` : `/auction-now/${a.id}`;
 
   const priceLine =
     a.price?.current && a.currency?.symbol ? `${a.price.current} ${a.currency.symbol}` : "—";
@@ -181,8 +190,8 @@ export default async function LiveAuctionsSection({
   windowKey: WindowKey;
   limit?: number;
 }) {
-  // windowKey kept for layout consistency; can be used later (e.g. sorting)
-  const { items, now } = await fetchActiveAuctions(Math.max(4, limit));
+  // windowKey kept for layout consistency; can be used later
+  const { items, now, ok } = await fetchActiveAuctions(Math.max(4, limit));
 
   const live = items.filter((x) => x.isLive);
 
@@ -192,9 +201,7 @@ export default async function LiveAuctionsSection({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="text-xs font-semibold text-muted">Market</div>
-            <h2 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight">
-              Live auctions
-            </h2>
+            <h2 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight">Live auctions</h2>
           </div>
 
           <div className="flex items-center justify-between gap-3 sm:justify-end">
@@ -209,7 +216,7 @@ export default async function LiveAuctionsSection({
         </div>
 
         {items.length === 0 ? (
-          <LiveAuctionsFallback cards={Math.min(4, limit)} />
+          <EmptyState ok={ok} />
         ) : (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {items.slice(0, limit).map((a) => (

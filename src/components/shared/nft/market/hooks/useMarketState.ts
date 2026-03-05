@@ -11,12 +11,10 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 function pickFirstItem<T>(data: unknown): T | null {
   if (!data) return null;
 
-  // support { items: [] }
   if (isRecord(data) && Array.isArray((data as any).items)) {
     return ((data as any).items[0] as T) ?? null;
   }
 
-  // support [] directly
   if (Array.isArray(data)) {
     return (data[0] as T) ?? null;
   }
@@ -49,8 +47,7 @@ function normalizeAuction(x: unknown): AuctionActiveItem | null {
   const id = (x as any).id;
   if (!isChainIdString(id)) return null;
 
-  // Make auction seller consistent with your updated API shape:
-  // prefer seller.address, fallback to sellerAddress for backwards compat.
+  // prefer seller.address, fallback to sellerAddress
   const sellerObj = (x as any).seller;
   const sellerAddressCompat = (x as any).sellerAddress;
 
@@ -81,10 +78,8 @@ export function useMarketState(args: {
   const [auction, setAuction] = useState<AuctionActiveItem | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  // ✅ request guard to prevent stale responses overwriting new state
   const reqIdRef = useRef(0);
 
-  // ✅ alive flag should be scoped to current params (contract/tokenId)
   const aliveRef = useRef(true);
   useEffect(() => {
     aliveRef.current = true;
@@ -94,15 +89,17 @@ export function useMarketState(args: {
   }, [contract, tokenId]);
 
   const urlListing = useMemo(() => {
+    // ✅ IMPORTANT: NO strictOwner on token page.
     return `/api/listing/active?contract=${encodeURIComponent(
       contract
-    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1&strictOwner=1`;
+    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1`;
   }, [contract, tokenId]);
 
   const urlAuction = useMemo(() => {
+    // ✅ IMPORTANT: NO strictOwner on token page.
     return `/api/auction/active?contract=${encodeURIComponent(
       contract
-    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1&strictOwner=1`;
+    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1`;
   }, [contract, tokenId]);
 
   const fetchState = useCallback(async () => {
@@ -122,9 +119,6 @@ export function useMarketState(args: {
     const li = normalizeListing(liRaw);
     const au = normalizeAuction(auRaw);
 
-    // IMPORTANT:
-    // Do NOT null out listing/auction just because isLive === false.
-    // Scheduled items must still show with disabled CTA + countdown.
     return {
       liRaw,
       auRaw,
@@ -134,7 +128,6 @@ export function useMarketState(args: {
     };
   }, [urlListing, urlAuction]);
 
-  // Imperative refresh for UI actions (buttons, after tx, etc.)
   const refresh = useCallback(async () => {
     setErr(null);
     const myReq = ++reqIdRef.current;
@@ -169,13 +162,11 @@ export function useMarketState(args: {
     }
   }, [fetchState, onAfterRefreshReset]);
 
-  // Initial + param-change load
   useEffect(() => {
     const t = window.setTimeout(() => void refresh(), 0);
     return () => window.clearTimeout(t);
   }, [refresh]);
 
-  // Better UX: refresh when user returns to tab + gentle polling while visible
   useEffect(() => {
     let interval: number | null = null;
 
@@ -183,7 +174,7 @@ export function useMarketState(args: {
       if (interval != null) return;
       interval = window.setInterval(() => {
         if (document.visibilityState === "visible") void refresh();
-      }, 15000); // 15s gentle poll
+      }, 15000);
     };
 
     const stop = () => {

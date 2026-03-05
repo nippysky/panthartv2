@@ -21,11 +21,18 @@ import { errorMessage, formatCountdown, parseIsoToMs, safeChecksum } from "./uti
 import { ListingCard } from "./components/ListingCard";
 import { AuctionCard } from "./components/AuctionCard";
 import { OwnerActions } from "./components/OwnerActions";
-import { BidModal } from "./components/BidModal";
 
 function pickUsername(x: any): string | null {
   const u = x?.seller?.username;
   return typeof u === "string" && u.trim().length > 0 ? u.trim() : null;
+}
+
+function extractTxHash(maybe: unknown): string | null {
+  if (typeof maybe === "string" && maybe.startsWith("0x")) return maybe;
+  const anyTx = maybe as any;
+  const h = anyTx?.hash;
+  if (typeof h === "string" && h.startsWith("0x")) return h;
+  return null;
 }
 
 export default function NFTMarketPanel({
@@ -46,11 +53,9 @@ export default function NFTMarketPanel({
 
   useEffect(() => setMounted(true), []);
 
-  // unified account source (DW inside webview, thirdweb otherwise)
   const dw = useDecentWalletAccount();
   const third = useActiveAccount();
 
-  // IMPORTANT: prevent hydration mismatch by not using wallet address until mounted
   const account = useMemo(() => {
     if (!mounted) return null;
     if (dw.isDecentWallet) return dw.address ?? null;
@@ -58,13 +63,10 @@ export default function NFTMarketPanel({
   }, [mounted, dw.isDecentWallet, dw.address, third?.address]);
 
   const [loading, setLoading] = useState(false);
-
   const [ownerMode, setOwnerMode] = useState<OwnerMode>("none");
-  const [bidOpen, setBidOpen] = useState(false);
 
   const resetUiAfterRefresh = useCallback(() => {
     setOwnerMode("none");
-    setBidOpen(false);
   }, []);
 
   const { listing, auction, err, setErr, refresh } = useMarketState({
@@ -75,7 +77,6 @@ export default function NFTMarketPanel({
 
   const { currencies, currLoading } = useCurrencies();
 
-  // IMPORTANT: listing.id + auction.id are CHAIN ids (strings)
   const { chainListing, chainAuction } = useChainMirrors({
     listingId: listing?.id ?? null,
     auctionId: auction?.id ?? null,
@@ -98,7 +99,6 @@ export default function NFTMarketPanel({
     router.refresh();
   }, [contract, tokenId, router]);
 
-  // derive time window (prefer on-chain mirrors)
   const listingStartMs = useMemo(() => {
     if (chainListing) return chainListing.startSec * 1000;
     return parseIsoToMs(listing?.startTime ?? null);
@@ -125,25 +125,11 @@ export default function NFTMarketPanel({
   const auctionNotStarted = !!auction && !!auctionStartMs && nowMs < auctionStartMs;
   const auctionEndedUi = !!auction && !!auctionEndMs && nowMs > auctionEndMs;
 
-  const listingSeller = listing?.sellerAddress ?? null;
-
-  // ✅ CONSISTENT with listing: prefer seller.address but fallback to compat sellerAddress
+  const listingSeller = listing?.seller?.address ?? listing?.sellerAddress ?? null;
   const auctionSeller = (auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null;
 
-  const canManageListing = !!account && !!listingSeller && safeEq(account, listingSeller);
-  const canManageAuction = !!account && !!auctionSeller && safeEq(account, auctionSeller);
-
-  const userOwns = useMemo(() => {
-    if (!account || !owner) return false;
-    return safeEq(account, owner);
-  }, [account, owner]);
-
-  // fallback seller-like logic if backend omitted sellerAddress (common for ERC721)
-  const isSellerLikeForListing =
-    canManageListing || (standard === "ERC721" && !!listing && userOwns && !listingSeller);
-
-  const isSellerLikeForAuction =
-    canManageAuction || (standard === "ERC721" && !!auction && userOwns && !auctionSeller);
+  const isSellerForListing = !!account && !!listingSeller && safeEq(account, listingSeller);
+  const isSellerForAuction = !!account && !!auctionSeller && safeEq(account, auctionSeller);
 
   const listingPriceLabel = useMemo(() => {
     if (!listing) return null;
@@ -162,7 +148,7 @@ export default function NFTMarketPanel({
   const listingSubline = useMemo(() => {
     if (!listing) return null;
     if (listingNotStarted && listingStartMs)
-      return `Active (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
+      return `Scheduled (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
     if (listingEndedUi) return "Expired";
     return "Active";
   }, [listing, listingNotStarted, listingStartMs, listingEndedUi, nowMs]);
@@ -170,15 +156,19 @@ export default function NFTMarketPanel({
   const auctionSubline = useMemo(() => {
     if (!auction) return null;
     if (auctionNotStarted && auctionStartMs)
-      return `Active (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
+      return `Scheduled (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
     if (auctionEndedUi) return "Ended";
     return "Active";
   }, [auction, auctionNotStarted, auctionStartMs, auctionEndedUi, nowMs]);
 
   const buyDisabled = loading || !listing || listingNotStarted || listingEndedUi;
-  const bidDisabled = loading || !auction || auctionNotStarted || auctionEndedUi;
 
-  // ✅ prefer username when backend returns it
+  // Auction cancel rule: seller can cancel ONLY if no bids have been made.
+  const bidsCount = Number((auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0);
+  const canCancelAuctionByRule = !!auction && isSellerForAuction && bidsCount === 0 && !auctionEndedUi;
+
+  const canCancelListing = !!listing && isSellerForListing;
+
   const listingSellerUsername = pickUsername(listing as any);
   const auctionSellerUsername = pickUsername(auction as any);
 
@@ -196,8 +186,28 @@ export default function NFTMarketPanel({
     setErr(null);
 
     try {
-      await marketplace.buyListingByIdJustInTime(BigInt(listingIdStr));
+      const maybeTx = (await (marketplace as any).buyListingByIdJustInTime(
+        BigInt(listingIdStr)
+      )) as unknown;
+
       toast.success("Purchase successful.", { id: tId });
+
+      const txHashFilled = extractTxHash(maybeTx);
+      const dbId = (listing as any)?.dbId ?? null;
+
+      if (dbId && txHashFilled) {
+        await fetch("/api/market/listing/fill/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dbId,
+            txHashFilled,
+            contract,
+            tokenId: String(tokenId),
+            chainId: listing?.id ?? null,
+          }),
+        }).catch(() => null);
+      }
 
       await syncOwnerNow();
       await refresh();
@@ -210,7 +220,18 @@ export default function NFTMarketPanel({
     } finally {
       setLoading(false);
     }
-  }, [listing?.id, account, requireWalletToast, syncOwnerNow, refresh, router, onAfterAction, setErr]);
+  }, [
+    listing,
+    account,
+    requireWalletToast,
+    syncOwnerNow,
+    refresh,
+    router,
+    onAfterAction,
+    setErr,
+    contract,
+    tokenId,
+  ]);
 
   const cancelListing = useCallback(async () => {
     const listingIdStr = listing?.id;
@@ -223,8 +244,26 @@ export default function NFTMarketPanel({
     setErr(null);
 
     try {
-      await marketplace.cancelListing(BigInt(listingIdStr));
+      const maybeTx = (await (marketplace as any).cancelListing(BigInt(listingIdStr))) as unknown;
+
       toast.success("Listing canceled.", { id: tId });
+
+      const txHashCancelled = extractTxHash(maybeTx);
+      const dbId = (listing as any)?.dbId ?? null;
+
+      if (dbId && txHashCancelled) {
+        await fetch("/api/market/listing/cancel/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dbId,
+            txHashCancelled,
+            contract,
+            tokenId: String(tokenId),
+            chainId: listing?.id ?? null,
+          }),
+        }).catch(() => null);
+      }
 
       await refresh();
       router.refresh();
@@ -236,7 +275,17 @@ export default function NFTMarketPanel({
     } finally {
       setLoading(false);
     }
-  }, [listing?.id, account, requireWalletToast, refresh, router, onAfterAction, setErr]);
+  }, [
+    listing,
+    account,
+    requireWalletToast,
+    refresh,
+    router,
+    onAfterAction,
+    setErr,
+    contract,
+    tokenId,
+  ]);
 
   const cancelAuction = useCallback(async () => {
     const auctionIdStr = auction?.id;
@@ -249,10 +298,8 @@ export default function NFTMarketPanel({
     setErr(null);
 
     try {
-      // 1) cancel on-chain
       const tx: any = await marketplace.cancelAuction(BigInt(auctionIdStr));
 
-      // 2) confirm DB cancellation (✅ FIX)
       const dbId = (auction as any)?.dbId ?? null;
       const txHashCancelled =
         typeof tx === "string" && tx.startsWith("0x") ? tx : (tx?.hash as string | undefined);
@@ -304,8 +351,26 @@ export default function NFTMarketPanel({
       const now = Math.floor(Date.now() / 1000);
       if (now <= endTime) throw new Error("Auction has not ended yet.");
 
-      await marketplace.finalizeAuction(BigInt(auctionIdStr));
+      const maybeTx = (await (marketplace as any).finalizeAuction(BigInt(auctionIdStr))) as unknown;
+
       toast.success("Auction finalized.", { id: tId });
+
+      const txHashFinalized = extractTxHash(maybeTx);
+      const dbId = (auction as any)?.dbId ?? null;
+
+      if (dbId && txHashFinalized) {
+        await fetch("/api/market/auction/settle/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dbId,
+            txHashFinalized,
+            contract,
+            tokenId: String(tokenId),
+            chainId: auction?.id ?? null,
+          }),
+        }).catch(() => null);
+      }
 
       await syncOwnerNow();
       await refresh();
@@ -318,7 +383,20 @@ export default function NFTMarketPanel({
     } finally {
       setLoading(false);
     }
-  }, [auction?.id, account, requireWalletToast, syncOwnerNow, refresh, router, onAfterAction, setErr]);
+  }, [
+    auction,
+    account,
+    requireWalletToast,
+    syncOwnerNow,
+    refresh,
+    router,
+    onAfterAction,
+    setErr,
+    contract,
+    tokenId,
+  ]);
+
+  const auctionDbId = (auction as any)?.dbId ?? null;
 
   return (
     <div className="space-y-4">
@@ -331,7 +409,8 @@ export default function NFTMarketPanel({
         subline={listing ? listingSubline : null}
         sellerLabel={displayListingSeller}
         loading={loading}
-        canCancel={!!listing && (canManageListing || isSellerLikeForListing)}
+        canCancel={canCancelListing}
+        isSeller={!!listing && isSellerForListing}
         accountConnected={!!account}
         buyDisabled={buyDisabled}
         buyTitle={
@@ -355,17 +434,14 @@ export default function NFTMarketPanel({
         subline={auction ? auctionSubline : null}
         sellerLabel={displayAuctionSeller}
         loading={loading}
-        canCancel={!!auction && (canManageAuction || isSellerLikeForAuction)}
+        isSeller={!!auction && isSellerForAuction}
+        canCancel={canCancelAuctionByRule}
         canFinalize={!!auction && auctionEndedUi}
-        bidDisabled={bidDisabled}
-        bidTitle={auctionNotStarted && auctionStartMs ? `Starts in ${formatCountdown(auctionStartMs, nowMs)}` : undefined}
         endedUi={auctionEndedUi}
-        onOpenBid={() => {
-          if (bidDisabled) return;
-          setBidOpen(true);
-        }}
+        auctionDbId={auctionDbId}
         onCancel={() => void cancelAuction()}
         onFinalize={() => void finalizeAuction()}
+        bidsCount={auction?.bidsCount ?? 0}
       />
 
       <OwnerActions
@@ -388,23 +464,10 @@ export default function NFTMarketPanel({
         onAfterAction={onAfterAction}
       />
 
-      <BidModal
-        open={bidOpen}
-        onClose={() => setBidOpen(false)}
-        auction={auction}
-        account={account}
-        loading={loading}
-        setLoading={setLoading}
-        setErr={setErr}
-        onAfterBid={async () => {
-          await refresh();
-          router.refresh();
-          onAfterAction?.();
-        }}
-      />
-
       {err ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">{err}</div>
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+          {err}
+        </div>
       ) : null}
     </div>
   );

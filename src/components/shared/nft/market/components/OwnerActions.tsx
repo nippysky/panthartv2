@@ -1,32 +1,218 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+// src/components/shared/nft/market/components/OwnerActions.tsx
+
+import * as React from "react";
 import { ethers } from "ethers";
 import { toast } from "sonner";
+
 import { Button } from "@/src/ui/Button";
-import { Input } from "@/src/ui/Input";
-import DateTimePicker from "@/src/components/shared/DateTimePicker";
-import { CurrencySelect } from "@/src/components/shared/nft/CurrencySelector";
-
+import { Modal } from "@/src/ui/Modal";
 import { marketplace, type Standard } from "@/src/lib/services/marketplace";
-import type {
-  AuctionActiveItem,
-  CurrencyOption,
-  ListingActiveItem,
-  OwnerMode,
-} from "../types";
-import {
-  addDaysLocalYmdhm,
-  confirmAuctionRow,
-  confirmListingRow,
-  errorMessage,
-  localYmdhmToUnix,
-  toLocalYMDHM,
-} from "../utils";
-import { Collapsible } from "./Collapsible";
 
-export function OwnerActions(props: {
+type CurrencyLite = {
+  id: string;
+  kind: "NATIVE" | "ERC20" | string;
+  symbol: string | null;
+  decimals: number | null;
+  tokenAddress: string | null;
+};
+
+type ListingLike =
+  | {
+      id: string; // chain id string (digits)
+      dbId?: string | null;
+      sellerAddress?: string | null;
+      seller?: { address?: string | null; username?: string | null } | null;
+      currency?: {
+        kind?: string;
+        symbol?: string | null;
+        decimals?: number | null;
+        tokenAddress?: string | null;
+      } | null;
+    }
+  | null;
+
+type AuctionLike =
+  | {
+      id: string; // chain id string (digits)
+      dbId?: string | null;
+      sellerAddress?: string | null;
+      seller?: { address?: string | null; username?: string | null } | null;
+      currency?: {
+        kind?: string;
+        symbol?: string | null;
+        decimals?: number | null;
+        tokenAddress?: string | null;
+      } | null;
+      bidsCount?: number | null;
+    }
+  | null;
+
+export type OwnerMode = "none" | "list" | "auction" | "transfer";
+
+function lc(s?: string | null) {
+  return (s ?? "").toLowerCase();
+}
+
+function safeEqAddr(a?: string | null, b?: string | null) {
+  try {
+    if (!a || !b) return false;
+    return ethers.getAddress(a) === ethers.getAddress(b);
+  } catch {
+    return lc(a) === lc(b);
+  }
+}
+
+function isChainIdDigits(id: unknown): id is string {
+  return typeof id === "string" && /^[0-9]+$/.test(id.trim());
+}
+
+function parseIntSafe(x: string) {
+  const v = Number.parseInt(String(x).trim(), 10);
+  return Number.isFinite(v) ? v : NaN;
+}
+
+function nowLocalInputValuePlusMinutes(minutes: number) {
+  const d = new Date(Date.now() + minutes * 60 * 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
+}
+
+/** Converts decimal string to wei BigInt using decimals */
+function parseUnitsSafe(amount: string, decimals: number): bigint {
+  const a = (amount || "").trim();
+  if (!a) return BigInt(0);
+
+  if (!/^\d+(\.\d+)?$/.test(a)) throw new Error("Invalid amount format.");
+
+  const [whole, fracRaw = ""] = a.split(".");
+  const frac = fracRaw.slice(0, decimals);
+  const fracPadded = frac.padEnd(decimals, "0");
+
+  const s = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, "");
+  return BigInt(s || "0");
+}
+
+function humanError(e: unknown, fallback: string) {
+  const anyE = e as any;
+  const msg =
+    anyE?.shortMessage ||
+    anyE?.message ||
+    (typeof anyE === "string" ? anyE : "") ||
+    fallback;
+  return String(msg);
+}
+
+function ActionChip({
+  active,
+  children,
+  onClick,
+  disabled,
+  title,
+}: {
+  active?: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      className={[
+        "inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition",
+        "border border-border",
+        active ? "bg-foreground text-background" : "bg-background hover:bg-card text-foreground",
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+      ].join(" ")}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block space-y-1">
+      <div className="flex items-baseline justify-between gap-3">
+        <div className="text-sm font-medium">{label}</div>
+        {hint ? <div className="text-xs text-muted-foreground">{hint}</div> : null}
+      </div>
+      {children}
+    </label>
+  );
+}
+
+function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={[
+        "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm",
+        "outline-none focus:ring-2 focus:ring-foreground/15 focus:border-foreground/30",
+        props.className ?? "",
+      ].join(" ")}
+    />
+  );
+}
+
+function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      {...props}
+      className={[
+        "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm",
+        "outline-none focus:ring-2 focus:ring-foreground/15 focus:border-foreground/30",
+        props.className ?? "",
+      ].join(" ")}
+    />
+  );
+}
+
+function Divider() {
+  return <div className="my-4 h-px w-full bg-border" />;
+}
+
+export function OwnerActions({
+  contract,
+  tokenId,
+  standard,
+
+  account,
+  owner,
+
+  listing,
+  auction,
+
+  currencies,
+  currLoading,
+
+  loading,
+  setLoading,
+  setErr,
+
+  ownerMode,
+  setOwnerMode,
+
+  onRefresh,
+  onSyncOwnerNow,
+  onAfterAction,
+}: {
   contract: string;
   tokenId: string;
   standard: Standard;
@@ -34,10 +220,10 @@ export function OwnerActions(props: {
   account: string | null;
   owner?: string | null;
 
-  listing: ListingActiveItem | null;
-  auction: AuctionActiveItem | null;
+  listing: ListingLike;
+  auction: AuctionLike;
 
-  currencies: CurrencyOption[];
+  currencies: CurrencyLite[];
   currLoading: boolean;
 
   loading: boolean;
@@ -45,619 +231,860 @@ export function OwnerActions(props: {
   setErr: (v: string | null) => void;
 
   ownerMode: OwnerMode;
-  setOwnerMode: React.Dispatch<React.SetStateAction<OwnerMode>>;
+  setOwnerMode: (v: OwnerMode) => void;
 
-  onRefresh: () => Promise<void>;
-  onSyncOwnerNow: () => Promise<void>;
+  onRefresh: () => Promise<void> | void;
+  onSyncOwnerNow: () => Promise<void> | void;
   onAfterAction?: () => void;
 }) {
-  const {
-    contract,
-    tokenId,
-    standard,
-    account,
-    owner,
-    listing,
-    auction,
-    currencies,
-    currLoading,
-    loading,
-    setLoading,
-    setErr,
-    ownerMode,
-    setOwnerMode,
-    onRefresh,
-    onSyncOwnerNow,
-    onAfterAction,
-  } = props;
+  // ----------------------------
+  // Stable modal state
+  // ----------------------------
+  const [open, setOpen] = React.useState(false);
+  const [localMode, setLocalMode] = React.useState<OwnerMode>("none");
 
-  // ✅ hydration safety: don’t render account-based decisions until mounted
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const openRef = React.useRef(open);
+  React.useEffect(() => {
+    openRef.current = open;
+  }, [open]);
 
-  // IMPORTANT: accountStable is null on first render (server + first client paint)
-  const accountStable = mounted ? account : null;
+  const isConnected = !!account;
+  const ownerUnknown = !owner;
+  const isOwner = !!account && !!owner && safeEqAddr(account, owner);
 
-  const closeOwnerPanels = useCallback(() => setOwnerMode("none"), [setOwnerMode]);
+  const hasActiveListing = !!listing && isChainIdDigits(listing.id);
+  const hasActiveAuction = !!auction && isChainIdDigits(auction.id);
 
-  const userOwns = useMemo(() => {
-    if (!accountStable || !owner) return false;
-    try {
-      return ethers.getAddress(accountStable) === ethers.getAddress(owner);
-    } catch {
-      return accountStable === owner;
-    }
-  }, [accountStable, owner]);
+  // ✅ single source of truth: escrow/busy = NO owner actions at all
+  const marketBusy = hasActiveListing || hasActiveAuction;
 
-  const blockedByEscrow = !!listing || !!auction;
+  const nativeCurrency = React.useMemo(() => {
+    return currencies.find((c) => String(c.kind).toUpperCase() === "NATIVE") ?? null;
+  }, [currencies]);
 
-  const requireWalletToast = useCallback(() => {
-    toast.error("Wallet not connected.");
-    setErr("Connect your wallet to continue.");
-  }, [setErr]);
+  const defaultCurrencyId = nativeCurrency?.id ?? currencies[0]?.id ?? "";
 
-  const currencyById = useCallback(
-    (id: string) => currencies.find((c) => c.id === id) ?? currencies[0],
-    [currencies]
+  const currencyById = React.useMemo(() => {
+    const m = new Map<string, CurrencyLite>();
+    for (const c of currencies) m.set(c.id, c);
+    return m;
+  }, [currencies]);
+
+  const getCurrencyMeta = React.useCallback(
+    (id: string) => {
+      const c = currencyById.get(id) ?? null;
+      const kind = String(c?.kind ?? "NATIVE").toUpperCase();
+      const isNative = kind === "NATIVE";
+      const decimals = Number(c?.decimals ?? 18) || 18;
+      const symbol = (c?.symbol || (isNative ? "ETN" : "TOKEN")) as string;
+      const tokenAddress = c?.tokenAddress ?? null;
+      return { c, isNative, decimals, symbol, tokenAddress };
+    },
+    [currencyById]
   );
 
-  // ✅ make form defaults mount-deterministic to avoid any dev hydration weirdness
-  const [listPrice, setListPrice] = useState("");
-  const [listCurrencyId, setListCurrencyId] = useState("native");
-  const [listStart, setListStart] = useState<string>(""); // set on mount
-  const [listEnd, setListEnd] = useState<string>(""); // set on mount
-  const [listQty, setListQty] = useState("1");
+  // ----------------------------
+  // Forms
+  // ----------------------------
+  const [listCurrencyId, setListCurrencyId] = React.useState(defaultCurrencyId);
+  const [listPrice, setListPrice] = React.useState("");
+  const [listQty, setListQty] = React.useState("1");
+  const [listSchedule, setListSchedule] = React.useState(false);
+  const [listStartAt, setListStartAt] = React.useState(nowLocalInputValuePlusMinutes(5));
+  const [listEndEnabled, setListEndEnabled] = React.useState(false);
+  const [listEndAt, setListEndAt] = React.useState(nowLocalInputValuePlusMinutes(60 * 24));
 
-  const [aucStartPrice, setAucStartPrice] = useState("");
-  const [aucMinInc, setAucMinInc] = useState("0.1");
-  const [aucCurrencyId, setAucCurrencyId] = useState("native");
-  const [aucStart, setAucStart] = useState<string>(""); // set on mount
-  const [aucEnd, setAucEnd] = useState<string>(""); // set on mount
-  const [aucQty, setAucQty] = useState("1");
+  const [aucCurrencyId, setAucCurrencyId] = React.useState(defaultCurrencyId);
+  const [aucStartPrice, setAucStartPrice] = React.useState("");
+  const [aucMinIncrement, setAucMinIncrement] = React.useState("");
+  const [aucQty, setAucQty] = React.useState("1");
+  const [aucSchedule, setAucSchedule] = React.useState(false);
+  const [aucStartAt, setAucStartAt] = React.useState(nowLocalInputValuePlusMinutes(5));
+  const [aucEndsAt, setAucEndsAt] = React.useState(nowLocalInputValuePlusMinutes(60));
 
-  const [toAddr, setToAddr] = useState("");
-  const [xferQty, setXferQty] = useState("1");
+  const [toAddr, setToAddr] = React.useState("");
+  const [txQty, setTxQty] = React.useState("1");
 
-  useEffect(() => {
-    // initialize once after mount
-    const now = toLocalYMDHM(new Date());
-    setListStart((v) => v || now);
-    setListEnd((v) => v || addDaysLocalYmdhm(7));
+  React.useEffect(() => {
+    if (!listCurrencyId && defaultCurrencyId) setListCurrencyId(defaultCurrencyId);
+    if (!aucCurrencyId && defaultCurrencyId) setAucCurrencyId(defaultCurrencyId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultCurrencyId]);
 
-    setAucStart((v) => v || now);
-    setAucEnd((v) => v || addDaysLocalYmdhm(7));
-  }, []);
+  React.useEffect(() => {
+    if (openRef.current) return;
+    setLocalMode(ownerMode);
+  }, [ownerMode]);
 
-  const ownerActionSubtitle = useMemo(() => {
-    // ✅ keep server + first client render identical
-    if (!accountStable) return "Connect your wallet to list, auction, or transfer.";
-    if (userOwns)
-      return blockedByEscrow
-        ? "You own this NFT (currently in market state)."
-        : "You own this NFT.";
-    return "Not owned by your connected wallet.";
-  }, [accountStable, userOwns, blockedByEscrow]);
+  const close = React.useCallback(() => {
+    setOpen(false);
+    setLocalMode("none");
+    setOwnerMode("none");
+    setErr(null);
+  }, [setOwnerMode, setErr]);
 
-  const ownerButtonsDisabled = !accountStable || !userOwns || blockedByEscrow || loading;
+  const openMode = React.useCallback(
+    (m: OwnerMode) => {
+      if (!isConnected) {
+        toast.error("Connect your wallet to continue.");
+        setErr("Connect your wallet to continue.");
+        return;
+      }
+      if (!isOwner) {
+        toast.error("Only the owner can do this.");
+        setErr("Only the owner can do this.");
+        return;
+      }
 
-  const createListing = useCallback(async () => {
-    if (!accountStable) return requireWalletToast();
-    if (!userOwns) return setErr("Only the owner can list this NFT.");
-    if (listing || auction) return setErr("This NFT already has an active listing/auction.");
+      // ✅ proactive: if it's escrowed (listed/auctioned), block *everything* including transfer
+      if (marketBusy) {
+        toast.error("This NFT is currently escrowed (listed/auctioned). Manage it from the active market state first.");
+        setErr("This NFT is currently escrowed (listed/auctioned). Cancel/settle first.");
+        return;
+      }
 
-    const priceStr = (listPrice || "").trim();
-    if (!priceStr || Number(priceStr) <= 0) return setErr("Enter a valid price.");
+      setOwnerMode(m);
+      setLocalMode(m);
+      setOpen(true);
+      setErr(null);
+    },
+    [isConnected, isOwner, marketBusy, setOwnerMode, setErr]
+  );
 
-    let qty = BigInt(1);
-    if (standard === "ERC1155") {
-      const q = Number((listQty || "0").trim());
-      if (!Number.isFinite(q) || q <= 0) return setErr("Enter a valid quantity.");
-      qty = BigInt(q);
+  React.useEffect(() => {
+    if (!open) return;
+
+    if (localMode === "list") {
+      setListPrice("");
+      setListQty("1");
+      setListSchedule(false);
+      setListStartAt(nowLocalInputValuePlusMinutes(5));
+      setListEndEnabled(false);
+      setListEndAt(nowLocalInputValuePlusMinutes(60 * 24));
+      setListCurrencyId(defaultCurrencyId);
     }
 
-    const cur = currencyById(listCurrencyId);
-    const currencyAddr =
-      cur.id === "native"
-        ? (marketplace.ZERO_ADDRESS as `0x${string}`)
-        : (cur.tokenAddress as `0x${string}` | null);
-
-    if (cur.id !== "native" && (!currencyAddr || !ethers.isAddress(currencyAddr))) {
-      return setErr("Selected ERC-20 currency is missing an address.");
+    if (localMode === "auction") {
+      setAucStartPrice("");
+      setAucMinIncrement("");
+      setAucQty("1");
+      setAucSchedule(false);
+      setAucStartAt(nowLocalInputValuePlusMinutes(5));
+      setAucEndsAt(nowLocalInputValuePlusMinutes(60));
+      setAucCurrencyId(defaultCurrencyId);
     }
 
-    if (!listStart || !listEnd) return setErr("Please set start/end time.");
+    if (localMode === "transfer") {
+      setToAddr("");
+      setTxQty("1");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, localMode]);
 
-    const startUnix = localYmdhmToUnix(listStart);
-    const endUnix = localYmdhmToUnix(listEnd);
-    if (endUnix <= startUnix) return setErr("End time must be after start time.");
+  function parseQty(q: string): number {
+    const n = parseIntSafe(q);
+    if (!Number.isFinite(n) || n <= 0) return 1;
+    return Math.min(n, 10_000);
+  }
+
+  function parseDateInputToSec(v: string): number {
+    const d = new Date(v);
+    const ms = d.getTime();
+    if (!Number.isFinite(ms)) return 0;
+    return Math.floor(ms / 1000);
+  }
+
+  const actionHint = React.useMemo(() => {
+    if (hasActiveAuction) return "This NFT already has an active auction.";
+    if (hasActiveListing) return "This NFT already has an active listing.";
+    return null;
+  }, [hasActiveAuction, hasActiveListing]);
+
+  const doSyncOwner = React.useCallback(async () => {
+    const tId = toast.loading("Syncing owner…");
+    setLoading(true);
+    try {
+      await onSyncOwnerNow?.();
+      await onRefresh?.();
+      toast.success("Owner synced.", { id: tId });
+    } catch (e) {
+      toast.error(humanError(e, "Sync failed."), { id: tId });
+    } finally {
+      setLoading(false);
+    }
+  }, [onSyncOwnerNow, onRefresh, setLoading]);
+
+  const doList = React.useCallback(async () => {
+    if (!isConnected || !account) {
+      toast.error("Connect your wallet to continue.");
+      setErr("Connect your wallet to continue.");
+      return;
+    }
+    if (!isOwner) {
+      toast.error("Only the owner can do this.");
+      setErr("Only the owner can do this.");
+      return;
+    }
+    if (marketBusy) {
+      toast.error("This NFT is currently escrowed (listed/auctioned).");
+      setErr("This NFT is currently escrowed (listed/auctioned).");
+      return;
+    }
+
+    setErr(null);
+
+    const { isNative, decimals, symbol, tokenAddress } = getCurrencyMeta(listCurrencyId);
+    const qty = standard === "ERC1155" ? parseQty(listQty) : 1;
+
+    if (!listPrice.trim()) {
+      setErr("Enter a price.");
+      toast.error("Enter a price.");
+      return;
+    }
+
+    try {
+      const priceWei = parseUnitsSafe(listPrice.trim(), decimals);
+      if (priceWei <= BigInt(0)) throw new Error("Price must be greater than zero.");
+    } catch (e) {
+      const msg = humanError(e, "Invalid price.");
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const startSec = listSchedule ? parseDateInputToSec(listStartAt) : 0;
+    const endSec = listEndEnabled ? parseDateInputToSec(listEndAt) : 0;
+
+    if (listSchedule && startSec <= Math.floor(Date.now() / 1000) - 5) {
+      setErr("Start time must be in the future.");
+      toast.error("Start time must be in the future.");
+      return;
+    }
+    if (listEndEnabled && endSec > 0 && listSchedule && endSec <= startSec) {
+      setErr("End time must be after start time.");
+      toast.error("End time must be after start time.");
+      return;
+    }
 
     const tId = toast.loading("Creating listing…");
     setLoading(true);
-    setErr(null);
 
     try {
+      const curAddr = (isNative
+        ? marketplace.ZERO_ADDRESS
+        : (tokenAddress as `0x${string}`)) as `0x${string}`;
+
       const txHash = await marketplace.createListingJustInTime({
-        collection: contract as `0x${string}`,
+        collection: ethers.getAddress(contract) as `0x${string}`,
         tokenId: BigInt(tokenId),
+        quantity: BigInt(qty),
         standard,
-        priceHuman: priceStr,
-        currency: (currencyAddr ?? marketplace.ZERO_ADDRESS) as `0x${string}`,
-        quantity: qty,
-        startTimeSec: startUnix,
-        endTimeSec: endUnix,
+        priceHuman: listPrice.trim(),
+        currency: curAddr,
+        startTimeSec: startSec,
+        endTimeSec: endSec || 0,
       });
 
-      await confirmListingRow({
-        txHashCreated: txHash,
-        contract,
-        tokenId,
-        account: accountStable,
-      }).catch(() => null);
+      if (txHash) {
+        await fetch("/api/market/listing/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            txHashCreated: txHash,
+            contract,
+            tokenId: String(tokenId),
+            account,
+          }),
+        }).catch(() => null);
+      }
 
-      toast.success("Listing created.", { id: tId });
-      closeOwnerPanels();
-      await onRefresh();
+      toast.success(`Listed for ${listPrice.trim()} ${symbol}`, { id: tId });
+
+      await onRefresh?.();
       onAfterAction?.();
-    } catch (e: unknown) {
-      const msg = errorMessage(e, "Create listing failed");
-      toast.error(msg, { id: tId });
+      // ✅ DO NOT close modal automatically
+    } catch (e) {
+      const msg = humanError(e, "Create listing failed.");
       setErr(msg);
+      toast.error(msg, { id: tId });
     } finally {
       setLoading(false);
     }
   }, [
-    accountStable,
-    userOwns,
-    listing,
-    auction,
-    listPrice,
+    isConnected,
+    account,
+    isOwner,
+    marketBusy,
+    setErr,
+    getCurrencyMeta,
     listCurrencyId,
-    listStart,
-    listEnd,
-    listQty,
     standard,
+    listQty,
+    listPrice,
+    listSchedule,
+    listStartAt,
+    listEndEnabled,
+    listEndAt,
+    setLoading,
     contract,
     tokenId,
-    requireWalletToast,
-    currencyById,
     onRefresh,
     onAfterAction,
-    closeOwnerPanels,
-    setLoading,
-    setErr,
   ]);
 
-  const createAuction = useCallback(async () => {
-    if (!accountStable) return requireWalletToast();
-    if (!userOwns) return setErr("Only the owner can auction this NFT.");
-    if (listing || auction) return setErr("This NFT already has an active listing/auction.");
-
-    const spStr = (aucStartPrice || "").trim();
-    if (!spStr || Number(spStr) <= 0) return setErr("Enter a valid start price.");
-
-    const miStr = (aucMinInc || "").trim();
-    if (!miStr || Number(miStr) <= 0) return setErr("Enter a valid minimum increment.");
-
-    let qty = BigInt(1);
-    if (standard === "ERC1155") {
-      const q = Number((aucQty || "0").trim());
-      if (!Number.isFinite(q) || q <= 0) return setErr("Enter a valid quantity.");
-      qty = BigInt(q);
+  const doAuction = React.useCallback(async () => {
+    if (!isConnected || !account) {
+      toast.error("Connect your wallet to continue.");
+      setErr("Connect your wallet to continue.");
+      return;
+    }
+    if (!isOwner) {
+      toast.error("Only the owner can do this.");
+      setErr("Only the owner can do this.");
+      return;
+    }
+    if (marketBusy) {
+      toast.error("This NFT is currently escrowed (listed/auctioned).");
+      setErr("This NFT is currently escrowed (listed/auctioned).");
+      return;
     }
 
-    const cur = currencyById(aucCurrencyId);
-    const currencyAddr =
-      cur.id === "native"
-        ? (marketplace.ZERO_ADDRESS as `0x${string}`)
-        : (cur.tokenAddress as `0x${string}` | null);
+    setErr(null);
 
-    if (cur.id !== "native" && (!currencyAddr || !ethers.isAddress(currencyAddr))) {
-      return setErr("Selected ERC-20 currency is missing an address.");
+    const { isNative, decimals, symbol, tokenAddress } = getCurrencyMeta(aucCurrencyId);
+    const qty = standard === "ERC1155" ? parseQty(aucQty) : 1;
+
+    if (!aucStartPrice.trim()) {
+      setErr("Enter a start price.");
+      toast.error("Enter a start price.");
+      return;
     }
 
-    if (!aucStart || !aucEnd) return setErr("Please set start/end time.");
+    try {
+      const startWei = parseUnitsSafe(aucStartPrice.trim(), decimals);
+      if (startWei <= BigInt(0)) throw new Error("Start price must be greater than zero.");
+    } catch (e) {
+      const msg = humanError(e, "Invalid start price.");
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
 
-    const startUnix = localYmdhmToUnix(aucStart);
-    const endUnix = localYmdhmToUnix(aucEnd);
-    if (endUnix <= startUnix) return setErr("Auction end time must be after start time.");
+    try {
+      const incWei = aucMinIncrement.trim()
+        ? parseUnitsSafe(aucMinIncrement.trim(), decimals)
+        : BigInt(0);
+      if (incWei < BigInt(0)) throw new Error("Invalid increment.");
+    } catch (e) {
+      const msg = humanError(e, "Invalid increment.");
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const startSec = aucSchedule ? parseDateInputToSec(aucStartAt) : 0;
+    const endSec = parseDateInputToSec(aucEndsAt);
+
+    if (aucSchedule && startSec <= Math.floor(Date.now() / 1000) - 5) {
+      setErr("Start time must be in the future.");
+      toast.error("Start time must be in the future.");
+      return;
+    }
+    if (!endSec || endSec <= Math.floor(Date.now() / 1000) + 30) {
+      setErr("End time must be at least 30 seconds in the future.");
+      toast.error("End time must be at least 30 seconds in the future.");
+      return;
+    }
+    if (aucSchedule && startSec > 0 && endSec <= startSec + 30) {
+      setErr("End time must be after start time.");
+      toast.error("End time must be after start time.");
+      return;
+    }
 
     const tId = toast.loading("Creating auction…");
     setLoading(true);
-    setErr(null);
 
     try {
+      const curAddr = (isNative
+        ? marketplace.ZERO_ADDRESS
+        : (tokenAddress as `0x${string}`)) as `0x${string}`;
+
       const txHash = await marketplace.createAuctionJustInTime({
-        collection: contract as `0x${string}`,
+        collection: ethers.getAddress(contract) as `0x${string}`,
         tokenId: BigInt(tokenId),
+        quantity: BigInt(qty),
         standard,
-        startPriceHuman: spStr,
-        minIncrementHuman: miStr,
-        currency: (currencyAddr ?? marketplace.ZERO_ADDRESS) as `0x${string}`,
-        quantity: qty,
-        startTimeSec: startUnix,
-        endTimeSec: endUnix,
+        startPriceHuman: aucStartPrice.trim(),
+        minIncrementHuman: aucMinIncrement.trim() || "0",
+        currency: curAddr,
+        startTimeSec: startSec,
+        endTimeSec: endSec,
       });
 
-      await confirmAuctionRow({
-        txHashCreated: txHash,
-        contract,
-        tokenId,
-        account: accountStable,
-      }).catch(() => null);
+      if (txHash) {
+        await fetch("/api/market/auction/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            txHashCreated: txHash,
+            contract,
+            tokenId: String(tokenId),
+            account,
+          }),
+        }).catch(() => null);
+      }
 
-      toast.success("Auction created.", { id: tId });
-      closeOwnerPanels();
-      await onRefresh();
+      toast.success(`Auction created (${aucStartPrice.trim()} ${symbol} start)`, { id: tId });
+
+      await onRefresh?.();
       onAfterAction?.();
-    } catch (e: unknown) {
-      const msg = errorMessage(e, "Create auction failed");
-      toast.error(msg, { id: tId });
+      // ✅ DO NOT close modal automatically
+    } catch (e) {
+      const msg = humanError(e, "Create auction failed.");
       setErr(msg);
+      toast.error(msg, { id: tId });
     } finally {
       setLoading(false);
     }
   }, [
-    accountStable,
-    userOwns,
-    listing,
-    auction,
-    aucStartPrice,
-    aucMinInc,
+    isConnected,
+    account,
+    isOwner,
+    marketBusy,
+    setErr,
+    getCurrencyMeta,
     aucCurrencyId,
-    aucStart,
-    aucEnd,
-    aucQty,
     standard,
+    aucQty,
+    aucStartPrice,
+    aucMinIncrement,
+    aucSchedule,
+    aucStartAt,
+    aucEndsAt,
+    setLoading,
     contract,
     tokenId,
-    requireWalletToast,
-    currencyById,
     onRefresh,
     onAfterAction,
-    closeOwnerPanels,
-    setLoading,
-    setErr,
   ]);
 
-  const transferNow = useCallback(async () => {
-    if (!accountStable) return requireWalletToast();
-    if (!userOwns) return setErr("Only the owner can transfer this NFT.");
-    if (blockedByEscrow) return setErr("Cancel listing/auction first.");
-
-    const to = (toAddr || "").trim();
-    if (!ethers.isAddress(to)) return setErr("Enter a valid recipient address.");
-
-    let qty = BigInt(1);
-    if (standard === "ERC1155") {
-      const q = Number((xferQty || "0").trim());
-      if (!Number.isFinite(q) || q <= 0) return setErr("Enter a valid quantity.");
-      qty = BigInt(q);
+  const doTransfer = React.useCallback(async () => {
+    if (!isConnected || !account) {
+      toast.error("Connect your wallet to continue.");
+      setErr("Connect your wallet to continue.");
+      return;
     }
+    if (!isOwner) {
+      toast.error("Only the owner can do this.");
+      setErr("Only the owner can do this.");
+      return;
+    }
+    if (marketBusy) {
+      toast.error("This NFT is currently escrowed (listed/auctioned). Cancel/settle first.");
+      setErr("This NFT is currently escrowed (listed/auctioned). Cancel/settle first.");
+      return;
+    }
+
+    setErr(null);
+
+    const to = toAddr.trim();
+    if (!to || !ethers.isAddress(to)) {
+      setErr("Enter a valid recipient address.");
+      toast.error("Enter a valid recipient address.");
+      return;
+    }
+
+    const qty = standard === "ERC1155" ? parseQty(txQty) : 1;
 
     const tId = toast.loading("Transferring…");
     setLoading(true);
-    setErr(null);
 
     try {
       await marketplace.transferNft({
-        collection: contract as `0x${string}`,
+        collection: ethers.getAddress(contract) as `0x${string}`,
         tokenId: BigInt(tokenId),
         standard,
-        to: to as `0x${string}`,
-        amount: qty,
+        to: ethers.getAddress(to) as `0x${string}`,
+        amount: BigInt(qty),
       });
 
-      toast.success("Transfer confirmed.", { id: tId });
-      closeOwnerPanels();
+      toast.success("Transfer submitted.", { id: tId });
 
-      await onSyncOwnerNow();
-      await onRefresh();
+      await onSyncOwnerNow?.();
+      await onRefresh?.();
       onAfterAction?.();
-    } catch (e: unknown) {
-      const msg = errorMessage(e, "Transfer failed");
-      toast.error(msg, { id: tId });
+      // ✅ DO NOT close modal automatically
+    } catch (e) {
+      const msg = humanError(e, "Transfer failed.");
       setErr(msg);
+      toast.error(msg, { id: tId });
     } finally {
       setLoading(false);
     }
   }, [
-    accountStable,
-    userOwns,
-    blockedByEscrow,
+    isConnected,
+    account,
+    isOwner,
+    marketBusy,
+    setErr,
     toAddr,
-    xferQty,
     standard,
+    txQty,
     contract,
     tokenId,
-    requireWalletToast,
+    setLoading,
     onSyncOwnerNow,
     onRefresh,
     onAfterAction,
-    closeOwnerPanels,
-    setLoading,
-    setErr,
   ]);
+
+  const modalTitle =
+    localMode === "list"
+      ? "Create listing"
+      : localMode === "auction"
+      ? "Create auction"
+      : localMode === "transfer"
+      ? "Transfer"
+      : "Owner actions";
+
+  const canShowOwnerActions = isConnected && !ownerUnknown && isOwner;
+  const showSyncCard = isConnected && ownerUnknown;
 
   return (
     <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="text-xs text-muted-foreground">Owner actions</div>
-          <div className="mt-1 text-sm font-semibold">{ownerActionSubtitle}</div>
-          {blockedByEscrow ? (
-            <div className="mt-1 text-xs text-muted-foreground">
-              Transfers are disabled while a listing/auction is active (cancel first).
-            </div>
-          ) : null}
+          <div className="text-sm font-semibold">Owner actions</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {showSyncCard
+              ? "Owner isn’t synced yet. Sync to enable owner actions."
+              : canShowOwnerActions
+              ? marketBusy
+                ? "This NFT is currently escrowed (listed/auctioned). Manage it from the active market state."
+                : "List, auction, or transfer — all in one clean flow."
+              : isConnected
+              ? "Connect as the owner wallet to manage this NFT."
+              : "Connect your wallet to manage this NFT."}
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button
-          variant={"primary"}
-          onClick={() => setOwnerMode((m) => (m === "list" ? "none" : "list"))}
-          disabled={ownerButtonsDisabled}
-        >
-          List for sale
-        </Button>
+      {showSyncCard ? (
+        <div className="mt-3">
+          <Button variant="outline" size="sm" disabled={loading} onClick={() => void doSyncOwner()}>
+            Sync owner
+          </Button>
+        </div>
+      ) : null}
 
-        <Button
-          variant={"primary"}
-          onClick={() => setOwnerMode((m) => (m === "auction" ? "none" : "auction"))}
-          disabled={ownerButtonsDisabled}
-        >
-          Start auction
-        </Button>
+      {canShowOwnerActions ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <ActionChip
+            active={localMode === "list" && open}
+            onClick={() => openMode("list")}
+            disabled={loading || currLoading || marketBusy}
+            title={
+              marketBusy
+                ? "This NFT is currently escrowed (listed/auctioned)"
+                : currLoading
+                ? "Loading currencies…"
+                : "Create a fixed-price listing"
+            }
+          >
+            List
+          </ActionChip>
 
-        <Button
-          variant={"primary"}
-          onClick={() => setOwnerMode((m) => (m === "transfer" ? "none" : "transfer"))}
-          disabled={ownerButtonsDisabled}
-        >
-          Transfer
-        </Button>
-      </div>
+          <ActionChip
+            active={localMode === "auction" && open}
+            onClick={() => openMode("auction")}
+            disabled={loading || currLoading || marketBusy}
+            title={
+              marketBusy
+                ? "This NFT is currently escrowed (listed/auctioned)"
+                : currLoading
+                ? "Loading currencies…"
+                : "Create an auction"
+            }
+          >
+            Auction
+          </ActionChip>
 
-      <div className="mt-3 space-y-3">
-        {/* LIST PANEL */}
-        <Collapsible open={ownerMode === "list"}>
-          <div className="mt-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold">Create listing</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Listing requires marketplace approval (setApprovalForAll).
-                </div>
+          <ActionChip
+            active={localMode === "transfer" && open}
+            onClick={() => openMode("transfer")}
+            disabled={loading || marketBusy}
+            title={
+              marketBusy
+                ? "This NFT is currently escrowed (listed/auctioned). Cancel/settle first."
+                : "Transfer to another address"
+            }
+          >
+            Transfer
+          </ActionChip>
+        </div>
+      ) : null}
+
+      {/* ✅ Modal should NOT close on backdrop click / ESC.
+          Users must use the in-modal Cancel button. */}
+      <Modal
+        open={open}
+        onClose={close}
+        closeOnBackdrop={false}
+        closeOnEsc={false}
+        title={
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate">{modalTitle}</div>
+              <div className="mt-0.5 text-xs font-normal text-muted-foreground">
+                {standard} · {contract.slice(0, 6)}…{contract.slice(-4)} · #{tokenId}
               </div>
-              <Button variant="ghost" onClick={closeOwnerPanels} disabled={loading}>
-                Close
-              </Button>
             </div>
+          </div>
+        }
+        className="max-w-xl"
+      >
+        {actionHint ? (
+          <div className="mb-4 rounded-2xl border border-border bg-background p-3 text-sm">
+            <div className="font-medium">Heads up</div>
+            <div className="mt-1 text-xs text-muted-foreground">{actionHint}</div>
+          </div>
+        ) : null}
 
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Price</div>
+        {localMode === "list" ? (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Currency" hint="How buyers pay">
+                <Select
+                  value={listCurrencyId}
+                  onChange={(e) => setListCurrencyId(e.target.value)}
+                  disabled={currLoading}
+                >
+                  {currencies.map((c) => {
+                    const k = String(c.kind).toUpperCase();
+                    const sym = c.symbol ?? (k === "NATIVE" ? "ETN" : "TOKEN");
+                    return (
+                      <option key={c.id} value={c.id}>
+                        {sym} {k === "NATIVE" ? "(Native)" : ""}
+                      </option>
+                    );
+                  })}
+                </Select>
+              </Field>
+
+              <Field label="Price" hint="Per item">
                 <Input
+                  inputMode="decimal"
+                  placeholder="0.0"
                   value={listPrice}
                   onChange={(e) => setListPrice(e.target.value)}
-                  placeholder="e.g. 10"
-                  inputMode="decimal"
-                  disabled={loading}
                 />
-              </div>
-
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Currency</div>
-                <CurrencySelect
-                  value={listCurrencyId}
-                  onChange={setListCurrencyId}
-                  options={currencies as any}
-                  disabled={loading || currLoading}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <DateTimePicker
-                  label="Start time"
-                  value={listStart}
-                  onChange={setListStart}
-                  minNow
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <DateTimePicker
-                  label="End time"
-                  value={listEnd}
-                  onChange={setListEnd}
-                  minNow
-                  disabled={loading}
-                />
-              </div>
-
-              {standard === "ERC1155" ? (
-                <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground">Quantity</div>
-                  <Input
-                    value={listQty}
-                    onChange={(e) => setListQty(e.target.value)}
-                    placeholder="e.g. 2"
-                    inputMode="numeric"
-                    disabled={loading}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground">Quantity</div>
-                  <Input value="1 (ERC721)" disabled />
-                </div>
-              )}
+              </Field>
             </div>
 
-            <div className="mt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-              <Button variant="outline" onClick={closeOwnerPanels} disabled={loading}>
+            {standard === "ERC1155" ? (
+              <Field label="Quantity" hint="How many units to list">
+                <Input
+                  inputMode="numeric"
+                  placeholder="1"
+                  value={listQty}
+                  onChange={(e) => setListQty(e.target.value)}
+                />
+              </Field>
+            ) : null}
+
+            <Divider />
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Schedule start" hint="Optional">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={listSchedule}
+                    onChange={(e) => setListSchedule(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <div className="text-sm">Enable</div>
+                </div>
+                <div className="mt-2">
+                  <Input
+                    type="datetime-local"
+                    value={listStartAt}
+                    onChange={(e) => setListStartAt(e.target.value)}
+                    disabled={!listSchedule}
+                  />
+                </div>
+              </Field>
+
+              <Field label="End time" hint="Optional">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={listEndEnabled}
+                    onChange={(e) => setListEndEnabled(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <div className="text-sm">Enable</div>
+                </div>
+                <div className="mt-2">
+                  <Input
+                    type="datetime-local"
+                    value={listEndAt}
+                    onChange={(e) => setListEndAt(e.target.value)}
+                    disabled={!listEndEnabled}
+                  />
+                </div>
+              </Field>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={close} disabled={loading}>
                 Cancel
               </Button>
-              <Button onClick={() => void createListing()} loading={loading} disabled={loading}>
+              <Button
+                onClick={() => void doList()}
+                disabled={loading || currLoading || marketBusy}
+              >
                 Create listing
               </Button>
             </div>
           </div>
-        </Collapsible>
+        ) : null}
 
-        {/* AUCTION PANEL */}
-        <Collapsible open={ownerMode === "auction"}>
-          <div className="mt-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold">Create auction</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Auction requires marketplace approval (setApprovalForAll).
-                </div>
-              </div>
-              <Button variant="ghost" onClick={closeOwnerPanels} disabled={loading}>
-                Close
-              </Button>
-            </div>
+        {localMode === "auction" ? (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Currency" hint="Bids are in this currency">
+                <Select
+                  value={aucCurrencyId}
+                  onChange={(e) => setAucCurrencyId(e.target.value)}
+                  disabled={currLoading}
+                >
+                  {currencies.map((c) => {
+                    const k = String(c.kind).toUpperCase();
+                    const sym = c.symbol ?? (k === "NATIVE" ? "ETN" : "TOKEN");
+                    return (
+                      <option key={c.id} value={c.id}>
+                        {sym} {k === "NATIVE" ? "(Native)" : ""}
+                      </option>
+                    );
+                  })}
+                </Select>
+              </Field>
 
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Start price</div>
+              <Field label="Start price" hint="Minimum opening bid">
                 <Input
+                  inputMode="decimal"
+                  placeholder="0.0"
                   value={aucStartPrice}
                   onChange={(e) => setAucStartPrice(e.target.value)}
-                  placeholder="e.g. 10"
-                  inputMode="decimal"
-                  disabled={loading}
                 />
-              </div>
-
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Min increment</div>
-                <Input
-                  value={aucMinInc}
-                  onChange={(e) => setAucMinInc(e.target.value)}
-                  placeholder="e.g. 0.1"
-                  inputMode="decimal"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Currency</div>
-                <CurrencySelect
-                  value={aucCurrencyId}
-                  onChange={setAucCurrencyId}
-                  options={currencies as any}
-                  disabled={loading || currLoading}
-                />
-              </div>
-
-              {standard === "ERC1155" ? (
-                <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground">Quantity</div>
-                  <Input
-                    value={aucQty}
-                    onChange={(e) => setAucQty(e.target.value)}
-                    placeholder="e.g. 2"
-                    inputMode="numeric"
-                    disabled={loading}
-                  />
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground">Quantity</div>
-                  <Input value="1 (ERC721)" disabled />
-                </div>
-              )}
-
-              <div className="space-y-1">
-                <DateTimePicker
-                  label="Start time"
-                  value={aucStart}
-                  onChange={setAucStart}
-                  minNow
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <DateTimePicker
-                  label="End time"
-                  value={aucEnd}
-                  onChange={setAucEnd}
-                  minNow
-                  disabled={loading}
-                />
-              </div>
+              </Field>
             </div>
 
-            <div className="mt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-              <Button variant="outline" onClick={closeOwnerPanels} disabled={loading}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Min increment" hint="Optional">
+                <Input
+                  inputMode="decimal"
+                  placeholder="0.0"
+                  value={aucMinIncrement}
+                  onChange={(e) => setAucMinIncrement(e.target.value)}
+                />
+              </Field>
+
+              <Field label="End time" hint="Required">
+                <Input
+                  type="datetime-local"
+                  value={aucEndsAt}
+                  onChange={(e) => setAucEndsAt(e.target.value)}
+                />
+              </Field>
+            </div>
+
+            {standard === "ERC1155" ? (
+              <Field label="Quantity" hint="How many units to auction">
+                <Input
+                  inputMode="numeric"
+                  placeholder="1"
+                  value={aucQty}
+                  onChange={(e) => setAucQty(e.target.value)}
+                />
+              </Field>
+            ) : null}
+
+            <Field label="Schedule start" hint="Optional">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={aucSchedule}
+                  onChange={(e) => setAucSchedule(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <div className="text-sm">Enable</div>
+              </div>
+              <div className="mt-2">
+                <Input
+                  type="datetime-local"
+                  value={aucStartAt}
+                  onChange={(e) => setAucStartAt(e.target.value)}
+                  disabled={!aucSchedule}
+                />
+              </div>
+            </Field>
+
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={close} disabled={loading}>
                 Cancel
               </Button>
-              <Button onClick={() => void createAuction()} loading={loading} disabled={loading}>
+              <Button
+                onClick={() => void doAuction()}
+                disabled={loading || currLoading || marketBusy}
+              >
                 Create auction
               </Button>
             </div>
           </div>
-        </Collapsible>
+        ) : null}
 
-        {/* TRANSFER PANEL */}
-        <Collapsible open={ownerMode === "transfer"}>
-          <div className="mt-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold">Transfer NFT</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Transfers are disabled while a listing/auction is active (cancel first).
-                </div>
-              </div>
-              <Button variant="ghost" onClick={closeOwnerPanels} disabled={loading}>
-                Close
-              </Button>
-            </div>
+        {localMode === "transfer" ? (
+          <div className="space-y-4">
+            <Field label="Recipient address" hint="0x…">
+              <Input
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                placeholder="0x1234…"
+                value={toAddr}
+                onChange={(e) => setToAddr(e.target.value)}
+              />
+            </Field>
 
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Recipient</div>
+            {standard === "ERC1155" ? (
+              <Field label="Quantity" hint="Units to transfer">
                 <Input
-                  value={toAddr}
-                  onChange={(e) => setToAddr(e.target.value)}
-                  placeholder="0x..."
-                  className="font-mono"
-                  disabled={loading}
+                  inputMode="numeric"
+                  placeholder="1"
+                  value={txQty}
+                  onChange={(e) => setTxQty(e.target.value)}
                 />
-              </div>
+              </Field>
+            ) : null}
 
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Quantity</div>
-                {standard === "ERC1155" ? (
-                  <Input
-                    value={xferQty}
-                    onChange={(e) => setXferQty(e.target.value)}
-                    placeholder="e.g. 2"
-                    inputMode="numeric"
-                    disabled={loading}
-                  />
-                ) : (
-                  <Input value="1 (ERC721)" disabled />
-                )}
-              </div>
+            <div className="rounded-2xl border border-border bg-background p-3 text-xs text-muted-foreground">
+              Transfers require ownership. If this NFT is currently escrowed (listed/auctioned),
+              you must cancel or settle first.
             </div>
 
-            <div className="mt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-              <Button variant="outline" onClick={closeOwnerPanels} disabled={loading}>
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={close} disabled={loading}>
                 Cancel
               </Button>
-              <Button onClick={() => void transferNow()} loading={loading} disabled={loading}>
-                Confirm transfer
+              <Button onClick={() => void doTransfer()} disabled={loading || marketBusy}>
+                Transfer
               </Button>
             </div>
           </div>
-        </Collapsible>
-      </div>
+        ) : null}
+      </Modal>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import React from "react";
 
 type MediaKind = "image" | "video" | "unknown";
 type Fit = "cover" | "contain";
+type AudioMode = "none" | "toggle";
 
 const VIDEO_RE = /\.(mp4|webm|ogg|ogv|m4v|mov)(\?|#|$)/i;
 const IMAGE_RE = /\.(jpg|jpeg|png|gif|webp|avif|svg)(\?|#|$)/i;
@@ -24,43 +25,69 @@ function extGuess(u: string): MediaKind {
   return "unknown";
 }
 
-/**
- * Some gateways include "filename=foo.mp4" etc.
- */
 function queryFilenameGuess(u: string): MediaKind {
   try {
     const url = new URL(u);
     const fname = (url.searchParams.get("filename") || "").toLowerCase();
     if (VIDEO_RE.test(fname)) return "video";
     if (IMAGE_RE.test(fname)) return "image";
-  } catch {
-    // ignore
-  }
+  } catch {}
   return "unknown";
 }
 
 async function probeKind(u: string): Promise<MediaKind> {
-  // 1) Try HEAD (cheap) — some gateways block it
   try {
     const h = await fetch(u, { method: "HEAD" });
     const ct = h.headers.get("content-type") || "";
     if (ct.startsWith("video/")) return "video";
     if (ct.startsWith("image/")) return "image";
-  } catch {
-    // ignore
-  }
+  } catch {}
 
-  // 2) Tiny Range GET fallback (still cheap-ish, works when HEAD is blocked)
   try {
     const r = await fetch(u, { method: "GET", headers: { Range: "bytes=0-0" } });
     const ct = r.headers.get("content-type") || "";
     if (ct.startsWith("video/")) return "video";
     if (ct.startsWith("image/")) return "image";
-  } catch {
-    // ignore
-  }
+  } catch {}
 
   return "unknown";
+}
+
+function SpeakerIcon({ muted }: { muted: boolean }) {
+  // Minimal inline icon (no deps)
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+      <path
+        d="M11 5 6.5 9H3v6h3.5L11 19V5Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      {muted ? (
+        <path
+          d="M16 9l5 6M21 9l-5 6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      ) : (
+        <>
+          <path
+            d="M16 9a5 5 0 0 1 0 6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M18.5 6.5a9 9 0 0 1 0 11"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+    </svg>
+  );
 }
 
 export default function CardMedia({
@@ -68,10 +95,18 @@ export default function CardMedia({
   alt,
   className,
   fit = "cover",
+
+  // NOTE:
+  // - Autoplay with sound is usually blocked by browsers.
+  // - So we autoplay muted; if audio="toggle", user can unmute via button.
   muted = true,
   autoPlay = true,
   loop = true,
   playsInline = true,
+
+  // ✅ NEW: audio UI is opt-in and size-aware
+  audio = "none",
+  audioMinSize = 140, // px: below this, hide audio button entirely
 }: {
   src?: string | null;
   alt: string;
@@ -81,6 +116,9 @@ export default function CardMedia({
   autoPlay?: boolean;
   loop?: boolean;
   playsInline?: boolean;
+
+  audio?: AudioMode;
+  audioMinSize?: number;
 }) {
   const safeSrc = cleanUrl(src ?? "");
 
@@ -96,7 +134,7 @@ export default function CardMedia({
     const q = queryFilenameGuess(safeSrc);
     if (q !== "unknown") return q;
     const e = extGuess(safeSrc);
-    return e === "unknown" ? "image" : e; // optimistic default to image for fast paint
+    return e === "unknown" ? "image" : e;
   });
 
   React.useEffect(() => {
@@ -105,7 +143,6 @@ export default function CardMedia({
     let cancelled = false;
 
     async function detect() {
-      // Prefer quick guesses first
       const q = queryFilenameGuess(safeSrc);
       if (q !== "unknown") {
         if (!cancelled) setKind(q);
@@ -118,13 +155,11 @@ export default function CardMedia({
         return;
       }
 
-      // Only probe if we couldn't guess from URL
       const probed = await probeKind(safeSrc);
       if (!cancelled && probed !== "unknown") setKind(probed);
     }
 
     detect();
-
     return () => {
       cancelled = true;
     };
@@ -133,15 +168,69 @@ export default function CardMedia({
   const onImageError = React.useCallback(() => setKind("video"), []);
   const onVideoError = React.useCallback(() => setKind("image"), []);
 
+  // ✅ size-aware overlay
+  const wrapRef = React.useRef<HTMLDivElement | null>(null);
+  const [showAudioUI, setShowAudioUI] = React.useState(false);
+
+  React.useEffect(() => {
+    if (audio !== "toggle") {
+      setShowAudioUI(false);
+      return;
+    }
+
+    const el = wrapRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      const ok = Math.min(r.width, r.height) >= audioMinSize;
+      setShowAudioUI(ok);
+    };
+
+    update();
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => ro.disconnect();
+  }, [audio, audioMinSize]);
+
+  // ✅ video playback + mute toggle
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const [isMuted, setIsMuted] = React.useState<boolean>(muted);
+
+  React.useEffect(() => setIsMuted(muted), [muted]);
+
+  React.useEffect(() => {
+    if (kind !== "video") return;
+    const v = videoRef.current;
+    if (!v) return;
+
+    // Try autoplay (muted autoplay is generally allowed)
+    if (autoPlay) {
+      void v.play().catch(() => {
+        // ignore; user can still interact
+      });
+    }
+  }, [kind, safeSrc, autoPlay]);
+
+  function toggleMute() {
+    const v = videoRef.current;
+    if (!v) return;
+
+    const next = !isMuted;
+    v.muted = next;
+    setIsMuted(next);
+
+    // Ensure playing after gesture
+    void v.play().catch(() => {});
+  }
+
   if (!safeSrc) {
     return (
       <div
         aria-label={alt}
-        className={cx(
-          "w-full h-full grid place-items-center",
-          fit === "cover" ? "bg-muted" : "bg-muted",
-          className
-        )}
+        className={cx("w-full h-full grid place-items-center", "bg-muted", className)}
       >
         <div className="h-10 w-10 rounded-2xl bg-black/5 dark:bg-white/10" />
       </div>
@@ -150,17 +239,39 @@ export default function CardMedia({
 
   if (kind === "video") {
     return (
-      <video
-        key={`video:${safeSrc}`}
-        src={safeSrc}
-        muted={muted}
-        autoPlay={autoPlay}
-        loop={loop}
-        playsInline={playsInline}
-        preload="metadata"
-        className={base}
-        onError={onVideoError}
-      />
+      <div ref={wrapRef} className={cx("relative w-full h-full", className)}>
+        <video
+          key={`video:${safeSrc}`}
+          ref={videoRef}
+          src={safeSrc}
+          muted={isMuted}
+          autoPlay={autoPlay}
+          loop={loop}
+          playsInline={playsInline}
+          preload="metadata"
+          className={base}
+          onError={onVideoError}
+        />
+
+        {/* ✅ Only show when opted in AND size is big enough */}
+        {audio === "toggle" && showAudioUI ? (
+          <button
+            type="button"
+            onClick={toggleMute}
+            className={cx(
+              "absolute left-3 bottom-3",
+              "inline-flex h-9 w-9 items-center justify-center",
+              "rounded-full border border-white/15 bg-black/55 text-white",
+              "backdrop-blur-md shadow-sm",
+              "hover:bg-black/65 transition"
+            )}
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            <SpeakerIcon muted={isMuted} />
+          </button>
+        ) : null}
+      </div>
     );
   }
 
