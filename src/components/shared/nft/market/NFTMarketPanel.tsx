@@ -223,7 +223,10 @@ export default function NFTMarketPanel({
 
   const auctionSeller =
     standard === "ERC1155"
-      ? (ownChainAuction?.row.seller ?? (auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null)
+      ? (ownChainAuction?.row.seller ??
+          (auction as any)?.seller?.address ??
+          (auction as any)?.sellerAddress ??
+          null)
       : ((auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null);
 
   const isSellerForListing = !!account && !!listingSeller && safeEq(account, listingSeller);
@@ -238,9 +241,10 @@ export default function NFTMarketPanel({
 
   const auctionPriceLabel = useMemo(() => {
     if (standard === "ERC1155" && ownChainAuction && auction?.currency?.symbol) {
-      const current = ownChainAuction.row.highestBid > BigInt(0)
-        ? ownChainAuction.row.highestBid
-        : ownChainAuction.row.startPrice;
+      const current =
+        ownChainAuction.row.highestBid > BigInt(0)
+          ? ownChainAuction.row.highestBid
+          : ownChainAuction.row.startPrice;
 
       try {
         const sym = auction.currency.symbol ?? "ETN";
@@ -252,10 +256,31 @@ export default function NFTMarketPanel({
     }
 
     if (!auction) return null;
-    const cur = auction.price?.current ?? null;
+
     const sym = auction.currency?.symbol ?? "ETN";
-    return cur ? `${cur} ${sym}` : null;
-  }, [standard, ownChainAuction, auction]);
+
+    // ✅ ERC721 fix:
+    // Use current bid only when there are actual bids.
+    // Otherwise use the auction start price.
+    const bidsCount = Number((auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0);
+
+    const start =
+      (auction as any)?.price?.start ??
+      (auction as any)?.price?.starting ??
+      (auction as any)?.price?.startPrice ??
+      null;
+
+    const currentBid =
+      bidsCount > 0
+        ? ((auction as any)?.price?.currentBid ??
+            (auction as any)?.price?.current ??
+            null)
+        : null;
+
+    const display = currentBid ?? start ?? (auction as any)?.price?.current ?? null;
+
+    return display ? `${display} ${sym}` : null;
+  }, [standard, ownChainAuction, auction, chainAuction?.bidsCount]);
 
   const listingSubline = useMemo(() => {
     if (standard === "ERC1155" && ownChainListing) {
@@ -293,7 +318,9 @@ export default function NFTMarketPanel({
 
   const effectiveAuctionBidsCount =
     standard === "ERC1155"
-      ? Number(ownChainAuction?.row.bidsCount ?? (auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0)
+      ? Number(
+          ownChainAuction?.row.bidsCount ?? (auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0
+        )
       : Number((auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0);
 
   const canCancelAuctionByRule =

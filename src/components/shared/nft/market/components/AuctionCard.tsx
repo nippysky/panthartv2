@@ -135,31 +135,37 @@ export function AuctionCard(props: {
                 </Button>
               ) : null}
             </>
-          ) : canCancel ? (
-            <Button
-              variant="ghost"
-              onClick={onCancel}
-              disabled={loading}
-              title="Seller can cancel only if no bids have been made"
-            >
-              Cancel auction
-            </Button>
-          ) : auctionDbId ? (
-            <ButtonLink
-              href={`/auction-now/${auctionDbId}`}
-              disabled={loading}
-              title={isSeller ? "Open your auction page" : "Open auction to place bids"}
-            >
-              Open auction
-            </ButtonLink>
           ) : (
-            <ButtonLink
-              href={directoryHref}
-              disabled={loading}
-              title="View auction details"
-            >
-              View auction
-            </ButtonLink>
+            <>
+              {auctionDbId ? (
+                <ButtonLink
+                  href={`/auction-now/${auctionDbId}`}
+                  disabled={loading}
+                  title={isSeller ? "Open your auction page" : "Open auction to place bids"}
+                >
+                  Open auction
+                </ButtonLink>
+              ) : (
+                <ButtonLink
+                  href={directoryHref}
+                  disabled={loading}
+                  title="View auction details"
+                >
+                  View auction
+                </ButtonLink>
+              )}
+
+              {canCancel ? (
+                <Button
+                  variant="ghost"
+                  onClick={onCancel}
+                  disabled={loading}
+                  title="Seller can cancel only if no bids have been made"
+                >
+                  Cancel auction
+                </Button>
+              ) : null}
+            </>
           )}
         </div>
       ) : (

@@ -536,7 +536,11 @@ export function OwnerActions({
       : 0;
 
   const transferableBalance =
-    standard === "ERC1155" ? Math.max(0, holderBalance) : canManageThisAsset ? 1 : 0;
+    standard === "ERC1155"
+      ? Math.max(0, holderBalance)
+      : canManageThisAsset && !busyForMarketCreation
+      ? 1
+      : 0;
 
   const totalAssociatedBalance =
     standard === "ERC1155"
