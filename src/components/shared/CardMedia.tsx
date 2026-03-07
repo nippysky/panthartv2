@@ -35,6 +35,16 @@ function queryFilenameGuess(u: string): MediaKind {
   return "unknown";
 }
 
+function pathnameGuess(u: string): MediaKind {
+  try {
+    const url = new URL(u);
+    const p = url.pathname.toLowerCase();
+    if (VIDEO_RE.test(p)) return "video";
+    if (IMAGE_RE.test(p)) return "image";
+  } catch {}
+  return "unknown";
+}
+
 async function probeKind(u: string): Promise<MediaKind> {
   try {
     const h = await fetch(u, { method: "HEAD" });
@@ -54,7 +64,6 @@ async function probeKind(u: string): Promise<MediaKind> {
 }
 
 function SpeakerIcon({ muted }: { muted: boolean }) {
-  // Minimal inline icon (no deps)
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none">
       <path
@@ -95,18 +104,12 @@ export default function CardMedia({
   alt,
   className,
   fit = "cover",
-
-  // NOTE:
-  // - Autoplay with sound is usually blocked by browsers.
-  // - So we autoplay muted; if audio="toggle", user can unmute via button.
   muted = true,
   autoPlay = true,
   loop = true,
   playsInline = true,
-
-  // ✅ NEW: audio UI is opt-in and size-aware
   audio = "none",
-  audioMinSize = 140, // px: below this, hide audio button entirely
+  audioMinSize = 140,
 }: {
   src?: string | null;
   alt: string;
@@ -116,7 +119,6 @@ export default function CardMedia({
   autoPlay?: boolean;
   loop?: boolean;
   playsInline?: boolean;
-
   audio?: AudioMode;
   audioMinSize?: number;
 }) {
@@ -133,6 +135,8 @@ export default function CardMedia({
     if (!safeSrc) return "image";
     const q = queryFilenameGuess(safeSrc);
     if (q !== "unknown") return q;
+    const p = pathnameGuess(safeSrc);
+    if (p !== "unknown") return p;
     const e = extGuess(safeSrc);
     return e === "unknown" ? "image" : e;
   });
@@ -146,6 +150,12 @@ export default function CardMedia({
       const q = queryFilenameGuess(safeSrc);
       if (q !== "unknown") {
         if (!cancelled) setKind(q);
+        return;
+      }
+
+      const p = pathnameGuess(safeSrc);
+      if (p !== "unknown") {
+        if (!cancelled) setKind(p);
         return;
       }
 
@@ -168,9 +178,14 @@ export default function CardMedia({
   const onImageError = React.useCallback(() => setKind("video"), []);
   const onVideoError = React.useCallback(() => setKind("image"), []);
 
-  // ✅ size-aware overlay
   const wrapRef = React.useRef<HTMLDivElement | null>(null);
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+
   const [showAudioUI, setShowAudioUI] = React.useState(false);
+  const [isMuted, setIsMuted] = React.useState<boolean>(muted);
+  const [canPlayVideo, setCanPlayVideo] = React.useState(false);
+
+  React.useEffect(() => setIsMuted(muted), [muted]);
 
   React.useEffect(() => {
     if (audio !== "toggle") {
@@ -195,24 +210,21 @@ export default function CardMedia({
     return () => ro.disconnect();
   }, [audio, audioMinSize]);
 
-  // ✅ video playback + mute toggle
-  const videoRef = React.useRef<HTMLVideoElement | null>(null);
-  const [isMuted, setIsMuted] = React.useState<boolean>(muted);
-
-  React.useEffect(() => setIsMuted(muted), [muted]);
-
   React.useEffect(() => {
     if (kind !== "video") return;
     const v = videoRef.current;
     if (!v) return;
 
-    // Try autoplay (muted autoplay is generally allowed)
+    v.muted = isMuted;
+    v.defaultMuted = isMuted;
+    v.volume = isMuted ? 0 : 1;
+
     if (autoPlay) {
       void v.play().catch(() => {
-        // ignore; user can still interact
+        // browser policy can block; user gesture still works
       });
     }
-  }, [kind, safeSrc, autoPlay]);
+  }, [kind, safeSrc, autoPlay, isMuted]);
 
   function toggleMute() {
     const v = videoRef.current;
@@ -220,9 +232,10 @@ export default function CardMedia({
 
     const next = !isMuted;
     v.muted = next;
+    v.defaultMuted = next;
+    v.volume = next ? 0 : 1;
     setIsMuted(next);
 
-    // Ensure playing after gesture
     void v.play().catch(() => {});
   }
 
@@ -243,17 +256,25 @@ export default function CardMedia({
         <video
           key={`video:${safeSrc}`}
           ref={videoRef}
-          src={safeSrc}
           muted={isMuted}
           autoPlay={autoPlay}
           loop={loop}
           playsInline={playsInline}
           preload="metadata"
+          crossOrigin="anonymous"
+          controls={false}
           className={base}
+          onLoadedMetadata={() => setCanPlayVideo(true)}
+          onCanPlay={() => setCanPlayVideo(true)}
           onError={onVideoError}
-        />
+        >
+          <source src={safeSrc} />
+        </video>
 
-        {/* ✅ Only show when opted in AND size is big enough */}
+        {!canPlayVideo ? (
+          <div className="absolute inset-0 pointer-events-none" />
+        ) : null}
+
         {audio === "toggle" && showAudioUI ? (
           <button
             type="button"

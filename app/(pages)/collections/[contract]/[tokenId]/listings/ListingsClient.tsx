@@ -4,127 +4,241 @@
 import * as React from "react";
 import Link from "next/link";
 import { ethers } from "ethers";
-import { ExternalLink, ShoppingCart } from "lucide-react";
+import { Gavel, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
-import CardMedia from "@/src/components/shared/CardMedia";
-import { Container } from "@/src/ui/Container";
-import { Button } from "@/src/ui/Button";
 import { Badge } from "@/src/ui/Badge";
-import { IconButton } from "@/src/ui/IconButton";
-import { BackButton } from "@/src/ui/BackButton";
-import { marketplace } from "@/src/lib/services/marketplace";
+import { Button } from "@/src/ui/Button";
+import { marketplace, type Standard } from "@/src/lib/services/marketplace";
+import CardMedia from "@/src/components/shared/CardMedia";
 
-type NftLite = {
-  contract: string;
-  tokenId: string;
-  standard: "ERC721" | "ERC1155";
-  name: string;
-  collectionName: string | null;
-  imageUrl: string | null;
-};
-
-type ListingLite = {
-  // ✅ we now accept nullable listingId (db doesn't store chain listing id)
-  listingId: string | null;
-  dbId?: string;
-
-  sellerAddress: string;
-  quantity: number;
-  status: string;
-
+type ActiveListingItem = {
+  id: string;
+  dbId?: string | null;
+  chainId?: string | null;
+  nft: {
+    contract: string;
+    tokenId: string;
+    name: string;
+    image: string | null;
+    standard: string;
+  };
   startTime: string | null;
   endTime: string | null;
-  createdAt?: string | null;
-  txHashCreated: string | null;
-
-  priceEtnWei: string;
-  priceTokenAmount: string | null;
-
+  isLive: boolean;
+  onchainActive?: boolean | null;
   currency: {
-    kind: string;
-    symbol: string | null;
+    id?: string | null;
+    kind: "NATIVE" | "ERC20" | string;
+    symbol: string;
     decimals: number;
     tokenAddress: string | null;
   };
+  price: {
+    unitWei: string | null;
+    unit: string | null;
+    totalWei: string | null;
+    total: string | null;
+    perItemWei?: string | null;
+    perItem?: string | null;
+  };
+  sellerAddress: string | null;
+  seller: {
+    address: string | null;
+    username: string | null;
+  };
+  quantity: number;
 };
 
-function cx(...cls: Array<string | false | undefined | null>) {
-  return cls.filter(Boolean).join(" ");
-}
-
-function shortAddr(a?: string | null) {
-  if (!a) return "";
-  const s = String(a);
-  return s.length > 12 ? `${s.slice(0, 6)}…${s.slice(-4)}` : s;
-}
-
-function toBigIntSafe(valueLike: string): bigint {
-  const s = String(valueLike || "0").trim();
-  if (!s) return BigInt(0);
-  if (s.includes(".")) return BigInt(s.split(".")[0] || "0");
-  return BigInt(s);
-}
-
-function formatCompactNumber(n: number) {
-  if (!Number.isFinite(n)) return "0";
-  return new Intl.NumberFormat(undefined, {
-    notation: "compact",
-    maximumFractionDigits: 2,
-  }).format(n);
-}
-
-function formatFullNumber(n: number) {
-  if (!Number.isFinite(n)) return "0";
-  return new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: 6,
-  }).format(n);
-}
-
-function formatPrice(listing: ListingLite) {
-  const kind = String(listing.currency?.kind || "NATIVE").toUpperCase();
-  const symbol = listing.currency?.symbol || (kind === "NATIVE" ? "ETN" : "TOKEN");
-  const decimals = Number(listing.currency?.decimals ?? 18) || 18;
-
-  const base = kind === "NATIVE" ? listing.priceEtnWei : listing.priceTokenAmount || "0";
-
+function formatInt(n: number) {
   try {
-    const bi = toBigIntSafe(base);
-    const human = ethers.formatUnits(bi, decimals);
-    const num = Number(human);
-    return {
-      compact: `${formatCompactNumber(num)} ${symbol}`,
-      full: `${formatFullNumber(num)} ${symbol}`,
-    };
+    return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
   } catch {
-    return { compact: `0 ${symbol}`, full: `0 ${symbol}` };
+    return String(n);
   }
 }
 
-function ListingCard({
-  nftHref,
-  nftTitle,
-  img,
+function formatSellerLabel(item: ActiveListingItem) {
+  if (item.seller?.username?.trim()) return item.seller.username.trim();
+  if (item.seller?.address) {
+    return `${item.seller.address.slice(0, 6)}…${item.seller.address.slice(-4)}`;
+  }
+  return "Unknown seller";
+}
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function sameAddr(a?: string | null, b?: string | null) {
+  try {
+    if (!a || !b) return false;
+    return ethers.getAddress(a) === ethers.getAddress(b);
+  } catch {
+    return String(a || "").toLowerCase() === String(b || "").toLowerCase();
+  }
+}
+
+function formatDateTime(iso?: string | null) {
+  if (!iso) return "—";
+
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "—";
+
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const day = d.getUTCDate();
+  const month = months[d.getUTCMonth()] ?? "";
+  const year = d.getUTCFullYear();
+
+  let hours = d.getUTCHours();
+  const mins = pad2(d.getUTCMinutes());
+
+  const suffix = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  return `${month} ${day}, ${year}, ${hours}:${mins} ${suffix} UTC`;
+}
+
+function msUntil(iso?: string | null, nowMs?: number) {
+  if (!iso) return 0;
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, t - (nowMs ?? Date.now()));
+}
+
+function formatRemaining(iso?: string | null, nowMs?: number) {
+  if (!iso) return "Open-ended";
+
+  const ms = msUntil(iso, nowMs);
+  if (ms <= 0) return "Ended";
+
+  const totalSec = Math.floor(ms / 1000);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+
+  if (days > 0) return `${days}d ${hours}h left`;
+  if (hours > 0) return `${hours}h ${mins}m left`;
+  return `${Math.max(1, mins)}m left`;
+}
+
+function useNowTicker(initialNow: number) {
+  const [now, setNow] = React.useState(initialNow);
+
+  React.useEffect(() => {
+    const id = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(id);
+  }, []);
+
+  return now;
+}
+
+function ListingDirectoryCard({
+  item,
+  now,
   standard,
   contract,
   tokenId,
-  l,
 }: {
-  nftHref: string;
-  nftTitle: string;
-  img?: string | null;
-  standard: "ERC721" | "ERC1155";
+  item: ActiveListingItem;
+  now: number;
+  standard: Standard;
   contract: `0x${string}`;
   tokenId: bigint;
-  l: ListingLite;
 }) {
-  const { compact, full } = formatPrice(l);
   const [busy, setBusy] = React.useState(false);
+  const [account, setAccount] = React.useState<string | null>(null);
+
+  const nftHref = `/collections/${item.nft.contract}/${item.nft.tokenId}`;
+  const imageSrc = item.nft.image;
+  const sellerLabel = formatSellerLabel(item);
+
+  const qty = Math.max(1, Number(item.quantity ?? 1) || 1);
+
+  const totalPriceLine =
+    item.price?.total && item.currency?.symbol
+      ? `${item.price.total} ${item.currency.symbol}`
+      : item.price?.unit && item.currency?.symbol
+      ? `${item.price.unit} ${item.currency.symbol}`
+      : "—";
+
+  const perItemLine =
+    qty > 1 && item.price?.perItem && item.currency?.symbol
+      ? `${item.price.perItem} ${item.currency.symbol} each`
+      : null;
+
+  const endLabel = formatDateTime(item.endTime);
+  const startLabel = formatDateTime(item.startTime);
+
+  const startMs = item.startTime ? new Date(item.startTime).getTime() : 0;
+  const endMs = item.endTime ? new Date(item.endTime).getTime() : 0;
+
+  const isScheduled = !!startMs && now < startMs;
+  const isEnded = !!endMs && now > endMs;
+  const isSeller = !!account && !!item.sellerAddress && sameAddr(account, item.sellerAddress);
+
+  const canBuy = !busy && !isScheduled && !isEnded && !!item.isLive && !isSeller;
+
+  const topRightLabel = isScheduled
+    ? formatRemaining(item.startTime, now)
+    : formatRemaining(item.endTime, now);
+
+  React.useEffect(() => {
+    let mounted = true;
+
+    async function loadAccount() {
+      try {
+        if (typeof window === "undefined") return;
+        const eth = (window as any)?.ethereum;
+        if (!eth?.request) return;
+
+        const accounts = (await eth.request({ method: "eth_accounts" }).catch(() => [])) as string[];
+        if (!mounted) return;
+
+        const first = Array.isArray(accounts) && accounts[0] ? String(accounts[0]) : null;
+        setAccount(first && ethers.isAddress(first) ? ethers.getAddress(first) : null);
+      } catch {
+        if (mounted) setAccount(null);
+      }
+    }
+
+    void loadAccount();
+
+    const eth = typeof window !== "undefined" ? (window as any)?.ethereum : null;
+    if (eth?.on) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        const first = Array.isArray(accounts) && accounts[0] ? String(accounts[0]) : null;
+        setAccount(first && ethers.isAddress(first) ? ethers.getAddress(first) : null);
+      };
+
+      eth.on("accountsChanged", handleAccountsChanged);
+
+      return () => {
+        mounted = false;
+        if (eth?.removeListener) {
+          eth.removeListener("accountsChanged", handleAccountsChanged);
+        }
+      };
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function onBuy() {
-    if (busy) return;
+    if (!canBuy) return;
 
-    const seller = ethers.getAddress(l.sellerAddress) as `0x${string}`;
+    if (!item.sellerAddress || !ethers.isAddress(item.sellerAddress)) {
+      toast.error("Seller address missing for this listing.");
+      return;
+    }
+
     const t = toast.loading("Preparing purchase…");
     setBusy(true);
 
@@ -133,15 +247,17 @@ function ListingCard({
         collection: contract,
         tokenId,
         standard,
-        seller,
+        seller: ethers.getAddress(item.sellerAddress) as `0x${string}`,
       });
 
-      toast.success("Purchase submitted.", { id: t, description: txHash });
+      toast.success("Purchase submitted.", {
+        id: t,
+        description: txHash,
+      });
     } catch (e: any) {
       const raw = e?.shortMessage || e?.reason || e?.message || "Purchase failed.";
       const msg = String(raw);
 
-      // common metamask/ethers preflight failure
       if (msg.includes("missing revert data") || msg.includes("estimateGas")) {
         toast.error("This listing can’t be purchased right now. Refresh and try again.", {
           id: t,
@@ -154,218 +270,186 @@ function ListingCard({
     }
   }
 
-  return (
-    <div
-      className={cx(
-        "group h-full rounded-[26px] border border-border bg-card/50 overflow-hidden",
-        "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-foreground/15"
-      )}
-    >
-      {/* ✅ NOT clickable card. Only inner controls are clickable. */}
-      <div className="relative aspect-square bg-foreground/5">
-        <CardMedia
-          src={img}
-          alt={nftTitle}
-          className="absolute inset-0"
-          audio="toggle"
-        />
+  const buyTitle = isSeller
+    ? "You are the seller"
+    : isScheduled
+    ? `Listing starts in ${formatRemaining(item.startTime, now)}`
+    : isEnded
+    ? "Listing has ended"
+    : busy
+    ? "Processing"
+    : "Buy now";
 
-        <div className="absolute left-3 top-3 z-10">
-          <span
-            className="
-              inline-flex items-center gap-1
-              rounded-full px-2.5 py-1
-              text-[10px] sm:text-xs font-semibold
-              border border-border/70
-              bg-background/70 text-foreground
-              backdrop-blur-md
-              shadow-[0_10px_30px_rgba(0,0,0,0.22)]
-              ring-1 ring-foreground/5
-            "
-          >
-            {standard === "ERC1155" ? `ERC-1155 × ${Math.max(1, l.quantity)}` : "ERC-721"}
-          </span>
+  const buyLabel = busy
+    ? "Buying…"
+    : isSeller
+    ? "You are the seller"
+    : isScheduled
+    ? "Not live yet"
+    : isEnded
+    ? "Ended"
+    : "Buy now";
+
+  return (
+    <div className="group overflow-hidden rounded-[28px] border border-border bg-card transition hover:bg-card/80">
+      <div className="relative h-44 w-full bg-foreground/5">
+        {imageSrc ? (
+          <CardMedia
+            src={imageSrc}
+            alt={item.nft.name}
+            className="absolute inset-0"
+            fit="cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            audio="toggle"
+          />
+        ) : null}
+
+        <div className="absolute inset-0 pointer-events-none [background:radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.10),transparent_45%)] dark:[background:radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.10),transparent_45%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-linear-to-t from-black/18 via-transparent to-transparent dark:from-black/28" />
+
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          {isScheduled ? (
+            <Badge
+              variant="outline"
+              className="border border-black/10 bg-white/92 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+            >
+              Scheduled
+            </Badge>
+          ) : item.isLive ? (
+            <Badge
+              variant="soft"
+              className="gap-2 border border-black/10 bg-white/92 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+            >
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+              Live
+            </Badge>
+          ) : (
+            <Badge
+              variant="outline"
+              className="border border-black/10 bg-white/92 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+            >
+              Inactive
+            </Badge>
+          )}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-linear-to-t from-black/40 to-transparent" />
-
-        <div className="absolute right-3 bottom-3 z-10 flex items-center gap-2">
-          <Link href={nftHref} prefetch={false} aria-label="Open NFT">
-            <IconButton title="Open NFT" aria-label="Open NFT">
-              <ExternalLink className="h-4 w-4" />
-            </IconButton>
-          </Link>
+        <div className="absolute right-3 top-3">
+          <Badge
+            variant="outline"
+            className="border border-black/10 bg-white/92 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+          >
+            {topRightLabel}
+          </Badge>
         </div>
       </div>
 
-      <div className="p-3 sm:p-3.5">
-        {/* top row: status + qty */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <Badge variant="soft">Active</Badge>
-            <div className="text-xs text-muted truncate">
-              Qty <span className="font-semibold text-foreground">{l.quantity}</span>
+      <div className="p-4 sm:p-5">
+        <div className="min-w-0">
+          <div className="truncate text-sm font-semibold text-foreground transition group-hover:opacity-90">
+            {item.nft.name}
+          </div>
+
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted">
+            <span className="font-mono">
+              {item.nft.contract.slice(0, 6)}…{item.nft.contract.slice(-4)} #{item.nft.tokenId}
+            </span>
+            <span>•</span>
+            <span>Seller: {sellerLabel}</span>
+          </div>
+
+          {isSeller ? (
+            <div className="mt-1 text-[11px] text-muted">You are the seller</div>
+          ) : null}
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-4">
+          <div className="min-w-0">
+            <div className="text-[11px] text-muted">Listing price</div>
+            <div className="truncate text-sm font-semibold">{totalPriceLine}</div>
+            {perItemLine ? (
+              <div className="mt-1 truncate text-[11px] text-muted">{perItemLine}</div>
+            ) : null}
+          </div>
+
+          <div className="min-w-0 text-right">
+            <div className="text-[11px] text-muted">Quantity</div>
+            <div className="truncate text-sm font-semibold">{formatInt(qty)}</div>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="min-w-0">
+            <div className="text-[11px] text-muted">
+              {isScheduled ? "Starts in" : "Start"}
+            </div>
+            <div className="truncate text-sm font-semibold">
+              {isScheduled ? formatRemaining(item.startTime, now) : startLabel}
             </div>
           </div>
 
-          <div className="text-xs text-muted truncate">
-            Seller{" "}
-            <span className="font-mono text-foreground/85">{shortAddr(l.sellerAddress)}</span>
+          <div className="min-w-0 text-right">
+            <div className="text-[11px] text-muted">Ends</div>
+            <div className="truncate text-sm font-semibold">{endLabel}</div>
           </div>
         </div>
 
-        {/* price */}
-        <div className="mt-3">
-          <div className="text-xs text-muted">Price</div>
-          <div className="mt-1 text-lg font-semibold" title={full}>
-            {compact}
-          </div>
-        </div>
-
-        {/* actions */}
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-5 grid grid-cols-2 gap-2">
           <Button
+            size="sm"
+            className="w-full gap-2"
             onClick={onBuy}
-            disabled={busy}
-            className="rounded-full"
+            disabled={!canBuy}
+            title={buyTitle}
           >
             <ShoppingCart className="h-4 w-4" />
-            {busy ? "Buying…" : "Buy now"}
+            {buyLabel}
           </Button>
 
-          <Link href={nftHref} prefetch={false}>
-            <Button variant="outline" className="w-full rounded-full">
+          <Link href={nftHref}>
+            <Button size="sm" variant="outline" className="w-full gap-2">
+              <Gavel className="h-4 w-4" />
               View NFT
             </Button>
           </Link>
         </div>
-
-        {/* tiny identifier (optional, compact) */}
-        {l.txHashCreated ? (
-          <div className="mt-3 text-[11px] text-muted truncate">
-            Tx{" "}
-            <span className="font-mono text-foreground/75">
-              {l.txHashCreated.slice(0, 10)}…{l.txHashCreated.slice(-6)}
-            </span>
-          </div>
-        ) : null}
       </div>
     </div>
   );
 }
 
 export default function ListingsClient({
-  nft,
-  listings,
+  contract,
+  tokenId,
+  standard,
+  items,
+  now,
 }: {
-  nft: NftLite;
-  listings: ListingLite[];
+  contract: string;
+  tokenId: string;
+  standard: Standard;
+  items: ActiveListingItem[];
+  tokenName: string;
+  now: number;
 }) {
-  const nftHref = `/collections/${nft.contract}/${nft.tokenId}`;
-  const title = nft.name || `#${nft.tokenId}`;
-  const img = nft.imageUrl || null;
-
-  const contract = ethers.getAddress(nft.contract) as `0x${string}`;
-  const tokenId = BigInt(nft.tokenId);
+  const tickingNow = useNowTicker(now);
+  const collection = ethers.getAddress(contract) as `0x${string}`;
+  const tokenIdBigInt = BigInt(tokenId);
 
   return (
-    <section className="pb-12">
-      <Container size="lg" className="py-8">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <BackButton variant="ghost" className="-ml-2" fallbackHref={nftHref} />
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted">
-              Market
-            </span>
-            <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted">
-              ERC-1155
-            </span>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <div className="text-xs font-semibold text-muted">Market</div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight">
-            Listings
-          </h1>
-          <p className="mt-2 text-sm text-muted leading-relaxed max-w-3xl">
-            Active listings for this{" "}
-            <span className="font-semibold text-foreground">ERC1155</span> token.
-            ERC-1155 can have multiple sellers and quantities — choose the listing you
-            want to buy.
-          </p>
-        </div>
-
-        <div className="relative overflow-hidden rounded-[26px] border border-border bg-card p-4 sm:p-5">
-          <div className="absolute inset-0 pointer-events-none [background:radial-gradient(circle_at_20%_10%,rgba(16,185,129,0.10),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(99,102,241,0.10),transparent_45%)]" />
-          <div className="relative flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-2xl border border-border bg-foreground/5">
-                <CardMedia src={img} alt={title} className="absolute inset-0" fit="cover" />
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <div className="text-sm sm:text-base font-semibold truncate">{title}</div>
-                  <Badge variant="outline">{nft.standard}</Badge>
-                </div>
-                <div className="mt-1 text-xs text-muted font-mono truncate">
-                  {shortAddr(nft.contract)} · #{nft.tokenId}
-                  {nft.collectionName ? <> · {nft.collectionName}</> : null}
-                </div>
-              </div>
-            </div>
-
-            <Link href={nftHref} prefetch={false}>
-              <Button variant="outline" className="rounded-full">
-                View NFT
-              </Button>
-            </Link>
-          </div>
-
-          <div className="relative mt-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs text-muted">
-              <span className="font-semibold text-foreground">{listings.length}</span>{" "}
-              active listings
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs text-muted">
-              Multiple sellers supported
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          {listings.length === 0 ? (
-            <div className="rounded-[26px] border border-border bg-card p-8 text-center">
-              <div className="text-sm font-semibold">No active listings</div>
-              <div className="mt-1 text-sm text-muted">
-                Once sellers list this ERC1155 token, they’ll appear here.
-              </div>
-            </div>
-          ) : (
-            <div
-              className="
-                grid gap-4 sm:gap-6
-                grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-                xl:grid-cols-4 2xl:grid-cols-5
-              "
-            >
-              {listings.map((l) => (
-                <ListingCard
-                  key={l.dbId || `${l.sellerAddress}:${l.priceEtnWei}:${l.txHashCreated || ""}`}
-                  nftHref={nftHref}
-                  nftTitle={title}
-                  img={img}
-                  standard={nft.standard}
-                  contract={contract}
-                  tokenId={tokenId}
-                  l={l}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </Container>
+    <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+      {items.map((item) => (
+        <ListingDirectoryCard
+          key={(item.dbId ?? item.chainId ?? item.id) as string}
+          item={item}
+          now={tickingNow}
+          standard={standard}
+          contract={collection}
+          tokenId={tokenIdBigInt}
+        />
+      ))}
     </section>
   );
 }

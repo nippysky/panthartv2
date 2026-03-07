@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/market/auction/confirm/route.ts
+// app/api/market/auction/reconcile/route.ts
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,5 +20,18 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await confirmAuctionTx(body);
-  return json(result.ok ? 200 : 400, result);
+
+  if (!result.ok) {
+    return json(400, result);
+  }
+
+  return json(200, {
+    ok: true,
+    kind: "auction",
+    reconciled: true,
+    txHashCreated: body.txHashCreated,
+    contract: body.contract,
+    tokenId: body.tokenId,
+    result,
+  });
 }

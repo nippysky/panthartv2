@@ -211,11 +211,11 @@ export default async function Page(ctx: PageContext) {
                 alt={title}
                 fit="contain"
                 className="absolute inset-0"
-           autoPlay
-  muted
-  loop
-  playsInline
-  audio="toggle"
+                autoPlay
+                muted
+                loop
+                playsInline
+                audio="toggle"
               />
             </div>
           </div>

@@ -35,6 +35,14 @@ function extractTxHash(maybe: unknown): string | null {
   return null;
 }
 
+function safeEq(a: string, b: string) {
+  try {
+    return ethers.getAddress(a) === ethers.getAddress(b);
+  } catch {
+    return a.toLowerCase() === b.toLowerCase();
+  }
+}
+
 export default function NFTMarketPanel({
   contract,
   tokenId,
@@ -64,6 +72,36 @@ export default function NFTMarketPanel({
 
   const [loading, setLoading] = useState(false);
   const [ownerMode, setOwnerMode] = useState<OwnerMode>("none");
+
+  const [ownChainListing, setOwnChainListing] = useState<{
+    id: bigint;
+    row: {
+      seller: `0x${string}`;
+      currency: `0x${string}`;
+      price: bigint;
+      quantity: bigint;
+      start: bigint;
+      end: bigint;
+      standard: bigint;
+    };
+  } | null>(null);
+
+  const [ownChainAuction, setOwnChainAuction] = useState<{
+    id: bigint;
+    row: {
+      seller: `0x${string}`;
+      currency: `0x${string}`;
+      startPrice: bigint;
+      minIncrement: bigint;
+      start: bigint;
+      end: bigint;
+      highestBidder: `0x${string}`;
+      highestBid: bigint;
+      bidsCount: number;
+      standard: bigint;
+      settled: boolean;
+    };
+  } | null>(null);
 
   const resetUiAfterRefresh = useCallback(() => {
     setOwnerMode("none");
@@ -99,34 +137,94 @@ export default function NFTMarketPanel({
     router.refresh();
   }, [contract, tokenId, router]);
 
+  const refreshOwnSellerScopedState = useCallback(async () => {
+    if (standard !== "ERC1155" || !account || !ethers.isAddress(contract)) {
+      setOwnChainListing(null);
+      setOwnChainAuction(null);
+      return;
+    }
+
+    try {
+      const [l, a] = await Promise.all([
+        marketplace.readActiveListing({
+          collection: ethers.getAddress(contract) as `0x${string}`,
+          tokenId: BigInt(tokenId),
+          standard: "ERC1155",
+          seller: ethers.getAddress(account) as `0x${string}`,
+        }),
+        marketplace.readActiveAuction({
+          collection: ethers.getAddress(contract) as `0x${string}`,
+          tokenId: BigInt(tokenId),
+          standard: "ERC1155",
+          seller: ethers.getAddress(account) as `0x${string}`,
+        }),
+      ]);
+
+      setOwnChainListing(l ?? null);
+      setOwnChainAuction(a ?? null);
+    } catch {
+      setOwnChainListing(null);
+      setOwnChainAuction(null);
+    }
+  }, [standard, account, contract, tokenId]);
+
+  useEffect(() => {
+    void refreshOwnSellerScopedState();
+  }, [refreshOwnSellerScopedState, listing?.id, auction?.id]);
+
   const listingStartMs = useMemo(() => {
+    if (standard === "ERC1155" && ownChainListing) return Number(ownChainListing.row.start) * 1000;
     if (chainListing) return chainListing.startSec * 1000;
     return parseIsoToMs(listing?.startTime ?? null);
-  }, [chainListing, listing?.startTime]);
+  }, [standard, ownChainListing, chainListing, listing?.startTime]);
 
   const listingEndMs = useMemo(() => {
+    if (standard === "ERC1155" && ownChainListing) return Number(ownChainListing.row.end) * 1000;
     if (chainListing) return chainListing.endSec * 1000;
     return parseIsoToMs(listing?.endTime ?? null);
-  }, [chainListing, listing?.endTime]);
+  }, [standard, ownChainListing, chainListing, listing?.endTime]);
 
-  const listingNotStarted = !!listing && !!listingStartMs && nowMs < listingStartMs;
-  const listingEndedUi = !!listing && !!listingEndMs && listingEndMs > 0 && nowMs > listingEndMs;
+  const listingNotStarted =
+    standard === "ERC1155"
+      ? !!ownChainListing && !!listingStartMs && nowMs < listingStartMs
+      : !!listing && !!listingStartMs && nowMs < listingStartMs;
+
+  const listingEndedUi =
+    standard === "ERC1155"
+      ? !!ownChainListing && !!listingEndMs && listingEndMs > 0 && nowMs > listingEndMs
+      : !!listing && !!listingEndMs && listingEndMs > 0 && nowMs > listingEndMs;
 
   const auctionStartMs = useMemo(() => {
+    if (standard === "ERC1155" && ownChainAuction) return Number(ownChainAuction.row.start) * 1000;
     if (chainAuction) return chainAuction.startSec * 1000;
     return parseIsoToMs(auction?.startTime ?? null);
-  }, [chainAuction, auction?.startTime]);
+  }, [standard, ownChainAuction, chainAuction, auction?.startTime]);
 
   const auctionEndMs = useMemo(() => {
+    if (standard === "ERC1155" && ownChainAuction) return Number(ownChainAuction.row.end) * 1000;
     if (chainAuction) return chainAuction.endSec * 1000;
     return parseIsoToMs(auction?.endTime ?? null);
-  }, [chainAuction, auction?.endTime]);
+  }, [standard, ownChainAuction, chainAuction, auction?.endTime]);
 
-  const auctionNotStarted = !!auction && !!auctionStartMs && nowMs < auctionStartMs;
-  const auctionEndedUi = !!auction && !!auctionEndMs && nowMs > auctionEndMs;
+  const auctionNotStarted =
+    standard === "ERC1155"
+      ? !!ownChainAuction && !!auctionStartMs && nowMs < auctionStartMs
+      : !!auction && !!auctionStartMs && nowMs < auctionStartMs;
 
-  const listingSeller = listing?.seller?.address ?? listing?.sellerAddress ?? null;
-  const auctionSeller = (auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null;
+  const auctionEndedUi =
+    standard === "ERC1155"
+      ? !!ownChainAuction && !!auctionEndMs && nowMs > auctionEndMs
+      : !!auction && !!auctionEndMs && nowMs > auctionEndMs;
+
+  const listingSeller =
+    standard === "ERC1155"
+      ? (ownChainListing?.row.seller ?? listing?.seller?.address ?? listing?.sellerAddress ?? null)
+      : (listing?.seller?.address ?? listing?.sellerAddress ?? null);
+
+  const auctionSeller =
+    standard === "ERC1155"
+      ? (ownChainAuction?.row.seller ?? (auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null)
+      : ((auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null);
 
   const isSellerForListing = !!account && !!listingSeller && safeEq(account, listingSeller);
   const isSellerForAuction = !!account && !!auctionSeller && safeEq(account, auctionSeller);
@@ -139,41 +237,90 @@ export default function NFTMarketPanel({
   }, [listing]);
 
   const auctionPriceLabel = useMemo(() => {
+    if (standard === "ERC1155" && ownChainAuction && auction?.currency?.symbol) {
+      const current = ownChainAuction.row.highestBid > BigInt(0)
+        ? ownChainAuction.row.highestBid
+        : ownChainAuction.row.startPrice;
+
+      try {
+        const sym = auction.currency.symbol ?? "ETN";
+        const dec = Number(auction.currency.decimals ?? 18) || 18;
+        return `${ethers.formatUnits(current, dec)} ${sym}`;
+      } catch {
+        return "Auction";
+      }
+    }
+
     if (!auction) return null;
     const cur = auction.price?.current ?? null;
     const sym = auction.currency?.symbol ?? "ETN";
     return cur ? `${cur} ${sym}` : null;
-  }, [auction]);
+  }, [standard, ownChainAuction, auction]);
 
   const listingSubline = useMemo(() => {
+    if (standard === "ERC1155" && ownChainListing) {
+      if (listingNotStarted && listingStartMs) {
+        return `Scheduled (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
+      }
+      if (listingEndedUi) return "Expired";
+      return "Active";
+    }
+
     if (!listing) return null;
     if (listingNotStarted && listingStartMs)
       return `Scheduled (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
     if (listingEndedUi) return "Expired";
     return "Active";
-  }, [listing, listingNotStarted, listingStartMs, listingEndedUi, nowMs]);
+  }, [standard, ownChainListing, listing, listingNotStarted, listingStartMs, listingEndedUi, nowMs]);
 
   const auctionSubline = useMemo(() => {
+    if (standard === "ERC1155" && ownChainAuction) {
+      if (auctionNotStarted && auctionStartMs) {
+        return `Scheduled (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
+      }
+      if (auctionEndedUi) return "Ended";
+      return "Active";
+    }
+
     if (!auction) return null;
     if (auctionNotStarted && auctionStartMs)
       return `Scheduled (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
     if (auctionEndedUi) return "Ended";
     return "Active";
-  }, [auction, auctionNotStarted, auctionStartMs, auctionEndedUi, nowMs]);
+  }, [standard, ownChainAuction, auction, auctionNotStarted, auctionStartMs, auctionEndedUi, nowMs]);
 
   const buyDisabled = loading || !listing || listingNotStarted || listingEndedUi;
 
-  // Auction cancel rule: seller can cancel ONLY if no bids have been made.
-  const bidsCount = Number((auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0);
-  const canCancelAuctionByRule = !!auction && isSellerForAuction && bidsCount === 0 && !auctionEndedUi;
+  const effectiveAuctionBidsCount =
+    standard === "ERC1155"
+      ? Number(ownChainAuction?.row.bidsCount ?? (auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0)
+      : Number((auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0);
 
-  const canCancelListing = !!listing && isSellerForListing;
+  const canCancelAuctionByRule =
+    standard === "ERC1155"
+      ? !!ownChainAuction && isSellerForAuction && effectiveAuctionBidsCount === 0 && !auctionEndedUi
+      : !!auction && isSellerForAuction && effectiveAuctionBidsCount === 0 && !auctionEndedUi;
+
+  const canCancelListing =
+    standard === "ERC1155"
+      ? !!ownChainListing && isSellerForListing
+      : !!listing && isSellerForListing;
 
   const listingSellerUsername = pickUsername(listing as any);
   const auctionSellerUsername = pickUsername(auction as any);
 
   const displayListingSeller = listingSellerUsername ?? safeChecksum(listingSeller);
   const displayAuctionSeller = auctionSellerUsername ?? safeChecksum(auctionSeller);
+
+  const activeListingChainId =
+    standard === "ERC1155"
+      ? (ownChainListing ? ownChainListing.id.toString() : null)
+      : (listing?.id ?? null);
+
+  const activeAuctionChainId =
+    standard === "ERC1155"
+      ? (ownChainAuction ? ownChainAuction.id.toString() : null)
+      : (auction?.id ?? null);
 
   const buyNow = useCallback(async () => {
     const listingIdStr = listing?.id;
@@ -211,6 +358,7 @@ export default function NFTMarketPanel({
 
       await syncOwnerNow();
       await refresh();
+      await refreshOwnSellerScopedState();
       router.refresh();
       onAfterAction?.();
     } catch (e: unknown) {
@@ -226,6 +374,7 @@ export default function NFTMarketPanel({
     requireWalletToast,
     syncOwnerNow,
     refresh,
+    refreshOwnSellerScopedState,
     router,
     onAfterAction,
     setErr,
@@ -234,7 +383,7 @@ export default function NFTMarketPanel({
   ]);
 
   const cancelListing = useCallback(async () => {
-    const listingIdStr = listing?.id;
+    const listingIdStr = activeListingChainId;
     if (!listingIdStr) return;
 
     if (!account) return requireWalletToast();
@@ -251,7 +400,7 @@ export default function NFTMarketPanel({
       const txHashCancelled = extractTxHash(maybeTx);
       const dbId = (listing as any)?.dbId ?? null;
 
-      if (dbId && txHashCancelled) {
+      if (txHashCancelled) {
         await fetch("/api/market/listing/cancel/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -260,12 +409,14 @@ export default function NFTMarketPanel({
             txHashCancelled,
             contract,
             tokenId: String(tokenId),
-            chainId: listing?.id ?? null,
+            chainId: listingIdStr,
+            sellerAddress: account,
           }),
         }).catch(() => null);
       }
 
       await refresh();
+      await refreshOwnSellerScopedState();
       router.refresh();
       onAfterAction?.();
     } catch (e: unknown) {
@@ -276,10 +427,12 @@ export default function NFTMarketPanel({
       setLoading(false);
     }
   }, [
+    activeListingChainId,
     listing,
     account,
     requireWalletToast,
     refresh,
+    refreshOwnSellerScopedState,
     router,
     onAfterAction,
     setErr,
@@ -288,7 +441,7 @@ export default function NFTMarketPanel({
   ]);
 
   const cancelAuction = useCallback(async () => {
-    const auctionIdStr = auction?.id;
+    const auctionIdStr = activeAuctionChainId;
     if (!auctionIdStr) return;
 
     if (!account) return requireWalletToast();
@@ -304,13 +457,17 @@ export default function NFTMarketPanel({
       const txHashCancelled =
         typeof tx === "string" && tx.startsWith("0x") ? tx : (tx?.hash as string | undefined);
 
-      if (dbId) {
+      if (txHashCancelled) {
         await fetch("/api/market/auction/cancel/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             dbId,
-            txHashCancelled: txHashCancelled ?? null,
+            txHashCancelled,
+            contract,
+            tokenId: String(tokenId),
+            chainId: auctionIdStr,
+            sellerAddress: account,
           }),
         }).catch(() => null);
       }
@@ -318,6 +475,7 @@ export default function NFTMarketPanel({
       toast.success("Auction canceled.", { id: tId });
 
       await refresh();
+      await refreshOwnSellerScopedState();
       router.refresh();
       onAfterAction?.();
     } catch (e: unknown) {
@@ -327,10 +485,22 @@ export default function NFTMarketPanel({
     } finally {
       setLoading(false);
     }
-  }, [auction, account, requireWalletToast, refresh, router, onAfterAction, setErr]);
+  }, [
+    activeAuctionChainId,
+    auction,
+    account,
+    requireWalletToast,
+    refresh,
+    refreshOwnSellerScopedState,
+    router,
+    onAfterAction,
+    setErr,
+    contract,
+    tokenId,
+  ]);
 
   const finalizeAuction = useCallback(async () => {
-    const auctionIdStr = auction?.id;
+    const auctionIdStr = activeAuctionChainId;
     if (!auctionIdStr) return;
 
     if (!account) return requireWalletToast();
@@ -358,7 +528,7 @@ export default function NFTMarketPanel({
       const txHashFinalized = extractTxHash(maybeTx);
       const dbId = (auction as any)?.dbId ?? null;
 
-      if (dbId && txHashFinalized) {
+      if (txHashFinalized) {
         await fetch("/api/market/auction/settle/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -367,13 +537,15 @@ export default function NFTMarketPanel({
             txHashFinalized,
             contract,
             tokenId: String(tokenId),
-            chainId: auction?.id ?? null,
+            chainId: auctionIdStr,
+            sellerAddress: account,
           }),
         }).catch(() => null);
       }
 
       await syncOwnerNow();
       await refresh();
+      await refreshOwnSellerScopedState();
       router.refresh();
       onAfterAction?.();
     } catch (e: unknown) {
@@ -384,11 +556,13 @@ export default function NFTMarketPanel({
       setLoading(false);
     }
   }, [
+    activeAuctionChainId,
     auction,
     account,
     requireWalletToast,
     syncOwnerNow,
     refresh,
+    refreshOwnSellerScopedState,
     router,
     onAfterAction,
     setErr,
@@ -426,22 +600,46 @@ export default function NFTMarketPanel({
       />
 
       <AuctionCard
-        hasAuction={!!auction}
+        hasAuction={standard === "ERC1155" ? !!ownChainAuction || !!auction : !!auction}
         standard={standard}
         contract={contract}
         tokenId={tokenId}
-        headline={auction ? auctionPriceLabel ?? "Auction" : "No active auction"}
-        subline={auction ? auctionSubline : null}
+        headline={
+          standard === "ERC1155"
+            ? ownChainAuction
+              ? auctionPriceLabel ?? "Auction"
+              : auction
+              ? auctionPriceLabel ?? "Auction"
+              : "No active auction"
+            : auction
+            ? auctionPriceLabel ?? "Auction"
+            : "No active auction"
+        }
+        subline={
+          standard === "ERC1155"
+            ? ownChainAuction
+              ? auctionSubline
+              : auction
+              ? auctionSubline
+              : null
+            : auction
+            ? auctionSubline
+            : null
+        }
         sellerLabel={displayAuctionSeller}
         loading={loading}
-        isSeller={!!auction && isSellerForAuction}
+        isSeller={
+          standard === "ERC1155"
+            ? !!ownChainAuction && isSellerForAuction
+            : !!auction && isSellerForAuction
+        }
         canCancel={canCancelAuctionByRule}
-        canFinalize={!!auction && auctionEndedUi}
+        canFinalize={standard === "ERC1155" ? !!ownChainAuction && auctionEndedUi : !!auction && auctionEndedUi}
         endedUi={auctionEndedUi}
         auctionDbId={auctionDbId}
         onCancel={() => void cancelAuction()}
         onFinalize={() => void finalizeAuction()}
-        bidsCount={auction?.bidsCount ?? 0}
+        bidsCount={effectiveAuctionBidsCount}
       />
 
       <OwnerActions
@@ -459,7 +657,10 @@ export default function NFTMarketPanel({
         setErr={setErr}
         ownerMode={ownerMode}
         setOwnerMode={setOwnerMode}
-        onRefresh={refresh}
+        onRefresh={async () => {
+          await refresh();
+          await refreshOwnSellerScopedState();
+        }}
         onSyncOwnerNow={syncOwnerNow}
         onAfterAction={onAfterAction}
       />
@@ -471,12 +672,4 @@ export default function NFTMarketPanel({
       ) : null}
     </div>
   );
-}
-
-function safeEq(a: string, b: string) {
-  try {
-    return ethers.getAddress(a) === ethers.getAddress(b);
-  } catch {
-    return a === b;
-  }
 }

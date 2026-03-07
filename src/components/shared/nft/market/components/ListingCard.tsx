@@ -38,7 +38,13 @@ export function ListingCard(props: {
     sellerLabel,
     loading,
     canCancel,
+    isSeller,
+    accountConnected,
+    buyDisabled,
+    buyTitle,
+    onBuy,
     onCancel,
+    onConnectWallet,
   } = props;
 
   const is1155 = standard === "ERC1155";
@@ -51,7 +57,6 @@ export function ListingCard(props: {
             {is1155 ? "Listings" : "Listing"}
           </div>
 
-          {/* ✅ ERC1155: do NOT show fallback price/seller; it's misleading */}
           {is1155 ? (
             <div className="mt-1 text-sm font-semibold">
               {hasListing ? "Active listings available" : "No active listings"}
@@ -72,7 +77,6 @@ export function ListingCard(props: {
         </div>
       </div>
 
-      {/* ✅ Actions */}
       {hasListing ? (
         <div className="mt-4 flex flex-wrap gap-2">
           {is1155 ? (
@@ -91,18 +95,37 @@ export function ListingCard(props: {
                 </Button>
               ) : null}
             </>
-          ) : canCancel ? (
-            <Button variant="danger" onClick={onCancel} disabled={loading}>
-              Cancel listing
-            </Button>
           ) : (
-            <ButtonLink
-              href={`/collections/${contract}/${tokenId}/listings`}
-              disabled={loading}
-              title="View listing details"
-            >
-              View listing
-            </ButtonLink>
+            <>
+              {canCancel ? (
+                <Button variant="danger" onClick={onCancel} disabled={loading}>
+                  Cancel listing
+                </Button>
+              ) : accountConnected ? (
+                <Button
+                  variant="primary"
+                  onClick={onBuy}
+                  disabled={loading || buyDisabled || isSeller}
+                  title={isSeller ? "You are the seller" : buyTitle}
+                >
+                  Buy now
+                </Button>
+              ) : (
+                <Button variant="primary" onClick={onConnectWallet} disabled={loading}>
+                  Connect wallet
+                </Button>
+              )}
+
+              {!canCancel ? (
+                <ButtonLink
+                  href={`/collections/${contract}/${tokenId}/listings`}
+                  disabled={loading}
+                  title="View listing details"
+                >
+                  View listing
+                </ButtonLink>
+              ) : null}
+            </>
           )}
         </div>
       ) : (

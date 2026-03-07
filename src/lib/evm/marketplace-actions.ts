@@ -94,6 +94,7 @@ type ListingRowNormalized = {
 type AuctionRowNormalized = {
   seller: `0x${string}`;
   currency: `0x${string}`;
+  quantity: bigint;
   startPrice: bigint;
   minIncrement: bigint;
   /** unix seconds */
@@ -310,9 +311,10 @@ function normalizeAuctionRow(row: AuctionRowRaw): AuctionRowNormalized {
   return {
     seller: row.seller,
     currency: row.currency,
+    quantity: row.quantity,
     startPrice: row.startPrice,
     minIncrement: row.minIncrement,
-    // **** KEY: map ABI's startTime/endTime -> start/end ****
+    // map ABI's startTime/endTime -> start/end
     start: row.startTime,
     end: row.endTime,
     highestBidder: row.highestBidder,
@@ -322,7 +324,6 @@ function normalizeAuctionRow(row: AuctionRowRaw): AuctionRowNormalized {
     settled: row.settled,
   };
 }
-
 /* ------------------------------------------------------------------ */
 /* Read active listing (public provider)                               */
 /* ------------------------------------------------------------------ */

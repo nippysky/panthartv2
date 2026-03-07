@@ -35,6 +35,8 @@ type ActiveAuctionItem = {
   price: {
     currentWei: string | null;
     current: string | null;
+    startWei?: string | null;
+    start?: string | null;
   };
   seller: { address: string | null; username: string | null };
   bidsCount: number | null;
@@ -86,7 +88,6 @@ function EmptyState({ ok }: { ok: boolean }) {
           </div>
         </div>
 
-        {/* ✅ Wrap-safe actions */}
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">
           <Link href="/collections" className="w-full sm:w-auto">
             <Button variant="secondary" size="sm" className="w-full sm:w-auto gap-2">
@@ -107,10 +108,23 @@ function EmptyState({ ok }: { ok: boolean }) {
 function AuctionCard({ a, now }: { a: ActiveAuctionItem; now: number }) {
   const href = a.dbId ? `/auction-now/${a.dbId}` : `/auction-now/${a.id}`;
 
-  const priceLine =
-    a.price?.current && a.currency?.symbol ? `${a.price.current} ${a.currency.symbol}` : "—";
+  const bids = Math.max(0, a.bidsCount ?? 0);
+  const hasBids = bids > 0;
 
-  const bids = a.bidsCount ?? 0;
+  const startPriceLine =
+    a.price?.start && a.currency?.symbol
+      ? `${a.price.start} ${a.currency.symbol}`
+      : a.price?.current && a.currency?.symbol
+      ? `${a.price.current} ${a.currency.symbol}`
+      : "—";
+
+  const currentBidLine =
+    hasBids && a.price?.current && a.currency?.symbol
+      ? `${a.price.current} ${a.currency.symbol}`
+      : "—";
+
+  const valueLabel = hasBids ? "Current bid" : "Start price";
+  const valueLine = hasBids ? currentBidLine : startPriceLine;
 
   return (
     <Link
@@ -130,20 +144,32 @@ function AuctionCard({ a, now }: { a: ActiveAuctionItem; now: number }) {
         ) : null}
 
         <div className="absolute inset-0 pointer-events-none [background:radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.10),transparent_45%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-linear-to-t from-black/18 via-transparent to-transparent dark:from-black/28" />
 
         <div className="absolute left-3 top-3 flex items-center gap-2">
           {a.isLive ? (
-            <Badge variant="soft" className="gap-2">
-              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <Badge
+              variant="soft"
+              className="gap-2 border border-black/10 bg-white/94 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+            >
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
               Live
             </Badge>
           ) : (
-            <Badge variant="outline">Scheduled</Badge>
+            <Badge
+              variant="outline"
+              className="border border-black/10 bg-white/94 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+            >
+              Scheduled
+            </Badge>
           )}
         </div>
 
         <div className="absolute right-3 top-3">
-          <Badge variant="outline" className="gap-2">
+          <Badge
+            variant="outline"
+            className="border border-black/10 bg-white/94 text-foreground shadow-sm backdrop-blur-md dark:border-white/12 dark:bg-black/58 dark:text-white"
+          >
             <LiveEta endISO={a.endTime} nowMs={now} prefix="" />
           </Badge>
         </div>
@@ -163,8 +189,8 @@ function AuctionCard({ a, now }: { a: ActiveAuctionItem; now: number }) {
 
         <div className="mt-5 flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <div className="text-[11px] text-muted">Current</div>
-            <div className="truncate text-sm font-semibold">{priceLine}</div>
+            <div className="text-[11px] text-muted">{valueLabel}</div>
+            <div className="truncate text-sm font-semibold">{valueLine}</div>
           </div>
 
           <div className="shrink-0 text-right">
@@ -190,7 +216,6 @@ export default async function LiveAuctionsSection({
   windowKey: WindowKey;
   limit?: number;
 }) {
-  // windowKey kept for layout consistency; can be used later
   const { items, now, ok } = await fetchActiveAuctions(Math.max(4, limit));
 
   const live = items.filter((x) => x.isLive);

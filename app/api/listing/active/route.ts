@@ -67,6 +67,7 @@ function pow10BigInt(decimals: number): bigint {
 /** UI-friendly decimal string (no Number overflow) */
 function formatUnitsSafe(wei: bigint, decimals: number): string {
   if (decimals <= 0) return wei.toString();
+
   const base = pow10BigInt(decimals);
   const whole = wei / base;
   const frac = wei % base;
@@ -137,10 +138,8 @@ type DbRow = {
 
 /**
  * In-memory cache for txHashCreated -> listingId.
- * This kills the “sometimes it resolves, sometimes it doesn’t” flicker.
- * (No schema change needed; good enough in long-lived Node runtime.)
  */
-const LISTING_ID_CACHE_TTL_MS = 1000 * 60 * 60 * 6; // 6 hours
+const LISTING_ID_CACHE_TTL_MS = 1000 * 60 * 60 * 6;
 const listingIdByTxHash = new Map<string, { id: bigint; ts: number }>();
 
 function getCachedListingId(txHash: string): bigint | null {
@@ -186,16 +185,16 @@ async function resolveChainListingIdFromTx(row: DbRow): Promise<bigint | null> {
       if (!parsed || parsed.name !== "ListingCreated") continue;
 
       const args: any = parsed.args;
-
-      // ✅ IMPORTANT: tokenId and listingId can be 0; never use truthy checks here.
       const listingIdRaw = args?.listingId;
       const tokenIdRaw = args?.tokenId;
       const token = String(args?.token ?? "");
 
       if (listingIdRaw == null || tokenIdRaw == null) continue;
 
-      const listingId = typeof listingIdRaw === "bigint" ? listingIdRaw : BigInt(listingIdRaw.toString());
-      const tokenId = typeof tokenIdRaw === "bigint" ? tokenIdRaw : BigInt(tokenIdRaw.toString());
+      const listingId =
+        typeof listingIdRaw === "bigint" ? listingIdRaw : BigInt(listingIdRaw.toString());
+      const tokenId =
+        typeof tokenIdRaw === "bigint" ? tokenIdRaw : BigInt(tokenIdRaw.toString());
 
       if (lower(token) !== wantContract) continue;
       if (tokenId.toString() !== wantTokenId) continue;
@@ -213,8 +212,6 @@ async function resolveChainListingIdFromTx(row: DbRow): Promise<bigint | null> {
 type ChainListingSnap = {
   listingId: bigint;
   listingIdStr: string;
-
-  // these are best-effort; can be null if RPC read fails
   onchainActive: boolean | null;
   sellerAddress: string | null;
   quantity: number | null;
@@ -257,7 +254,6 @@ async function chainSnapshotForListing(row: DbRow): Promise<ChainListingSnap | n
   const end = Number(L[8] as bigint);
   const active = Boolean(L[9]);
 
-  // verify it matches the NFT row we’re querying
   if (lower(tokenAddr) !== lower(row.nft.contract)) {
     return { ...base, onchainActive: false, sellerAddress: null };
   }
@@ -272,9 +268,13 @@ async function chainSnapshotForListing(row: DbRow): Promise<ChainListingSnap | n
     listingId,
     listingIdStr: listingId.toString(),
     onchainActive: active,
-    sellerAddress: seller && ethers.isAddress(seller) ? ethers.getAddress(seller) : (row.sellerAddress ?? null),
+    sellerAddress:
+      seller && ethers.isAddress(seller)
+        ? ethers.getAddress(seller)
+        : (row.sellerAddress ?? null),
     quantity: qty > BigInt(0) ? Number(qty) : Number(row.quantity ?? 1),
-    currencyAddr: currencyAddr && ethers.isAddress(currencyAddr) ? ethers.getAddress(currencyAddr) : null,
+    currencyAddr:
+      currencyAddr && ethers.isAddress(currencyAddr) ? ethers.getAddress(currencyAddr) : null,
     priceWei: price,
     startTimeISO: start > 0 ? new Date(start * 1000).toISOString() : row.startTime.toISOString(),
     endTimeISO: end === 0 ? null : new Date(end * 1000).toISOString(),
@@ -290,21 +290,10 @@ export async function GET(req: NextRequest) {
   const cursor = searchParams.get("cursor");
 
   const strictOwner = searchParams.get("strictOwner") === "1";
-
   const contractParam = searchParams.get("contract") || undefined;
   const tokenIdParam = searchParams.get("tokenId") || undefined;
-
   const countOnly = searchParams.get("count") === "1";
 
-  /**
-   * preferChain:
-   * - token page naturally wants chain timing (start/end) for “Starts in …”
-   * - but we should NOT drop items if RPC has a bad moment
-   *
-   * requireChain:
-   * - explicitly request to show ONLY listings confirmed active on-chain
-   *   (e.g. admin tools or strict feed modes)
-   */
   const preferChain = searchParams.get("chain") === "1" || (!!contractParam && !!tokenIdParam);
   const requireChain = searchParams.get("requireChain") === "1";
 
@@ -383,7 +372,6 @@ export async function GET(req: NextRequest) {
     const filtered = snaps
       .filter(({ row, snap }) => {
         if (requireChain) {
-          // Require: must confirm on-chain active
           return Boolean(snap?.onchainActive === true);
         }
 
@@ -393,8 +381,6 @@ export async function GET(req: NextRequest) {
         if (std === "ERC1155") return true;
 
         const ownerWallet = row.nft.owner?.walletAddress ?? null;
-
-        // ✅ if owner isn't synced in DB yet, don't hide listing
         if (!ownerWallet) return true;
 
         const seller = snap?.sellerAddress ?? row.sellerAddress;
@@ -407,7 +393,6 @@ export async function GET(req: NextRequest) {
         const chainIsNative = !chainCurrencyAddr || chainCurrencyAddr === ethers.ZeroAddress;
         const dbIsNative = (dbCur?.kind ?? CurrencyKind.NATIVE) === CurrencyKind.NATIVE;
 
-        // Use chain currency only if we actually have it; otherwise fall back to DB currency
         const isNative = snap?.currencyAddr != null ? chainIsNative : dbIsNative;
 
         const decimals = isNative ? 18 : dbCur?.decimals ?? 18;
@@ -418,10 +403,18 @@ export async function GET(req: NextRequest) {
 
         const totalWei =
           snap?.priceWei != null
-            ? (snap.priceWei as bigint)
+            ? snap.priceWei
             : toBigIntSafe(isNative ? row.priceEtnWei : row.priceTokenAmount);
 
-        const unitWei = totalWei != null && qty > 0 ? totalWei / BigInt(qty) : null;
+        // IMPORTANT:
+        // Contract stores listing.price as TOTAL listing price, not price-per-unit.
+        const totalFormatted = totalWei != null ? formatUnitsSafe(totalWei, decimals) : null;
+
+        const perItemWei =
+          totalWei != null && qty > 0 ? totalWei / BigInt(qty) : null;
+
+        const perItemFormatted =
+          totalWei != null && qty > 1 ? formatUnitsSafe(perItemWei as bigint, decimals) : null;
 
         const startISO = snap?.startTimeISO ?? row.startTime.toISOString();
         const endISO = snap?.endTimeISO ?? (row.endTime ? row.endTime.toISOString() : null);
@@ -437,16 +430,12 @@ export async function GET(req: NextRequest) {
               })();
 
         const sellerAddr = snap?.sellerAddress ?? row.sellerAddress;
-
-        // Keep backward compatibility:
-        // - id stays numeric when we can resolve it from txHashCreated (cached)
-        // - otherwise it falls back to dbId
         const chainIdStr = snap?.listingIdStr ?? null;
 
         return {
           id: chainIdStr ?? row.id,
           dbId: row.id,
-          chainId: chainIdStr, // ✅ NEW: explicit chain id for UI to use safely
+          chainId: chainIdStr,
 
           nft: {
             contract: row.nft.contract,
@@ -461,8 +450,6 @@ export async function GET(req: NextRequest) {
           startTime: startISO,
           endTime: endISO,
           isLive,
-
-          // Optional: expose onchainActive for nicer UI messaging
           onchainActive: snap?.onchainActive ?? null,
 
           currency: {
@@ -474,16 +461,19 @@ export async function GET(req: NextRequest) {
           },
 
           price: {
-            unitWei: unitWei != null ? unitWei.toString() : null,
-            unit: unitWei != null ? formatUnitsSafe(unitWei, decimals) : null,
+            // keep backward compatibility:
+            // unit/unitWei now mirror the ACTUAL listing price because that is what buy() uses.
+            unitWei: totalWei != null ? totalWei.toString() : null,
+            unit: totalFormatted,
             totalWei: totalWei != null ? totalWei.toString() : null,
-            total: totalWei != null ? formatUnitsSafe(totalWei, decimals) : null,
+            total: totalFormatted,
+
+            // extra helper fields for better UI if needed
+            perItemWei: perItemWei != null && qty > 1 ? perItemWei.toString() : null,
+            perItem: perItemFormatted,
           },
 
-          // keep old field
           sellerAddress: sellerAddr,
-
-          // normalized seller object for username rendering
           seller: {
             address: sellerAddr,
             username: null as string | null,
@@ -493,7 +483,6 @@ export async function GET(req: NextRequest) {
         };
       });
 
-    // username lookup for the final items
     const sellers = Array.from(
       new Set(
         filtered
@@ -525,7 +514,6 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    // ✅ Fix cursor: use last *returned* row, not the extra row.
     const nextCursor = hasMore && page.length > 0 ? page[page.length - 1].id : null;
     return NextResponse.json({ items, nextCursor });
   } catch (e) {

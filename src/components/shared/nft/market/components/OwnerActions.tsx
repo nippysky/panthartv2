@@ -4,6 +4,7 @@
 // src/components/shared/nft/market/components/OwnerActions.tsx
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { ethers } from "ethers";
 import { toast } from "sonner";
 
@@ -21,7 +22,7 @@ type CurrencyLite = {
 
 type ListingLike =
   | {
-      id: string; // chain id string (digits)
+      id: string;
       dbId?: string | null;
       sellerAddress?: string | null;
       seller?: { address?: string | null; username?: string | null } | null;
@@ -36,7 +37,7 @@ type ListingLike =
 
 type AuctionLike =
   | {
-      id: string; // chain id string (digits)
+      id: string;
       dbId?: string | null;
       sellerAddress?: string | null;
       seller?: { address?: string | null; username?: string | null } | null;
@@ -49,6 +50,48 @@ type AuctionLike =
       bidsCount?: number | null;
     }
   | null;
+
+type ConfirmSuccessPayload = {
+  ok: true;
+  kind?: "listing" | "auction";
+  reconciled?: boolean;
+  status?: string;
+  result?: {
+    kind?: "listing" | "auction";
+    status?: string;
+    listingId?: string;
+    auctionId?: string;
+    dbId?: string;
+    sellerAddress?: string;
+    quantity?: number;
+    scheduled?: boolean;
+    settled?: boolean;
+    bidsCount?: number;
+    startTime?: string;
+    endTime?: string | null;
+  } | null;
+  listingId?: string;
+  auctionId?: string;
+  dbId?: string;
+  sellerAddress?: string;
+  quantity?: number;
+  scheduled?: boolean;
+  settled?: boolean;
+  bidsCount?: number;
+  startTime?: string;
+  endTime?: string | null;
+  [k: string]: unknown;
+};
+
+type ConfirmErrorPayload = {
+  ok?: false;
+  error?: string;
+  step?: string;
+  kind?: string;
+  [k: string]: unknown;
+};
+
+type ConfirmOk = ConfirmSuccessPayload | ConfirmErrorPayload | null;
 
 export type OwnerMode = "none" | "list" | "auction" | "transfer";
 
@@ -82,17 +125,14 @@ function nowLocalInputValuePlusMinutes(minutes: number) {
   )}:${pad(d.getMinutes())}`;
 }
 
-/** Converts decimal string to wei BigInt using decimals */
 function parseUnitsSafe(amount: string, decimals: number): bigint {
   const a = (amount || "").trim();
   if (!a) return BigInt(0);
-
   if (!/^\d+(\.\d+)?$/.test(a)) throw new Error("Invalid amount format.");
 
   const [whole, fracRaw = ""] = a.split(".");
   const frac = fracRaw.slice(0, decimals);
   const fracPadded = frac.padEnd(decimals, "0");
-
   const s = `${whole}${fracPadded}`.replace(/^0+(?=\d)/, "");
   return BigInt(s || "0");
 }
@@ -105,6 +145,133 @@ function humanError(e: unknown, fallback: string) {
     (typeof anyE === "string" ? anyE : "") ||
     fallback;
   return String(msg);
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function postJson(url: string, body: Record<string, unknown>) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch(() => null);
+
+  if (!res) {
+    return {
+      ok: false,
+      status: 0,
+      json: null as ConfirmOk,
+    };
+  }
+
+  const json = (await res.json().catch(() => null)) as ConfirmOk;
+  return {
+    ok: res.ok && json?.ok === true,
+    status: res.status,
+    json,
+  };
+}
+
+function extractConfirmData(json: ConfirmOk) {
+  if (!json || json.ok !== true) return null;
+
+  const nested =
+    json.result && typeof json.result === "object"
+      ? (json.result as NonNullable<ConfirmSuccessPayload["result"]>)
+      : null;
+
+  const kind = (nested?.kind ?? json.kind ?? null) as "listing" | "auction" | null;
+  const status = String(nested?.status ?? json.status ?? "");
+  const quantity = Number(nested?.quantity ?? json.quantity ?? 0) || 0;
+  const bidsCount = Number(nested?.bidsCount ?? json.bidsCount ?? 0) || 0;
+  const scheduled = Boolean(nested?.scheduled ?? json.scheduled ?? false);
+  const settled = Boolean(nested?.settled ?? json.settled ?? false);
+  const listingId = String(nested?.listingId ?? json.listingId ?? "");
+  const auctionId = String(nested?.auctionId ?? json.auctionId ?? "");
+  const dbId = String(nested?.dbId ?? json.dbId ?? "");
+  const sellerAddress = String(nested?.sellerAddress ?? json.sellerAddress ?? "");
+  const startTime =
+    typeof (nested?.startTime ?? json.startTime) === "string"
+      ? String(nested?.startTime ?? json.startTime)
+      : "";
+  const endTime =
+    typeof (nested?.endTime ?? json.endTime) === "string"
+      ? String(nested?.endTime ?? json.endTime)
+      : null;
+
+  return {
+    kind,
+    status,
+    quantity,
+    bidsCount,
+    scheduled,
+    settled,
+    listingId,
+    auctionId,
+    dbId,
+    sellerAddress,
+    startTime,
+    endTime,
+  };
+}
+
+function buildSuccessMessage(args: {
+  expectedKind: "listing" | "auction";
+  reconciled: boolean;
+  symbol: string;
+  priceText?: string;
+  json: ConfirmOk;
+}) {
+  const data = extractConfirmData(args.json);
+  const status = data?.status?.toUpperCase() ?? "";
+
+  if (args.expectedKind === "listing") {
+    if (args.reconciled) {
+      if (status === "SOLD") return "Listing recovered, but it is already sold.";
+      if (status === "EXPIRED") return "Listing recovered, but it has already expired.";
+      if (status === "CANCELLED") return "Listing recovered, but it is no longer active.";
+      if (data?.scheduled) return "Listing created and synced. It is scheduled.";
+      return args.priceText
+        ? `Listing created and synced for ${args.priceText} ${args.symbol}.`
+        : "Listing created and synced.";
+    }
+
+    if (status === "SOLD") return "Listing created, but it is already sold.";
+    if (status === "EXPIRED") return "Listing created, but it has already expired.";
+    if (status === "CANCELLED") return "Listing created, but it is no longer active.";
+    if (data?.scheduled) {
+      return args.priceText
+        ? `Listing scheduled for ${args.priceText} ${args.symbol}.`
+        : "Listing scheduled successfully.";
+    }
+
+    return args.priceText
+      ? `Listed for ${args.priceText} ${args.symbol}.`
+      : "Listing created successfully.";
+  }
+
+  if (args.reconciled) {
+    if (status === "ENDED") return "Auction recovered, but it has already ended.";
+    if (status === "CANCELLED") return "Auction recovered, but it is no longer active.";
+    if (data?.scheduled) return "Auction created and synced. It is scheduled.";
+    return args.priceText
+      ? `Auction created and synced (${args.priceText} ${args.symbol} start).`
+      : "Auction created and synced.";
+  }
+
+  if (status === "ENDED") return "Auction created, but it has already ended.";
+  if (status === "CANCELLED") return "Auction created, but it is no longer active.";
+  if (data?.scheduled) {
+    return args.priceText
+      ? `Auction scheduled (${args.priceText} ${args.symbol} start).`
+      : "Auction scheduled successfully.";
+  }
+
+  return args.priceText
+    ? `Auction created (${args.priceText} ${args.symbol} start).`
+    : "Auction created successfully.";
 }
 
 function ActionChip({
@@ -192,23 +359,17 @@ export function OwnerActions({
   contract,
   tokenId,
   standard,
-
   account,
   owner,
-
   listing,
   auction,
-
   currencies,
   currLoading,
-
   loading,
   setLoading,
   setErr,
-
   ownerMode,
   setOwnerMode,
-
   onRefresh,
   onSyncOwnerNow,
   onAfterAction,
@@ -237,11 +398,18 @@ export function OwnerActions({
   onSyncOwnerNow: () => Promise<void> | void;
   onAfterAction?: () => void;
 }) {
-  // ----------------------------
-  // Stable modal state
-  // ----------------------------
+  const router = useRouter();
+
   const [open, setOpen] = React.useState(false);
   const [localMode, setLocalMode] = React.useState<OwnerMode>("none");
+
+  const [holderBalance, setHolderBalance] = React.useState<number>(0);
+  const [holderLoading, setHolderLoading] = React.useState(false);
+
+  const [ownBusyListingId, setOwnBusyListingId] = React.useState<string | null>(null);
+  const [ownBusyAuctionId, setOwnBusyAuctionId] = React.useState<string | null>(null);
+  const [ownBusyListingQty, setOwnBusyListingQty] = React.useState<number>(0);
+  const [ownBusyAuctionQty, setOwnBusyAuctionQty] = React.useState<number>(0);
 
   const openRef = React.useRef(open);
   React.useEffect(() => {
@@ -250,13 +418,10 @@ export function OwnerActions({
 
   const isConnected = !!account;
   const ownerUnknown = !owner;
-  const isOwner = !!account && !!owner && safeEqAddr(account, owner);
 
+  const isErc721Owner = !!account && !!owner && safeEqAddr(account, owner);
   const hasActiveListing = !!listing && isChainIdDigits(listing.id);
   const hasActiveAuction = !!auction && isChainIdDigits(auction.id);
-
-  // ✅ single source of truth: escrow/busy = NO owner actions at all
-  const marketBusy = hasActiveListing || hasActiveAuction;
 
   const nativeCurrency = React.useMemo(() => {
     return currencies.find((c) => String(c.kind).toUpperCase() === "NATIVE") ?? null;
@@ -283,9 +448,103 @@ export function OwnerActions({
     [currencyById]
   );
 
-  // ----------------------------
-  // Forms
-  // ----------------------------
+  React.useEffect(() => {
+    if (!account || standard !== "ERC1155") {
+      setHolderBalance(0);
+      setHolderLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setHolderLoading(true);
+
+    fetch(`/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(tokenId)}/holders`, {
+      cache: "no-store",
+    })
+      .then((r) => r.json().catch(() => null))
+      .then((json) => {
+        if (cancelled) return;
+        const rows = Array.isArray(json?.holders) ? json.holders : [];
+        const me = rows.find((x: any) => safeEqAddr(x?.ownerAddress ?? x?.address ?? null, account));
+        const bal = Number(me?.balance ?? 0);
+        setHolderBalance(Number.isFinite(bal) ? bal : 0);
+      })
+      .catch(() => {
+        if (!cancelled) setHolderBalance(0);
+      })
+      .finally(() => {
+        if (!cancelled) setHolderLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [account, standard, contract, tokenId]);
+
+  const refreshOwnBusyState = React.useCallback(async () => {
+    if (!account || standard !== "ERC1155" || !ethers.isAddress(contract)) {
+      setOwnBusyListingId(null);
+      setOwnBusyAuctionId(null);
+      setOwnBusyListingQty(0);
+      setOwnBusyAuctionQty(0);
+      return;
+    }
+
+    try {
+      const [l, a] = await Promise.all([
+        marketplace.readActiveListing({
+          collection: ethers.getAddress(contract) as `0x${string}`,
+          tokenId: BigInt(tokenId),
+          standard: "ERC1155",
+          seller: ethers.getAddress(account) as `0x${string}`,
+        }),
+        marketplace.readActiveAuction({
+          collection: ethers.getAddress(contract) as `0x${string}`,
+          tokenId: BigInt(tokenId),
+          standard: "ERC1155",
+          seller: ethers.getAddress(account) as `0x${string}`,
+        }),
+      ]);
+
+      setOwnBusyListingId(l ? l.id.toString() : null);
+      setOwnBusyAuctionId(a ? a.id.toString() : null);
+      setOwnBusyListingQty(l ? Number(l.row.quantity ?? BigInt(0)) : 0);
+      setOwnBusyAuctionQty(a ? Number(a.row.quantity ?? BigInt(0)) : 0);
+    } catch {
+      setOwnBusyListingId(null);
+      setOwnBusyAuctionId(null);
+      setOwnBusyListingQty(0);
+      setOwnBusyAuctionQty(0);
+    }
+  }, [account, standard, contract, tokenId]);
+
+  React.useEffect(() => {
+    void refreshOwnBusyState();
+  }, [refreshOwnBusyState, listing?.id, auction?.id]);
+
+  const canManageThisAsset =
+    standard === "ERC1155" ? !!account && holderBalance > 0 : isErc721Owner;
+
+  const busyForMarketCreation =
+    standard === "ERC1155"
+      ? !!ownBusyListingId || !!ownBusyAuctionId
+      : hasActiveListing || hasActiveAuction;
+
+  const escrowedQty =
+    standard === "ERC1155"
+      ? Math.max(0, ownBusyListingQty) + Math.max(0, ownBusyAuctionQty)
+      : 0;
+
+  const transferableBalance =
+    standard === "ERC1155" ? Math.max(0, holderBalance) : canManageThisAsset ? 1 : 0;
+
+  const totalAssociatedBalance =
+    standard === "ERC1155"
+      ? holderBalance + escrowedQty
+      : canManageThisAsset
+      ? 1
+      : 0;
+
   const [listCurrencyId, setListCurrencyId] = React.useState(defaultCurrencyId);
   const [listPrice, setListPrice] = React.useState("");
   const [listQty, setListQty] = React.useState("1");
@@ -308,8 +567,7 @@ export function OwnerActions({
   React.useEffect(() => {
     if (!listCurrencyId && defaultCurrencyId) setListCurrencyId(defaultCurrencyId);
     if (!aucCurrencyId && defaultCurrencyId) setAucCurrencyId(defaultCurrencyId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultCurrencyId]);
+  }, [defaultCurrencyId, listCurrencyId, aucCurrencyId]);
 
   React.useEffect(() => {
     if (openRef.current) return;
@@ -323,6 +581,108 @@ export function OwnerActions({
     setErr(null);
   }, [setOwnerMode, setErr]);
 
+  const finalizeSuccessUi = React.useCallback(async () => {
+    close();
+
+    try {
+      await onRefresh?.();
+    } catch {}
+
+    try {
+      await refreshOwnBusyState();
+    } catch {}
+
+    try {
+      onAfterAction?.();
+    } catch {}
+
+    router.refresh();
+  }, [close, onRefresh, refreshOwnBusyState, onAfterAction, router]);
+
+  const confirmMarketWrite = React.useCallback(
+    async (args: {
+      txHashCreated: string;
+      quantity: number;
+      expectedKind: "listing" | "auction";
+    }) => {
+      const maxAttempts = 6;
+
+      for (let i = 0; i < maxAttempts; i++) {
+        const res = await postJson("/api/market/confirm", {
+          kind: args.expectedKind,
+          txHashCreated: args.txHashCreated,
+          contract,
+          tokenId: String(tokenId),
+          account,
+          sellerAddress: account,
+          quantity: args.quantity,
+          standard,
+        });
+
+        if (res.ok) {
+          const data = extractConfirmData(res.json);
+          const kind = data?.kind ?? null;
+
+          if (kind && kind !== args.expectedKind) {
+            return {
+              ok: false,
+              reconciled: false,
+              json: {
+                ok: false,
+                error: `Confirm detected "${kind}" but expected "${args.expectedKind}".`,
+              } satisfies ConfirmOk,
+            };
+          }
+
+          return { ok: true, reconciled: false, json: res.json };
+        }
+
+        const errorText =
+          (res.json && typeof res.json === "object" && "error" in res.json
+            ? String((res.json as any).error || "")
+            : "") || "";
+
+        const shouldRetry =
+          res.status === 404 ||
+          res.status === 422 ||
+          errorText.toLowerCase().includes("receipt not found") ||
+          errorText.toLowerCase().includes("nft not found in db yet");
+
+        if (!shouldRetry || i === maxAttempts - 1) break;
+
+        await sleep(1200 + i * 400);
+      }
+
+      const reconcile = await postJson("/api/market/reconcile", {
+        txHashCreated: args.txHashCreated,
+        contract,
+        tokenId: String(tokenId),
+        sellerAddress: account,
+      });
+
+      if (!reconcile.ok) {
+        return { ok: false, reconciled: false, json: reconcile.json };
+      }
+
+      const data = extractConfirmData(reconcile.json);
+      const kind = data?.kind ?? null;
+
+      if (kind !== args.expectedKind) {
+        return {
+          ok: false,
+          reconciled: false,
+          json: {
+            ok: false,
+            error: `Reconcile detected "${kind}" but expected "${args.expectedKind}".`,
+          } satisfies ConfirmOk,
+        };
+      }
+
+      return { ok: true, reconciled: true, json: reconcile.json };
+    },
+    [contract, tokenId, account, standard]
+  );
+
   const openMode = React.useCallback(
     (m: OwnerMode) => {
       if (!isConnected) {
@@ -330,16 +690,30 @@ export function OwnerActions({
         setErr("Connect your wallet to continue.");
         return;
       }
-      if (!isOwner) {
-        toast.error("Only the owner can do this.");
-        setErr("Only the owner can do this.");
+
+      if (!canManageThisAsset) {
+        const msg =
+          standard === "ERC1155"
+            ? "Only a holder with balance can do this."
+            : "Only the owner can do this.";
+        toast.error(msg);
+        setErr(msg);
         return;
       }
 
-      // ✅ proactive: if it's escrowed (listed/auctioned), block *everything* including transfer
-      if (marketBusy) {
-        toast.error("This NFT is currently escrowed (listed/auctioned). Manage it from the active market state first.");
-        setErr("This NFT is currently escrowed (listed/auctioned). Cancel/settle first.");
+      if ((m === "list" || m === "auction") && busyForMarketCreation) {
+        toast.error(
+          "You already have an active listing or auction for this token. Cancel or settle it first."
+        );
+        setErr(
+          "You already have an active listing or auction for this token. Cancel or settle it first."
+        );
+        return;
+      }
+
+      if (m === "transfer" && transferableBalance <= 0) {
+        toast.error("No transferable balance available right now.");
+        setErr("No transferable balance available right now.");
         return;
       }
 
@@ -348,7 +722,15 @@ export function OwnerActions({
       setOpen(true);
       setErr(null);
     },
-    [isConnected, isOwner, marketBusy, setOwnerMode, setErr]
+    [
+      isConnected,
+      canManageThisAsset,
+      standard,
+      busyForMarketCreation,
+      transferableBalance,
+      setOwnerMode,
+      setErr,
+    ]
   );
 
   React.useEffect(() => {
@@ -378,8 +760,7 @@ export function OwnerActions({
       setToAddr("");
       setTxQty("1");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, localMode]);
+  }, [open, localMode, defaultCurrencyId]);
 
   function parseQty(q: string): number {
     const n = parseIntSafe(q);
@@ -395,10 +776,30 @@ export function OwnerActions({
   }
 
   const actionHint = React.useMemo(() => {
+    if (standard === "ERC1155") {
+      if (ownBusyAuctionId) {
+        return `You already have an active auction for this token. Wallet balance: ${holderBalance}. Escrowed in market: ${escrowedQty}.`;
+      }
+      if (ownBusyListingId) {
+        return `You already have an active listing for this token. Wallet balance: ${holderBalance}. Escrowed in market: ${escrowedQty}.`;
+      }
+      return escrowedQty > 0
+        ? `Wallet balance: ${holderBalance}. Escrowed in market: ${escrowedQty}.`
+        : null;
+    }
+
     if (hasActiveAuction) return "This NFT already has an active auction.";
     if (hasActiveListing) return "This NFT already has an active listing.";
     return null;
-  }, [hasActiveAuction, hasActiveListing]);
+  }, [
+    standard,
+    ownBusyAuctionId,
+    ownBusyListingId,
+    holderBalance,
+    escrowedQty,
+    hasActiveAuction,
+    hasActiveListing,
+  ]);
 
   const doSyncOwner = React.useCallback(async () => {
     const tId = toast.loading("Syncing owner…");
@@ -406,13 +807,14 @@ export function OwnerActions({
     try {
       await onSyncOwnerNow?.();
       await onRefresh?.();
+      router.refresh();
       toast.success("Owner synced.", { id: tId });
     } catch (e) {
       toast.error(humanError(e, "Sync failed."), { id: tId });
     } finally {
       setLoading(false);
     }
-  }, [onSyncOwnerNow, onRefresh, setLoading]);
+  }, [onSyncOwnerNow, onRefresh, router, setLoading]);
 
   const doList = React.useCallback(async () => {
     if (!isConnected || !account) {
@@ -420,14 +822,20 @@ export function OwnerActions({
       setErr("Connect your wallet to continue.");
       return;
     }
-    if (!isOwner) {
-      toast.error("Only the owner can do this.");
-      setErr("Only the owner can do this.");
+
+    if (!canManageThisAsset) {
+      const msg =
+        standard === "ERC1155"
+          ? "Only a holder with balance can do this."
+          : "Only the owner can do this.";
+      toast.error(msg);
+      setErr(msg);
       return;
     }
-    if (marketBusy) {
-      toast.error("This NFT is currently escrowed (listed/auctioned).");
-      setErr("This NFT is currently escrowed (listed/auctioned).");
+
+    if (busyForMarketCreation) {
+      toast.error("You already have an active listing or auction for this token.");
+      setErr("You already have an active listing or auction for this token.");
       return;
     }
 
@@ -435,6 +843,13 @@ export function OwnerActions({
 
     const { isNative, decimals, symbol, tokenAddress } = getCurrencyMeta(listCurrencyId);
     const qty = standard === "ERC1155" ? parseQty(listQty) : 1;
+
+    if (standard === "ERC1155" && qty > holderBalance) {
+      const msg = `You only hold ${holderBalance} unit${holderBalance === 1 ? "" : "s"}.`;
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
 
     if (!listPrice.trim()) {
       setErr("Enter a price.");
@@ -454,13 +869,19 @@ export function OwnerActions({
 
     const startSec = listSchedule ? parseDateInputToSec(listStartAt) : 0;
     const endSec = listEndEnabled ? parseDateInputToSec(listEndAt) : 0;
+    const minAllowedStart = Math.floor(Date.now() / 1000) + 300;
 
-    if (listSchedule && startSec <= Math.floor(Date.now() / 1000) - 5) {
-      setErr("Start time must be in the future.");
-      toast.error("Start time must be in the future.");
+    if (listSchedule && startSec < minAllowedStart) {
+      setErr("Start time must be at least 5 minutes in the future.");
+      toast.error("Start time must be at least 5 minutes in the future.");
       return;
     }
-    if (listEndEnabled && endSec > 0 && listSchedule && endSec <= startSec) {
+
+    if (
+      listEndEnabled &&
+      endSec > 0 &&
+      endSec <= Math.max(startSec || minAllowedStart, minAllowedStart)
+    ) {
       setErr("End time must be after start time.");
       toast.error("End time must be after start time.");
       return;
@@ -485,24 +906,33 @@ export function OwnerActions({
         endTimeSec: endSec || 0,
       });
 
-      if (txHash) {
-        await fetch("/api/market/listing/confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            txHashCreated: txHash,
-            contract,
-            tokenId: String(tokenId),
-            account,
-          }),
-        }).catch(() => null);
+      const confirm = await confirmMarketWrite({
+        txHashCreated: txHash,
+        quantity: qty,
+        expectedKind: "listing",
+      });
+
+      if (!confirm.ok) {
+        const err =
+          (confirm.json && typeof confirm.json === "object" && "error" in confirm.json
+            ? String((confirm.json as any).error || "")
+            : "") || "Listing was created on-chain, but marketplace sync is still pending.";
+
+        setErr(err);
+        toast.error(err, { id: tId });
+        return;
       }
 
-      toast.success(`Listed for ${listPrice.trim()} ${symbol}`, { id: tId });
+      const successText = buildSuccessMessage({
+        expectedKind: "listing",
+        reconciled: confirm.reconciled,
+        symbol,
+        priceText: listPrice.trim(),
+        json: confirm.json,
+      });
 
-      await onRefresh?.();
-      onAfterAction?.();
-      // ✅ DO NOT close modal automatically
+      toast.success(successText, { id: tId });
+      await finalizeSuccessUi();
     } catch (e) {
       const msg = humanError(e, "Create listing failed.");
       setErr(msg);
@@ -513,13 +943,14 @@ export function OwnerActions({
   }, [
     isConnected,
     account,
-    isOwner,
-    marketBusy,
+    canManageThisAsset,
+    standard,
+    busyForMarketCreation,
     setErr,
     getCurrencyMeta,
     listCurrencyId,
-    standard,
     listQty,
+    holderBalance,
     listPrice,
     listSchedule,
     listStartAt,
@@ -528,8 +959,8 @@ export function OwnerActions({
     setLoading,
     contract,
     tokenId,
-    onRefresh,
-    onAfterAction,
+    confirmMarketWrite,
+    finalizeSuccessUi,
   ]);
 
   const doAuction = React.useCallback(async () => {
@@ -538,14 +969,20 @@ export function OwnerActions({
       setErr("Connect your wallet to continue.");
       return;
     }
-    if (!isOwner) {
-      toast.error("Only the owner can do this.");
-      setErr("Only the owner can do this.");
+
+    if (!canManageThisAsset) {
+      const msg =
+        standard === "ERC1155"
+          ? "Only a holder with balance can do this."
+          : "Only the owner can do this.";
+      toast.error(msg);
+      setErr(msg);
       return;
     }
-    if (marketBusy) {
-      toast.error("This NFT is currently escrowed (listed/auctioned).");
-      setErr("This NFT is currently escrowed (listed/auctioned).");
+
+    if (busyForMarketCreation) {
+      toast.error("You already have an active listing or auction for this token.");
+      setErr("You already have an active listing or auction for this token.");
       return;
     }
 
@@ -553,6 +990,13 @@ export function OwnerActions({
 
     const { isNative, decimals, symbol, tokenAddress } = getCurrencyMeta(aucCurrencyId);
     const qty = standard === "ERC1155" ? parseQty(aucQty) : 1;
+
+    if (standard === "ERC1155" && qty > holderBalance) {
+      const msg = `You only hold ${holderBalance} unit${holderBalance === 1 ? "" : "s"}.`;
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
 
     if (!aucStartPrice.trim()) {
       setErr("Enter a start price.");
@@ -574,7 +1018,10 @@ export function OwnerActions({
       const incWei = aucMinIncrement.trim()
         ? parseUnitsSafe(aucMinIncrement.trim(), decimals)
         : BigInt(0);
-      if (incWei < BigInt(0)) throw new Error("Invalid increment.");
+
+      if (incWei <= BigInt(0)) {
+        throw new Error("Minimum increment must be greater than zero.");
+      }
     } catch (e) {
       const msg = humanError(e, "Invalid increment.");
       setErr(msg);
@@ -584,20 +1031,18 @@ export function OwnerActions({
 
     const startSec = aucSchedule ? parseDateInputToSec(aucStartAt) : 0;
     const endSec = parseDateInputToSec(aucEndsAt);
+    const minAllowedStart = Math.floor(Date.now() / 1000) + 300;
+    const effectiveStart = startSec > 0 ? Math.max(startSec, minAllowedStart) : minAllowedStart;
 
-    if (aucSchedule && startSec <= Math.floor(Date.now() / 1000) - 5) {
-      setErr("Start time must be in the future.");
-      toast.error("Start time must be in the future.");
+    if (aucSchedule && startSec < minAllowedStart) {
+      setErr("Start time must be at least 5 minutes in the future.");
+      toast.error("Start time must be at least 5 minutes in the future.");
       return;
     }
-    if (!endSec || endSec <= Math.floor(Date.now() / 1000) + 30) {
-      setErr("End time must be at least 30 seconds in the future.");
-      toast.error("End time must be at least 30 seconds in the future.");
-      return;
-    }
-    if (aucSchedule && startSec > 0 && endSec <= startSec + 30) {
-      setErr("End time must be after start time.");
-      toast.error("End time must be after start time.");
+
+    if (!endSec || endSec <= effectiveStart) {
+      setErr("End time must be after the auction start time.");
+      toast.error("End time must be after the auction start time.");
       return;
     }
 
@@ -615,30 +1060,39 @@ export function OwnerActions({
         quantity: BigInt(qty),
         standard,
         startPriceHuman: aucStartPrice.trim(),
-        minIncrementHuman: aucMinIncrement.trim() || "0",
+        minIncrementHuman: aucMinIncrement.trim(),
         currency: curAddr,
         startTimeSec: startSec,
         endTimeSec: endSec,
       });
 
-      if (txHash) {
-        await fetch("/api/market/auction/confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            txHashCreated: txHash,
-            contract,
-            tokenId: String(tokenId),
-            account,
-          }),
-        }).catch(() => null);
+      const confirm = await confirmMarketWrite({
+        txHashCreated: txHash,
+        quantity: qty,
+        expectedKind: "auction",
+      });
+
+      if (!confirm.ok) {
+        const err =
+          (confirm.json && typeof confirm.json === "object" && "error" in confirm.json
+            ? String((confirm.json as any).error || "")
+            : "") || "Auction was created on-chain, but marketplace sync is still pending.";
+
+        setErr(err);
+        toast.error(err, { id: tId });
+        return;
       }
 
-      toast.success(`Auction created (${aucStartPrice.trim()} ${symbol} start)`, { id: tId });
+      const successText = buildSuccessMessage({
+        expectedKind: "auction",
+        reconciled: confirm.reconciled,
+        symbol,
+        priceText: aucStartPrice.trim(),
+        json: confirm.json,
+      });
 
-      await onRefresh?.();
-      onAfterAction?.();
-      // ✅ DO NOT close modal automatically
+      toast.success(successText, { id: tId });
+      await finalizeSuccessUi();
     } catch (e) {
       const msg = humanError(e, "Create auction failed.");
       setErr(msg);
@@ -649,13 +1103,14 @@ export function OwnerActions({
   }, [
     isConnected,
     account,
-    isOwner,
-    marketBusy,
+    canManageThisAsset,
+    standard,
+    busyForMarketCreation,
     setErr,
     getCurrencyMeta,
     aucCurrencyId,
-    standard,
     aucQty,
+    holderBalance,
     aucStartPrice,
     aucMinIncrement,
     aucSchedule,
@@ -664,8 +1119,8 @@ export function OwnerActions({
     setLoading,
     contract,
     tokenId,
-    onRefresh,
-    onAfterAction,
+    confirmMarketWrite,
+    finalizeSuccessUi,
   ]);
 
   const doTransfer = React.useCallback(async () => {
@@ -674,14 +1129,14 @@ export function OwnerActions({
       setErr("Connect your wallet to continue.");
       return;
     }
-    if (!isOwner) {
-      toast.error("Only the owner can do this.");
-      setErr("Only the owner can do this.");
-      return;
-    }
-    if (marketBusy) {
-      toast.error("This NFT is currently escrowed (listed/auctioned). Cancel/settle first.");
-      setErr("This NFT is currently escrowed (listed/auctioned). Cancel/settle first.");
+
+    if (!canManageThisAsset) {
+      const msg =
+        standard === "ERC1155"
+          ? "Only a holder with balance can do this."
+          : "Only the owner can do this.";
+      toast.error(msg);
+      setErr(msg);
       return;
     }
 
@@ -696,6 +1151,13 @@ export function OwnerActions({
 
     const qty = standard === "ERC1155" ? parseQty(txQty) : 1;
 
+    if (standard === "ERC1155" && qty > transferableBalance) {
+      const msg = `You can transfer up to ${transferableBalance} unit${transferableBalance === 1 ? "" : "s"} right now.`;
+      setErr(msg);
+      toast.error(msg);
+      return;
+    }
+
     const tId = toast.loading("Transferring…");
     setLoading(true);
 
@@ -708,12 +1170,10 @@ export function OwnerActions({
         amount: BigInt(qty),
       });
 
-      toast.success("Transfer submitted.", { id: tId });
-
       await onSyncOwnerNow?.();
-      await onRefresh?.();
-      onAfterAction?.();
-      // ✅ DO NOT close modal automatically
+
+      toast.success("Transfer submitted.", { id: tId });
+      await finalizeSuccessUi();
     } catch (e) {
       const msg = humanError(e, "Transfer failed.");
       setErr(msg);
@@ -724,18 +1184,17 @@ export function OwnerActions({
   }, [
     isConnected,
     account,
-    isOwner,
-    marketBusy,
+    canManageThisAsset,
+    standard,
     setErr,
     toAddr,
-    standard,
     txQty,
+    transferableBalance,
     contract,
     tokenId,
     setLoading,
     onSyncOwnerNow,
-    onRefresh,
-    onAfterAction,
+    finalizeSuccessUi,
   ]);
 
   const modalTitle =
@@ -747,8 +1206,10 @@ export function OwnerActions({
       ? "Transfer"
       : "Owner actions";
 
-  const canShowOwnerActions = isConnected && !ownerUnknown && isOwner;
-  const showSyncCard = isConnected && ownerUnknown;
+  const showSyncCard = standard === "ERC721" && isConnected && ownerUnknown;
+  const canShowOwnerActions =
+    isConnected &&
+    (standard === "ERC1155" ? holderBalance > 0 : !ownerUnknown && isErc721Owner);
 
   return (
     <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
@@ -759,11 +1220,17 @@ export function OwnerActions({
             {showSyncCard
               ? "Owner isn’t synced yet. Sync to enable owner actions."
               : canShowOwnerActions
-              ? marketBusy
-                ? "This NFT is currently escrowed (listed/auctioned). Manage it from the active market state."
+              ? standard === "ERC1155"
+                ? busyForMarketCreation
+                  ? `Your wallet currently holds ${holderBalance} unit${holderBalance === 1 ? "" : "s"}. Market creation is locked while one of your auctions/listings is active, but you can still transfer your wallet balance.`
+                  : `Your wallet currently holds ${holderBalance} unit${holderBalance === 1 ? "" : "s"} and you can transfer, list, or auction your quantity.`
                 : "List, auction, or transfer — all in one clean flow."
               : isConnected
-              ? "Connect as the owner wallet to manage this NFT."
+              ? standard === "ERC1155"
+                ? holderLoading
+                  ? "Checking your ERC-1155 balance…"
+                  : "Connect as a holder wallet with balance to manage this token."
+                : "Connect as the owner wallet to manage this NFT."
               : "Connect your wallet to manage this NFT."}
           </div>
         </div>
@@ -782,10 +1249,10 @@ export function OwnerActions({
           <ActionChip
             active={localMode === "list" && open}
             onClick={() => openMode("list")}
-            disabled={loading || currLoading || marketBusy}
+            disabled={loading || currLoading || busyForMarketCreation}
             title={
-              marketBusy
-                ? "This NFT is currently escrowed (listed/auctioned)"
+              busyForMarketCreation
+                ? "You already have an active listing or auction for this token"
                 : currLoading
                 ? "Loading currencies…"
                 : "Create a fixed-price listing"
@@ -797,10 +1264,10 @@ export function OwnerActions({
           <ActionChip
             active={localMode === "auction" && open}
             onClick={() => openMode("auction")}
-            disabled={loading || currLoading || marketBusy}
+            disabled={loading || currLoading || busyForMarketCreation}
             title={
-              marketBusy
-                ? "This NFT is currently escrowed (listed/auctioned)"
+              busyForMarketCreation
+                ? "You already have an active listing or auction for this token"
                 : currLoading
                 ? "Loading currencies…"
                 : "Create an auction"
@@ -812,10 +1279,12 @@ export function OwnerActions({
           <ActionChip
             active={localMode === "transfer" && open}
             onClick={() => openMode("transfer")}
-            disabled={loading || marketBusy}
+            disabled={loading || transferableBalance <= 0}
             title={
-              marketBusy
-                ? "This NFT is currently escrowed (listed/auctioned). Cancel/settle first."
+              transferableBalance <= 0
+                ? "No transferable balance available right now"
+                : standard === "ERC1155"
+                ? `Transferable balance: ${transferableBalance}`
                 : "Transfer to another address"
             }
           >
@@ -824,8 +1293,6 @@ export function OwnerActions({
         </div>
       ) : null}
 
-      {/* ✅ Modal should NOT close on backdrop click / ESC.
-          Users must use the in-modal Cancel button. */}
       <Modal
         open={open}
         onClose={close}
@@ -871,7 +1338,7 @@ export function OwnerActions({
                 </Select>
               </Field>
 
-              <Field label="Price" hint="Per item">
+             <Field label="Total listing price" hint="For the full quantity in this listing">
                 <Input
                   inputMode="decimal"
                   placeholder="0.0"
@@ -882,7 +1349,7 @@ export function OwnerActions({
             </div>
 
             {standard === "ERC1155" ? (
-              <Field label="Quantity" hint="How many units to list">
+              <Field label="Quantity" hint={`Wallet balance: ${holderBalance}`}>
                 <Input
                   inputMode="numeric"
                   placeholder="1"
@@ -942,7 +1409,7 @@ export function OwnerActions({
               </Button>
               <Button
                 onClick={() => void doList()}
-                disabled={loading || currLoading || marketBusy}
+                disabled={loading || currLoading || busyForMarketCreation}
               >
                 Create listing
               </Button>
@@ -982,7 +1449,7 @@ export function OwnerActions({
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Min increment" hint="Optional">
+              <Field label="Min increment" hint="Required">
                 <Input
                   inputMode="decimal"
                   placeholder="0.0"
@@ -1001,7 +1468,7 @@ export function OwnerActions({
             </div>
 
             {standard === "ERC1155" ? (
-              <Field label="Quantity" hint="How many units to auction">
+              <Field label="Quantity" hint={`Wallet balance: ${holderBalance}`}>
                 <Input
                   inputMode="numeric"
                   placeholder="1"
@@ -1037,7 +1504,7 @@ export function OwnerActions({
               </Button>
               <Button
                 onClick={() => void doAuction()}
-                disabled={loading || currLoading || marketBusy}
+                disabled={loading || currLoading || busyForMarketCreation}
               >
                 Create auction
               </Button>
@@ -1059,7 +1526,7 @@ export function OwnerActions({
             </Field>
 
             {standard === "ERC1155" ? (
-              <Field label="Quantity" hint="Units to transfer">
+              <Field label="Quantity" hint={`Transferable now: ${transferableBalance}`}>
                 <Input
                   inputMode="numeric"
                   placeholder="1"
@@ -1070,15 +1537,16 @@ export function OwnerActions({
             ) : null}
 
             <div className="rounded-2xl border border-border bg-background p-3 text-xs text-muted-foreground">
-              Transfers require ownership. If this NFT is currently escrowed (listed/auctioned),
-              you must cancel or settle first.
+              {standard === "ERC1155"
+                ? `Wallet balance: ${holderBalance}. Escrowed in market: ${escrowedQty}. Total associated: ${totalAssociatedBalance}. Transferable right now: ${transferableBalance}.`
+                : "Transfers require ownership. If this NFT is escrowed, you must cancel or settle first."}
             </div>
 
             <div className="pt-2 flex items-center justify-end gap-2">
               <Button variant="outline" onClick={close} disabled={loading}>
                 Cancel
               </Button>
-              <Button onClick={() => void doTransfer()} disabled={loading || marketBusy}>
+              <Button onClick={() => void doTransfer()} disabled={loading || transferableBalance <= 0}>
                 Transfer
               </Button>
             </div>

@@ -96,7 +96,7 @@ type DbRow = {
 };
 
 // --------------------
-// ✅ Micro-opt cache: txHashCreated -> auctionId
+// txHashCreated -> auctionId cache
 // --------------------
 const AUCTION_ID_BY_TX = new Map<string, { id: bigint; ts: number }>();
 const AUCTION_ID_CACHE_MAX = 5000;
@@ -116,6 +116,7 @@ function cacheGetAuctionId(txHash: string): bigint | null {
 function cacheSetAuctionId(txHash: string, id: bigint) {
   const key = txHash.toLowerCase();
   AUCTION_ID_BY_TX.set(key, { id, ts: Date.now() });
+
   if (AUCTION_ID_BY_TX.size > AUCTION_ID_CACHE_MAX) {
     const entries = Array.from(AUCTION_ID_BY_TX.entries());
     entries.sort((a, b) => a[1].ts - b[1].ts);
@@ -130,7 +131,6 @@ async function resolveChainAuctionIdFromTx(row: DbRow): Promise<bigint | null> {
   if (!txHash || !ethers.isHexString(txHash, 32)) return null;
 
   const cached = cacheGetAuctionId(txHash);
-  // NOTE: bigint 0n is valid; don’t rely on truthiness
   if (cached !== null) return cached;
 
   const provider = getProvider();
@@ -159,7 +159,6 @@ async function resolveChainAuctionIdFromTx(row: DbRow): Promise<bigint | null> {
       const tokenId = (args?.tokenId as bigint | undefined) ?? undefined;
 
       if (auctionId == null || tokenId == null) continue;
-
       if (lower(token) !== wantContract) continue;
       if (tokenId.toString() !== wantTokenId) continue;
 
@@ -207,15 +206,13 @@ async function chainTruthForAuction(row: DbRow, preResolvedAuctionId?: bigint | 
   const settled = Boolean(A[13]);
 
   if (settled) return null;
-
   if (lower(tokenAddr) !== lower(row.nft.contract)) return null;
   if (tokenId.toString() !== String(row.nft.tokenId)) return null;
 
   const now = Math.floor(Date.now() / 1000);
-  if (now >= endTime) return null; // ended
+  if (now >= endTime) return null;
 
   const isLive = now >= startTime && now < endTime;
-  const currentWei = bidsCount > 0 ? highestBid : startPrice;
 
   return {
     auctionIdStr: auctionId.toString(),
@@ -227,14 +224,19 @@ async function chainTruthForAuction(row: DbRow, preResolvedAuctionId?: bigint | 
     endTimeISO: new Date(endTime * 1000).toISOString(),
     isLive,
 
-    currentWei,
+    startWei: startPrice,
+    currentWei: bidsCount > 0 ? highestBid : null,
     highestBidder: highestBidder && ethers.isAddress(highestBidder) ? highestBidder : null,
     bidsCount,
   };
 }
 
-// simple concurrency limiter (no deps)
-async function mapLimit<T, R>(arr: T[], limit: number, fn: (item: T, idx: number) => Promise<R>): Promise<R[]> {
+// simple concurrency limiter
+async function mapLimit<T, R>(
+  arr: T[],
+  limit: number,
+  fn: (item: T, idx: number) => Promise<R>
+): Promise<R[]> {
   const out: R[] = new Array(arr.length);
   let i = 0;
 
@@ -247,6 +249,15 @@ async function mapLimit<T, R>(arr: T[], limit: number, fn: (item: T, idx: number
 
   await Promise.all(workers);
   return out;
+}
+
+function safeBigIntFromUnknown(v: unknown): bigint | null {
+  try {
+    if (v == null) return null;
+    return BigInt(String(v));
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -320,8 +331,6 @@ export async function GET(req: NextRequest) {
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, -1) : rows;
 
-    // ✅ ALWAYS try to resolve chain auctionId for returned rows,
-    // so frontend can safely treat auction.id as CHAIN id.
     const withChainIds = await mapLimit(page, 6, async (row) => {
       const chainId = await resolveChainAuctionIdFromTx(row).catch(() => null);
       return { row, chainId };
@@ -338,7 +347,6 @@ export async function GET(req: NextRequest) {
         })
       : withChainIds.map(({ row, chainId }) => ({ row, chainId, truth: null as any }));
 
-    // ✅ IMPORTANT: do NOT drop auctions just because chain truth failed.
     const filtered = truthResults
       .filter(({ row, truth }) => {
         if (!strictOwner) return true;
@@ -379,38 +387,22 @@ export async function GET(req: NextRequest) {
 
         const sellerAddr = truth?.sellerAddress ?? row.sellerAddress;
 
-        const currentWei =
-          truth?.currentWei ??
-          (() => {
-            const highest = isNative ? row.highestBidEtnWei : row.highestBidTokenAmount;
-            const start = isNative ? row.startPriceEtnWei : row.startPriceTokenAmount;
+        const dbStartWei = safeBigIntFromUnknown(
+          isNative ? row.startPriceEtnWei : row.startPriceTokenAmount
+        ) ?? BigInt(0);
 
-            const hStr = highest?.toString?.() ?? highest ?? null;
-            const sStr = start?.toString?.() ?? start ?? null;
+        const dbHighestWei = safeBigIntFromUnknown(
+          isNative ? row.highestBidEtnWei : row.highestBidTokenAmount
+        );
 
-            let v: bigint | null = null;
-            try {
-              v = hStr != null ? BigInt(String(hStr)) : null;
-            } catch {
-              v = null;
-            }
-            if (v == null) {
-              try {
-                v = sStr != null ? BigInt(String(sStr)) : null;
-              } catch {
-                v = null;
-              }
-            }
-            return v ?? BigInt(0);
-          })();
+        const startWei = truth?.startWei ?? dbStartWei;
+        const currentWei = truth?.currentWei ?? dbHighestWei;
 
-        // ✅ ID FIX:
-        // Prefer resolved chainId (even when chainTruth=0), else truth’s on-chain id, else DB id.
         const publicId = (chainId ? chainId.toString() : null) ?? truth?.auctionIdStr ?? row.id;
 
         return {
-          id: publicId, // CHAIN auctionId (string) whenever possible
-          dbId: row.id, // DB id (cuid)
+          id: publicId,
+          dbId: row.id,
 
           nft: {
             contract: row.nft.contract,
@@ -435,6 +427,8 @@ export async function GET(req: NextRequest) {
           },
 
           price: {
+            startWei: startWei != null ? startWei.toString() : null,
+            start: startWei != null ? formatUnitsSafe(startWei, decimals) : null,
             currentWei: currentWei != null ? currentWei.toString() : null,
             current: currentWei != null ? formatUnitsSafe(currentWei, decimals) : null,
           },
@@ -449,7 +443,7 @@ export async function GET(req: NextRequest) {
           quantity: truth?.quantity ?? row.quantity ?? 1,
 
           highestBidder: truth?.highestBidder ?? null,
-          bidsCount: truth?.bidsCount ?? null,
+          bidsCount: truth?.bidsCount ?? 0,
         };
       });
 
@@ -470,7 +464,9 @@ export async function GET(req: NextRequest) {
           })
         : [];
 
-    const userByWalletLC = new Map(users.map((u) => [u.walletAddress.toLowerCase(), u.username || null]));
+    const userByWalletLC = new Map(
+      users.map((u) => [u.walletAddress.toLowerCase(), u.username || null])
+    );
 
     const items = filtered.map((x) => {
       const addr = (x.seller?.address ?? x.sellerAddress) as string | null;
@@ -484,7 +480,6 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    // ✅ CURSOR FIX: use the last item of the returned page, NOT the extra (limit+1) row
     const nextCursor = hasMore && page.length > 0 ? page[page.length - 1].id : null;
 
     return NextResponse.json({ items, nextCursor });
