@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -23,12 +24,12 @@ export function useMarketplaceAdmin() {
   );
 
   const [chainId, setChainId] = React.useState<number | null>(null);
-  const [feeBps, setFeeBps] = React.useState<bigint>(0n);
-  const [distributorShareBps, setDistributorShareBps] = React.useState<bigint>(0n);
+  const [feeBps, setFeeBps] = React.useState<bigint>(BigInt(0));
+  const [distributorShareBps, setDistributorShareBps] = React.useState<bigint>(BigInt(0));
   const [feeRecipient, setFeeRecipient] = React.useState<`0x${string}` | null>(null);
   const [rewardsDistributor, setRewardsDistributor] = React.useState<`0x${string}` | null>(null);
   const [stolenRegistry, setStolenRegistry] = React.useState<`0x${string}` | null>(null);
-  const [snipeExtension, setSnipeExtension] = React.useState<bigint>(0n);
+  const [snipeExtension, setSnipeExtension] = React.useState<bigint>(BigInt(0));
   const [paused, setPaused] = React.useState<boolean>(false);
   const [etnAllowed, setEtnAllowed] = React.useState<boolean>(true);
 

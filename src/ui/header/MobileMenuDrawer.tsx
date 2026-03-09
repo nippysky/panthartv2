@@ -28,6 +28,7 @@ import { Container } from "@/src/ui/Container";
 import { Button } from "@/src/ui/Button";
 import { IconButton } from "@/src/ui/IconButton";
 import { ThemeToggle } from "@/src/ui/ThemeToggle";
+import { formatNumber } from "@/src/lib/utils";
 
 function cx(...cls: Array<string | false | undefined | null>) {
   return cls.filter(Boolean).join(" ");
@@ -199,7 +200,7 @@ export function MobileMenuDrawer({
       { name: "Minting Now", href: "/minting-now", icon: Sparkles },
       { name: "Active Listings", href: "/listings", icon: Layers3 },
       { name: "Live Auctions", href: "/auction-now", icon: Gavel },
-      { name: "Comrades Battle", href: "/comrades-battle", icon: Gamepad2 },
+      { name: "Comrades Warpool", href: "/comrades-warpool", icon: Gamepad2 },
       { name: "Submit Collection", href: "/submit-collection", icon: PlusSquare },
       { name: "Profile", href: `/profile/${address}`, icon: User2 },
     ],
@@ -310,7 +311,7 @@ export function MobileMenuDrawer({
                         ETN balance
                       </div>
                       <div className="mt-2 text-sm font-semibold text-foreground">
-                        {balances.loading ? "Loading..." : `${balances.native} ETN`}
+                        {balances.loading ? "Loading..." : `${formatNumber(Number(balances.native))} ETN`}
                       </div>
                     </div>
 
@@ -320,7 +321,7 @@ export function MobileMenuDrawer({
                         {balances.dcntSymbol}
                       </div>
                       <div className="mt-2 text-sm font-semibold text-foreground">
-                        {balances.loading ? "Loading..." : `${balances.dcnt} ${balances.dcntSymbol}`}
+                        {balances.loading ? "Loading..." : `${formatNumber(Number(balances.dcnt))} ${balances.dcntSymbol}`}
                       </div>
                     </div>
                   </div>
@@ -380,12 +381,6 @@ export function MobileMenuDrawer({
 
                   <div className="p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold">Theme</div>
-                        <div className="mt-1 text-xs text-muted leading-relaxed">
-                          Choose light, dark, or system.
-                        </div>
-                      </div>
 
                       <div className="rounded-full border border-border bg-background/70 px-2 py-2 shadow-[0_1px_0_rgba(255,255,255,0.06)]">
                         <div className="shrink-0 overflow-x-auto max-w-full">

@@ -139,16 +139,6 @@ export type HolderReward = $Result.DefaultSelection<Prisma.$HolderRewardPayload>
  */
 export type RewardAccumulator = $Result.DefaultSelection<Prisma.$RewardAccumulatorPayload>
 /**
- * Model FeaturedCycle
- * 
- */
-export type FeaturedCycle = $Result.DefaultSelection<Prisma.$FeaturedCyclePayload>
-/**
- * Model FeaturedBid
- * 
- */
-export type FeaturedBid = $Result.DefaultSelection<Prisma.$FeaturedBidPayload>
-/**
  * Model Currency
  * 
  */
@@ -300,15 +290,6 @@ export const GatewayPref: {
 export type GatewayPref = (typeof GatewayPref)[keyof typeof GatewayPref]
 
 
-export const FeaturedCycleStatus: {
-  UPCOMING: 'UPCOMING',
-  ACTIVE: 'ACTIVE',
-  FINALIZED: 'FINALIZED'
-};
-
-export type FeaturedCycleStatus = (typeof FeaturedCycleStatus)[keyof typeof FeaturedCycleStatus]
-
-
 export const MultisigTxStatus: {
   SUBMITTED: 'SUBMITTED',
   APPROVED: 'APPROVED',
@@ -405,10 +386,6 @@ export type GatewayPref = $Enums.GatewayPref
 
 export const GatewayPref: typeof $Enums.GatewayPref
 
-export type FeaturedCycleStatus = $Enums.FeaturedCycleStatus
-
-export const FeaturedCycleStatus: typeof $Enums.FeaturedCycleStatus
-
 export type MultisigTxStatus = $Enums.MultisigTxStatus
 
 export const MultisigTxStatus: typeof $Enums.MultisigTxStatus
@@ -439,7 +416,9 @@ export const PendingStatus: typeof $Enums.PendingStatus
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more ChainStates
  * const chainStates = await prisma.chainState.findMany()
  * ```
@@ -460,7 +439,9 @@ export class PrismaClient<
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more ChainStates
    * const chainStates = await prisma.chainState.findMany()
    * ```
@@ -540,7 +521,7 @@ export class PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
   $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
@@ -801,26 +782,6 @@ export class PrismaClient<
   get rewardAccumulator(): Prisma.RewardAccumulatorDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.featuredCycle`: Exposes CRUD operations for the **FeaturedCycle** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more FeaturedCycles
-    * const featuredCycles = await prisma.featuredCycle.findMany()
-    * ```
-    */
-  get featuredCycle(): Prisma.FeaturedCycleDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.featuredBid`: Exposes CRUD operations for the **FeaturedBid** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more FeaturedBids
-    * const featuredBids = await prisma.featuredBid.findMany()
-    * ```
-    */
-  get featuredBid(): Prisma.FeaturedBidDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.currency`: Exposes CRUD operations for the **Currency** model.
     * Example usage:
     * ```ts
@@ -999,8 +960,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.2.0
-   * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
+   * Prisma Client JS version: 7.4.2
+   * Query Engine version: 94a226be1cf2967af2541cca5529f0f7ba866919
    */
   export type PrismaVersion = {
     client: string
@@ -1408,8 +1369,6 @@ export namespace Prisma {
     NFTRarity: 'NFTRarity',
     HolderReward: 'HolderReward',
     RewardAccumulator: 'RewardAccumulator',
-    FeaturedCycle: 'FeaturedCycle',
-    FeaturedBid: 'FeaturedBid',
     Currency: 'Currency',
     MarketplaceSale: 'MarketplaceSale',
     RewardAccumulatorMulti: 'RewardAccumulatorMulti',
@@ -1438,7 +1397,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "chainState" | "user" | "collection" | "nFT" | "traitStat" | "nFTActivity" | "single721" | "single1155" | "erc1155Balance" | "erc1155Holding" | "marketplaceListing" | "auction" | "auctionBid" | "deployedContract" | "feeConfig" | "feeConfigLog" | "publicSale" | "presale" | "presaleWhitelistAddress" | "presaleDraft" | "assetUpload" | "collectionSubmission" | "nFTRarity" | "holderReward" | "rewardAccumulator" | "featuredCycle" | "featuredBid" | "currency" | "marketplaceSale" | "rewardAccumulatorMulti" | "holderRewardMulti" | "rewardDistributionLog" | "rewardClaimLog" | "stolenItem" | "stolenEvent" | "multisigSafe" | "multisigOwner" | "multisigTx" | "multisigApproval" | "pendingChainAction"
+      modelProps: "chainState" | "user" | "collection" | "nFT" | "traitStat" | "nFTActivity" | "single721" | "single1155" | "erc1155Balance" | "erc1155Holding" | "marketplaceListing" | "auction" | "auctionBid" | "deployedContract" | "feeConfig" | "feeConfigLog" | "publicSale" | "presale" | "presaleWhitelistAddress" | "presaleDraft" | "assetUpload" | "collectionSubmission" | "nFTRarity" | "holderReward" | "rewardAccumulator" | "currency" | "marketplaceSale" | "rewardAccumulatorMulti" | "holderRewardMulti" | "rewardDistributionLog" | "rewardClaimLog" | "stolenItem" | "stolenEvent" | "multisigSafe" | "multisigOwner" | "multisigTx" | "multisigApproval" | "pendingChainAction"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3292,154 +3251,6 @@ export namespace Prisma {
           }
         }
       }
-      FeaturedCycle: {
-        payload: Prisma.$FeaturedCyclePayload<ExtArgs>
-        fields: Prisma.FeaturedCycleFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.FeaturedCycleFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.FeaturedCycleFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>
-          }
-          findFirst: {
-            args: Prisma.FeaturedCycleFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.FeaturedCycleFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>
-          }
-          findMany: {
-            args: Prisma.FeaturedCycleFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>[]
-          }
-          create: {
-            args: Prisma.FeaturedCycleCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>
-          }
-          createMany: {
-            args: Prisma.FeaturedCycleCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.FeaturedCycleCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>[]
-          }
-          delete: {
-            args: Prisma.FeaturedCycleDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>
-          }
-          update: {
-            args: Prisma.FeaturedCycleUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>
-          }
-          deleteMany: {
-            args: Prisma.FeaturedCycleDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.FeaturedCycleUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.FeaturedCycleUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>[]
-          }
-          upsert: {
-            args: Prisma.FeaturedCycleUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedCyclePayload>
-          }
-          aggregate: {
-            args: Prisma.FeaturedCycleAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFeaturedCycle>
-          }
-          groupBy: {
-            args: Prisma.FeaturedCycleGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FeaturedCycleGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.FeaturedCycleCountArgs<ExtArgs>
-            result: $Utils.Optional<FeaturedCycleCountAggregateOutputType> | number
-          }
-        }
-      }
-      FeaturedBid: {
-        payload: Prisma.$FeaturedBidPayload<ExtArgs>
-        fields: Prisma.FeaturedBidFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.FeaturedBidFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.FeaturedBidFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>
-          }
-          findFirst: {
-            args: Prisma.FeaturedBidFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.FeaturedBidFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>
-          }
-          findMany: {
-            args: Prisma.FeaturedBidFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>[]
-          }
-          create: {
-            args: Prisma.FeaturedBidCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>
-          }
-          createMany: {
-            args: Prisma.FeaturedBidCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.FeaturedBidCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>[]
-          }
-          delete: {
-            args: Prisma.FeaturedBidDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>
-          }
-          update: {
-            args: Prisma.FeaturedBidUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>
-          }
-          deleteMany: {
-            args: Prisma.FeaturedBidDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.FeaturedBidUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.FeaturedBidUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>[]
-          }
-          upsert: {
-            args: Prisma.FeaturedBidUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FeaturedBidPayload>
-          }
-          aggregate: {
-            args: Prisma.FeaturedBidAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFeaturedBid>
-          }
-          groupBy: {
-            args: Prisma.FeaturedBidGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FeaturedBidGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.FeaturedBidCountArgs<ExtArgs>
-            result: $Utils.Optional<FeaturedBidCountAggregateOutputType> | number
-          }
-        }
-      }
       Currency: {
         payload: Prisma.$CurrencyPayload<ExtArgs>
         fields: Prisma.CurrencyFieldRefs
@@ -4535,8 +4346,6 @@ export namespace Prisma {
     nFTRarity?: NFTRarityOmit
     holderReward?: HolderRewardOmit
     rewardAccumulator?: RewardAccumulatorOmit
-    featuredCycle?: FeaturedCycleOmit
-    featuredBid?: FeaturedBidOmit
     currency?: CurrencyOmit
     marketplaceSale?: MarketplaceSaleOmit
     rewardAccumulatorMulti?: RewardAccumulatorMultiOmit
@@ -4632,7 +4441,6 @@ export namespace Prisma {
   export type UserCountOutputType = {
     collections: number
     submissions: number
-    featuredBids: number
     holderRewardsMulti: number
     ownedNFTs: number
     rewardClaimLogs: number
@@ -4642,7 +4450,6 @@ export namespace Prisma {
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collections?: boolean | UserCountOutputTypeCountCollectionsArgs
     submissions?: boolean | UserCountOutputTypeCountSubmissionsArgs
-    featuredBids?: boolean | UserCountOutputTypeCountFeaturedBidsArgs
     holderRewardsMulti?: boolean | UserCountOutputTypeCountHolderRewardsMultiArgs
     ownedNFTs?: boolean | UserCountOutputTypeCountOwnedNFTsArgs
     rewardClaimLogs?: boolean | UserCountOutputTypeCountRewardClaimLogsArgs
@@ -4672,13 +4479,6 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountSubmissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CollectionSubmissionWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountFeaturedBidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeaturedBidWhereInput
   }
 
   /**
@@ -4716,15 +4516,11 @@ export namespace Prisma {
 
   export type CollectionCountOutputType = {
     assetUploads: number
-    featuredBidEntries: number
-    featuredAsWinner: number
     nfts: number
   }
 
   export type CollectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     assetUploads?: boolean | CollectionCountOutputTypeCountAssetUploadsArgs
-    featuredBidEntries?: boolean | CollectionCountOutputTypeCountFeaturedBidEntriesArgs
-    featuredAsWinner?: boolean | CollectionCountOutputTypeCountFeaturedAsWinnerArgs
     nfts?: boolean | CollectionCountOutputTypeCountNftsArgs
   }
 
@@ -4744,20 +4540,6 @@ export namespace Prisma {
    */
   export type CollectionCountOutputTypeCountAssetUploadsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssetUploadWhereInput
-  }
-
-  /**
-   * CollectionCountOutputType without action
-   */
-  export type CollectionCountOutputTypeCountFeaturedBidEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeaturedBidWhereInput
-  }
-
-  /**
-   * CollectionCountOutputType without action
-   */
-  export type CollectionCountOutputTypeCountFeaturedAsWinnerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeaturedCycleWhereInput
   }
 
   /**
@@ -5005,37 +4787,6 @@ export namespace Prisma {
    */
   export type PresaleCountOutputTypeCountWhitelistArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PresaleWhitelistAddressWhereInput
-  }
-
-
-  /**
-   * Count Type FeaturedCycleCountOutputType
-   */
-
-  export type FeaturedCycleCountOutputType = {
-    bids: number
-  }
-
-  export type FeaturedCycleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    bids?: boolean | FeaturedCycleCountOutputTypeCountBidsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * FeaturedCycleCountOutputType without action
-   */
-  export type FeaturedCycleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycleCountOutputType
-     */
-    select?: FeaturedCycleCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * FeaturedCycleCountOutputType without action
-   */
-  export type FeaturedCycleCountOutputTypeCountBidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeaturedBidWhereInput
   }
 
 
@@ -6437,7 +6188,6 @@ export namespace Prisma {
     updatedAt?: boolean
     collections?: boolean | User$collectionsArgs<ExtArgs>
     submissions?: boolean | User$submissionsArgs<ExtArgs>
-    featuredBids?: boolean | User$featuredBidsArgs<ExtArgs>
     holderRewardsMulti?: boolean | User$holderRewardsMultiArgs<ExtArgs>
     ownedNFTs?: boolean | User$ownedNFTsArgs<ExtArgs>
     rewardClaimLogs?: boolean | User$rewardClaimLogsArgs<ExtArgs>
@@ -6494,7 +6244,6 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     collections?: boolean | User$collectionsArgs<ExtArgs>
     submissions?: boolean | User$submissionsArgs<ExtArgs>
-    featuredBids?: boolean | User$featuredBidsArgs<ExtArgs>
     holderRewardsMulti?: boolean | User$holderRewardsMultiArgs<ExtArgs>
     ownedNFTs?: boolean | User$ownedNFTsArgs<ExtArgs>
     rewardClaimLogs?: boolean | User$rewardClaimLogsArgs<ExtArgs>
@@ -6509,7 +6258,6 @@ export namespace Prisma {
     objects: {
       collections: Prisma.$CollectionPayload<ExtArgs>[]
       submissions: Prisma.$CollectionSubmissionPayload<ExtArgs>[]
-      featuredBids: Prisma.$FeaturedBidPayload<ExtArgs>[]
       holderRewardsMulti: Prisma.$HolderRewardMultiPayload<ExtArgs>[]
       ownedNFTs: Prisma.$NFTPayload<ExtArgs>[]
       rewardClaimLogs: Prisma.$RewardClaimLogPayload<ExtArgs>[]
@@ -6924,7 +6672,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     collections<T extends User$collectionsArgs<ExtArgs> = {}>(args?: Subset<T, User$collectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     submissions<T extends User$submissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    featuredBids<T extends User$featuredBidsArgs<ExtArgs> = {}>(args?: Subset<T, User$featuredBidsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     holderRewardsMulti<T extends User$holderRewardsMultiArgs<ExtArgs> = {}>(args?: Subset<T, User$holderRewardsMultiArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HolderRewardMultiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ownedNFTs<T extends User$ownedNFTsArgs<ExtArgs> = {}>(args?: Subset<T, User$ownedNFTsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     rewardClaimLogs<T extends User$rewardClaimLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$rewardClaimLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardClaimLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7403,30 +7150,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CollectionSubmissionScalarFieldEnum | CollectionSubmissionScalarFieldEnum[]
-  }
-
-  /**
-   * User.featuredBids
-   */
-  export type User$featuredBidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    where?: FeaturedBidWhereInput
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    cursor?: FeaturedBidWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: FeaturedBidScalarFieldEnum | FeaturedBidScalarFieldEnum[]
   }
 
   /**
@@ -7941,8 +7664,6 @@ export namespace Prisma {
     assetUploads?: boolean | Collection$assetUploadsArgs<ExtArgs>
     creator?: boolean | UserDefaultArgs<ExtArgs>
     deployment?: boolean | Collection$deploymentArgs<ExtArgs>
-    featuredBidEntries?: boolean | Collection$featuredBidEntriesArgs<ExtArgs>
-    featuredAsWinner?: boolean | Collection$featuredAsWinnerArgs<ExtArgs>
     nfts?: boolean | Collection$nftsArgs<ExtArgs>
     presale?: boolean | Collection$presaleArgs<ExtArgs>
     publicSale?: boolean | Collection$publicSaleArgs<ExtArgs>
@@ -8046,8 +7767,6 @@ export namespace Prisma {
     assetUploads?: boolean | Collection$assetUploadsArgs<ExtArgs>
     creator?: boolean | UserDefaultArgs<ExtArgs>
     deployment?: boolean | Collection$deploymentArgs<ExtArgs>
-    featuredBidEntries?: boolean | Collection$featuredBidEntriesArgs<ExtArgs>
-    featuredAsWinner?: boolean | Collection$featuredAsWinnerArgs<ExtArgs>
     nfts?: boolean | Collection$nftsArgs<ExtArgs>
     presale?: boolean | Collection$presaleArgs<ExtArgs>
     publicSale?: boolean | Collection$publicSaleArgs<ExtArgs>
@@ -8066,8 +7785,6 @@ export namespace Prisma {
       assetUploads: Prisma.$AssetUploadPayload<ExtArgs>[]
       creator: Prisma.$UserPayload<ExtArgs>
       deployment: Prisma.$DeployedContractPayload<ExtArgs> | null
-      featuredBidEntries: Prisma.$FeaturedBidPayload<ExtArgs>[]
-      featuredAsWinner: Prisma.$FeaturedCyclePayload<ExtArgs>[]
       nfts: Prisma.$NFTPayload<ExtArgs>[]
       presale: Prisma.$PresalePayload<ExtArgs> | null
       publicSale: Prisma.$PublicSalePayload<ExtArgs> | null
@@ -8497,8 +8214,6 @@ export namespace Prisma {
     assetUploads<T extends Collection$assetUploadsArgs<ExtArgs> = {}>(args?: Subset<T, Collection$assetUploadsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssetUploadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     creator<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     deployment<T extends Collection$deploymentArgs<ExtArgs> = {}>(args?: Subset<T, Collection$deploymentArgs<ExtArgs>>): Prisma__DeployedContractClient<$Result.GetResult<Prisma.$DeployedContractPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    featuredBidEntries<T extends Collection$featuredBidEntriesArgs<ExtArgs> = {}>(args?: Subset<T, Collection$featuredBidEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    featuredAsWinner<T extends Collection$featuredAsWinnerArgs<ExtArgs> = {}>(args?: Subset<T, Collection$featuredAsWinnerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     nfts<T extends Collection$nftsArgs<ExtArgs> = {}>(args?: Subset<T, Collection$nftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     presale<T extends Collection$presaleArgs<ExtArgs> = {}>(args?: Subset<T, Collection$presaleArgs<ExtArgs>>): Prisma__PresaleClient<$Result.GetResult<Prisma.$PresalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     publicSale<T extends Collection$publicSaleArgs<ExtArgs> = {}>(args?: Subset<T, Collection$publicSaleArgs<ExtArgs>>): Prisma__PublicSaleClient<$Result.GetResult<Prisma.$PublicSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -8994,54 +8709,6 @@ export namespace Prisma {
      */
     include?: DeployedContractInclude<ExtArgs> | null
     where?: DeployedContractWhereInput
-  }
-
-  /**
-   * Collection.featuredBidEntries
-   */
-  export type Collection$featuredBidEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    where?: FeaturedBidWhereInput
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    cursor?: FeaturedBidWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: FeaturedBidScalarFieldEnum | FeaturedBidScalarFieldEnum[]
-  }
-
-  /**
-   * Collection.featuredAsWinner
-   */
-  export type Collection$featuredAsWinnerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    where?: FeaturedCycleWhereInput
-    orderBy?: FeaturedCycleOrderByWithRelationInput | FeaturedCycleOrderByWithRelationInput[]
-    cursor?: FeaturedCycleWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: FeaturedCycleScalarFieldEnum | FeaturedCycleScalarFieldEnum[]
   }
 
   /**
@@ -35472,2488 +35139,6 @@ export namespace Prisma {
 
 
   /**
-   * Model FeaturedCycle
-   */
-
-  export type AggregateFeaturedCycle = {
-    _count: FeaturedCycleCountAggregateOutputType | null
-    _avg: FeaturedCycleAvgAggregateOutputType | null
-    _sum: FeaturedCycleSumAggregateOutputType | null
-    _min: FeaturedCycleMinAggregateOutputType | null
-    _max: FeaturedCycleMaxAggregateOutputType | null
-  }
-
-  export type FeaturedCycleAvgAggregateOutputType = {
-    minBidWei: Decimal | null
-    winnerAmountWei: Decimal | null
-  }
-
-  export type FeaturedCycleSumAggregateOutputType = {
-    minBidWei: Decimal | null
-    winnerAmountWei: Decimal | null
-  }
-
-  export type FeaturedCycleMinAggregateOutputType = {
-    id: string | null
-    cycleId: string | null
-    startAt: Date | null
-    endAt: Date | null
-    status: $Enums.FeaturedCycleStatus | null
-    minBidWei: Decimal | null
-    winnerBidId: string | null
-    winnerCollectionContract: string | null
-    winnerAmountWei: Decimal | null
-    finalizedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type FeaturedCycleMaxAggregateOutputType = {
-    id: string | null
-    cycleId: string | null
-    startAt: Date | null
-    endAt: Date | null
-    status: $Enums.FeaturedCycleStatus | null
-    minBidWei: Decimal | null
-    winnerBidId: string | null
-    winnerCollectionContract: string | null
-    winnerAmountWei: Decimal | null
-    finalizedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type FeaturedCycleCountAggregateOutputType = {
-    id: number
-    cycleId: number
-    startAt: number
-    endAt: number
-    status: number
-    minBidWei: number
-    winnerBidId: number
-    winnerCollectionContract: number
-    winnerAmountWei: number
-    finalizedAt: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type FeaturedCycleAvgAggregateInputType = {
-    minBidWei?: true
-    winnerAmountWei?: true
-  }
-
-  export type FeaturedCycleSumAggregateInputType = {
-    minBidWei?: true
-    winnerAmountWei?: true
-  }
-
-  export type FeaturedCycleMinAggregateInputType = {
-    id?: true
-    cycleId?: true
-    startAt?: true
-    endAt?: true
-    status?: true
-    minBidWei?: true
-    winnerBidId?: true
-    winnerCollectionContract?: true
-    winnerAmountWei?: true
-    finalizedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type FeaturedCycleMaxAggregateInputType = {
-    id?: true
-    cycleId?: true
-    startAt?: true
-    endAt?: true
-    status?: true
-    minBidWei?: true
-    winnerBidId?: true
-    winnerCollectionContract?: true
-    winnerAmountWei?: true
-    finalizedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type FeaturedCycleCountAggregateInputType = {
-    id?: true
-    cycleId?: true
-    startAt?: true
-    endAt?: true
-    status?: true
-    minBidWei?: true
-    winnerBidId?: true
-    winnerCollectionContract?: true
-    winnerAmountWei?: true
-    finalizedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type FeaturedCycleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FeaturedCycle to aggregate.
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedCycles to fetch.
-     */
-    orderBy?: FeaturedCycleOrderByWithRelationInput | FeaturedCycleOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: FeaturedCycleWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedCycles from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedCycles.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned FeaturedCycles
-    **/
-    _count?: true | FeaturedCycleCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: FeaturedCycleAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: FeaturedCycleSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: FeaturedCycleMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: FeaturedCycleMaxAggregateInputType
-  }
-
-  export type GetFeaturedCycleAggregateType<T extends FeaturedCycleAggregateArgs> = {
-        [P in keyof T & keyof AggregateFeaturedCycle]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateFeaturedCycle[P]>
-      : GetScalarType<T[P], AggregateFeaturedCycle[P]>
-  }
-
-
-
-
-  export type FeaturedCycleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeaturedCycleWhereInput
-    orderBy?: FeaturedCycleOrderByWithAggregationInput | FeaturedCycleOrderByWithAggregationInput[]
-    by: FeaturedCycleScalarFieldEnum[] | FeaturedCycleScalarFieldEnum
-    having?: FeaturedCycleScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: FeaturedCycleCountAggregateInputType | true
-    _avg?: FeaturedCycleAvgAggregateInputType
-    _sum?: FeaturedCycleSumAggregateInputType
-    _min?: FeaturedCycleMinAggregateInputType
-    _max?: FeaturedCycleMaxAggregateInputType
-  }
-
-  export type FeaturedCycleGroupByOutputType = {
-    id: string
-    cycleId: string
-    startAt: Date
-    endAt: Date
-    status: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal
-    winnerBidId: string | null
-    winnerCollectionContract: string | null
-    winnerAmountWei: Decimal | null
-    finalizedAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-    _count: FeaturedCycleCountAggregateOutputType | null
-    _avg: FeaturedCycleAvgAggregateOutputType | null
-    _sum: FeaturedCycleSumAggregateOutputType | null
-    _min: FeaturedCycleMinAggregateOutputType | null
-    _max: FeaturedCycleMaxAggregateOutputType | null
-  }
-
-  type GetFeaturedCycleGroupByPayload<T extends FeaturedCycleGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<FeaturedCycleGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof FeaturedCycleGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], FeaturedCycleGroupByOutputType[P]>
-            : GetScalarType<T[P], FeaturedCycleGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type FeaturedCycleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cycleId?: boolean
-    startAt?: boolean
-    endAt?: boolean
-    status?: boolean
-    minBidWei?: boolean
-    winnerBidId?: boolean
-    winnerCollectionContract?: boolean
-    winnerAmountWei?: boolean
-    finalizedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    bids?: boolean | FeaturedCycle$bidsArgs<ExtArgs>
-    winnerBid?: boolean | FeaturedCycle$winnerBidArgs<ExtArgs>
-    winnerCollection?: boolean | FeaturedCycle$winnerCollectionArgs<ExtArgs>
-    _count?: boolean | FeaturedCycleCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["featuredCycle"]>
-
-  export type FeaturedCycleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cycleId?: boolean
-    startAt?: boolean
-    endAt?: boolean
-    status?: boolean
-    minBidWei?: boolean
-    winnerBidId?: boolean
-    winnerCollectionContract?: boolean
-    winnerAmountWei?: boolean
-    finalizedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    winnerBid?: boolean | FeaturedCycle$winnerBidArgs<ExtArgs>
-    winnerCollection?: boolean | FeaturedCycle$winnerCollectionArgs<ExtArgs>
-  }, ExtArgs["result"]["featuredCycle"]>
-
-  export type FeaturedCycleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cycleId?: boolean
-    startAt?: boolean
-    endAt?: boolean
-    status?: boolean
-    minBidWei?: boolean
-    winnerBidId?: boolean
-    winnerCollectionContract?: boolean
-    winnerAmountWei?: boolean
-    finalizedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    winnerBid?: boolean | FeaturedCycle$winnerBidArgs<ExtArgs>
-    winnerCollection?: boolean | FeaturedCycle$winnerCollectionArgs<ExtArgs>
-  }, ExtArgs["result"]["featuredCycle"]>
-
-  export type FeaturedCycleSelectScalar = {
-    id?: boolean
-    cycleId?: boolean
-    startAt?: boolean
-    endAt?: boolean
-    status?: boolean
-    minBidWei?: boolean
-    winnerBidId?: boolean
-    winnerCollectionContract?: boolean
-    winnerAmountWei?: boolean
-    finalizedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type FeaturedCycleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cycleId" | "startAt" | "endAt" | "status" | "minBidWei" | "winnerBidId" | "winnerCollectionContract" | "winnerAmountWei" | "finalizedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["featuredCycle"]>
-  export type FeaturedCycleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    bids?: boolean | FeaturedCycle$bidsArgs<ExtArgs>
-    winnerBid?: boolean | FeaturedCycle$winnerBidArgs<ExtArgs>
-    winnerCollection?: boolean | FeaturedCycle$winnerCollectionArgs<ExtArgs>
-    _count?: boolean | FeaturedCycleCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type FeaturedCycleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    winnerBid?: boolean | FeaturedCycle$winnerBidArgs<ExtArgs>
-    winnerCollection?: boolean | FeaturedCycle$winnerCollectionArgs<ExtArgs>
-  }
-  export type FeaturedCycleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    winnerBid?: boolean | FeaturedCycle$winnerBidArgs<ExtArgs>
-    winnerCollection?: boolean | FeaturedCycle$winnerCollectionArgs<ExtArgs>
-  }
-
-  export type $FeaturedCyclePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FeaturedCycle"
-    objects: {
-      bids: Prisma.$FeaturedBidPayload<ExtArgs>[]
-      winnerBid: Prisma.$FeaturedBidPayload<ExtArgs> | null
-      winnerCollection: Prisma.$CollectionPayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      cycleId: string
-      startAt: Date
-      endAt: Date
-      status: $Enums.FeaturedCycleStatus
-      minBidWei: Prisma.Decimal
-      winnerBidId: string | null
-      winnerCollectionContract: string | null
-      winnerAmountWei: Prisma.Decimal | null
-      finalizedAt: Date | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["featuredCycle"]>
-    composites: {}
-  }
-
-  type FeaturedCycleGetPayload<S extends boolean | null | undefined | FeaturedCycleDefaultArgs> = $Result.GetResult<Prisma.$FeaturedCyclePayload, S>
-
-  type FeaturedCycleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<FeaturedCycleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: FeaturedCycleCountAggregateInputType | true
-    }
-
-  export interface FeaturedCycleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FeaturedCycle'], meta: { name: 'FeaturedCycle' } }
-    /**
-     * Find zero or one FeaturedCycle that matches the filter.
-     * @param {FeaturedCycleFindUniqueArgs} args - Arguments to find a FeaturedCycle
-     * @example
-     * // Get one FeaturedCycle
-     * const featuredCycle = await prisma.featuredCycle.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends FeaturedCycleFindUniqueArgs>(args: SelectSubset<T, FeaturedCycleFindUniqueArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one FeaturedCycle that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {FeaturedCycleFindUniqueOrThrowArgs} args - Arguments to find a FeaturedCycle
-     * @example
-     * // Get one FeaturedCycle
-     * const featuredCycle = await prisma.featuredCycle.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends FeaturedCycleFindUniqueOrThrowArgs>(args: SelectSubset<T, FeaturedCycleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FeaturedCycle that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleFindFirstArgs} args - Arguments to find a FeaturedCycle
-     * @example
-     * // Get one FeaturedCycle
-     * const featuredCycle = await prisma.featuredCycle.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends FeaturedCycleFindFirstArgs>(args?: SelectSubset<T, FeaturedCycleFindFirstArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FeaturedCycle that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleFindFirstOrThrowArgs} args - Arguments to find a FeaturedCycle
-     * @example
-     * // Get one FeaturedCycle
-     * const featuredCycle = await prisma.featuredCycle.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends FeaturedCycleFindFirstOrThrowArgs>(args?: SelectSubset<T, FeaturedCycleFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more FeaturedCycles that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all FeaturedCycles
-     * const featuredCycles = await prisma.featuredCycle.findMany()
-     * 
-     * // Get first 10 FeaturedCycles
-     * const featuredCycles = await prisma.featuredCycle.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const featuredCycleWithIdOnly = await prisma.featuredCycle.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends FeaturedCycleFindManyArgs>(args?: SelectSubset<T, FeaturedCycleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a FeaturedCycle.
-     * @param {FeaturedCycleCreateArgs} args - Arguments to create a FeaturedCycle.
-     * @example
-     * // Create one FeaturedCycle
-     * const FeaturedCycle = await prisma.featuredCycle.create({
-     *   data: {
-     *     // ... data to create a FeaturedCycle
-     *   }
-     * })
-     * 
-     */
-    create<T extends FeaturedCycleCreateArgs>(args: SelectSubset<T, FeaturedCycleCreateArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many FeaturedCycles.
-     * @param {FeaturedCycleCreateManyArgs} args - Arguments to create many FeaturedCycles.
-     * @example
-     * // Create many FeaturedCycles
-     * const featuredCycle = await prisma.featuredCycle.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends FeaturedCycleCreateManyArgs>(args?: SelectSubset<T, FeaturedCycleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many FeaturedCycles and returns the data saved in the database.
-     * @param {FeaturedCycleCreateManyAndReturnArgs} args - Arguments to create many FeaturedCycles.
-     * @example
-     * // Create many FeaturedCycles
-     * const featuredCycle = await prisma.featuredCycle.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many FeaturedCycles and only return the `id`
-     * const featuredCycleWithIdOnly = await prisma.featuredCycle.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends FeaturedCycleCreateManyAndReturnArgs>(args?: SelectSubset<T, FeaturedCycleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a FeaturedCycle.
-     * @param {FeaturedCycleDeleteArgs} args - Arguments to delete one FeaturedCycle.
-     * @example
-     * // Delete one FeaturedCycle
-     * const FeaturedCycle = await prisma.featuredCycle.delete({
-     *   where: {
-     *     // ... filter to delete one FeaturedCycle
-     *   }
-     * })
-     * 
-     */
-    delete<T extends FeaturedCycleDeleteArgs>(args: SelectSubset<T, FeaturedCycleDeleteArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one FeaturedCycle.
-     * @param {FeaturedCycleUpdateArgs} args - Arguments to update one FeaturedCycle.
-     * @example
-     * // Update one FeaturedCycle
-     * const featuredCycle = await prisma.featuredCycle.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends FeaturedCycleUpdateArgs>(args: SelectSubset<T, FeaturedCycleUpdateArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more FeaturedCycles.
-     * @param {FeaturedCycleDeleteManyArgs} args - Arguments to filter FeaturedCycles to delete.
-     * @example
-     * // Delete a few FeaturedCycles
-     * const { count } = await prisma.featuredCycle.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends FeaturedCycleDeleteManyArgs>(args?: SelectSubset<T, FeaturedCycleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FeaturedCycles.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many FeaturedCycles
-     * const featuredCycle = await prisma.featuredCycle.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends FeaturedCycleUpdateManyArgs>(args: SelectSubset<T, FeaturedCycleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FeaturedCycles and returns the data updated in the database.
-     * @param {FeaturedCycleUpdateManyAndReturnArgs} args - Arguments to update many FeaturedCycles.
-     * @example
-     * // Update many FeaturedCycles
-     * const featuredCycle = await prisma.featuredCycle.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more FeaturedCycles and only return the `id`
-     * const featuredCycleWithIdOnly = await prisma.featuredCycle.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends FeaturedCycleUpdateManyAndReturnArgs>(args: SelectSubset<T, FeaturedCycleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one FeaturedCycle.
-     * @param {FeaturedCycleUpsertArgs} args - Arguments to update or create a FeaturedCycle.
-     * @example
-     * // Update or create a FeaturedCycle
-     * const featuredCycle = await prisma.featuredCycle.upsert({
-     *   create: {
-     *     // ... data to create a FeaturedCycle
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the FeaturedCycle we want to update
-     *   }
-     * })
-     */
-    upsert<T extends FeaturedCycleUpsertArgs>(args: SelectSubset<T, FeaturedCycleUpsertArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of FeaturedCycles.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleCountArgs} args - Arguments to filter FeaturedCycles to count.
-     * @example
-     * // Count the number of FeaturedCycles
-     * const count = await prisma.featuredCycle.count({
-     *   where: {
-     *     // ... the filter for the FeaturedCycles we want to count
-     *   }
-     * })
-    **/
-    count<T extends FeaturedCycleCountArgs>(
-      args?: Subset<T, FeaturedCycleCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], FeaturedCycleCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a FeaturedCycle.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends FeaturedCycleAggregateArgs>(args: Subset<T, FeaturedCycleAggregateArgs>): Prisma.PrismaPromise<GetFeaturedCycleAggregateType<T>>
-
-    /**
-     * Group by FeaturedCycle.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedCycleGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends FeaturedCycleGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FeaturedCycleGroupByArgs['orderBy'] }
-        : { orderBy?: FeaturedCycleGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, FeaturedCycleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeaturedCycleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the FeaturedCycle model
-   */
-  readonly fields: FeaturedCycleFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for FeaturedCycle.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__FeaturedCycleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    bids<T extends FeaturedCycle$bidsArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedCycle$bidsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    winnerBid<T extends FeaturedCycle$winnerBidArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedCycle$winnerBidArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    winnerCollection<T extends FeaturedCycle$winnerCollectionArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedCycle$winnerCollectionArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the FeaturedCycle model
-   */
-  interface FeaturedCycleFieldRefs {
-    readonly id: FieldRef<"FeaturedCycle", 'String'>
-    readonly cycleId: FieldRef<"FeaturedCycle", 'String'>
-    readonly startAt: FieldRef<"FeaturedCycle", 'DateTime'>
-    readonly endAt: FieldRef<"FeaturedCycle", 'DateTime'>
-    readonly status: FieldRef<"FeaturedCycle", 'FeaturedCycleStatus'>
-    readonly minBidWei: FieldRef<"FeaturedCycle", 'Decimal'>
-    readonly winnerBidId: FieldRef<"FeaturedCycle", 'String'>
-    readonly winnerCollectionContract: FieldRef<"FeaturedCycle", 'String'>
-    readonly winnerAmountWei: FieldRef<"FeaturedCycle", 'Decimal'>
-    readonly finalizedAt: FieldRef<"FeaturedCycle", 'DateTime'>
-    readonly createdAt: FieldRef<"FeaturedCycle", 'DateTime'>
-    readonly updatedAt: FieldRef<"FeaturedCycle", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * FeaturedCycle findUnique
-   */
-  export type FeaturedCycleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedCycle to fetch.
-     */
-    where: FeaturedCycleWhereUniqueInput
-  }
-
-  /**
-   * FeaturedCycle findUniqueOrThrow
-   */
-  export type FeaturedCycleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedCycle to fetch.
-     */
-    where: FeaturedCycleWhereUniqueInput
-  }
-
-  /**
-   * FeaturedCycle findFirst
-   */
-  export type FeaturedCycleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedCycle to fetch.
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedCycles to fetch.
-     */
-    orderBy?: FeaturedCycleOrderByWithRelationInput | FeaturedCycleOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FeaturedCycles.
-     */
-    cursor?: FeaturedCycleWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedCycles from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedCycles.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FeaturedCycles.
-     */
-    distinct?: FeaturedCycleScalarFieldEnum | FeaturedCycleScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedCycle findFirstOrThrow
-   */
-  export type FeaturedCycleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedCycle to fetch.
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedCycles to fetch.
-     */
-    orderBy?: FeaturedCycleOrderByWithRelationInput | FeaturedCycleOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FeaturedCycles.
-     */
-    cursor?: FeaturedCycleWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedCycles from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedCycles.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FeaturedCycles.
-     */
-    distinct?: FeaturedCycleScalarFieldEnum | FeaturedCycleScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedCycle findMany
-   */
-  export type FeaturedCycleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedCycles to fetch.
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedCycles to fetch.
-     */
-    orderBy?: FeaturedCycleOrderByWithRelationInput | FeaturedCycleOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing FeaturedCycles.
-     */
-    cursor?: FeaturedCycleWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedCycles from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedCycles.
-     */
-    skip?: number
-    distinct?: FeaturedCycleScalarFieldEnum | FeaturedCycleScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedCycle create
-   */
-  export type FeaturedCycleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * The data needed to create a FeaturedCycle.
-     */
-    data: XOR<FeaturedCycleCreateInput, FeaturedCycleUncheckedCreateInput>
-  }
-
-  /**
-   * FeaturedCycle createMany
-   */
-  export type FeaturedCycleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many FeaturedCycles.
-     */
-    data: FeaturedCycleCreateManyInput | FeaturedCycleCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * FeaturedCycle createManyAndReturn
-   */
-  export type FeaturedCycleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * The data used to create many FeaturedCycles.
-     */
-    data: FeaturedCycleCreateManyInput | FeaturedCycleCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * FeaturedCycle update
-   */
-  export type FeaturedCycleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * The data needed to update a FeaturedCycle.
-     */
-    data: XOR<FeaturedCycleUpdateInput, FeaturedCycleUncheckedUpdateInput>
-    /**
-     * Choose, which FeaturedCycle to update.
-     */
-    where: FeaturedCycleWhereUniqueInput
-  }
-
-  /**
-   * FeaturedCycle updateMany
-   */
-  export type FeaturedCycleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update FeaturedCycles.
-     */
-    data: XOR<FeaturedCycleUpdateManyMutationInput, FeaturedCycleUncheckedUpdateManyInput>
-    /**
-     * Filter which FeaturedCycles to update
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * Limit how many FeaturedCycles to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * FeaturedCycle updateManyAndReturn
-   */
-  export type FeaturedCycleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * The data used to update FeaturedCycles.
-     */
-    data: XOR<FeaturedCycleUpdateManyMutationInput, FeaturedCycleUncheckedUpdateManyInput>
-    /**
-     * Filter which FeaturedCycles to update
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * Limit how many FeaturedCycles to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * FeaturedCycle upsert
-   */
-  export type FeaturedCycleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * The filter to search for the FeaturedCycle to update in case it exists.
-     */
-    where: FeaturedCycleWhereUniqueInput
-    /**
-     * In case the FeaturedCycle found by the `where` argument doesn't exist, create a new FeaturedCycle with this data.
-     */
-    create: XOR<FeaturedCycleCreateInput, FeaturedCycleUncheckedCreateInput>
-    /**
-     * In case the FeaturedCycle was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<FeaturedCycleUpdateInput, FeaturedCycleUncheckedUpdateInput>
-  }
-
-  /**
-   * FeaturedCycle delete
-   */
-  export type FeaturedCycleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    /**
-     * Filter which FeaturedCycle to delete.
-     */
-    where: FeaturedCycleWhereUniqueInput
-  }
-
-  /**
-   * FeaturedCycle deleteMany
-   */
-  export type FeaturedCycleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FeaturedCycles to delete
-     */
-    where?: FeaturedCycleWhereInput
-    /**
-     * Limit how many FeaturedCycles to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * FeaturedCycle.bids
-   */
-  export type FeaturedCycle$bidsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    where?: FeaturedBidWhereInput
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    cursor?: FeaturedBidWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: FeaturedBidScalarFieldEnum | FeaturedBidScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedCycle.winnerBid
-   */
-  export type FeaturedCycle$winnerBidArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    where?: FeaturedBidWhereInput
-  }
-
-  /**
-   * FeaturedCycle.winnerCollection
-   */
-  export type FeaturedCycle$winnerCollectionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Collection
-     */
-    select?: CollectionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Collection
-     */
-    omit?: CollectionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionInclude<ExtArgs> | null
-    where?: CollectionWhereInput
-  }
-
-  /**
-   * FeaturedCycle without action
-   */
-  export type FeaturedCycleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model FeaturedBid
-   */
-
-  export type AggregateFeaturedBid = {
-    _count: FeaturedBidCountAggregateOutputType | null
-    _avg: FeaturedBidAvgAggregateOutputType | null
-    _sum: FeaturedBidSumAggregateOutputType | null
-    _min: FeaturedBidMinAggregateOutputType | null
-    _max: FeaturedBidMaxAggregateOutputType | null
-  }
-
-  export type FeaturedBidAvgAggregateOutputType = {
-    totalBidWei: Decimal | null
-    txCount: number | null
-  }
-
-  export type FeaturedBidSumAggregateOutputType = {
-    totalBidWei: Decimal | null
-    txCount: number | null
-  }
-
-  export type FeaturedBidMinAggregateOutputType = {
-    id: string | null
-    cycleId: string | null
-    bidderAddress: string | null
-    bidderUserId: string | null
-    collectionContract: string | null
-    totalBidWei: Decimal | null
-    txCount: number | null
-    lastTxHash: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type FeaturedBidMaxAggregateOutputType = {
-    id: string | null
-    cycleId: string | null
-    bidderAddress: string | null
-    bidderUserId: string | null
-    collectionContract: string | null
-    totalBidWei: Decimal | null
-    txCount: number | null
-    lastTxHash: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type FeaturedBidCountAggregateOutputType = {
-    id: number
-    cycleId: number
-    bidderAddress: number
-    bidderUserId: number
-    collectionContract: number
-    totalBidWei: number
-    txCount: number
-    lastTxHash: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type FeaturedBidAvgAggregateInputType = {
-    totalBidWei?: true
-    txCount?: true
-  }
-
-  export type FeaturedBidSumAggregateInputType = {
-    totalBidWei?: true
-    txCount?: true
-  }
-
-  export type FeaturedBidMinAggregateInputType = {
-    id?: true
-    cycleId?: true
-    bidderAddress?: true
-    bidderUserId?: true
-    collectionContract?: true
-    totalBidWei?: true
-    txCount?: true
-    lastTxHash?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type FeaturedBidMaxAggregateInputType = {
-    id?: true
-    cycleId?: true
-    bidderAddress?: true
-    bidderUserId?: true
-    collectionContract?: true
-    totalBidWei?: true
-    txCount?: true
-    lastTxHash?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type FeaturedBidCountAggregateInputType = {
-    id?: true
-    cycleId?: true
-    bidderAddress?: true
-    bidderUserId?: true
-    collectionContract?: true
-    totalBidWei?: true
-    txCount?: true
-    lastTxHash?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type FeaturedBidAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FeaturedBid to aggregate.
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedBids to fetch.
-     */
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: FeaturedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedBids.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned FeaturedBids
-    **/
-    _count?: true | FeaturedBidCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: FeaturedBidAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: FeaturedBidSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: FeaturedBidMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: FeaturedBidMaxAggregateInputType
-  }
-
-  export type GetFeaturedBidAggregateType<T extends FeaturedBidAggregateArgs> = {
-        [P in keyof T & keyof AggregateFeaturedBid]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateFeaturedBid[P]>
-      : GetScalarType<T[P], AggregateFeaturedBid[P]>
-  }
-
-
-
-
-  export type FeaturedBidGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FeaturedBidWhereInput
-    orderBy?: FeaturedBidOrderByWithAggregationInput | FeaturedBidOrderByWithAggregationInput[]
-    by: FeaturedBidScalarFieldEnum[] | FeaturedBidScalarFieldEnum
-    having?: FeaturedBidScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: FeaturedBidCountAggregateInputType | true
-    _avg?: FeaturedBidAvgAggregateInputType
-    _sum?: FeaturedBidSumAggregateInputType
-    _min?: FeaturedBidMinAggregateInputType
-    _max?: FeaturedBidMaxAggregateInputType
-  }
-
-  export type FeaturedBidGroupByOutputType = {
-    id: string
-    cycleId: string
-    bidderAddress: string
-    bidderUserId: string | null
-    collectionContract: string
-    totalBidWei: Decimal
-    txCount: number
-    lastTxHash: string | null
-    createdAt: Date
-    updatedAt: Date
-    _count: FeaturedBidCountAggregateOutputType | null
-    _avg: FeaturedBidAvgAggregateOutputType | null
-    _sum: FeaturedBidSumAggregateOutputType | null
-    _min: FeaturedBidMinAggregateOutputType | null
-    _max: FeaturedBidMaxAggregateOutputType | null
-  }
-
-  type GetFeaturedBidGroupByPayload<T extends FeaturedBidGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<FeaturedBidGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof FeaturedBidGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], FeaturedBidGroupByOutputType[P]>
-            : GetScalarType<T[P], FeaturedBidGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type FeaturedBidSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cycleId?: boolean
-    bidderAddress?: boolean
-    bidderUserId?: boolean
-    collectionContract?: boolean
-    totalBidWei?: boolean
-    txCount?: boolean
-    lastTxHash?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    bidder?: boolean | FeaturedBid$bidderArgs<ExtArgs>
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    cycle?: boolean | FeaturedCycleDefaultArgs<ExtArgs>
-    winnerOf?: boolean | FeaturedBid$winnerOfArgs<ExtArgs>
-  }, ExtArgs["result"]["featuredBid"]>
-
-  export type FeaturedBidSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cycleId?: boolean
-    bidderAddress?: boolean
-    bidderUserId?: boolean
-    collectionContract?: boolean
-    totalBidWei?: boolean
-    txCount?: boolean
-    lastTxHash?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    bidder?: boolean | FeaturedBid$bidderArgs<ExtArgs>
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    cycle?: boolean | FeaturedCycleDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["featuredBid"]>
-
-  export type FeaturedBidSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cycleId?: boolean
-    bidderAddress?: boolean
-    bidderUserId?: boolean
-    collectionContract?: boolean
-    totalBidWei?: boolean
-    txCount?: boolean
-    lastTxHash?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    bidder?: boolean | FeaturedBid$bidderArgs<ExtArgs>
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    cycle?: boolean | FeaturedCycleDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["featuredBid"]>
-
-  export type FeaturedBidSelectScalar = {
-    id?: boolean
-    cycleId?: boolean
-    bidderAddress?: boolean
-    bidderUserId?: boolean
-    collectionContract?: boolean
-    totalBidWei?: boolean
-    txCount?: boolean
-    lastTxHash?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type FeaturedBidOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cycleId" | "bidderAddress" | "bidderUserId" | "collectionContract" | "totalBidWei" | "txCount" | "lastTxHash" | "createdAt" | "updatedAt", ExtArgs["result"]["featuredBid"]>
-  export type FeaturedBidInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    bidder?: boolean | FeaturedBid$bidderArgs<ExtArgs>
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    cycle?: boolean | FeaturedCycleDefaultArgs<ExtArgs>
-    winnerOf?: boolean | FeaturedBid$winnerOfArgs<ExtArgs>
-  }
-  export type FeaturedBidIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    bidder?: boolean | FeaturedBid$bidderArgs<ExtArgs>
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    cycle?: boolean | FeaturedCycleDefaultArgs<ExtArgs>
-  }
-  export type FeaturedBidIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    bidder?: boolean | FeaturedBid$bidderArgs<ExtArgs>
-    collection?: boolean | CollectionDefaultArgs<ExtArgs>
-    cycle?: boolean | FeaturedCycleDefaultArgs<ExtArgs>
-  }
-
-  export type $FeaturedBidPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FeaturedBid"
-    objects: {
-      bidder: Prisma.$UserPayload<ExtArgs> | null
-      collection: Prisma.$CollectionPayload<ExtArgs>
-      cycle: Prisma.$FeaturedCyclePayload<ExtArgs>
-      winnerOf: Prisma.$FeaturedCyclePayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      cycleId: string
-      bidderAddress: string
-      bidderUserId: string | null
-      collectionContract: string
-      totalBidWei: Prisma.Decimal
-      txCount: number
-      lastTxHash: string | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["featuredBid"]>
-    composites: {}
-  }
-
-  type FeaturedBidGetPayload<S extends boolean | null | undefined | FeaturedBidDefaultArgs> = $Result.GetResult<Prisma.$FeaturedBidPayload, S>
-
-  type FeaturedBidCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<FeaturedBidFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: FeaturedBidCountAggregateInputType | true
-    }
-
-  export interface FeaturedBidDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FeaturedBid'], meta: { name: 'FeaturedBid' } }
-    /**
-     * Find zero or one FeaturedBid that matches the filter.
-     * @param {FeaturedBidFindUniqueArgs} args - Arguments to find a FeaturedBid
-     * @example
-     * // Get one FeaturedBid
-     * const featuredBid = await prisma.featuredBid.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends FeaturedBidFindUniqueArgs>(args: SelectSubset<T, FeaturedBidFindUniqueArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one FeaturedBid that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {FeaturedBidFindUniqueOrThrowArgs} args - Arguments to find a FeaturedBid
-     * @example
-     * // Get one FeaturedBid
-     * const featuredBid = await prisma.featuredBid.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends FeaturedBidFindUniqueOrThrowArgs>(args: SelectSubset<T, FeaturedBidFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FeaturedBid that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidFindFirstArgs} args - Arguments to find a FeaturedBid
-     * @example
-     * // Get one FeaturedBid
-     * const featuredBid = await prisma.featuredBid.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends FeaturedBidFindFirstArgs>(args?: SelectSubset<T, FeaturedBidFindFirstArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FeaturedBid that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidFindFirstOrThrowArgs} args - Arguments to find a FeaturedBid
-     * @example
-     * // Get one FeaturedBid
-     * const featuredBid = await prisma.featuredBid.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends FeaturedBidFindFirstOrThrowArgs>(args?: SelectSubset<T, FeaturedBidFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more FeaturedBids that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all FeaturedBids
-     * const featuredBids = await prisma.featuredBid.findMany()
-     * 
-     * // Get first 10 FeaturedBids
-     * const featuredBids = await prisma.featuredBid.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const featuredBidWithIdOnly = await prisma.featuredBid.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends FeaturedBidFindManyArgs>(args?: SelectSubset<T, FeaturedBidFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a FeaturedBid.
-     * @param {FeaturedBidCreateArgs} args - Arguments to create a FeaturedBid.
-     * @example
-     * // Create one FeaturedBid
-     * const FeaturedBid = await prisma.featuredBid.create({
-     *   data: {
-     *     // ... data to create a FeaturedBid
-     *   }
-     * })
-     * 
-     */
-    create<T extends FeaturedBidCreateArgs>(args: SelectSubset<T, FeaturedBidCreateArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many FeaturedBids.
-     * @param {FeaturedBidCreateManyArgs} args - Arguments to create many FeaturedBids.
-     * @example
-     * // Create many FeaturedBids
-     * const featuredBid = await prisma.featuredBid.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends FeaturedBidCreateManyArgs>(args?: SelectSubset<T, FeaturedBidCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many FeaturedBids and returns the data saved in the database.
-     * @param {FeaturedBidCreateManyAndReturnArgs} args - Arguments to create many FeaturedBids.
-     * @example
-     * // Create many FeaturedBids
-     * const featuredBid = await prisma.featuredBid.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many FeaturedBids and only return the `id`
-     * const featuredBidWithIdOnly = await prisma.featuredBid.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends FeaturedBidCreateManyAndReturnArgs>(args?: SelectSubset<T, FeaturedBidCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a FeaturedBid.
-     * @param {FeaturedBidDeleteArgs} args - Arguments to delete one FeaturedBid.
-     * @example
-     * // Delete one FeaturedBid
-     * const FeaturedBid = await prisma.featuredBid.delete({
-     *   where: {
-     *     // ... filter to delete one FeaturedBid
-     *   }
-     * })
-     * 
-     */
-    delete<T extends FeaturedBidDeleteArgs>(args: SelectSubset<T, FeaturedBidDeleteArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one FeaturedBid.
-     * @param {FeaturedBidUpdateArgs} args - Arguments to update one FeaturedBid.
-     * @example
-     * // Update one FeaturedBid
-     * const featuredBid = await prisma.featuredBid.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends FeaturedBidUpdateArgs>(args: SelectSubset<T, FeaturedBidUpdateArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more FeaturedBids.
-     * @param {FeaturedBidDeleteManyArgs} args - Arguments to filter FeaturedBids to delete.
-     * @example
-     * // Delete a few FeaturedBids
-     * const { count } = await prisma.featuredBid.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends FeaturedBidDeleteManyArgs>(args?: SelectSubset<T, FeaturedBidDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FeaturedBids.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many FeaturedBids
-     * const featuredBid = await prisma.featuredBid.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends FeaturedBidUpdateManyArgs>(args: SelectSubset<T, FeaturedBidUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FeaturedBids and returns the data updated in the database.
-     * @param {FeaturedBidUpdateManyAndReturnArgs} args - Arguments to update many FeaturedBids.
-     * @example
-     * // Update many FeaturedBids
-     * const featuredBid = await prisma.featuredBid.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more FeaturedBids and only return the `id`
-     * const featuredBidWithIdOnly = await prisma.featuredBid.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends FeaturedBidUpdateManyAndReturnArgs>(args: SelectSubset<T, FeaturedBidUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one FeaturedBid.
-     * @param {FeaturedBidUpsertArgs} args - Arguments to update or create a FeaturedBid.
-     * @example
-     * // Update or create a FeaturedBid
-     * const featuredBid = await prisma.featuredBid.upsert({
-     *   create: {
-     *     // ... data to create a FeaturedBid
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the FeaturedBid we want to update
-     *   }
-     * })
-     */
-    upsert<T extends FeaturedBidUpsertArgs>(args: SelectSubset<T, FeaturedBidUpsertArgs<ExtArgs>>): Prisma__FeaturedBidClient<$Result.GetResult<Prisma.$FeaturedBidPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of FeaturedBids.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidCountArgs} args - Arguments to filter FeaturedBids to count.
-     * @example
-     * // Count the number of FeaturedBids
-     * const count = await prisma.featuredBid.count({
-     *   where: {
-     *     // ... the filter for the FeaturedBids we want to count
-     *   }
-     * })
-    **/
-    count<T extends FeaturedBidCountArgs>(
-      args?: Subset<T, FeaturedBidCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], FeaturedBidCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a FeaturedBid.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends FeaturedBidAggregateArgs>(args: Subset<T, FeaturedBidAggregateArgs>): Prisma.PrismaPromise<GetFeaturedBidAggregateType<T>>
-
-    /**
-     * Group by FeaturedBid.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeaturedBidGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends FeaturedBidGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FeaturedBidGroupByArgs['orderBy'] }
-        : { orderBy?: FeaturedBidGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, FeaturedBidGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeaturedBidGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the FeaturedBid model
-   */
-  readonly fields: FeaturedBidFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for FeaturedBid.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__FeaturedBidClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    bidder<T extends FeaturedBid$bidderArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedBid$bidderArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    collection<T extends CollectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CollectionDefaultArgs<ExtArgs>>): Prisma__CollectionClient<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    cycle<T extends FeaturedCycleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedCycleDefaultArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    winnerOf<T extends FeaturedBid$winnerOfArgs<ExtArgs> = {}>(args?: Subset<T, FeaturedBid$winnerOfArgs<ExtArgs>>): Prisma__FeaturedCycleClient<$Result.GetResult<Prisma.$FeaturedCyclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the FeaturedBid model
-   */
-  interface FeaturedBidFieldRefs {
-    readonly id: FieldRef<"FeaturedBid", 'String'>
-    readonly cycleId: FieldRef<"FeaturedBid", 'String'>
-    readonly bidderAddress: FieldRef<"FeaturedBid", 'String'>
-    readonly bidderUserId: FieldRef<"FeaturedBid", 'String'>
-    readonly collectionContract: FieldRef<"FeaturedBid", 'String'>
-    readonly totalBidWei: FieldRef<"FeaturedBid", 'Decimal'>
-    readonly txCount: FieldRef<"FeaturedBid", 'Int'>
-    readonly lastTxHash: FieldRef<"FeaturedBid", 'String'>
-    readonly createdAt: FieldRef<"FeaturedBid", 'DateTime'>
-    readonly updatedAt: FieldRef<"FeaturedBid", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * FeaturedBid findUnique
-   */
-  export type FeaturedBidFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedBid to fetch.
-     */
-    where: FeaturedBidWhereUniqueInput
-  }
-
-  /**
-   * FeaturedBid findUniqueOrThrow
-   */
-  export type FeaturedBidFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedBid to fetch.
-     */
-    where: FeaturedBidWhereUniqueInput
-  }
-
-  /**
-   * FeaturedBid findFirst
-   */
-  export type FeaturedBidFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedBid to fetch.
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedBids to fetch.
-     */
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FeaturedBids.
-     */
-    cursor?: FeaturedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedBids.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FeaturedBids.
-     */
-    distinct?: FeaturedBidScalarFieldEnum | FeaturedBidScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedBid findFirstOrThrow
-   */
-  export type FeaturedBidFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedBid to fetch.
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedBids to fetch.
-     */
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FeaturedBids.
-     */
-    cursor?: FeaturedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedBids.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FeaturedBids.
-     */
-    distinct?: FeaturedBidScalarFieldEnum | FeaturedBidScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedBid findMany
-   */
-  export type FeaturedBidFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * Filter, which FeaturedBids to fetch.
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FeaturedBids to fetch.
-     */
-    orderBy?: FeaturedBidOrderByWithRelationInput | FeaturedBidOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing FeaturedBids.
-     */
-    cursor?: FeaturedBidWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FeaturedBids from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FeaturedBids.
-     */
-    skip?: number
-    distinct?: FeaturedBidScalarFieldEnum | FeaturedBidScalarFieldEnum[]
-  }
-
-  /**
-   * FeaturedBid create
-   */
-  export type FeaturedBidCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * The data needed to create a FeaturedBid.
-     */
-    data: XOR<FeaturedBidCreateInput, FeaturedBidUncheckedCreateInput>
-  }
-
-  /**
-   * FeaturedBid createMany
-   */
-  export type FeaturedBidCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many FeaturedBids.
-     */
-    data: FeaturedBidCreateManyInput | FeaturedBidCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * FeaturedBid createManyAndReturn
-   */
-  export type FeaturedBidCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * The data used to create many FeaturedBids.
-     */
-    data: FeaturedBidCreateManyInput | FeaturedBidCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * FeaturedBid update
-   */
-  export type FeaturedBidUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * The data needed to update a FeaturedBid.
-     */
-    data: XOR<FeaturedBidUpdateInput, FeaturedBidUncheckedUpdateInput>
-    /**
-     * Choose, which FeaturedBid to update.
-     */
-    where: FeaturedBidWhereUniqueInput
-  }
-
-  /**
-   * FeaturedBid updateMany
-   */
-  export type FeaturedBidUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update FeaturedBids.
-     */
-    data: XOR<FeaturedBidUpdateManyMutationInput, FeaturedBidUncheckedUpdateManyInput>
-    /**
-     * Filter which FeaturedBids to update
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * Limit how many FeaturedBids to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * FeaturedBid updateManyAndReturn
-   */
-  export type FeaturedBidUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * The data used to update FeaturedBids.
-     */
-    data: XOR<FeaturedBidUpdateManyMutationInput, FeaturedBidUncheckedUpdateManyInput>
-    /**
-     * Filter which FeaturedBids to update
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * Limit how many FeaturedBids to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * FeaturedBid upsert
-   */
-  export type FeaturedBidUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * The filter to search for the FeaturedBid to update in case it exists.
-     */
-    where: FeaturedBidWhereUniqueInput
-    /**
-     * In case the FeaturedBid found by the `where` argument doesn't exist, create a new FeaturedBid with this data.
-     */
-    create: XOR<FeaturedBidCreateInput, FeaturedBidUncheckedCreateInput>
-    /**
-     * In case the FeaturedBid was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<FeaturedBidUpdateInput, FeaturedBidUncheckedUpdateInput>
-  }
-
-  /**
-   * FeaturedBid delete
-   */
-  export type FeaturedBidDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-    /**
-     * Filter which FeaturedBid to delete.
-     */
-    where: FeaturedBidWhereUniqueInput
-  }
-
-  /**
-   * FeaturedBid deleteMany
-   */
-  export type FeaturedBidDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FeaturedBids to delete
-     */
-    where?: FeaturedBidWhereInput
-    /**
-     * Limit how many FeaturedBids to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * FeaturedBid.bidder
-   */
-  export type FeaturedBid$bidderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * FeaturedBid.winnerOf
-   */
-  export type FeaturedBid$winnerOfArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedCycle
-     */
-    select?: FeaturedCycleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedCycle
-     */
-    omit?: FeaturedCycleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedCycleInclude<ExtArgs> | null
-    where?: FeaturedCycleWhereInput
-  }
-
-  /**
-   * FeaturedBid without action
-   */
-  export type FeaturedBidDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FeaturedBid
-     */
-    select?: FeaturedBidSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FeaturedBid
-     */
-    omit?: FeaturedBidOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: FeaturedBidInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model Currency
    */
 
@@ -53432,40 +50617,6 @@ export namespace Prisma {
   export type RewardAccumulatorScalarFieldEnum = (typeof RewardAccumulatorScalarFieldEnum)[keyof typeof RewardAccumulatorScalarFieldEnum]
 
 
-  export const FeaturedCycleScalarFieldEnum: {
-    id: 'id',
-    cycleId: 'cycleId',
-    startAt: 'startAt',
-    endAt: 'endAt',
-    status: 'status',
-    minBidWei: 'minBidWei',
-    winnerBidId: 'winnerBidId',
-    winnerCollectionContract: 'winnerCollectionContract',
-    winnerAmountWei: 'winnerAmountWei',
-    finalizedAt: 'finalizedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type FeaturedCycleScalarFieldEnum = (typeof FeaturedCycleScalarFieldEnum)[keyof typeof FeaturedCycleScalarFieldEnum]
-
-
-  export const FeaturedBidScalarFieldEnum: {
-    id: 'id',
-    cycleId: 'cycleId',
-    bidderAddress: 'bidderAddress',
-    bidderUserId: 'bidderUserId',
-    collectionContract: 'collectionContract',
-    totalBidWei: 'totalBidWei',
-    txCount: 'txCount',
-    lastTxHash: 'lastTxHash',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type FeaturedBidScalarFieldEnum = (typeof FeaturedBidScalarFieldEnum)[keyof typeof FeaturedBidScalarFieldEnum]
-
-
   export const CurrencyScalarFieldEnum: {
     id: 'id',
     symbol: 'symbol',
@@ -53928,20 +51079,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'FeaturedCycleStatus'
-   */
-  export type EnumFeaturedCycleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeaturedCycleStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'FeaturedCycleStatus[]'
-   */
-  export type ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeaturedCycleStatus[]'>
-    
-
-
-  /**
    * Reference to a field of type 'CurrencyKind'
    */
   export type EnumCurrencyKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CurrencyKind'>
@@ -54096,7 +51233,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     collections?: CollectionListRelationFilter
     submissions?: CollectionSubmissionListRelationFilter
-    featuredBids?: FeaturedBidListRelationFilter
     holderRewardsMulti?: HolderRewardMultiListRelationFilter
     ownedNFTs?: NFTListRelationFilter
     rewardClaimLogs?: RewardClaimLogListRelationFilter
@@ -54118,7 +51254,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
     collections?: CollectionOrderByRelationAggregateInput
     submissions?: CollectionSubmissionOrderByRelationAggregateInput
-    featuredBids?: FeaturedBidOrderByRelationAggregateInput
     holderRewardsMulti?: HolderRewardMultiOrderByRelationAggregateInput
     ownedNFTs?: NFTOrderByRelationAggregateInput
     rewardClaimLogs?: RewardClaimLogOrderByRelationAggregateInput
@@ -54143,7 +51278,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     collections?: CollectionListRelationFilter
     submissions?: CollectionSubmissionListRelationFilter
-    featuredBids?: FeaturedBidListRelationFilter
     holderRewardsMulti?: HolderRewardMultiListRelationFilter
     ownedNFTs?: NFTListRelationFilter
     rewardClaimLogs?: RewardClaimLogListRelationFilter
@@ -54220,8 +51354,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadListRelationFilter
     creator?: XOR<UserScalarRelationFilter, UserWhereInput>
     deployment?: XOR<DeployedContractNullableScalarRelationFilter, DeployedContractWhereInput> | null
-    featuredBidEntries?: FeaturedBidListRelationFilter
-    featuredAsWinner?: FeaturedCycleListRelationFilter
     nfts?: NFTListRelationFilter
     presale?: XOR<PresaleNullableScalarRelationFilter, PresaleWhereInput> | null
     publicSale?: XOR<PublicSaleNullableScalarRelationFilter, PublicSaleWhereInput> | null
@@ -54258,8 +51390,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadOrderByRelationAggregateInput
     creator?: UserOrderByWithRelationInput
     deployment?: DeployedContractOrderByWithRelationInput
-    featuredBidEntries?: FeaturedBidOrderByRelationAggregateInput
-    featuredAsWinner?: FeaturedCycleOrderByRelationAggregateInput
     nfts?: NFTOrderByRelationAggregateInput
     presale?: PresaleOrderByWithRelationInput
     publicSale?: PublicSaleOrderByWithRelationInput
@@ -54299,8 +51429,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadListRelationFilter
     creator?: XOR<UserScalarRelationFilter, UserWhereInput>
     deployment?: XOR<DeployedContractNullableScalarRelationFilter, DeployedContractWhereInput> | null
-    featuredBidEntries?: FeaturedBidListRelationFilter
-    featuredAsWinner?: FeaturedCycleListRelationFilter
     nfts?: NFTListRelationFilter
     presale?: XOR<PresaleNullableScalarRelationFilter, PresaleWhereInput> | null
     publicSale?: XOR<PublicSaleNullableScalarRelationFilter, PublicSaleWhereInput> | null
@@ -56428,196 +53556,6 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"RewardAccumulator"> | Date | string
   }
 
-  export type FeaturedCycleWhereInput = {
-    AND?: FeaturedCycleWhereInput | FeaturedCycleWhereInput[]
-    OR?: FeaturedCycleWhereInput[]
-    NOT?: FeaturedCycleWhereInput | FeaturedCycleWhereInput[]
-    id?: StringFilter<"FeaturedCycle"> | string
-    cycleId?: StringFilter<"FeaturedCycle"> | string
-    startAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    endAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    status?: EnumFeaturedCycleStatusFilter<"FeaturedCycle"> | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string
-    winnerBidId?: StringNullableFilter<"FeaturedCycle"> | string | null
-    winnerCollectionContract?: StringNullableFilter<"FeaturedCycle"> | string | null
-    winnerAmountWei?: DecimalNullableFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: DateTimeNullableFilter<"FeaturedCycle"> | Date | string | null
-    createdAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    updatedAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    bids?: FeaturedBidListRelationFilter
-    winnerBid?: XOR<FeaturedBidNullableScalarRelationFilter, FeaturedBidWhereInput> | null
-    winnerCollection?: XOR<CollectionNullableScalarRelationFilter, CollectionWhereInput> | null
-  }
-
-  export type FeaturedCycleOrderByWithRelationInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    startAt?: SortOrder
-    endAt?: SortOrder
-    status?: SortOrder
-    minBidWei?: SortOrder
-    winnerBidId?: SortOrderInput | SortOrder
-    winnerCollectionContract?: SortOrderInput | SortOrder
-    winnerAmountWei?: SortOrderInput | SortOrder
-    finalizedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    bids?: FeaturedBidOrderByRelationAggregateInput
-    winnerBid?: FeaturedBidOrderByWithRelationInput
-    winnerCollection?: CollectionOrderByWithRelationInput
-  }
-
-  export type FeaturedCycleWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    cycleId?: string
-    winnerBidId?: string
-    AND?: FeaturedCycleWhereInput | FeaturedCycleWhereInput[]
-    OR?: FeaturedCycleWhereInput[]
-    NOT?: FeaturedCycleWhereInput | FeaturedCycleWhereInput[]
-    startAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    endAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    status?: EnumFeaturedCycleStatusFilter<"FeaturedCycle"> | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string
-    winnerCollectionContract?: StringNullableFilter<"FeaturedCycle"> | string | null
-    winnerAmountWei?: DecimalNullableFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: DateTimeNullableFilter<"FeaturedCycle"> | Date | string | null
-    createdAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    updatedAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    bids?: FeaturedBidListRelationFilter
-    winnerBid?: XOR<FeaturedBidNullableScalarRelationFilter, FeaturedBidWhereInput> | null
-    winnerCollection?: XOR<CollectionNullableScalarRelationFilter, CollectionWhereInput> | null
-  }, "id" | "cycleId" | "winnerBidId">
-
-  export type FeaturedCycleOrderByWithAggregationInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    startAt?: SortOrder
-    endAt?: SortOrder
-    status?: SortOrder
-    minBidWei?: SortOrder
-    winnerBidId?: SortOrderInput | SortOrder
-    winnerCollectionContract?: SortOrderInput | SortOrder
-    winnerAmountWei?: SortOrderInput | SortOrder
-    finalizedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: FeaturedCycleCountOrderByAggregateInput
-    _avg?: FeaturedCycleAvgOrderByAggregateInput
-    _max?: FeaturedCycleMaxOrderByAggregateInput
-    _min?: FeaturedCycleMinOrderByAggregateInput
-    _sum?: FeaturedCycleSumOrderByAggregateInput
-  }
-
-  export type FeaturedCycleScalarWhereWithAggregatesInput = {
-    AND?: FeaturedCycleScalarWhereWithAggregatesInput | FeaturedCycleScalarWhereWithAggregatesInput[]
-    OR?: FeaturedCycleScalarWhereWithAggregatesInput[]
-    NOT?: FeaturedCycleScalarWhereWithAggregatesInput | FeaturedCycleScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"FeaturedCycle"> | string
-    cycleId?: StringWithAggregatesFilter<"FeaturedCycle"> | string
-    startAt?: DateTimeWithAggregatesFilter<"FeaturedCycle"> | Date | string
-    endAt?: DateTimeWithAggregatesFilter<"FeaturedCycle"> | Date | string
-    status?: EnumFeaturedCycleStatusWithAggregatesFilter<"FeaturedCycle"> | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalWithAggregatesFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string
-    winnerBidId?: StringNullableWithAggregatesFilter<"FeaturedCycle"> | string | null
-    winnerCollectionContract?: StringNullableWithAggregatesFilter<"FeaturedCycle"> | string | null
-    winnerAmountWei?: DecimalNullableWithAggregatesFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: DateTimeNullableWithAggregatesFilter<"FeaturedCycle"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"FeaturedCycle"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"FeaturedCycle"> | Date | string
-  }
-
-  export type FeaturedBidWhereInput = {
-    AND?: FeaturedBidWhereInput | FeaturedBidWhereInput[]
-    OR?: FeaturedBidWhereInput[]
-    NOT?: FeaturedBidWhereInput | FeaturedBidWhereInput[]
-    id?: StringFilter<"FeaturedBid"> | string
-    cycleId?: StringFilter<"FeaturedBid"> | string
-    bidderAddress?: StringFilter<"FeaturedBid"> | string
-    bidderUserId?: StringNullableFilter<"FeaturedBid"> | string | null
-    collectionContract?: StringFilter<"FeaturedBid"> | string
-    totalBidWei?: DecimalFilter<"FeaturedBid"> | Decimal | DecimalJsLike | number | string
-    txCount?: IntFilter<"FeaturedBid"> | number
-    lastTxHash?: StringNullableFilter<"FeaturedBid"> | string | null
-    createdAt?: DateTimeFilter<"FeaturedBid"> | Date | string
-    updatedAt?: DateTimeFilter<"FeaturedBid"> | Date | string
-    bidder?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
-    cycle?: XOR<FeaturedCycleScalarRelationFilter, FeaturedCycleWhereInput>
-    winnerOf?: XOR<FeaturedCycleNullableScalarRelationFilter, FeaturedCycleWhereInput> | null
-  }
-
-  export type FeaturedBidOrderByWithRelationInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    bidderAddress?: SortOrder
-    bidderUserId?: SortOrderInput | SortOrder
-    collectionContract?: SortOrder
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-    lastTxHash?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    bidder?: UserOrderByWithRelationInput
-    collection?: CollectionOrderByWithRelationInput
-    cycle?: FeaturedCycleOrderByWithRelationInput
-    winnerOf?: FeaturedCycleOrderByWithRelationInput
-  }
-
-  export type FeaturedBidWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    cycleId_bidderAddress?: FeaturedBidCycleIdBidderAddressCompoundUniqueInput
-    AND?: FeaturedBidWhereInput | FeaturedBidWhereInput[]
-    OR?: FeaturedBidWhereInput[]
-    NOT?: FeaturedBidWhereInput | FeaturedBidWhereInput[]
-    cycleId?: StringFilter<"FeaturedBid"> | string
-    bidderAddress?: StringFilter<"FeaturedBid"> | string
-    bidderUserId?: StringNullableFilter<"FeaturedBid"> | string | null
-    collectionContract?: StringFilter<"FeaturedBid"> | string
-    totalBidWei?: DecimalFilter<"FeaturedBid"> | Decimal | DecimalJsLike | number | string
-    txCount?: IntFilter<"FeaturedBid"> | number
-    lastTxHash?: StringNullableFilter<"FeaturedBid"> | string | null
-    createdAt?: DateTimeFilter<"FeaturedBid"> | Date | string
-    updatedAt?: DateTimeFilter<"FeaturedBid"> | Date | string
-    bidder?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    collection?: XOR<CollectionScalarRelationFilter, CollectionWhereInput>
-    cycle?: XOR<FeaturedCycleScalarRelationFilter, FeaturedCycleWhereInput>
-    winnerOf?: XOR<FeaturedCycleNullableScalarRelationFilter, FeaturedCycleWhereInput> | null
-  }, "id" | "cycleId_bidderAddress">
-
-  export type FeaturedBidOrderByWithAggregationInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    bidderAddress?: SortOrder
-    bidderUserId?: SortOrderInput | SortOrder
-    collectionContract?: SortOrder
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-    lastTxHash?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: FeaturedBidCountOrderByAggregateInput
-    _avg?: FeaturedBidAvgOrderByAggregateInput
-    _max?: FeaturedBidMaxOrderByAggregateInput
-    _min?: FeaturedBidMinOrderByAggregateInput
-    _sum?: FeaturedBidSumOrderByAggregateInput
-  }
-
-  export type FeaturedBidScalarWhereWithAggregatesInput = {
-    AND?: FeaturedBidScalarWhereWithAggregatesInput | FeaturedBidScalarWhereWithAggregatesInput[]
-    OR?: FeaturedBidScalarWhereWithAggregatesInput[]
-    NOT?: FeaturedBidScalarWhereWithAggregatesInput | FeaturedBidScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"FeaturedBid"> | string
-    cycleId?: StringWithAggregatesFilter<"FeaturedBid"> | string
-    bidderAddress?: StringWithAggregatesFilter<"FeaturedBid"> | string
-    bidderUserId?: StringNullableWithAggregatesFilter<"FeaturedBid"> | string | null
-    collectionContract?: StringWithAggregatesFilter<"FeaturedBid"> | string
-    totalBidWei?: DecimalWithAggregatesFilter<"FeaturedBid"> | Decimal | DecimalJsLike | number | string
-    txCount?: IntWithAggregatesFilter<"FeaturedBid"> | number
-    lastTxHash?: StringNullableWithAggregatesFilter<"FeaturedBid"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"FeaturedBid"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"FeaturedBid"> | Date | string
-  }
-
   export type CurrencyWhereInput = {
     AND?: CurrencyWhereInput | CurrencyWhereInput[]
     OR?: CurrencyWhereInput[]
@@ -57694,7 +54632,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
@@ -57716,7 +54653,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
@@ -57738,7 +54674,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
@@ -57760,7 +54695,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
@@ -57842,8 +54776,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
     creator: UserCreateNestedOneWithoutCollectionsInput
     deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTCreateNestedManyWithoutCollectionInput
     presale?: PresaleCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
@@ -57879,8 +54811,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
     deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
     presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
@@ -57916,8 +54846,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
     creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
     deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
@@ -57953,8 +54881,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
     deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
@@ -60357,205 +57283,6 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FeaturedCycleCreateInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bids?: FeaturedBidCreateNestedManyWithoutCycleInput
-    winnerBid?: FeaturedBidCreateNestedOneWithoutWinnerOfInput
-    winnerCollection?: CollectionCreateNestedOneWithoutFeaturedAsWinnerInput
-  }
-
-  export type FeaturedCycleUncheckedCreateInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerBidId?: string | null
-    winnerCollectionContract?: string | null
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bids?: FeaturedBidUncheckedCreateNestedManyWithoutCycleInput
-  }
-
-  export type FeaturedCycleUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bids?: FeaturedBidUpdateManyWithoutCycleNestedInput
-    winnerBid?: FeaturedBidUpdateOneWithoutWinnerOfNestedInput
-    winnerCollection?: CollectionUpdateOneWithoutFeaturedAsWinnerNestedInput
-  }
-
-  export type FeaturedCycleUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerBidId?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerCollectionContract?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bids?: FeaturedBidUncheckedUpdateManyWithoutCycleNestedInput
-  }
-
-  export type FeaturedCycleCreateManyInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerBidId?: string | null
-    winnerCollectionContract?: string | null
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FeaturedCycleUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedCycleUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerBidId?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerCollectionContract?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedBidCreateInput = {
-    id?: string
-    bidderAddress: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bidder?: UserCreateNestedOneWithoutFeaturedBidsInput
-    collection: CollectionCreateNestedOneWithoutFeaturedBidEntriesInput
-    cycle: FeaturedCycleCreateNestedOneWithoutBidsInput
-    winnerOf?: FeaturedCycleCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidUncheckedCreateInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    winnerOf?: FeaturedCycleUncheckedCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bidder?: UserUpdateOneWithoutFeaturedBidsNestedInput
-    collection?: CollectionUpdateOneRequiredWithoutFeaturedBidEntriesNestedInput
-    cycle?: FeaturedCycleUpdateOneRequiredWithoutBidsNestedInput
-    winnerOf?: FeaturedCycleUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    winnerOf?: FeaturedCycleUncheckedUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidCreateManyInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FeaturedBidUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedBidUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type CurrencyCreateInput = {
     id?: string
     symbol: string
@@ -61784,12 +58511,6 @@ export namespace Prisma {
     none?: CollectionSubmissionWhereInput
   }
 
-  export type FeaturedBidListRelationFilter = {
-    every?: FeaturedBidWhereInput
-    some?: FeaturedBidWhereInput
-    none?: FeaturedBidWhereInput
-  }
-
   export type HolderRewardMultiListRelationFilter = {
     every?: HolderRewardMultiWhereInput
     some?: HolderRewardMultiWhereInput
@@ -61824,10 +58545,6 @@ export namespace Prisma {
   }
 
   export type CollectionSubmissionOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type FeaturedBidOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -61981,12 +58698,6 @@ export namespace Prisma {
     isNot?: DeployedContractWhereInput | null
   }
 
-  export type FeaturedCycleListRelationFilter = {
-    every?: FeaturedCycleWhereInput
-    some?: FeaturedCycleWhereInput
-    none?: FeaturedCycleWhereInput
-  }
-
   export type PresaleNullableScalarRelationFilter = {
     is?: PresaleWhereInput | null
     isNot?: PresaleWhereInput | null
@@ -61998,10 +58709,6 @@ export namespace Prisma {
   }
 
   export type AssetUploadOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type FeaturedCycleOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -63856,147 +60563,6 @@ export namespace Prisma {
     acc_per_token?: SortOrder
   }
 
-  export type EnumFeaturedCycleStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.FeaturedCycleStatus | EnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFeaturedCycleStatusFilter<$PrismaModel> | $Enums.FeaturedCycleStatus
-  }
-
-  export type FeaturedBidNullableScalarRelationFilter = {
-    is?: FeaturedBidWhereInput | null
-    isNot?: FeaturedBidWhereInput | null
-  }
-
-  export type FeaturedCycleCountOrderByAggregateInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    startAt?: SortOrder
-    endAt?: SortOrder
-    status?: SortOrder
-    minBidWei?: SortOrder
-    winnerBidId?: SortOrder
-    winnerCollectionContract?: SortOrder
-    winnerAmountWei?: SortOrder
-    finalizedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type FeaturedCycleAvgOrderByAggregateInput = {
-    minBidWei?: SortOrder
-    winnerAmountWei?: SortOrder
-  }
-
-  export type FeaturedCycleMaxOrderByAggregateInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    startAt?: SortOrder
-    endAt?: SortOrder
-    status?: SortOrder
-    minBidWei?: SortOrder
-    winnerBidId?: SortOrder
-    winnerCollectionContract?: SortOrder
-    winnerAmountWei?: SortOrder
-    finalizedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type FeaturedCycleMinOrderByAggregateInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    startAt?: SortOrder
-    endAt?: SortOrder
-    status?: SortOrder
-    minBidWei?: SortOrder
-    winnerBidId?: SortOrder
-    winnerCollectionContract?: SortOrder
-    winnerAmountWei?: SortOrder
-    finalizedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type FeaturedCycleSumOrderByAggregateInput = {
-    minBidWei?: SortOrder
-    winnerAmountWei?: SortOrder
-  }
-
-  export type EnumFeaturedCycleStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.FeaturedCycleStatus | EnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFeaturedCycleStatusWithAggregatesFilter<$PrismaModel> | $Enums.FeaturedCycleStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumFeaturedCycleStatusFilter<$PrismaModel>
-    _max?: NestedEnumFeaturedCycleStatusFilter<$PrismaModel>
-  }
-
-  export type FeaturedCycleScalarRelationFilter = {
-    is?: FeaturedCycleWhereInput
-    isNot?: FeaturedCycleWhereInput
-  }
-
-  export type FeaturedCycleNullableScalarRelationFilter = {
-    is?: FeaturedCycleWhereInput | null
-    isNot?: FeaturedCycleWhereInput | null
-  }
-
-  export type FeaturedBidCycleIdBidderAddressCompoundUniqueInput = {
-    cycleId: string
-    bidderAddress: string
-  }
-
-  export type FeaturedBidCountOrderByAggregateInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    bidderAddress?: SortOrder
-    bidderUserId?: SortOrder
-    collectionContract?: SortOrder
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-    lastTxHash?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type FeaturedBidAvgOrderByAggregateInput = {
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-  }
-
-  export type FeaturedBidMaxOrderByAggregateInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    bidderAddress?: SortOrder
-    bidderUserId?: SortOrder
-    collectionContract?: SortOrder
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-    lastTxHash?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type FeaturedBidMinOrderByAggregateInput = {
-    id?: SortOrder
-    cycleId?: SortOrder
-    bidderAddress?: SortOrder
-    bidderUserId?: SortOrder
-    collectionContract?: SortOrder
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-    lastTxHash?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type FeaturedBidSumOrderByAggregateInput = {
-    totalBidWei?: SortOrder
-    txCount?: SortOrder
-  }
-
   export type EnumCurrencyKindFilter<$PrismaModel = never> = {
     equals?: $Enums.CurrencyKind | EnumCurrencyKindFieldRefInput<$PrismaModel>
     in?: $Enums.CurrencyKind[] | ListEnumCurrencyKindFieldRefInput<$PrismaModel>
@@ -64780,13 +61346,6 @@ export namespace Prisma {
     connect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
   }
 
-  export type FeaturedBidCreateNestedManyWithoutBidderInput = {
-    create?: XOR<FeaturedBidCreateWithoutBidderInput, FeaturedBidUncheckedCreateWithoutBidderInput> | FeaturedBidCreateWithoutBidderInput[] | FeaturedBidUncheckedCreateWithoutBidderInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutBidderInput | FeaturedBidCreateOrConnectWithoutBidderInput[]
-    createMany?: FeaturedBidCreateManyBidderInputEnvelope
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-  }
-
   export type HolderRewardMultiCreateNestedManyWithoutUserInput = {
     create?: XOR<HolderRewardMultiCreateWithoutUserInput, HolderRewardMultiUncheckedCreateWithoutUserInput> | HolderRewardMultiCreateWithoutUserInput[] | HolderRewardMultiUncheckedCreateWithoutUserInput[]
     connectOrCreate?: HolderRewardMultiCreateOrConnectWithoutUserInput | HolderRewardMultiCreateOrConnectWithoutUserInput[]
@@ -64827,13 +61386,6 @@ export namespace Prisma {
     connectOrCreate?: CollectionSubmissionCreateOrConnectWithoutSubmittedByInput | CollectionSubmissionCreateOrConnectWithoutSubmittedByInput[]
     createMany?: CollectionSubmissionCreateManySubmittedByInputEnvelope
     connect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-  }
-
-  export type FeaturedBidUncheckedCreateNestedManyWithoutBidderInput = {
-    create?: XOR<FeaturedBidCreateWithoutBidderInput, FeaturedBidUncheckedCreateWithoutBidderInput> | FeaturedBidCreateWithoutBidderInput[] | FeaturedBidUncheckedCreateWithoutBidderInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutBidderInput | FeaturedBidCreateOrConnectWithoutBidderInput[]
-    createMany?: FeaturedBidCreateManyBidderInputEnvelope
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
   }
 
   export type HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput = {
@@ -64898,20 +61450,6 @@ export namespace Prisma {
     update?: CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput | CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput[]
     updateMany?: CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput | CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput[]
     deleteMany?: CollectionSubmissionScalarWhereInput | CollectionSubmissionScalarWhereInput[]
-  }
-
-  export type FeaturedBidUpdateManyWithoutBidderNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutBidderInput, FeaturedBidUncheckedCreateWithoutBidderInput> | FeaturedBidCreateWithoutBidderInput[] | FeaturedBidUncheckedCreateWithoutBidderInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutBidderInput | FeaturedBidCreateOrConnectWithoutBidderInput[]
-    upsert?: FeaturedBidUpsertWithWhereUniqueWithoutBidderInput | FeaturedBidUpsertWithWhereUniqueWithoutBidderInput[]
-    createMany?: FeaturedBidCreateManyBidderInputEnvelope
-    set?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    disconnect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    delete?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    update?: FeaturedBidUpdateWithWhereUniqueWithoutBidderInput | FeaturedBidUpdateWithWhereUniqueWithoutBidderInput[]
-    updateMany?: FeaturedBidUpdateManyWithWhereWithoutBidderInput | FeaturedBidUpdateManyWithWhereWithoutBidderInput[]
-    deleteMany?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
   }
 
   export type HolderRewardMultiUpdateManyWithoutUserNestedInput = {
@@ -64998,20 +61536,6 @@ export namespace Prisma {
     deleteMany?: CollectionSubmissionScalarWhereInput | CollectionSubmissionScalarWhereInput[]
   }
 
-  export type FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutBidderInput, FeaturedBidUncheckedCreateWithoutBidderInput> | FeaturedBidCreateWithoutBidderInput[] | FeaturedBidUncheckedCreateWithoutBidderInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutBidderInput | FeaturedBidCreateOrConnectWithoutBidderInput[]
-    upsert?: FeaturedBidUpsertWithWhereUniqueWithoutBidderInput | FeaturedBidUpsertWithWhereUniqueWithoutBidderInput[]
-    createMany?: FeaturedBidCreateManyBidderInputEnvelope
-    set?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    disconnect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    delete?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    update?: FeaturedBidUpdateWithWhereUniqueWithoutBidderInput | FeaturedBidUpdateWithWhereUniqueWithoutBidderInput[]
-    updateMany?: FeaturedBidUpdateManyWithWhereWithoutBidderInput | FeaturedBidUpdateManyWithWhereWithoutBidderInput[]
-    deleteMany?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-  }
-
   export type HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<HolderRewardMultiCreateWithoutUserInput, HolderRewardMultiUncheckedCreateWithoutUserInput> | HolderRewardMultiCreateWithoutUserInput[] | HolderRewardMultiUncheckedCreateWithoutUserInput[]
     connectOrCreate?: HolderRewardMultiCreateOrConnectWithoutUserInput | HolderRewardMultiCreateOrConnectWithoutUserInput[]
@@ -65087,20 +61611,6 @@ export namespace Prisma {
     connect?: DeployedContractWhereUniqueInput
   }
 
-  export type FeaturedBidCreateNestedManyWithoutCollectionInput = {
-    create?: XOR<FeaturedBidCreateWithoutCollectionInput, FeaturedBidUncheckedCreateWithoutCollectionInput> | FeaturedBidCreateWithoutCollectionInput[] | FeaturedBidUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCollectionInput | FeaturedBidCreateOrConnectWithoutCollectionInput[]
-    createMany?: FeaturedBidCreateManyCollectionInputEnvelope
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-  }
-
-  export type FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerCollectionInput, FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput> | FeaturedCycleCreateWithoutWinnerCollectionInput[] | FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput[]
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput | FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput[]
-    createMany?: FeaturedCycleCreateManyWinnerCollectionInputEnvelope
-    connect?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-  }
-
   export type NFTCreateNestedManyWithoutCollectionInput = {
     create?: XOR<NFTCreateWithoutCollectionInput, NFTUncheckedCreateWithoutCollectionInput> | NFTCreateWithoutCollectionInput[] | NFTUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: NFTCreateOrConnectWithoutCollectionInput | NFTCreateOrConnectWithoutCollectionInput[]
@@ -65131,20 +61641,6 @@ export namespace Prisma {
     create?: XOR<DeployedContractCreateWithoutCollectionInput, DeployedContractUncheckedCreateWithoutCollectionInput>
     connectOrCreate?: DeployedContractCreateOrConnectWithoutCollectionInput
     connect?: DeployedContractWhereUniqueInput
-  }
-
-  export type FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput = {
-    create?: XOR<FeaturedBidCreateWithoutCollectionInput, FeaturedBidUncheckedCreateWithoutCollectionInput> | FeaturedBidCreateWithoutCollectionInput[] | FeaturedBidUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCollectionInput | FeaturedBidCreateOrConnectWithoutCollectionInput[]
-    createMany?: FeaturedBidCreateManyCollectionInputEnvelope
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-  }
-
-  export type FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerCollectionInput, FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput> | FeaturedCycleCreateWithoutWinnerCollectionInput[] | FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput[]
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput | FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput[]
-    createMany?: FeaturedCycleCreateManyWinnerCollectionInputEnvelope
-    connect?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
   }
 
   export type NFTUncheckedCreateNestedManyWithoutCollectionInput = {
@@ -65226,34 +61722,6 @@ export namespace Prisma {
     update?: XOR<XOR<DeployedContractUpdateToOneWithWhereWithoutCollectionInput, DeployedContractUpdateWithoutCollectionInput>, DeployedContractUncheckedUpdateWithoutCollectionInput>
   }
 
-  export type FeaturedBidUpdateManyWithoutCollectionNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutCollectionInput, FeaturedBidUncheckedCreateWithoutCollectionInput> | FeaturedBidCreateWithoutCollectionInput[] | FeaturedBidUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCollectionInput | FeaturedBidCreateOrConnectWithoutCollectionInput[]
-    upsert?: FeaturedBidUpsertWithWhereUniqueWithoutCollectionInput | FeaturedBidUpsertWithWhereUniqueWithoutCollectionInput[]
-    createMany?: FeaturedBidCreateManyCollectionInputEnvelope
-    set?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    disconnect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    delete?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    update?: FeaturedBidUpdateWithWhereUniqueWithoutCollectionInput | FeaturedBidUpdateWithWhereUniqueWithoutCollectionInput[]
-    updateMany?: FeaturedBidUpdateManyWithWhereWithoutCollectionInput | FeaturedBidUpdateManyWithWhereWithoutCollectionInput[]
-    deleteMany?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-  }
-
-  export type FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerCollectionInput, FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput> | FeaturedCycleCreateWithoutWinnerCollectionInput[] | FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput[]
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput | FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput[]
-    upsert?: FeaturedCycleUpsertWithWhereUniqueWithoutWinnerCollectionInput | FeaturedCycleUpsertWithWhereUniqueWithoutWinnerCollectionInput[]
-    createMany?: FeaturedCycleCreateManyWinnerCollectionInputEnvelope
-    set?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    disconnect?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    delete?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    connect?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    update?: FeaturedCycleUpdateWithWhereUniqueWithoutWinnerCollectionInput | FeaturedCycleUpdateWithWhereUniqueWithoutWinnerCollectionInput[]
-    updateMany?: FeaturedCycleUpdateManyWithWhereWithoutWinnerCollectionInput | FeaturedCycleUpdateManyWithWhereWithoutWinnerCollectionInput[]
-    deleteMany?: FeaturedCycleScalarWhereInput | FeaturedCycleScalarWhereInput[]
-  }
-
   export type NFTUpdateManyWithoutCollectionNestedInput = {
     create?: XOR<NFTCreateWithoutCollectionInput, NFTUncheckedCreateWithoutCollectionInput> | NFTCreateWithoutCollectionInput[] | NFTUncheckedCreateWithoutCollectionInput[]
     connectOrCreate?: NFTCreateOrConnectWithoutCollectionInput | NFTCreateOrConnectWithoutCollectionInput[]
@@ -65310,34 +61778,6 @@ export namespace Prisma {
     delete?: DeployedContractWhereInput | boolean
     connect?: DeployedContractWhereUniqueInput
     update?: XOR<XOR<DeployedContractUpdateToOneWithWhereWithoutCollectionInput, DeployedContractUpdateWithoutCollectionInput>, DeployedContractUncheckedUpdateWithoutCollectionInput>
-  }
-
-  export type FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutCollectionInput, FeaturedBidUncheckedCreateWithoutCollectionInput> | FeaturedBidCreateWithoutCollectionInput[] | FeaturedBidUncheckedCreateWithoutCollectionInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCollectionInput | FeaturedBidCreateOrConnectWithoutCollectionInput[]
-    upsert?: FeaturedBidUpsertWithWhereUniqueWithoutCollectionInput | FeaturedBidUpsertWithWhereUniqueWithoutCollectionInput[]
-    createMany?: FeaturedBidCreateManyCollectionInputEnvelope
-    set?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    disconnect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    delete?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    update?: FeaturedBidUpdateWithWhereUniqueWithoutCollectionInput | FeaturedBidUpdateWithWhereUniqueWithoutCollectionInput[]
-    updateMany?: FeaturedBidUpdateManyWithWhereWithoutCollectionInput | FeaturedBidUpdateManyWithWhereWithoutCollectionInput[]
-    deleteMany?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-  }
-
-  export type FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerCollectionInput, FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput> | FeaturedCycleCreateWithoutWinnerCollectionInput[] | FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput[]
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput | FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput[]
-    upsert?: FeaturedCycleUpsertWithWhereUniqueWithoutWinnerCollectionInput | FeaturedCycleUpsertWithWhereUniqueWithoutWinnerCollectionInput[]
-    createMany?: FeaturedCycleCreateManyWinnerCollectionInputEnvelope
-    set?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    disconnect?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    delete?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    connect?: FeaturedCycleWhereUniqueInput | FeaturedCycleWhereUniqueInput[]
-    update?: FeaturedCycleUpdateWithWhereUniqueWithoutWinnerCollectionInput | FeaturedCycleUpdateWithWhereUniqueWithoutWinnerCollectionInput[]
-    updateMany?: FeaturedCycleUpdateManyWithWhereWithoutWinnerCollectionInput | FeaturedCycleUpdateManyWithWhereWithoutWinnerCollectionInput[]
-    deleteMany?: FeaturedCycleScalarWhereInput | FeaturedCycleScalarWhereInput[]
   }
 
   export type NFTUncheckedUpdateManyWithoutCollectionNestedInput = {
@@ -66336,160 +62776,6 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutSubmissionsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSubmissionsInput, UserUpdateWithoutSubmissionsInput>, UserUncheckedUpdateWithoutSubmissionsInput>
-  }
-
-  export type FeaturedBidCreateNestedManyWithoutCycleInput = {
-    create?: XOR<FeaturedBidCreateWithoutCycleInput, FeaturedBidUncheckedCreateWithoutCycleInput> | FeaturedBidCreateWithoutCycleInput[] | FeaturedBidUncheckedCreateWithoutCycleInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCycleInput | FeaturedBidCreateOrConnectWithoutCycleInput[]
-    createMany?: FeaturedBidCreateManyCycleInputEnvelope
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-  }
-
-  export type FeaturedBidCreateNestedOneWithoutWinnerOfInput = {
-    create?: XOR<FeaturedBidCreateWithoutWinnerOfInput, FeaturedBidUncheckedCreateWithoutWinnerOfInput>
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutWinnerOfInput
-    connect?: FeaturedBidWhereUniqueInput
-  }
-
-  export type CollectionCreateNestedOneWithoutFeaturedAsWinnerInput = {
-    create?: XOR<CollectionCreateWithoutFeaturedAsWinnerInput, CollectionUncheckedCreateWithoutFeaturedAsWinnerInput>
-    connectOrCreate?: CollectionCreateOrConnectWithoutFeaturedAsWinnerInput
-    connect?: CollectionWhereUniqueInput
-  }
-
-  export type FeaturedBidUncheckedCreateNestedManyWithoutCycleInput = {
-    create?: XOR<FeaturedBidCreateWithoutCycleInput, FeaturedBidUncheckedCreateWithoutCycleInput> | FeaturedBidCreateWithoutCycleInput[] | FeaturedBidUncheckedCreateWithoutCycleInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCycleInput | FeaturedBidCreateOrConnectWithoutCycleInput[]
-    createMany?: FeaturedBidCreateManyCycleInputEnvelope
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-  }
-
-  export type EnumFeaturedCycleStatusFieldUpdateOperationsInput = {
-    set?: $Enums.FeaturedCycleStatus
-  }
-
-  export type FeaturedBidUpdateManyWithoutCycleNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutCycleInput, FeaturedBidUncheckedCreateWithoutCycleInput> | FeaturedBidCreateWithoutCycleInput[] | FeaturedBidUncheckedCreateWithoutCycleInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCycleInput | FeaturedBidCreateOrConnectWithoutCycleInput[]
-    upsert?: FeaturedBidUpsertWithWhereUniqueWithoutCycleInput | FeaturedBidUpsertWithWhereUniqueWithoutCycleInput[]
-    createMany?: FeaturedBidCreateManyCycleInputEnvelope
-    set?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    disconnect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    delete?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    update?: FeaturedBidUpdateWithWhereUniqueWithoutCycleInput | FeaturedBidUpdateWithWhereUniqueWithoutCycleInput[]
-    updateMany?: FeaturedBidUpdateManyWithWhereWithoutCycleInput | FeaturedBidUpdateManyWithWhereWithoutCycleInput[]
-    deleteMany?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-  }
-
-  export type FeaturedBidUpdateOneWithoutWinnerOfNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutWinnerOfInput, FeaturedBidUncheckedCreateWithoutWinnerOfInput>
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutWinnerOfInput
-    upsert?: FeaturedBidUpsertWithoutWinnerOfInput
-    disconnect?: FeaturedBidWhereInput | boolean
-    delete?: FeaturedBidWhereInput | boolean
-    connect?: FeaturedBidWhereUniqueInput
-    update?: XOR<XOR<FeaturedBidUpdateToOneWithWhereWithoutWinnerOfInput, FeaturedBidUpdateWithoutWinnerOfInput>, FeaturedBidUncheckedUpdateWithoutWinnerOfInput>
-  }
-
-  export type CollectionUpdateOneWithoutFeaturedAsWinnerNestedInput = {
-    create?: XOR<CollectionCreateWithoutFeaturedAsWinnerInput, CollectionUncheckedCreateWithoutFeaturedAsWinnerInput>
-    connectOrCreate?: CollectionCreateOrConnectWithoutFeaturedAsWinnerInput
-    upsert?: CollectionUpsertWithoutFeaturedAsWinnerInput
-    disconnect?: CollectionWhereInput | boolean
-    delete?: CollectionWhereInput | boolean
-    connect?: CollectionWhereUniqueInput
-    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutFeaturedAsWinnerInput, CollectionUpdateWithoutFeaturedAsWinnerInput>, CollectionUncheckedUpdateWithoutFeaturedAsWinnerInput>
-  }
-
-  export type FeaturedBidUncheckedUpdateManyWithoutCycleNestedInput = {
-    create?: XOR<FeaturedBidCreateWithoutCycleInput, FeaturedBidUncheckedCreateWithoutCycleInput> | FeaturedBidCreateWithoutCycleInput[] | FeaturedBidUncheckedCreateWithoutCycleInput[]
-    connectOrCreate?: FeaturedBidCreateOrConnectWithoutCycleInput | FeaturedBidCreateOrConnectWithoutCycleInput[]
-    upsert?: FeaturedBidUpsertWithWhereUniqueWithoutCycleInput | FeaturedBidUpsertWithWhereUniqueWithoutCycleInput[]
-    createMany?: FeaturedBidCreateManyCycleInputEnvelope
-    set?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    disconnect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    delete?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    connect?: FeaturedBidWhereUniqueInput | FeaturedBidWhereUniqueInput[]
-    update?: FeaturedBidUpdateWithWhereUniqueWithoutCycleInput | FeaturedBidUpdateWithWhereUniqueWithoutCycleInput[]
-    updateMany?: FeaturedBidUpdateManyWithWhereWithoutCycleInput | FeaturedBidUpdateManyWithWhereWithoutCycleInput[]
-    deleteMany?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-  }
-
-  export type UserCreateNestedOneWithoutFeaturedBidsInput = {
-    create?: XOR<UserCreateWithoutFeaturedBidsInput, UserUncheckedCreateWithoutFeaturedBidsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutFeaturedBidsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type CollectionCreateNestedOneWithoutFeaturedBidEntriesInput = {
-    create?: XOR<CollectionCreateWithoutFeaturedBidEntriesInput, CollectionUncheckedCreateWithoutFeaturedBidEntriesInput>
-    connectOrCreate?: CollectionCreateOrConnectWithoutFeaturedBidEntriesInput
-    connect?: CollectionWhereUniqueInput
-  }
-
-  export type FeaturedCycleCreateNestedOneWithoutBidsInput = {
-    create?: XOR<FeaturedCycleCreateWithoutBidsInput, FeaturedCycleUncheckedCreateWithoutBidsInput>
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutBidsInput
-    connect?: FeaturedCycleWhereUniqueInput
-  }
-
-  export type FeaturedCycleCreateNestedOneWithoutWinnerBidInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerBidInput, FeaturedCycleUncheckedCreateWithoutWinnerBidInput>
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerBidInput
-    connect?: FeaturedCycleWhereUniqueInput
-  }
-
-  export type FeaturedCycleUncheckedCreateNestedOneWithoutWinnerBidInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerBidInput, FeaturedCycleUncheckedCreateWithoutWinnerBidInput>
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerBidInput
-    connect?: FeaturedCycleWhereUniqueInput
-  }
-
-  export type UserUpdateOneWithoutFeaturedBidsNestedInput = {
-    create?: XOR<UserCreateWithoutFeaturedBidsInput, UserUncheckedCreateWithoutFeaturedBidsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutFeaturedBidsInput
-    upsert?: UserUpsertWithoutFeaturedBidsInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeaturedBidsInput, UserUpdateWithoutFeaturedBidsInput>, UserUncheckedUpdateWithoutFeaturedBidsInput>
-  }
-
-  export type CollectionUpdateOneRequiredWithoutFeaturedBidEntriesNestedInput = {
-    create?: XOR<CollectionCreateWithoutFeaturedBidEntriesInput, CollectionUncheckedCreateWithoutFeaturedBidEntriesInput>
-    connectOrCreate?: CollectionCreateOrConnectWithoutFeaturedBidEntriesInput
-    upsert?: CollectionUpsertWithoutFeaturedBidEntriesInput
-    connect?: CollectionWhereUniqueInput
-    update?: XOR<XOR<CollectionUpdateToOneWithWhereWithoutFeaturedBidEntriesInput, CollectionUpdateWithoutFeaturedBidEntriesInput>, CollectionUncheckedUpdateWithoutFeaturedBidEntriesInput>
-  }
-
-  export type FeaturedCycleUpdateOneRequiredWithoutBidsNestedInput = {
-    create?: XOR<FeaturedCycleCreateWithoutBidsInput, FeaturedCycleUncheckedCreateWithoutBidsInput>
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutBidsInput
-    upsert?: FeaturedCycleUpsertWithoutBidsInput
-    connect?: FeaturedCycleWhereUniqueInput
-    update?: XOR<XOR<FeaturedCycleUpdateToOneWithWhereWithoutBidsInput, FeaturedCycleUpdateWithoutBidsInput>, FeaturedCycleUncheckedUpdateWithoutBidsInput>
-  }
-
-  export type FeaturedCycleUpdateOneWithoutWinnerBidNestedInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerBidInput, FeaturedCycleUncheckedCreateWithoutWinnerBidInput>
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerBidInput
-    upsert?: FeaturedCycleUpsertWithoutWinnerBidInput
-    disconnect?: FeaturedCycleWhereInput | boolean
-    delete?: FeaturedCycleWhereInput | boolean
-    connect?: FeaturedCycleWhereUniqueInput
-    update?: XOR<XOR<FeaturedCycleUpdateToOneWithWhereWithoutWinnerBidInput, FeaturedCycleUpdateWithoutWinnerBidInput>, FeaturedCycleUncheckedUpdateWithoutWinnerBidInput>
-  }
-
-  export type FeaturedCycleUncheckedUpdateOneWithoutWinnerBidNestedInput = {
-    create?: XOR<FeaturedCycleCreateWithoutWinnerBidInput, FeaturedCycleUncheckedCreateWithoutWinnerBidInput>
-    connectOrCreate?: FeaturedCycleCreateOrConnectWithoutWinnerBidInput
-    upsert?: FeaturedCycleUpsertWithoutWinnerBidInput
-    disconnect?: FeaturedCycleWhereInput | boolean
-    delete?: FeaturedCycleWhereInput | boolean
-    connect?: FeaturedCycleWhereUniqueInput
-    update?: XOR<XOR<FeaturedCycleUpdateToOneWithWhereWithoutWinnerBidInput, FeaturedCycleUpdateWithoutWinnerBidInput>, FeaturedCycleUncheckedUpdateWithoutWinnerBidInput>
   }
 
   export type AuctionCreateNestedManyWithoutCurrencyInput = {
@@ -67614,23 +63900,6 @@ export namespace Prisma {
     _max?: NestedEnumSubmissionStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumFeaturedCycleStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.FeaturedCycleStatus | EnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFeaturedCycleStatusFilter<$PrismaModel> | $Enums.FeaturedCycleStatus
-  }
-
-  export type NestedEnumFeaturedCycleStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.FeaturedCycleStatus | EnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FeaturedCycleStatus[] | ListEnumFeaturedCycleStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFeaturedCycleStatusWithAggregatesFilter<$PrismaModel> | $Enums.FeaturedCycleStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumFeaturedCycleStatusFilter<$PrismaModel>
-    _max?: NestedEnumFeaturedCycleStatusFilter<$PrismaModel>
-  }
-
   export type NestedEnumCurrencyKindFilter<$PrismaModel = never> = {
     equals?: $Enums.CurrencyKind | EnumCurrencyKindFieldRefInput<$PrismaModel>
     in?: $Enums.CurrencyKind[] | ListEnumCurrencyKindFieldRefInput<$PrismaModel>
@@ -67762,8 +64031,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
     deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTCreateNestedManyWithoutCollectionInput
     presale?: PresaleCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
@@ -67798,8 +64065,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
     deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
     presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
@@ -67876,42 +64141,6 @@ export namespace Prisma {
 
   export type CollectionSubmissionCreateManySubmittedByInputEnvelope = {
     data: CollectionSubmissionCreateManySubmittedByInput | CollectionSubmissionCreateManySubmittedByInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type FeaturedBidCreateWithoutBidderInput = {
-    id?: string
-    bidderAddress: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collection: CollectionCreateNestedOneWithoutFeaturedBidEntriesInput
-    cycle: FeaturedCycleCreateNestedOneWithoutBidsInput
-    winnerOf?: FeaturedCycleCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidUncheckedCreateWithoutBidderInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    winnerOf?: FeaturedCycleUncheckedCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidCreateOrConnectWithoutBidderInput = {
-    where: FeaturedBidWhereUniqueInput
-    create: XOR<FeaturedBidCreateWithoutBidderInput, FeaturedBidUncheckedCreateWithoutBidderInput>
-  }
-
-  export type FeaturedBidCreateManyBidderInputEnvelope = {
-    data: FeaturedBidCreateManyBidderInput | FeaturedBidCreateManyBidderInput[]
     skipDuplicates?: boolean
   }
 
@@ -68171,38 +64400,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
   }
 
-  export type FeaturedBidUpsertWithWhereUniqueWithoutBidderInput = {
-    where: FeaturedBidWhereUniqueInput
-    update: XOR<FeaturedBidUpdateWithoutBidderInput, FeaturedBidUncheckedUpdateWithoutBidderInput>
-    create: XOR<FeaturedBidCreateWithoutBidderInput, FeaturedBidUncheckedCreateWithoutBidderInput>
-  }
-
-  export type FeaturedBidUpdateWithWhereUniqueWithoutBidderInput = {
-    where: FeaturedBidWhereUniqueInput
-    data: XOR<FeaturedBidUpdateWithoutBidderInput, FeaturedBidUncheckedUpdateWithoutBidderInput>
-  }
-
-  export type FeaturedBidUpdateManyWithWhereWithoutBidderInput = {
-    where: FeaturedBidScalarWhereInput
-    data: XOR<FeaturedBidUpdateManyMutationInput, FeaturedBidUncheckedUpdateManyWithoutBidderInput>
-  }
-
-  export type FeaturedBidScalarWhereInput = {
-    AND?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-    OR?: FeaturedBidScalarWhereInput[]
-    NOT?: FeaturedBidScalarWhereInput | FeaturedBidScalarWhereInput[]
-    id?: StringFilter<"FeaturedBid"> | string
-    cycleId?: StringFilter<"FeaturedBid"> | string
-    bidderAddress?: StringFilter<"FeaturedBid"> | string
-    bidderUserId?: StringNullableFilter<"FeaturedBid"> | string | null
-    collectionContract?: StringFilter<"FeaturedBid"> | string
-    totalBidWei?: DecimalFilter<"FeaturedBid"> | Decimal | DecimalJsLike | number | string
-    txCount?: IntFilter<"FeaturedBid"> | number
-    lastTxHash?: StringNullableFilter<"FeaturedBid"> | string | null
-    createdAt?: DateTimeFilter<"FeaturedBid"> | Date | string
-    updatedAt?: DateTimeFilter<"FeaturedBid"> | Date | string
-  }
-
   export type HolderRewardMultiUpsertWithWhereUniqueWithoutUserInput = {
     where: HolderRewardMultiWhereUniqueInput
     update: XOR<HolderRewardMultiUpdateWithoutUserInput, HolderRewardMultiUncheckedUpdateWithoutUserInput>
@@ -68393,7 +64590,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
@@ -68414,7 +64610,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
@@ -68473,82 +64668,6 @@ export namespace Prisma {
   export type DeployedContractCreateOrConnectWithoutCollectionInput = {
     where: DeployedContractWhereUniqueInput
     create: XOR<DeployedContractCreateWithoutCollectionInput, DeployedContractUncheckedCreateWithoutCollectionInput>
-  }
-
-  export type FeaturedBidCreateWithoutCollectionInput = {
-    id?: string
-    bidderAddress: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bidder?: UserCreateNestedOneWithoutFeaturedBidsInput
-    cycle: FeaturedCycleCreateNestedOneWithoutBidsInput
-    winnerOf?: FeaturedCycleCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidUncheckedCreateWithoutCollectionInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    winnerOf?: FeaturedCycleUncheckedCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidCreateOrConnectWithoutCollectionInput = {
-    where: FeaturedBidWhereUniqueInput
-    create: XOR<FeaturedBidCreateWithoutCollectionInput, FeaturedBidUncheckedCreateWithoutCollectionInput>
-  }
-
-  export type FeaturedBidCreateManyCollectionInputEnvelope = {
-    data: FeaturedBidCreateManyCollectionInput | FeaturedBidCreateManyCollectionInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type FeaturedCycleCreateWithoutWinnerCollectionInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bids?: FeaturedBidCreateNestedManyWithoutCycleInput
-    winnerBid?: FeaturedBidCreateNestedOneWithoutWinnerOfInput
-  }
-
-  export type FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerBidId?: string | null
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bids?: FeaturedBidUncheckedCreateNestedManyWithoutCycleInput
-  }
-
-  export type FeaturedCycleCreateOrConnectWithoutWinnerCollectionInput = {
-    where: FeaturedCycleWhereUniqueInput
-    create: XOR<FeaturedCycleCreateWithoutWinnerCollectionInput, FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput>
-  }
-
-  export type FeaturedCycleCreateManyWinnerCollectionInputEnvelope = {
-    data: FeaturedCycleCreateManyWinnerCollectionInput | FeaturedCycleCreateManyWinnerCollectionInput[]
-    skipDuplicates?: boolean
   }
 
   export type NFTCreateWithoutCollectionInput = {
@@ -68735,7 +64854,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
@@ -68756,7 +64874,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
@@ -68816,56 +64933,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     single721Id?: NullableStringFieldUpdateOperationsInput | string | null
     single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type FeaturedBidUpsertWithWhereUniqueWithoutCollectionInput = {
-    where: FeaturedBidWhereUniqueInput
-    update: XOR<FeaturedBidUpdateWithoutCollectionInput, FeaturedBidUncheckedUpdateWithoutCollectionInput>
-    create: XOR<FeaturedBidCreateWithoutCollectionInput, FeaturedBidUncheckedCreateWithoutCollectionInput>
-  }
-
-  export type FeaturedBidUpdateWithWhereUniqueWithoutCollectionInput = {
-    where: FeaturedBidWhereUniqueInput
-    data: XOR<FeaturedBidUpdateWithoutCollectionInput, FeaturedBidUncheckedUpdateWithoutCollectionInput>
-  }
-
-  export type FeaturedBidUpdateManyWithWhereWithoutCollectionInput = {
-    where: FeaturedBidScalarWhereInput
-    data: XOR<FeaturedBidUpdateManyMutationInput, FeaturedBidUncheckedUpdateManyWithoutCollectionInput>
-  }
-
-  export type FeaturedCycleUpsertWithWhereUniqueWithoutWinnerCollectionInput = {
-    where: FeaturedCycleWhereUniqueInput
-    update: XOR<FeaturedCycleUpdateWithoutWinnerCollectionInput, FeaturedCycleUncheckedUpdateWithoutWinnerCollectionInput>
-    create: XOR<FeaturedCycleCreateWithoutWinnerCollectionInput, FeaturedCycleUncheckedCreateWithoutWinnerCollectionInput>
-  }
-
-  export type FeaturedCycleUpdateWithWhereUniqueWithoutWinnerCollectionInput = {
-    where: FeaturedCycleWhereUniqueInput
-    data: XOR<FeaturedCycleUpdateWithoutWinnerCollectionInput, FeaturedCycleUncheckedUpdateWithoutWinnerCollectionInput>
-  }
-
-  export type FeaturedCycleUpdateManyWithWhereWithoutWinnerCollectionInput = {
-    where: FeaturedCycleScalarWhereInput
-    data: XOR<FeaturedCycleUpdateManyMutationInput, FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionInput>
-  }
-
-  export type FeaturedCycleScalarWhereInput = {
-    AND?: FeaturedCycleScalarWhereInput | FeaturedCycleScalarWhereInput[]
-    OR?: FeaturedCycleScalarWhereInput[]
-    NOT?: FeaturedCycleScalarWhereInput | FeaturedCycleScalarWhereInput[]
-    id?: StringFilter<"FeaturedCycle"> | string
-    cycleId?: StringFilter<"FeaturedCycle"> | string
-    startAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    endAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    status?: EnumFeaturedCycleStatusFilter<"FeaturedCycle"> | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string
-    winnerBidId?: StringNullableFilter<"FeaturedCycle"> | string | null
-    winnerCollectionContract?: StringNullableFilter<"FeaturedCycle"> | string | null
-    winnerAmountWei?: DecimalNullableFilter<"FeaturedCycle"> | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: DateTimeNullableFilter<"FeaturedCycle"> | Date | string | null
-    createdAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
-    updatedAt?: DateTimeFilter<"FeaturedCycle"> | Date | string
   }
 
   export type NFTUpsertWithWhereUniqueWithoutCollectionInput = {
@@ -69136,8 +65203,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
     creator: UserCreateNestedOneWithoutCollectionsInput
     deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     presale?: PresaleCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
   }
@@ -69172,8 +65237,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
     deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
   }
@@ -69198,7 +65261,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
@@ -69219,7 +65281,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
@@ -69529,8 +65590,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
     creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
     deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     presale?: PresaleUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
   }
@@ -69565,8 +65624,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
     deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
   }
@@ -69597,7 +65654,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
@@ -69618,7 +65674,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
@@ -71261,8 +67316,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
     creator: UserCreateNestedOneWithoutCollectionsInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTCreateNestedManyWithoutCollectionInput
     presale?: PresaleCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
@@ -71297,8 +67350,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
     presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
@@ -71443,8 +67494,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
     creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
@@ -71479,8 +67528,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
@@ -71769,8 +67816,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
     creator: UserCreateNestedOneWithoutCollectionsInput
     deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTCreateNestedManyWithoutCollectionInput
     presale?: PresaleCreateNestedOneWithoutCollectionInput
   }
@@ -71805,8 +67850,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
     deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
     presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
   }
@@ -71857,8 +67900,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
     creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
     deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUpdateOneWithoutCollectionNestedInput
   }
@@ -71893,8 +67934,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
     deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
   }
@@ -71929,8 +67968,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
     creator: UserCreateNestedOneWithoutCollectionsInput
     deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTCreateNestedManyWithoutCollectionInput
     publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
   }
@@ -71965,8 +68002,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
     deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
     publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
   }
@@ -72039,8 +68074,6 @@ export namespace Prisma {
     assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
     creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
     deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUpdateManyWithoutCollectionNestedInput
     publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
   }
@@ -72075,8 +68108,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
     deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
     publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
   }
@@ -72208,8 +68239,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     creator: UserCreateNestedOneWithoutCollectionsInput
     deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTCreateNestedManyWithoutCollectionInput
     presale?: PresaleCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
@@ -72244,8 +68273,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
     nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
     presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
     publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
@@ -72390,8 +68417,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
     deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
@@ -72426,8 +68451,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
@@ -72553,7 +68576,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     collections?: CollectionCreateNestedManyWithoutCreatorInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
@@ -72574,7 +68596,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
@@ -72611,7 +68632,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
@@ -72632,703 +68652,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-  }
-
-  export type FeaturedBidCreateWithoutCycleInput = {
-    id?: string
-    bidderAddress: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bidder?: UserCreateNestedOneWithoutFeaturedBidsInput
-    collection: CollectionCreateNestedOneWithoutFeaturedBidEntriesInput
-    winnerOf?: FeaturedCycleCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidUncheckedCreateWithoutCycleInput = {
-    id?: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    winnerOf?: FeaturedCycleUncheckedCreateNestedOneWithoutWinnerBidInput
-  }
-
-  export type FeaturedBidCreateOrConnectWithoutCycleInput = {
-    where: FeaturedBidWhereUniqueInput
-    create: XOR<FeaturedBidCreateWithoutCycleInput, FeaturedBidUncheckedCreateWithoutCycleInput>
-  }
-
-  export type FeaturedBidCreateManyCycleInputEnvelope = {
-    data: FeaturedBidCreateManyCycleInput | FeaturedBidCreateManyCycleInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type FeaturedBidCreateWithoutWinnerOfInput = {
-    id?: string
-    bidderAddress: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bidder?: UserCreateNestedOneWithoutFeaturedBidsInput
-    collection: CollectionCreateNestedOneWithoutFeaturedBidEntriesInput
-    cycle: FeaturedCycleCreateNestedOneWithoutBidsInput
-  }
-
-  export type FeaturedBidUncheckedCreateWithoutWinnerOfInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FeaturedBidCreateOrConnectWithoutWinnerOfInput = {
-    where: FeaturedBidWhereUniqueInput
-    create: XOR<FeaturedBidCreateWithoutWinnerOfInput, FeaturedBidUncheckedCreateWithoutWinnerOfInput>
-  }
-
-  export type CollectionCreateWithoutFeaturedAsWinnerInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
-    creator: UserCreateNestedOneWithoutCollectionsInput
-    deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidCreateNestedManyWithoutCollectionInput
-    nfts?: NFTCreateNestedManyWithoutCollectionInput
-    presale?: PresaleCreateNestedOneWithoutCollectionInput
-    publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
-  }
-
-  export type CollectionUncheckedCreateWithoutFeaturedAsWinnerInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    creatorId: string
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
-    deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredBidEntries?: FeaturedBidUncheckedCreateNestedManyWithoutCollectionInput
-    nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
-    presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
-    publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
-  }
-
-  export type CollectionCreateOrConnectWithoutFeaturedAsWinnerInput = {
-    where: CollectionWhereUniqueInput
-    create: XOR<CollectionCreateWithoutFeaturedAsWinnerInput, CollectionUncheckedCreateWithoutFeaturedAsWinnerInput>
-  }
-
-  export type FeaturedBidUpsertWithWhereUniqueWithoutCycleInput = {
-    where: FeaturedBidWhereUniqueInput
-    update: XOR<FeaturedBidUpdateWithoutCycleInput, FeaturedBidUncheckedUpdateWithoutCycleInput>
-    create: XOR<FeaturedBidCreateWithoutCycleInput, FeaturedBidUncheckedCreateWithoutCycleInput>
-  }
-
-  export type FeaturedBidUpdateWithWhereUniqueWithoutCycleInput = {
-    where: FeaturedBidWhereUniqueInput
-    data: XOR<FeaturedBidUpdateWithoutCycleInput, FeaturedBidUncheckedUpdateWithoutCycleInput>
-  }
-
-  export type FeaturedBidUpdateManyWithWhereWithoutCycleInput = {
-    where: FeaturedBidScalarWhereInput
-    data: XOR<FeaturedBidUpdateManyMutationInput, FeaturedBidUncheckedUpdateManyWithoutCycleInput>
-  }
-
-  export type FeaturedBidUpsertWithoutWinnerOfInput = {
-    update: XOR<FeaturedBidUpdateWithoutWinnerOfInput, FeaturedBidUncheckedUpdateWithoutWinnerOfInput>
-    create: XOR<FeaturedBidCreateWithoutWinnerOfInput, FeaturedBidUncheckedCreateWithoutWinnerOfInput>
-    where?: FeaturedBidWhereInput
-  }
-
-  export type FeaturedBidUpdateToOneWithWhereWithoutWinnerOfInput = {
-    where?: FeaturedBidWhereInput
-    data: XOR<FeaturedBidUpdateWithoutWinnerOfInput, FeaturedBidUncheckedUpdateWithoutWinnerOfInput>
-  }
-
-  export type FeaturedBidUpdateWithoutWinnerOfInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bidder?: UserUpdateOneWithoutFeaturedBidsNestedInput
-    collection?: CollectionUpdateOneRequiredWithoutFeaturedBidEntriesNestedInput
-    cycle?: FeaturedCycleUpdateOneRequiredWithoutBidsNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateWithoutWinnerOfInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CollectionUpsertWithoutFeaturedAsWinnerInput = {
-    update: XOR<CollectionUpdateWithoutFeaturedAsWinnerInput, CollectionUncheckedUpdateWithoutFeaturedAsWinnerInput>
-    create: XOR<CollectionCreateWithoutFeaturedAsWinnerInput, CollectionUncheckedCreateWithoutFeaturedAsWinnerInput>
-    where?: CollectionWhereInput
-  }
-
-  export type CollectionUpdateToOneWithWhereWithoutFeaturedAsWinnerInput = {
-    where?: CollectionWhereInput
-    data: XOR<CollectionUpdateWithoutFeaturedAsWinnerInput, CollectionUncheckedUpdateWithoutFeaturedAsWinnerInput>
-  }
-
-  export type CollectionUpdateWithoutFeaturedAsWinnerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    symbol?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    standard?: StringFieldUpdateOperationsInput | string
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    gatewayPref?: EnumGatewayPrefFieldUpdateOperationsInput | $Enums.GatewayPref
-    indexStatus?: EnumIndexStatusFieldUpdateOperationsInput | $Enums.IndexStatus
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    discord?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    floorPrice?: FloatFieldUpdateOperationsInput | number
-    volume?: FloatFieldUpdateOperationsInput | number
-    itemsCount?: IntFieldUpdateOperationsInput | number
-    ownersCount?: IntFieldUpdateOperationsInput | number
-    change24h?: FloatFieldUpdateOperationsInput | number
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    isOrphan?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
-    creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
-    deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    nfts?: NFTUpdateManyWithoutCollectionNestedInput
-    presale?: PresaleUpdateOneWithoutCollectionNestedInput
-    publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
-  }
-
-  export type CollectionUncheckedUpdateWithoutFeaturedAsWinnerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    symbol?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    standard?: StringFieldUpdateOperationsInput | string
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    gatewayPref?: EnumGatewayPrefFieldUpdateOperationsInput | $Enums.GatewayPref
-    indexStatus?: EnumIndexStatusFieldUpdateOperationsInput | $Enums.IndexStatus
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    discord?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    floorPrice?: FloatFieldUpdateOperationsInput | number
-    volume?: FloatFieldUpdateOperationsInput | number
-    itemsCount?: IntFieldUpdateOperationsInput | number
-    ownersCount?: IntFieldUpdateOperationsInput | number
-    change24h?: FloatFieldUpdateOperationsInput | number
-    creatorId?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    isOrphan?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
-    deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
-    presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
-    publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
-  }
-
-  export type UserCreateWithoutFeaturedBidsInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-  }
-
-  export type UserUncheckedCreateWithoutFeaturedBidsInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-  }
-
-  export type UserCreateOrConnectWithoutFeaturedBidsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutFeaturedBidsInput, UserUncheckedCreateWithoutFeaturedBidsInput>
-  }
-
-  export type CollectionCreateWithoutFeaturedBidEntriesInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
-    creator: UserCreateNestedOneWithoutCollectionsInput
-    deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleCreateNestedManyWithoutWinnerCollectionInput
-    nfts?: NFTCreateNestedManyWithoutCollectionInput
-    presale?: PresaleCreateNestedOneWithoutCollectionInput
-    publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
-  }
-
-  export type CollectionUncheckedCreateWithoutFeaturedBidEntriesInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    creatorId: string
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
-    deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    featuredAsWinner?: FeaturedCycleUncheckedCreateNestedManyWithoutWinnerCollectionInput
-    nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
-    presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
-    publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
-  }
-
-  export type CollectionCreateOrConnectWithoutFeaturedBidEntriesInput = {
-    where: CollectionWhereUniqueInput
-    create: XOR<CollectionCreateWithoutFeaturedBidEntriesInput, CollectionUncheckedCreateWithoutFeaturedBidEntriesInput>
-  }
-
-  export type FeaturedCycleCreateWithoutBidsInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    winnerBid?: FeaturedBidCreateNestedOneWithoutWinnerOfInput
-    winnerCollection?: CollectionCreateNestedOneWithoutFeaturedAsWinnerInput
-  }
-
-  export type FeaturedCycleUncheckedCreateWithoutBidsInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerBidId?: string | null
-    winnerCollectionContract?: string | null
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FeaturedCycleCreateOrConnectWithoutBidsInput = {
-    where: FeaturedCycleWhereUniqueInput
-    create: XOR<FeaturedCycleCreateWithoutBidsInput, FeaturedCycleUncheckedCreateWithoutBidsInput>
-  }
-
-  export type FeaturedCycleCreateWithoutWinnerBidInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bids?: FeaturedBidCreateNestedManyWithoutCycleInput
-    winnerCollection?: CollectionCreateNestedOneWithoutFeaturedAsWinnerInput
-  }
-
-  export type FeaturedCycleUncheckedCreateWithoutWinnerBidInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerCollectionContract?: string | null
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bids?: FeaturedBidUncheckedCreateNestedManyWithoutCycleInput
-  }
-
-  export type FeaturedCycleCreateOrConnectWithoutWinnerBidInput = {
-    where: FeaturedCycleWhereUniqueInput
-    create: XOR<FeaturedCycleCreateWithoutWinnerBidInput, FeaturedCycleUncheckedCreateWithoutWinnerBidInput>
-  }
-
-  export type UserUpsertWithoutFeaturedBidsInput = {
-    update: XOR<UserUpdateWithoutFeaturedBidsInput, UserUncheckedUpdateWithoutFeaturedBidsInput>
-    create: XOR<UserCreateWithoutFeaturedBidsInput, UserUncheckedCreateWithoutFeaturedBidsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutFeaturedBidsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutFeaturedBidsInput, UserUncheckedUpdateWithoutFeaturedBidsInput>
-  }
-
-  export type UserUpdateWithoutFeaturedBidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutFeaturedBidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-  }
-
-  export type CollectionUpsertWithoutFeaturedBidEntriesInput = {
-    update: XOR<CollectionUpdateWithoutFeaturedBidEntriesInput, CollectionUncheckedUpdateWithoutFeaturedBidEntriesInput>
-    create: XOR<CollectionCreateWithoutFeaturedBidEntriesInput, CollectionUncheckedCreateWithoutFeaturedBidEntriesInput>
-    where?: CollectionWhereInput
-  }
-
-  export type CollectionUpdateToOneWithWhereWithoutFeaturedBidEntriesInput = {
-    where?: CollectionWhereInput
-    data: XOR<CollectionUpdateWithoutFeaturedBidEntriesInput, CollectionUncheckedUpdateWithoutFeaturedBidEntriesInput>
-  }
-
-  export type CollectionUpdateWithoutFeaturedBidEntriesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    symbol?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    standard?: StringFieldUpdateOperationsInput | string
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    gatewayPref?: EnumGatewayPrefFieldUpdateOperationsInput | $Enums.GatewayPref
-    indexStatus?: EnumIndexStatusFieldUpdateOperationsInput | $Enums.IndexStatus
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    discord?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    floorPrice?: FloatFieldUpdateOperationsInput | number
-    volume?: FloatFieldUpdateOperationsInput | number
-    itemsCount?: IntFieldUpdateOperationsInput | number
-    ownersCount?: IntFieldUpdateOperationsInput | number
-    change24h?: FloatFieldUpdateOperationsInput | number
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    isOrphan?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
-    creator?: UserUpdateOneRequiredWithoutCollectionsNestedInput
-    deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
-    nfts?: NFTUpdateManyWithoutCollectionNestedInput
-    presale?: PresaleUpdateOneWithoutCollectionNestedInput
-    publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
-  }
-
-  export type CollectionUncheckedUpdateWithoutFeaturedBidEntriesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    symbol?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    standard?: StringFieldUpdateOperationsInput | string
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    gatewayPref?: EnumGatewayPrefFieldUpdateOperationsInput | $Enums.GatewayPref
-    indexStatus?: EnumIndexStatusFieldUpdateOperationsInput | $Enums.IndexStatus
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    discord?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    floorPrice?: FloatFieldUpdateOperationsInput | number
-    volume?: FloatFieldUpdateOperationsInput | number
-    itemsCount?: IntFieldUpdateOperationsInput | number
-    ownersCount?: IntFieldUpdateOperationsInput | number
-    change24h?: FloatFieldUpdateOperationsInput | number
-    creatorId?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    isOrphan?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
-    deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
-    nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
-    presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
-    publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
-  }
-
-  export type FeaturedCycleUpsertWithoutBidsInput = {
-    update: XOR<FeaturedCycleUpdateWithoutBidsInput, FeaturedCycleUncheckedUpdateWithoutBidsInput>
-    create: XOR<FeaturedCycleCreateWithoutBidsInput, FeaturedCycleUncheckedCreateWithoutBidsInput>
-    where?: FeaturedCycleWhereInput
-  }
-
-  export type FeaturedCycleUpdateToOneWithWhereWithoutBidsInput = {
-    where?: FeaturedCycleWhereInput
-    data: XOR<FeaturedCycleUpdateWithoutBidsInput, FeaturedCycleUncheckedUpdateWithoutBidsInput>
-  }
-
-  export type FeaturedCycleUpdateWithoutBidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    winnerBid?: FeaturedBidUpdateOneWithoutWinnerOfNestedInput
-    winnerCollection?: CollectionUpdateOneWithoutFeaturedAsWinnerNestedInput
-  }
-
-  export type FeaturedCycleUncheckedUpdateWithoutBidsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerBidId?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerCollectionContract?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedCycleUpsertWithoutWinnerBidInput = {
-    update: XOR<FeaturedCycleUpdateWithoutWinnerBidInput, FeaturedCycleUncheckedUpdateWithoutWinnerBidInput>
-    create: XOR<FeaturedCycleCreateWithoutWinnerBidInput, FeaturedCycleUncheckedCreateWithoutWinnerBidInput>
-    where?: FeaturedCycleWhereInput
-  }
-
-  export type FeaturedCycleUpdateToOneWithWhereWithoutWinnerBidInput = {
-    where?: FeaturedCycleWhereInput
-    data: XOR<FeaturedCycleUpdateWithoutWinnerBidInput, FeaturedCycleUncheckedUpdateWithoutWinnerBidInput>
-  }
-
-  export type FeaturedCycleUpdateWithoutWinnerBidInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bids?: FeaturedBidUpdateManyWithoutCycleNestedInput
-    winnerCollection?: CollectionUpdateOneWithoutFeaturedAsWinnerNestedInput
-  }
-
-  export type FeaturedCycleUncheckedUpdateWithoutWinnerBidInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerCollectionContract?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bids?: FeaturedBidUncheckedUpdateManyWithoutCycleNestedInput
   }
 
   export type AuctionCreateWithoutCurrencyInput = {
@@ -74126,7 +69453,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
@@ -74147,7 +69473,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
@@ -74231,7 +69556,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
@@ -74252,7 +69576,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
@@ -74402,7 +69725,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
@@ -74423,7 +69745,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
@@ -74507,7 +69828,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
@@ -74528,7 +69848,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
@@ -74549,7 +69868,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
@@ -74570,7 +69888,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
     submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    featuredBids?: FeaturedBidUncheckedCreateNestedManyWithoutBidderInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
@@ -74607,7 +69924,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
@@ -74628,7 +69944,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
     submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    featuredBids?: FeaturedBidUncheckedUpdateManyWithoutBidderNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
@@ -75054,18 +70369,6 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type FeaturedBidCreateManyBidderInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type HolderRewardMultiCreateManyUserInput = {
     id?: string
     walletAddress: string
@@ -75151,8 +70454,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUpdateManyWithoutCollectionNestedInput
     deployment?: DeployedContractUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUpdateOneWithoutCollectionNestedInput
@@ -75187,8 +70488,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assetUploads?: AssetUploadUncheckedUpdateManyWithoutCollectionNestedInput
     deployment?: DeployedContractUncheckedUpdateOneWithoutCollectionNestedInput
-    featuredBidEntries?: FeaturedBidUncheckedUpdateManyWithoutCollectionNestedInput
-    featuredAsWinner?: FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionNestedInput
     nfts?: NFTUncheckedUpdateManyWithoutCollectionNestedInput
     presale?: PresaleUncheckedUpdateOneWithoutCollectionNestedInput
     publicSale?: PublicSaleUncheckedUpdateOneWithoutCollectionNestedInput
@@ -75300,44 +70599,6 @@ export namespace Prisma {
     statusReason?: NullableStringFieldUpdateOperationsInput | string | null
     reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
     reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedBidUpdateWithoutBidderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collection?: CollectionUpdateOneRequiredWithoutFeaturedBidEntriesNestedInput
-    cycle?: FeaturedCycleUpdateOneRequiredWithoutBidsNestedInput
-    winnerOf?: FeaturedCycleUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateWithoutBidderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    winnerOf?: FeaturedCycleUncheckedUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateManyWithoutBidderInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75533,32 +70794,6 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type FeaturedBidCreateManyCollectionInput = {
-    id?: string
-    cycleId: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FeaturedCycleCreateManyWinnerCollectionInput = {
-    id?: string
-    cycleId: string
-    startAt: Date | string
-    endAt: Date | string
-    status?: $Enums.FeaturedCycleStatus
-    minBidWei: Decimal | DecimalJsLike | number | string
-    winnerBidId?: string | null
-    winnerAmountWei?: Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type NFTCreateManyCollectionInput = {
     id?: string
     tokenId: string
@@ -75626,88 +70861,6 @@ export namespace Prisma {
     contentType?: NullableStringFieldUpdateOperationsInput | string | null
     originalName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedBidUpdateWithoutCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bidder?: UserUpdateOneWithoutFeaturedBidsNestedInput
-    cycle?: FeaturedCycleUpdateOneRequiredWithoutBidsNestedInput
-    winnerOf?: FeaturedCycleUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateWithoutCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    winnerOf?: FeaturedCycleUncheckedUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateManyWithoutCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type FeaturedCycleUpdateWithoutWinnerCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bids?: FeaturedBidUpdateManyWithoutCycleNestedInput
-    winnerBid?: FeaturedBidUpdateOneWithoutWinnerOfNestedInput
-  }
-
-  export type FeaturedCycleUncheckedUpdateWithoutWinnerCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerBidId?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bids?: FeaturedBidUncheckedUpdateManyWithoutCycleNestedInput
-  }
-
-  export type FeaturedCycleUncheckedUpdateManyWithoutWinnerCollectionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cycleId?: StringFieldUpdateOperationsInput | string
-    startAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    endAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumFeaturedCycleStatusFieldUpdateOperationsInput | $Enums.FeaturedCycleStatus
-    minBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    winnerBidId?: NullableStringFieldUpdateOperationsInput | string | null
-    winnerAmountWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    finalizedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NFTUpdateWithoutCollectionInput = {
@@ -76570,56 +71723,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     maxAllocation?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type FeaturedBidCreateManyCycleInput = {
-    id?: string
-    bidderAddress: string
-    bidderUserId?: string | null
-    collectionContract: string
-    totalBidWei: Decimal | DecimalJsLike | number | string
-    txCount?: number
-    lastTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type FeaturedBidUpdateWithoutCycleInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bidder?: UserUpdateOneWithoutFeaturedBidsNestedInput
-    collection?: CollectionUpdateOneRequiredWithoutFeaturedBidEntriesNestedInput
-    winnerOf?: FeaturedCycleUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateWithoutCycleInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    winnerOf?: FeaturedCycleUncheckedUpdateOneWithoutWinnerBidNestedInput
-  }
-
-  export type FeaturedBidUncheckedUpdateManyWithoutCycleInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    bidderAddress?: StringFieldUpdateOperationsInput | string
-    bidderUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionContract?: StringFieldUpdateOperationsInput | string
-    totalBidWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    txCount?: IntFieldUpdateOperationsInput | number
-    lastTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AuctionCreateManyCurrencyInput = {

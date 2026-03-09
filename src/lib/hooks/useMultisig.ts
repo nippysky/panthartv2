@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -20,7 +21,7 @@ export function useMultisig(opts: UseMultisigOpts = {}) {
   const [chainId, setChainId] = React.useState<number | null>(null);
   const [owners, setOwners] = React.useState<`0x${string}`[]>([]);
   const [required, setRequired] = React.useState<number>(0);
-  const [balanceWei, setBalanceWei] = React.useState<bigint>(0n);
+  const [balanceWei, setBalanceWei] = React.useState<bigint>(BigInt(0));
   const [txs, setTxs] = React.useState<
     {
       index: number;

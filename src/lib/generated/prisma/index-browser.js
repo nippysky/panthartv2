@@ -24,12 +24,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 7.2.0
- * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
+ * Prisma Client JS version: 7.4.2
+ * Query Engine version: 94a226be1cf2967af2541cca5529f0f7ba866919
  */
 Prisma.prismaVersion = {
-  client: "7.2.0",
-  engine: "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3"
+  client: "7.4.2",
+  engine: "94a226be1cf2967af2541cca5529f0f7ba866919"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -497,34 +497,6 @@ exports.Prisma.RewardAccumulatorScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.FeaturedCycleScalarFieldEnum = {
-  id: 'id',
-  cycleId: 'cycleId',
-  startAt: 'startAt',
-  endAt: 'endAt',
-  status: 'status',
-  minBidWei: 'minBidWei',
-  winnerBidId: 'winnerBidId',
-  winnerCollectionContract: 'winnerCollectionContract',
-  winnerAmountWei: 'winnerAmountWei',
-  finalizedAt: 'finalizedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.FeaturedBidScalarFieldEnum = {
-  id: 'id',
-  cycleId: 'cycleId',
-  bidderAddress: 'bidderAddress',
-  bidderUserId: 'bidderUserId',
-  collectionContract: 'collectionContract',
-  totalBidWei: 'totalBidWei',
-  txCount: 'txCount',
-  lastTxHash: 'lastTxHash',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.CurrencyScalarFieldEnum = {
   id: 'id',
   symbol: 'symbol',
@@ -761,12 +733,6 @@ exports.SubmissionStatus = exports.$Enums.SubmissionStatus = {
   REJECTED: 'REJECTED'
 };
 
-exports.FeaturedCycleStatus = exports.$Enums.FeaturedCycleStatus = {
-  UPCOMING: 'UPCOMING',
-  ACTIVE: 'ACTIVE',
-  FINALIZED: 'FINALIZED'
-};
-
 exports.CurrencyKind = exports.$Enums.CurrencyKind = {
   NATIVE: 'NATIVE',
   ERC20: 'ERC20'
@@ -834,8 +800,6 @@ exports.Prisma.ModelName = {
   NFTRarity: 'NFTRarity',
   HolderReward: 'HolderReward',
   RewardAccumulator: 'RewardAccumulator',
-  FeaturedCycle: 'FeaturedCycle',
-  FeaturedBid: 'FeaturedBid',
   Currency: 'Currency',
   MarketplaceSale: 'MarketplaceSale',
   RewardAccumulatorMulti: 'RewardAccumulatorMulti',

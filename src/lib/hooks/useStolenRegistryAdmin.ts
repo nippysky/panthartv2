@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
 import { http, createPublicClient } from "viem";
 import { getAddress, isAddress } from "viem";
-import { STOLEN_REGISTRY_ABI } from "@/lib/abis/marketplace-core/stolenRegistryABI";
+import { STOLEN_REGISTRY_ABI } from "@/src/lib/abis/marketplace-core/stolenRegistryABI";
 
 const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "";
 const STOLEN_REGISTRY_ADDRESS = (process.env.NEXT_PUBLIC_STOLEN_REGISTRY_ADDRESS || "") as `0x${string}`;
