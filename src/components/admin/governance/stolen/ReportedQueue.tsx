@@ -1,26 +1,20 @@
-// components/admin/stolen/ReportedQueue.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import AddressChip from "@/components/common/AddressChip";
 import { toast } from "sonner";
 import { ethers } from "ethers";
 import { getAddress } from "viem";
-import { getBrowserSigner, ZERO_ADDRESS } from "@/lib/evm/getSigner";
-import { MULTI_SIG_ABI } from "@/lib/abis/marketplace-core/multiSigABI";
-import { STOLEN_REGISTRY_ABI } from "@/lib/abis/marketplace-core/stolenRegistryABI";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
-const EXPLORER = process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL || "";
+import AddressChip from "@/src/ui/AddressChip";
+import { getBrowserSigner, ZERO_ADDRESS } from "@/src/lib/evm/getSigner";
+import { MULTI_SIG_ABI } from "@/src/lib/abis/marketplace-core/multiSigABI";
+import { STOLEN_REGISTRY_ABI } from "@/src/lib/abis/marketplace-core/stolenRegistryABI";
+
+const EXPLORER =
+  process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL ||
+  process.env.NEXT_PUBLIC_BLOCK_EXPLORER ||
+  "";
 const REGISTRY = process.env.NEXT_PUBLIC_STOLEN_REGISTRY_ADDRESS as `0x${string}`;
 const MULTISIG = process.env.NEXT_PUBLIC_MULTI_SIG_ADDRESS as `0x${string}`;
 
@@ -38,13 +32,17 @@ export type ReportRow = {
 };
 
 function reasonHashFrom(id: string) {
-  // deterministic, short & auditable
   return ethers.id(`USER_REPORT:${id}`) as `0x${string}`;
 }
 
-export default function ReportedQueue({ allowedWallets }: { allowedWallets: string[] }) {
+export default function ReportedQueue({
+  allowedWallets,
+}: {
+  allowedWallets: string[];
+}) {
   const [rows, setRows] = React.useState<ReportRow[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [busyId, setBusyId] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -66,168 +64,247 @@ export default function ReportedQueue({ allowedWallets }: { allowedWallets: stri
   const guard = async () => {
     const { signer, chainId } = await getBrowserSigner();
     const wallet = (await signer.getAddress()).toLowerCase();
+
     if (!allowedWallets.map((x) => x.toLowerCase()).includes(wallet)) {
       throw new Error("This wallet is not in the allowed admin list.");
     }
-    if (chainId !== 52014) throw new Error("Wrong network. Switch to Chain ID 52014.");
+
+    if (chainId !== 52014) {
+      throw new Error("Wrong network. Switch to Chain ID 52014.");
+    }
+
     return signer;
   };
 
-  const proposeFlag = async (r: ReportRow) => {
+  const proposeFlag = async (row: ReportRow) => {
     try {
+      setBusyId(`flag-${row.id}`);
+
       const signer = await guard();
       const iface = new ethers.Interface(STOLEN_REGISTRY_ABI as any);
       const data = iface.encodeFunctionData("flag", [
-        getAddress(r.contract),
-        BigInt(r.tokenId),
-        reasonHashFrom(r.id),
-        r.evidenceUrl || "",
+        getAddress(row.contract),
+        BigInt(row.tokenId),
+        reasonHashFrom(row.id),
+        row.evidenceUrl || "",
       ]);
 
-      const ms = new ethers.Contract(MULTISIG, MULTI_SIG_ABI as any, signer);
-      const resp = await ms.submitAndConfirm(ZERO_ADDRESS, REGISTRY, 0n, data);
-      toast.message("Submitting on-chain flag proposal…");
+      const multisig = new ethers.Contract(MULTISIG, MULTI_SIG_ABI as any, signer);
+      const resp = await multisig.submitAndConfirm(
+        ZERO_ADDRESS,
+        REGISTRY,
+        BigInt(0),
+        data
+      );
+
+      toast.message("Submitting on-chain flag proposal...");
       await resp.wait();
-      toast.success("Flag proposal submitted (and confirmed by you).");
+      toast.success("Flag proposal submitted successfully.");
       load();
     } catch (e: any) {
       toast.error(e?.message || String(e));
+    } finally {
+      setBusyId(null);
     }
   };
 
-  const proposeClear = async (r: ReportRow) => {
+  const proposeClear = async (row: ReportRow) => {
     try {
+      setBusyId(`clear-${row.id}`);
+
       const signer = await guard();
       const iface = new ethers.Interface(STOLEN_REGISTRY_ABI as any);
-      const data = iface.encodeFunctionData("clear", [getAddress(r.contract), BigInt(r.tokenId)]);
+      const data = iface.encodeFunctionData("clear", [
+        getAddress(row.contract),
+        BigInt(row.tokenId),
+      ]);
 
-      const ms = new ethers.Contract(MULTISIG, MULTI_SIG_ABI as any, signer);
-      const resp = await ms.submitAndConfirm(ZERO_ADDRESS, REGISTRY, 0n, data);
-      toast.message("Submitting on-chain clear proposal…");
+      const multisig = new ethers.Contract(MULTISIG, MULTI_SIG_ABI as any, signer);
+      const resp = await multisig.submitAndConfirm(
+        ZERO_ADDRESS,
+        REGISTRY,
+        BigInt(0),
+        data
+      );
+
+      toast.message("Submitting on-chain clear proposal...");
       await resp.wait();
-      toast.success("Clear proposal submitted (and confirmed by you).");
+      toast.success("Clear proposal submitted successfully.");
       load();
     } catch (e: any) {
       toast.error(e?.message || String(e));
+    } finally {
+      setBusyId(null);
     }
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-base font-medium">Reported Queue (users)</h3>
-        <Button variant="outline" onClick={load} disabled={loading}>
-          Refresh
-        </Button>
+    <section className="rounded-3xl border border-border bg-card p-5 md:p-6">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">
+            Reported Queue (Users)
+          </h3>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            User-submitted NFT reports that can be mirrored on-chain through the registry.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={load}
+          disabled={loading}
+          className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
 
-      <div className="mt-4">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[340px]">NFT</TableHead>
-              <TableHead>Reporter</TableHead>
-              <TableHead>Evidence</TableHead>
-              <TableHead>On-chain</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!loading && rows.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="py-6 text-muted-foreground">
-                  No user reports found.
-                </TableCell>
-              </TableRow>
-            )}
+      {!loading && rows.length === 0 ? (
+        <div className="rounded-[20px] border border-dashed border-border bg-background p-8 text-center text-sm text-muted">
+          No user reports found.
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-[20px] border border-border">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-background/80">
+                <tr>
+                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+                    NFT
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+                    Reporter
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+                    Evidence
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+                    On-chain
+                  </th>
+                  <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+                    Action
+                  </th>
+                </tr>
+              </thead>
 
-            {rows.map((r) => {
-              const nftLink = EXPLORER
-                ? `${EXPLORER}/token/${r.contract}?a=${r.tokenId}`
-                : undefined;
-              const contractLink = EXPLORER ? `${EXPLORER}/address/${r.contract}` : undefined;
+              <tbody className="divide-y divide-border">
+                {rows.map((row) => {
+                  const nftLink = EXPLORER
+                    ? `${EXPLORER}/token/${row.contract}?a=${row.tokenId}`
+                    : undefined;
+                  const contractLink = EXPLORER
+                    ? `${EXPLORER}/address/${row.contract}`
+                    : undefined;
 
-              return (
-                <TableRow key={r.id} className="align-top">
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        {contractLink ? (
-                          <a className="underline" href={contractLink} target="_blank" rel="noreferrer">
-                            <AddressChip address={r.contract} showCopy />
+                  return (
+                    <tr key={row.id} className="bg-card align-top">
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {contractLink ? (
+                              <a
+                                className="inline-flex"
+                                href={contractLink}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <AddressChip address={row.contract} showCopy />
+                              </a>
+                            ) : (
+                              <AddressChip address={row.contract} showCopy />
+                            )}
+                            <span className="text-xs text-muted">#{row.tokenId}</span>
+                          </div>
+
+                          {nftLink ? (
+                            <a
+                              href={nftLink}
+                              className="text-xs underline underline-offset-4 text-muted"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              View token
+                            </a>
+                          ) : null}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        {row.reporterAddress ? (
+                          <AddressChip address={row.reporterAddress} />
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+
+                        {row.notes ? (
+                          <div className="mt-2 max-w-xs wrap-break-word text-xs text-muted">
+                            {row.notes}
+                          </div>
+                        ) : null}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        {row.evidenceUrl ? (
+                          <a
+                            className="break-all underline underline-offset-4"
+                            href={row.evidenceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {row.evidenceUrl}
                           </a>
                         ) : (
-                          <AddressChip address={r.contract} showCopy />
+                          <span className="text-muted">—</span>
                         )}
-                        <span className="text-xs text-muted-foreground">#{r.tokenId}</span>
-                      </div>
-                      {nftLink && (
-                        <a
-                          href={nftLink}
-                          className="text-xs underline text-muted-foreground"
-                          target="_blank"
-                          rel="noreferrer"
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span
+                          className={[
+                            "inline-flex rounded-full px-3 py-1 text-xs font-medium",
+                            row.onChainActive
+                              ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                              : "border border-border bg-background text-muted",
+                          ].join(" ")}
                         >
-                          View token
-                        </a>
-                      )}
-                    </div>
-                  </TableCell>
+                          {row.onChainActive ? "Yes" : "No"}
+                        </span>
+                      </td>
 
-                  <TableCell>
-                    {r.reporterAddress ? (
-                      <AddressChip address={r.reporterAddress} />
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                    {r.notes && (
-                      <div className="text-xs text-muted-foreground mt-1 max-w-xs break-words">
-                        {r.notes}
-                      </div>
-                    )}
-                  </TableCell>
+                      <td className="px-4 py-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => proposeClear(row)}
+                            disabled={!row.onChainActive || busyId !== null}
+                            className="inline-flex h-9 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {busyId === `clear-${row.id}` ? "Submitting..." : "Propose Clear"}
+                          </button>
 
-                  <TableCell>
-                    {r.evidenceUrl ? (
-                      <a className="underline break-all" href={r.evidenceUrl} target="_blank" rel="noreferrer">
-                        {r.evidenceUrl}
-                      </a>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
+                          <button
+                            type="button"
+                            onClick={() => proposeFlag(row)}
+                            disabled={row.onChainActive || busyId !== null}
+                            className="inline-flex h-9 items-center justify-center rounded-full border border-foreground bg-foreground px-4 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {busyId === `flag-${row.id}` ? "Submitting..." : "Propose Flag"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-                  <TableCell>{r.onChainActive ? "Yes" : "No"}</TableCell>
-
-                  <TableCell className="text-right">
-                    <div className="inline-flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => proposeClear(r)}
-                        title="Propose clear on-chain"
-                        disabled={!r.onChainActive}
-                      >
-                        Propose Clear
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => proposeFlag(r)}
-                        title="Propose flag on-chain"
-                        disabled={r.onChainActive}
-                      >
-                        Propose Flag
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-
-        {loading && <div className="text-sm text-muted-foreground mt-3">Loading…</div>}
-      </div>
-    </Card>
+      {loading ? (
+        <div className="mt-3 text-sm text-muted">Loading...</div>
+      ) : null}
+    </section>
   );
 }

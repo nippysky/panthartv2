@@ -1,9 +1,10 @@
+import GovernanceSectionHeader from "@/src/components/admin/governance/GovernanceSectionHeader";
+import MarketplaceAdminPanel from "@/src/components/admin/governance/marketplace/MarketplaceAdminPanel";
+
 // app/(admin)/[slug]/governance/marketplace/page.tsx
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import GovernanceSectionHeader from "../_components/GovernanceSectionHeader";
-import MarketplaceAdminPanel from "@/components/admin/marketplace/MarketplaceAdminPanel";
 
 type Ctx = { params: Promise<{ slug: string }> };
 

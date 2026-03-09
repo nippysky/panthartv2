@@ -1,5 +1,5 @@
 // lib/contracts/multisig.ts
-import multiSigAbi from "@/lib/abis/marketplace-core/multiSigABI.json";
+import multiSigAbi from "@/src/lib/abis/marketplace-core/multiSigABI.json";
 
 export const MULTI_SIG_ADDRESS =
   (process.env.NEXT_PUBLIC_MULTI_SIG_ADDRESS ||

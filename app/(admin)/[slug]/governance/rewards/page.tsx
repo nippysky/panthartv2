@@ -1,9 +1,10 @@
+import GovernanceSectionHeader from "@/src/components/admin/governance/GovernanceSectionHeader";
+import RewardsPanel from "@/src/components/admin/governance/rewards/RewardsPanel";
+
 // app/(admin)/[slug]/governance/rewards/page.tsx
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import GovernanceSectionHeader from "../_components/GovernanceSectionHeader";
-import RewardsPanel from "./ui/RewardsPanel";
 
 type Ctx = { params: Promise<{ slug: string }> };
 

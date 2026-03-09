@@ -15,15 +15,16 @@ const DISTRIBUTOR = process.env.NEXT_PUBLIC_REWARD_DISTRIBUTOR_ADDRESS || "";
 const MULTISIG = process.env.NEXT_PUBLIC_MULTI_SIG_ADDRESS || "";
 const ZERO = "0x0000000000000000000000000000000000000000";
 
-type ActiveCurrency = {
+type ApiCurrency = {
   id: string;
   symbol: string;
   decimals: number;
-  kind: string;
-  tokenAddress: string | null;
+  kind: "NATIVE" | "ERC20";
+  tokenAddress?: string | null;
 };
 
 type CurrencyRow = {
+  id: string;
   symbol: string;
   decimals: number;
   token: string;
@@ -55,28 +56,24 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
     []
   );
 
-  async function fetchActiveCurrencies(): Promise<CurrencyRow[]> {
-    const res = await fetch("/api/currencies/active", { cache: "no-store" });
+  async function fetchCurrencies(): Promise<CurrencyRow[]> {
+    const res = await fetch("/api/currencies", { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to load currencies");
 
     const json = await res.json();
-    const items = (json?.items as ActiveCurrency[]) || [];
+    const items = (json?.currencies as ApiCurrency[]) || [];
 
     return items.map((item) => ({
+      id: item.id,
       symbol: item.symbol || (item.tokenAddress ? "TOKEN" : "ETN"),
       decimals: item.decimals ?? 18,
       token: item.tokenAddress ? ethers.getAddress(item.tokenAddress) : ZERO,
-      kind: item.tokenAddress ? "ERC20" : "NATIVE",
+      kind: item.kind === "ERC20" ? "ERC20" : "NATIVE",
     }));
   }
 
-  const refresh = React.useCallback(async () => {
-    setLoading(true);
-
-    try {
-      const rows = await fetchActiveCurrencies();
-      setCurrencies(rows);
-
+  const readBalances = React.useCallback(
+    async (rows: CurrencyRow[]): Promise<BalRow[]> => {
       const { signer } = await getBrowserSigner();
       const provider = signer.provider!;
 
@@ -120,7 +117,19 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
         return a.symbol.localeCompare(b.symbol);
       });
 
-      const bals = out;
+      return out;
+    },
+    [erc20Iface]
+  );
+
+  const refresh = React.useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const rows = await fetchCurrencies();
+      setCurrencies(rows);
+
+      const bals = await readBalances(rows);
       setBalances(bals);
 
       const match =
@@ -145,7 +154,7 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
     } finally {
       setLoading(false);
     }
-  }, [token, erc20Iface]);
+  }, [token, readBalances]);
 
   React.useEffect(() => {
     refresh().catch(() => {});
@@ -250,7 +259,7 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
 
             return (
               <button
-                key={`${balance.token}-${balance.symbol}`}
+                key={`${balance.id}-${balance.token}-${balance.symbol}`}
                 type="button"
                 onClick={() => setToken(balance.token)}
                 className={[
@@ -263,6 +272,7 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
                 <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
                   Token
                 </div>
+
                 <div className="mt-1 font-mono text-xs break-all text-foreground">
                   {balance.token === ZERO ? "ETN (native)" : balance.token}
                 </div>
@@ -286,7 +296,10 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
       <form onSubmit={onSubmit} className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2 min-w-0">
           <label className="block">
-            <span className="text-sm font-medium text-foreground">Selected Currency</span>
+            <span className="text-sm font-medium text-foreground">
+              Selected Currency
+            </span>
+
             <div className="mt-2 rounded-[18px] border border-border bg-background p-4">
               <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
                 Symbol • Decimals
@@ -300,7 +313,11 @@ export default function RescueFundsForm({ allowedWallets }: Props) {
                 Token
               </div>
               <div className="mt-1 font-mono text-xs break-all text-foreground">
-                {selected ? (selected.token === ZERO ? "ETN (native)" : selected.token) : "—"}
+                {selected
+                  ? selected.token === ZERO
+                    ? "ETN (native)"
+                    : selected.token
+                  : "—"}
               </div>
 
               <div className="mt-3 text-[11px] uppercase tracking-[0.14em] text-muted">

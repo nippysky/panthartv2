@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 import Link from "next/link";
-import AddressChip from "@/components/common/AddressChip";
 import GovernanceSectionHeader from "@/src/components/admin/governance/GovernanceSectionHeader";
+import AddressChip from "@/src/ui/AddressChip";
 
 export default async function SettingsPage() {
   const EXPLORER =

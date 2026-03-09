@@ -1,9 +1,10 @@
+import GovernanceSectionHeader from "@/src/components/admin/governance/GovernanceSectionHeader";
+import RegistryAdminPanel from "@/src/components/admin/governance/stolen/RegistryAdminPanel";
+
 // app/(admin)/[slug]/governance/stolen-registry/page.tsx
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import GovernanceSectionHeader from "../_components/GovernanceSectionHeader";
-import RegistryAdminPanel from "@/components/admin/stolen/RegistryAdminPanel";
 
 type Ctx = { params: Promise<{ slug: string }> };
 

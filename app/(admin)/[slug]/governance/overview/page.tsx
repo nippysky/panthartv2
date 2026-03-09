@@ -1,9 +1,11 @@
+import GovernanceSectionHeader from "@/src/components/admin/governance/GovernanceSectionHeader";
+import OverviewClient from "./OverviewClient";
+
 // app/(admin)/[slug]/governance/overview/page.tsx
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import GovernanceSectionHeader from "../_components/GovernanceSectionHeader";
-import OverviewClient from "./ui/OverviewClient";
+
 
 type Ctx = { params: Promise<{ slug: string }> };
 

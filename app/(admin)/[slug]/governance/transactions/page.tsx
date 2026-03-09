@@ -1,9 +1,10 @@
+import GovernanceSectionHeader from "@/src/components/admin/governance/GovernanceSectionHeader";
+import MultisigAdminClient from "@/src/components/admin/governance/multisig/MultisigAdminClient";
+
 // app/(admin)/[slug]/governance/transactions/page.tsx
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import GovernanceSectionHeader from "../_components/GovernanceSectionHeader";
-import MultisigAdminClient from "@/components/admin/multisig/MultisigAdminClient";
 
 type Ctx = { params: Promise<{ slug: string }> };
 
