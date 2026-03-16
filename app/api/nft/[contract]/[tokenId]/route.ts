@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import prisma, { prismaReady } from "@/src/lib/db";
 import { Prisma, ListingStatus, AuctionStatus } from "@/src/lib/generated/prisma";
+import { toCanonicalIpfsUri } from "@/src/lib/ipfs";
 
 /* ----------------------------- helpers ----------------------------- */
 function weiToEtn(wei?: any): number | undefined {
@@ -13,6 +14,67 @@ function weiToEtn(wei?: any): number | undefined {
   const s = (wei as any).toString?.() ?? String(wei);
   const n = Number(s);
   return Number.isFinite(n) ? n / 1e18 : undefined;
+}
+
+function normalizeMaybeString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function parseAttributes(rawMetadata: any, attributes: any, traits: any) {
+  if (Array.isArray(attributes)) return attributes;
+  if (Array.isArray(rawMetadata?.attributes)) return rawMetadata.attributes;
+  if (Array.isArray(rawMetadata?.traits)) return rawMetadata.traits;
+
+  if (traits && typeof traits === "object" && !Array.isArray(traits)) {
+    return Object.entries(traits).map(([trait_type, value]) => ({
+      trait_type,
+      value,
+    }));
+  }
+
+  if (rawMetadata?.traits && typeof rawMetadata.traits === "object" && !Array.isArray(rawMetadata.traits)) {
+    return Object.entries(rawMetadata.traits).map(([trait_type, value]) => ({
+      trait_type,
+      value,
+    }));
+  }
+
+  return null;
+}
+
+function pickImage(nft: any, rawMetadata: any) {
+  return (
+    normalizeMaybeString(nft.imageUrl) ??
+    normalizeMaybeString(rawMetadata?.image) ??
+    normalizeMaybeString(rawMetadata?.image_url) ??
+    normalizeMaybeString(rawMetadata?.imageUrl) ??
+    null
+  );
+}
+
+function pickAnimation(rawMetadata: any) {
+  return (
+    normalizeMaybeString(rawMetadata?.animation_url) ??
+    normalizeMaybeString(rawMetadata?.animationUrl) ??
+    normalizeMaybeString(rawMetadata?.animation) ??
+    null
+  );
+}
+
+function pickName(nft: any, rawMetadata: any) {
+  return (
+    normalizeMaybeString(nft.name) ??
+    normalizeMaybeString(rawMetadata?.name) ??
+    null
+  );
+}
+
+function pickDescription(nft: any, rawMetadata: any) {
+  return (
+    normalizeMaybeString(nft.description) ??
+    normalizeMaybeString(rawMetadata?.description) ??
+    null
+  );
 }
 
 /* ------------------------------ rarity ----------------------------- */
@@ -168,7 +230,7 @@ export async function GET(
             deployment: { select: { royaltyRecipient: true, royaltyBps: true } },
           },
         },
-        single721:  { select: { royaltyRecipient: true, royaltyBps: true, name: true, symbol: true, ownerAddress: true } },
+        single721: { select: { royaltyRecipient: true, royaltyBps: true, name: true, symbol: true, ownerAddress: true } },
         single1155: { select: { royaltyRecipient: true, royaltyBps: true, name: true, symbol: true, maxSupply: true, ownerAddress: true } },
         listingEntries: {
           where: { status: ListingStatus.ACTIVE },
@@ -176,12 +238,11 @@ export async function GET(
           take: 1,
           select: { priceEtnWei: true, quantity: true },
         },
-        // IMPORTANT: expose auction DB id and currency DB id for the client
         auctionEntries: {
           where: { status: AuctionStatus.ACTIVE },
           take: 1,
           select: {
-            id: true,                         // Prisma auction id (cuid)
+            id: true,
             startPriceEtnWei: true,
             highestBidEtnWei: true,
             startPriceTokenAmount: true,
@@ -190,7 +251,7 @@ export async function GET(
             minIncrementTokenAmount: true,
             endTime: true,
             sellerAddress: true,
-            currencyId: true,                 // Prisma currency id
+            currencyId: true,
             currency: {
               select: {
                 id: true,
@@ -198,14 +259,21 @@ export async function GET(
                 decimals: true,
                 kind: true,
                 tokenAddress: true,
-              }
-            }
+              },
+            },
           },
         },
       },
     });
 
     if (!nft) return NextResponse.json("Not found", { status: 404 });
+
+    const raw = await prisma.nFT.findUnique({
+      where: { id: nft.id },
+      select: { rawMetadata: true },
+    });
+
+    const rawMetadata = raw?.rawMetadata ?? null;
 
     const standard =
       nft.collection?.standard ?? nft.standard ?? (nft.single1155 ? "ERC1155" : "ERC721");
@@ -215,7 +283,6 @@ export async function GET(
       !nft.collection ||
       (nft.collection?.supply ?? 0) <= 1;
 
-    // Creator
     let creatorWallet: string | null =
       nft.collection
         ? nft.collection.creator.walletAddress
@@ -289,16 +356,23 @@ export async function GET(
             `https://api.dicebear.com/7.x/identicon/svg?seed=${nft.contract}`,
         };
 
+    const recoveredName = pickName(nft, rawMetadata);
+    const recoveredImage = pickImage(nft, rawMetadata);
+    const recoveredAnimation = pickAnimation(rawMetadata);
+    const recoveredDescription = pickDescription(nft, rawMetadata);
+    const recoveredAttributes = parseAttributes(rawMetadata, nft.attributes, nft.traits);
+
     const currentNFT = {
       id: nft.id,
       nftAddress: nft.contract,
       tokenId: nft.tokenId,
-      name: nft.name,
-      image: nft.imageUrl,
-      description: nft.description ?? undefined,
+      name: recoveredName,
+      image: toCanonicalIpfsUri(recoveredImage),
+      animation_url: toCanonicalIpfsUri(recoveredAnimation),
+      description: recoveredDescription ?? undefined,
       traits: nft.traits as any,
-      attributes: nft.attributes as any,
-      tokenUri: nft.tokenUri ?? undefined,
+      attributes: recoveredAttributes as any,
+      tokenUri: toCanonicalIpfsUri(nft.tokenUri) ?? undefined,
       contract: nft.contract,
       standard,
       royaltyBps: royaltyBps ?? undefined,
@@ -307,7 +381,7 @@ export async function GET(
       collectionId: nft.collectionId ?? undefined,
 
       isListed,
-      listingPrice, // ETN
+      listingPrice,
       isAuctioned: (nft.auctionEntries?.length ?? 0) > 0,
 
       createdAt: nft.createdAt.toISOString(),
@@ -348,14 +422,9 @@ export async function GET(
         ? await count1155HoldersFromDB(nft.contract, nft.tokenId)
         : null;
 
-    const raw = await prisma.nFT.findUnique({
-      where: { id: nft.id },
-      select: { rawMetadata: true },
-    });
-
     const auction = nft.auctionEntries?.[0]
       ? {
-          id: nft.auctionEntries[0].id,                          // Prisma auction id (DB)
+          id: nft.auctionEntries[0].id,
           startPriceEtnWei: nft.auctionEntries[0].startPriceEtnWei,
           highestBidEtnWei: nft.auctionEntries[0].highestBidEtnWei,
           startPriceTokenAmount: nft.auctionEntries[0].startPriceTokenAmount,
@@ -364,7 +433,7 @@ export async function GET(
           minIncrementTokenAmount: nft.auctionEntries[0].minIncrementTokenAmount,
           endTime: nft.auctionEntries[0].endTime,
           sellerAddress: nft.auctionEntries[0].sellerAddress,
-          currencyId: nft.auctionEntries[0].currencyId ?? null,  // Prisma currency id (DB)
+          currencyId: nft.auctionEntries[0].currencyId ?? null,
           currency: nft.auctionEntries[0].currency
             ? {
                 id: nft.auctionEntries[0].currency!.id,
@@ -391,10 +460,9 @@ export async function GET(
       population,
       listQuantity,
       displayGroup,
-      rawMetadata: raw?.rawMetadata ?? null,
+      rawMetadata: rawMetadata,
       erc1155OwnerCount,
-
-      auction,                                // contains Prisma auction id + currency id/metadata
+      auction,
       auctionSeller: auction?.sellerAddress ?? null,
     });
 

@@ -8,7 +8,6 @@ import { SiteFooter } from "@/src/ui/SiteFooter";
 import AppHeader from "@/src/ui/header/AppHeader";
 import { Toaster } from "sonner";
 
-
 const lexend = Lexend({
   subsets: ["latin"],
   variable: "--font-lexend",
@@ -133,7 +132,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "Organization",
     name: SITE_NAME,
     url: SITE_URL,
-    // ✅ Panthart is a Decentroneum subsidiary → use Decentroneum icon as requested
     logo: `${SITE_URL}/DECENT-ICON.png`,
     sameAs: [
       "https://x.com/decentroneum",
@@ -170,12 +168,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <Providers>
           <div className="min-h-screen flex flex-col">
-            {/* ✅ Header on all pages */}
             <AppHeader />
-
             <main className="flex-1">{children}</main>
             <SiteFooter />
-             <Toaster richColors position="top-right" />
+            <Toaster richColors position="top-right" />
           </div>
         </Providers>
       </body>

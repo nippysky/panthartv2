@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { detectMediaType, ipfsToHttp, isVideoType } from "@/src/lib/media";
+import { useEffect, useMemo, useState } from "react";
+import { detectMediaType, isVideoType } from "@/src/lib/media";
+import { fetchJsonFromIpfs, toGatewayUrl } from "@/src/lib/ipfs";
 
 const BLUR_1x1 =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -12,22 +14,34 @@ type GridItem = {
   name: string | null;
   imageUrl: string | null;
   animationUrl: string | null;
+  tokenUri?: string | null;
   hasVideo: boolean;
   isListed: boolean;
   isAuctioned: boolean;
+};
+
+type RecoveredMeta = {
+  name: string | null;
+  imageUrl: string | null;
+  animationUrl: string | null;
 };
 
 function cx(...cls: Array<string | false | undefined | null>) {
   return cls.filter(Boolean).join(" ");
 }
 
-function pickImageThumb(item: GridItem) {
-  // prefer imageUrl
-  const img = ipfsToHttp(item.imageUrl);
+function normalizeMediaCandidate(value?: string | null) {
+  return toGatewayUrl(value, "PINATA");
+}
+
+function pickImageThumb(
+  imageUrl?: string | null,
+  animationUrl?: string | null
+) {
+  const img = normalizeMediaCandidate(imageUrl);
   if (img && detectMediaType(img) === "image") return img;
 
-  // sometimes animationUrl is actually an image
-  const anim = ipfsToHttp(item.animationUrl);
+  const anim = normalizeMediaCandidate(animationUrl);
   if (anim && detectMediaType(anim) === "image") return anim;
 
   return null;
@@ -42,13 +56,76 @@ export default function NftCard({
   onOpen: () => void;
   priority?: boolean;
 }) {
-  const title = item.name ?? `#${item.tokenId}`;
+  const [recovered, setRecovered] = useState<RecoveredMeta | null>(null);
 
-  const mediaUrl = ipfsToHttp(item.animationUrl) || ipfsToHttp(item.imageUrl);
+  const hasPrimaryMedia = !!item.imageUrl || !!item.animationUrl;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateFallback() {
+      if (hasPrimaryMedia) return;
+      if (!item.tokenUri) return;
+
+      try {
+        const meta = await fetchJsonFromIpfs(item.tokenUri, {
+          pref: "PINATA",
+          cache: "no-store",
+        });
+
+        if (cancelled) return;
+
+        setRecovered({
+          name:
+            typeof meta?.name === "string" && meta.name.trim()
+              ? meta.name.trim()
+              : null,
+          imageUrl:
+            typeof meta?.image === "string"
+              ? meta.image
+              : typeof meta?.image_url === "string"
+              ? meta.image_url
+              : null,
+          animationUrl:
+            typeof meta?.animation_url === "string"
+              ? meta.animation_url
+              : typeof meta?.animationUrl === "string"
+              ? meta.animationUrl
+              : null,
+        });
+      } catch (error) {
+        if (!cancelled) {
+          console.error(
+            "Failed to recover NFT metadata for card:",
+            item.tokenId,
+            error
+          );
+        }
+      }
+    }
+
+    hydrateFallback();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasPrimaryMedia, item.tokenId, item.tokenUri]);
+
+  const resolvedName = useMemo(() => {
+    return item.name ?? recovered?.name ?? `#${item.tokenId}`;
+  }, [item.name, item.tokenId, recovered?.name]);
+
+  const resolvedImageUrl = recovered?.imageUrl ?? item.imageUrl;
+  const resolvedAnimationUrl = recovered?.animationUrl ?? item.animationUrl;
+
+  const mediaUrl =
+    normalizeMediaCandidate(resolvedAnimationUrl) ||
+    normalizeMediaCandidate(resolvedImageUrl);
+
   const mediaType = detectMediaType(mediaUrl);
   const isVideo = isVideoType(mediaType) || Boolean(item.hasVideo);
 
-  const thumb = pickImageThumb(item);
+  const thumb = pickImageThumb(resolvedImageUrl, resolvedAnimationUrl);
 
   return (
     <button
@@ -63,7 +140,7 @@ export default function NftCard({
         {thumb ? (
           <Image
             src={thumb}
-            alt={title}
+            alt={resolvedName}
             fill
             priority={priority}
             placeholder="blur"
@@ -106,7 +183,7 @@ export default function NftCard({
       </div>
 
       <div className="p-3">
-        <div className="truncate text-sm font-semibold">{title}</div>
+        <div className="truncate text-sm font-semibold">{resolvedName}</div>
         <div className="mt-1 text-xs text-muted-foreground">#{item.tokenId}</div>
       </div>
     </button>

@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { detectMediaType, ipfsToHttp, isVideoType } from "@/src/lib/media";
+import { detectMediaType, isVideoType } from "@/src/lib/media";
+import { fetchJsonFromIpfs, toGatewayUrl } from "@/src/lib/ipfs";
 
 const BLUR_1x1 =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -15,13 +16,24 @@ type ModalItem = {
   name: string | null;
   imageUrl: string | null;
   animationUrl: string | null;
+  tokenUri?: string | null;
   hasVideo: boolean;
   isListed: boolean;
   isAuctioned: boolean;
 };
 
+type RecoveredMeta = {
+  name: string | null;
+  imageUrl: string | null;
+  animationUrl: string | null;
+};
+
 function cx(...cls: Array<string | false | undefined | null>) {
   return cls.filter(Boolean).join(" ");
+}
+
+function normalizeMediaCandidate(value?: string | null) {
+  return toGatewayUrl(value, "PINATA");
 }
 
 export default function NftModal({
@@ -35,31 +47,84 @@ export default function NftModal({
   contract: string;
   onClose: () => void;
 }) {
-  // ---- hooks must be unconditional ----
   const [playing, setPlaying] = useState(false);
+  const [recovered, setRecovered] = useState<RecoveredMeta | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const title = item?.name ?? (item ? `#${item.tokenId}` : "NFT");
+  const hasPrimaryMedia = !!item?.imageUrl || !!item?.animationUrl;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateFallback() {
+      if (!open || !item) return;
+      if (hasPrimaryMedia && item.name) return;
+      if (!item.tokenUri) return;
+
+      try {
+        const meta = await fetchJsonFromIpfs(item.tokenUri, {
+          pref: "PINATA",
+          cache: "no-store",
+        });
+
+        if (cancelled) return;
+
+        setRecovered({
+          name:
+            typeof meta?.name === "string" && meta.name.trim()
+              ? meta.name.trim()
+              : null,
+          imageUrl:
+            typeof meta?.image === "string"
+              ? meta.image
+              : typeof meta?.image_url === "string"
+              ? meta.image_url
+              : typeof meta?.imageUrl === "string"
+              ? meta.imageUrl
+              : null,
+          animationUrl:
+            typeof meta?.animation_url === "string"
+              ? meta.animation_url
+              : typeof meta?.animationUrl === "string"
+              ? meta.animationUrl
+              : typeof meta?.animation === "string"
+              ? meta.animation
+              : null,
+        });
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to recover NFT modal metadata:", item.tokenId, error);
+        }
+      }
+    }
+
+    hydrateFallback();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, item, hasPrimaryMedia]);
+
+  const resolvedName = item?.name ?? recovered?.name ?? (item ? `#${item.tokenId}` : "NFT");
 
   const mediaUrl = useMemo(() => {
-    const a = ipfsToHttp(item?.animationUrl);
-    const i = ipfsToHttp(item?.imageUrl);
+    const a = normalizeMediaCandidate(recovered?.animationUrl ?? item?.animationUrl);
+    const i = normalizeMediaCandidate(recovered?.imageUrl ?? item?.imageUrl);
     return a || i || null;
-  }, [item?.animationUrl, item?.imageUrl]);
+  }, [item?.animationUrl, item?.imageUrl, recovered?.animationUrl, recovered?.imageUrl]);
 
   const posterUrl = useMemo(() => {
-    const i = ipfsToHttp(item?.imageUrl);
+    const i = normalizeMediaCandidate(recovered?.imageUrl ?? item?.imageUrl);
     if (i) return i;
 
-    const a = ipfsToHttp(item?.animationUrl);
+    const a = normalizeMediaCandidate(recovered?.animationUrl ?? item?.animationUrl);
     const t = detectMediaType(a);
     return t === "image" ? a : null;
-  }, [item?.imageUrl, item?.animationUrl]);
+  }, [item?.imageUrl, item?.animationUrl, recovered?.imageUrl, recovered?.animationUrl]);
 
   const mediaType = useMemo(() => detectMediaType(mediaUrl), [mediaUrl]);
   const isVideo = isVideoType(mediaType) || Boolean(item?.hasVideo);
 
-  // lock scroll + ESC close
   useEffect(() => {
     if (!open) return;
 
@@ -78,17 +143,12 @@ export default function NftModal({
     };
   }, [open, onClose]);
 
-  // reset “playing” when token changes / modal closes (NO effect setState)
   const mediaKey = `${open ? "1" : "0"}-${item?.id ?? "none"}`;
 
-  // ---- render gate (after hooks) ----
   if (!open || !item) return null;
 
-  const detailsHref = `/collections/${contract}/${encodeURIComponent(
-    String(item.tokenId)
-  )}`;
+  const detailsHref = `/collections/${contract}/${encodeURIComponent(String(item.tokenId))}`;
 
-  // Build modal content once; we’ll portal it to <body>
   const modal = (
     <div
       className="fixed inset-0 z-1000"
@@ -96,23 +156,19 @@ export default function NftModal({
       aria-modal="true"
       aria-label="NFT preview"
     >
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      {/* True viewport centering + safe padding (no weird pt-24 offset) */}
       <div
         className={cx(
           "absolute inset-0 flex items-center justify-center",
           "p-3 sm:p-6",
-          // iOS safe-area friendly without changing content
           "pt-[calc(env(safe-area-inset-top)+0.75rem)]",
           "pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
         )}
       >
-        {/* Panel (flex column so header stays fixed; body scrolls inside) */}
         <div
           className={cx(
             "w-full max-w-5xl overflow-hidden rounded-[22px] border border-border",
@@ -122,10 +178,9 @@ export default function NftModal({
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">{title}</div>
+              <div className="truncate text-sm font-semibold">{resolvedName}</div>
               <div className="text-xs text-muted-foreground">
                 Quick preview — full actions live on the details page
               </div>
@@ -148,10 +203,8 @@ export default function NftModal({
             </div>
           </div>
 
-          {/* Body (scroll inside modal) */}
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid gap-4 md:grid-cols-2">
-              {/* Media */}
               <div
                 key={mediaKey}
                 className="relative overflow-hidden rounded-2xl border border-border bg-muted"
@@ -190,7 +243,7 @@ export default function NftModal({
                   ) : posterUrl ? (
                     <Image
                       src={posterUrl}
-                      alt={title}
+                      alt={resolvedName}
                       fill
                       priority
                       placeholder="blur"
@@ -210,7 +263,6 @@ export default function NftModal({
                 </div>
               </div>
 
-              {/* Info */}
               <div className="rounded-2xl border border-border bg-background/70 p-4">
                 <div className="text-xs text-muted-foreground">Token</div>
                 <div className="mt-1 text-sm font-semibold">#{item.tokenId}</div>
@@ -219,7 +271,7 @@ export default function NftModal({
                   <Chip label="Listed" value={item.isListed ? "Yes" : "No"} />
                   <Chip label="Auction" value={item.isAuctioned ? "Yes" : "No"} />
                   <Chip label="Media" value={isVideo ? "Video" : "Image"} />
-                  <Chip label="Name" value={item.name ?? `#${item.tokenId}`} />
+                  <Chip label="Name" value={resolvedName} />
                 </div>
 
                 {mediaUrl ? (
@@ -252,7 +304,6 @@ export default function NftModal({
     </div>
   );
 
-  // ✅ Portal to <body> so it behaves like a “real modal” even if parents use transforms
   if (typeof document === "undefined") return null;
   return createPortal(modal, document.body);
 }

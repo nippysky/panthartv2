@@ -30,10 +30,10 @@ function SectionHeader({
     <div className="flex items-end justify-between gap-6">
       <div className="max-w-2xl">
         <div className="text-xs font-semibold text-muted">Discover</div>
-        <h2 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight">
+        <h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">
           {title}
         </h2>
-        <p className="mt-2 text-sm text-muted leading-relaxed">{desc}</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">{desc}</p>
       </div>
 
       <Link
@@ -41,7 +41,7 @@ function SectionHeader({
         className="
           hidden sm:inline-flex h-10 items-center rounded-full
           border border-border bg-card px-4 text-sm font-semibold
-          hover:bg-card/80 hover:border-foreground/15 transition
+          transition hover:border-foreground/15 hover:bg-card/80
         "
       >
         {cta}
@@ -52,6 +52,7 @@ function SectionHeader({
 
 async function MintingData({ limit }: { limit: number }) {
   let items: MintingNowItem[] = [];
+
   try {
     const page = await getMintingNowCached(limit);
     items = page.items ?? [];
@@ -68,12 +69,12 @@ async function MintingData({ limit }: { limit: number }) {
   }
 
   return (
-    <div className="mt-6 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
       {items.slice(0, limit).map((item) => (
         <MintingCard
           key={`${item.kind}:${item.id}`}
           item={item}
-          mediaPreference="logo-on-mobile"
+          mediaPreference="logo-strict"
           layoutVariant="square"
           compact={false}
         />
@@ -84,7 +85,7 @@ async function MintingData({ limit }: { limit: number }) {
 
 function MintingSkeleton({ cards = 4 }: { cards?: number }) {
   return (
-    <div className="mt-6 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="mt-6 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
       {Array.from({ length: cards }).map((_, i) => (
         <MintingCardSkeleton key={i} />
       ))}
@@ -106,14 +107,13 @@ export default function MintingNowSection({ limit = 4 }: { limit?: number }) {
           <MintingData limit={limit} />
         </React.Suspense>
 
-        {/* mobile CTA */}
         <div className="mt-6 sm:hidden">
           <Link
             href="/minting-now"
             className="
               inline-flex h-11 w-full items-center justify-center rounded-2xl
               border border-border bg-card px-5 text-sm font-semibold
-              hover:bg-card/80 transition
+              transition hover:bg-card/80
             "
           >
             View all minting now

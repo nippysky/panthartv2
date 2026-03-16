@@ -8,7 +8,14 @@ import { createPortal } from "react-dom";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { ethers } from "ethers";
-import { CheckCircle2, Copy, ExternalLink, Minus, Plus, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Minus,
+  Plus,
+  X,
+} from "lucide-react";
 
 import { ERC1155_SINGLE_ABI } from "@/src/lib/abis/ERC1155SingleDropABI";
 import type { ERC1155MintDetails } from "@/src/lib/server/erc1155-details";
@@ -21,17 +28,19 @@ import LoaderModal from "@/src/components/shared/LoaderModal";
 
 const PUBLIC_RPC = process.env.NEXT_PUBLIC_RPC_URL || "";
 const EXPLORER_BASE = process.env.NEXT_PUBLIC_BLOCK_EXPLORER || "";
-const IPFS_GW = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://cloudflare-ipfs.com/ipfs/").replace(/\/?$/, "/");
+const IPFS_GW = (
+  process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://cloudflare-ipfs.com/ipfs/"
+).replace(/\/?$/, "/");
 
 /* ---------------------------------------------------------------------------
- * BigInt constants (no 0n etc.)
+ * BigInt constants
  * ------------------------------------------------------------------------- */
 const ZERO = BigInt(0);
 const TEN = BigInt(10);
 const WEI_PER_ETN = TEN ** BigInt(18);
 
 /* ---------------------------------------------------------------------------
- * Media helpers (NO /api/media-head)
+ * Media helpers
  * ------------------------------------------------------------------------- */
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogv|ogg)$/i;
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
@@ -39,8 +48,9 @@ const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
 function ipfsToHttp(u?: string | null) {
   if (!u) return "";
   if (u.startsWith("ipfs://")) return IPFS_GW + u.slice(7);
-  // allow bare CID
-  if (/^[a-z0-9]{46,}$/i.test(u) && !u.includes("/") && !u.includes(".")) return IPFS_GW + u;
+  if (/^[a-z0-9]{46,}$/i.test(u) && !u.includes("/") && !u.includes(".")) {
+    return IPFS_GW + u;
+  }
   return u;
 }
 
@@ -55,7 +65,9 @@ function guessMediaKind(u?: string) {
 function bypassOptimizer(u: string): boolean {
   try {
     const host = new URL(u).host;
-    return /ipfs\.io$|cloudflare-ipfs\.com$|pinata\.cloud$|lighthouse\.storage$|arweave\.net$/i.test(host);
+    return /ipfs\.io$|cloudflare-ipfs\.com$|pinata\.cloud$|lighthouse\.storage$|arweave\.net$/i.test(
+      host
+    );
   } catch {
     return true;
   }
@@ -90,7 +102,7 @@ function cx(...cls: Array<string | false | undefined | null>) {
 }
 
 /* ---------------------------------------------------------------------------
- * Wallet connection (minimal)
+ * Wallet connection
  * ------------------------------------------------------------------------- */
 function useConnectedAddress() {
   const [addr, setAddr] = React.useState<string | null>(null);
@@ -151,7 +163,8 @@ async function fetchOnchainProgress(contract: string) {
 
     const supply = Number(maxSupply);
     const minted = Number(totalMinted);
-    const mintedPct = supply > 0 ? Math.min(100, Math.round((minted / supply) * 100)) : 0;
+    const mintedPct =
+      supply > 0 ? Math.min(100, Math.round((minted / supply) * 100)) : 0;
 
     return {
       supply,
@@ -197,16 +210,16 @@ function CopyAddr({ value }: { value: string }) {
         navigator.clipboard.writeText(value);
         toast.success("Address copied");
       }}
-      className="inline-flex items-center justify-center rounded-md px-1.5 py-1 hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer"
+      className="inline-flex cursor-pointer items-center justify-center rounded-md px-1.5 py-1 hover:bg-black/5 dark:hover:bg-white/10"
       title="Copy"
     >
-      <Copy className="w-3.5 h-3.5 opacity-80" />
+      <Copy className="h-3.5 w-3.5 opacity-80" />
     </button>
   );
 }
 
 /* ---------------------------------------------------------------------------
- * Quantity input (matches your in-house style)
+ * Quantity input
  * ------------------------------------------------------------------------- */
 function QtyInput({
   value,
@@ -231,11 +244,14 @@ function QtyInput({
       disabled={disabled}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
         const n = Math.floor(Number(e.target.value || min));
-        const clamped = Math.max(min, Math.min(max, Number.isFinite(n) ? n : min));
+        const clamped = Math.max(
+          min,
+          Math.min(max, Number.isFinite(n) ? n : min)
+        );
         onChange(clamped);
       }}
       className={cx(
-        "h-11 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none text-center",
+        "h-11 w-full rounded-2xl border border-border bg-background px-4 text-center text-sm outline-none",
         "focus:ring-2 focus:ring-foreground/10 disabled:opacity-50"
       )}
     />
@@ -243,7 +259,7 @@ function QtyInput({
 }
 
 /* ---------------------------------------------------------------------------
- * Portal Modal (FULLSCREEN + scroll-locked)
+ * Portal Modal
  * ------------------------------------------------------------------------- */
 function PortalModal({
   open,
@@ -317,17 +333,19 @@ function PortalModal({
           aria-label={title}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-5 border-b border-border flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4 border-b border-border p-5">
             <div className="min-w-0">
               <div className="text-base font-semibold">{title}</div>
-              {description ? <div className="mt-1 text-sm text-muted">{description}</div> : null}
+              {description ? (
+                <div className="mt-1 text-sm text-muted">{description}</div>
+              ) : null}
             </div>
 
             {canClose ? (
               <button
                 type="button"
                 onClick={onClose}
-                className="h-9 w-9 rounded-2xl border border-border bg-background/60 hover:bg-background/80 inline-flex items-center justify-center"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-border bg-background/60 hover:bg-background/80"
                 aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
@@ -335,7 +353,7 @@ function PortalModal({
             ) : null}
           </div>
 
-          <div className="p-5 max-h-[70vh] overflow-auto">{children}</div>
+          <div className="max-h-[70vh] overflow-auto p-5">{children}</div>
         </div>
       </div>
     </div>
@@ -345,14 +363,12 @@ function PortalModal({
 }
 
 /* ---------------------------------------------------------------------------
- * Success modal
+ * Success modal — simplified, no image/video preview
  * ------------------------------------------------------------------------- */
 function SuccessModal({
   open,
   onClose,
   name,
-  mediaUrl,
-  mediaIsVideo,
   qty,
   contract,
   txHash,
@@ -361,83 +377,115 @@ function SuccessModal({
   open: boolean;
   onClose: () => void;
   name: string;
-  mediaUrl: string;
-  mediaIsVideo: boolean;
   qty: number;
   contract: string;
   txHash: string | null;
   explorerBase?: string;
 }) {
   const explorerTxUrl =
-    explorerBase && txHash ? `${explorerBase.replace(/\/+$/, "")}/tx/${txHash}` : null;
+    explorerBase && txHash
+      ? `${explorerBase.replace(/\/+$/, "")}/tx/${txHash}`
+      : null;
 
   const explorerContractUrl =
-    explorerBase && contract ? `${explorerBase.replace(/\/+$/, "")}/address/${contract}` : null;
+    explorerBase && contract
+      ? `${explorerBase.replace(/\/+$/, "")}/address/${contract}`
+      : null;
 
   return (
-    <PortalModal open={open} title="Mint Successful" onClose={onClose} closeOnBackdrop={false}>
-      <div className="flex items-start gap-3">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-500/20">
-          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-        </span>
+    <PortalModal
+      open={open}
+      title="Mint Successful"
+      onClose={onClose}
+      closeOnBackdrop={false}
+    >
+      <div className="space-y-5">
+        <div className="flex items-start gap-3">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-500/20">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+          </span>
 
-        <div className="min-w-0 flex-1">
-          <div className="text-sm text-muted">
-            You minted <span className="font-semibold text-foreground">{qty}</span> from{" "}
-            <span className="font-semibold text-foreground">{name}</span>.
+          <div className="min-w-0 flex-1">
+            <div className="text-base font-semibold text-foreground">
+              Mint completed successfully
+            </div>
+            <div className="mt-1 text-sm leading-6 text-muted">
+              You minted{" "}
+              <span className="font-semibold text-foreground">{qty}</span>{" "}
+              {qty === 1 ? "edition" : "editions"} from{" "}
+              <span className="font-semibold text-foreground">{name}</span>.
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-foreground/5 p-4">
+          <div className="text-xs uppercase tracking-[0.16em] text-muted">
+            Collection
+          </div>
+          <div className="mt-2 text-sm font-semibold text-foreground">
+            {name}
           </div>
 
-          <div className="mt-3 rounded-2xl overflow-hidden border border-border bg-black">
-            {mediaIsVideo ? (
-              <video src={mediaUrl} autoPlay muted loop playsInline className="w-full max-h-64 object-contain" />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={mediaUrl || "/placeholder.svg"} alt={name} className="w-full max-h-64 object-contain" />
-            )}
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-xs text-muted">Minted now</div>
+              <div className="mt-1 text-sm font-semibold text-foreground">
+                {qty}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xs text-muted">Contract</div>
+              <div className="mt-1 truncate text-sm font-medium text-foreground">
+                {shortenAddress(contract)}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-3 text-xs text-muted">
-            Contract: <span className="font-mono">{shortenAddress(contract)}</span>
-            {explorerContractUrl ? (
-              <>
-                {" "}
-                •{" "}
-                <a
-                  href={explorerContractUrl}
-                  className="underline inline-flex items-center gap-1"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  View <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </>
-            ) : null}
-          </div>
+          {explorerContractUrl ? (
+            <div className="mt-4">
+              <a
+                href={explorerContractUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 text-xs text-muted underline"
+              >
+                View contract
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          ) : null}
 
           {txHash ? (
-            <div className="mt-1 text-xs text-muted">
+            <div className="mt-3 text-xs text-muted">
               Tx:{" "}
               {explorerTxUrl ? (
                 <a
                   href={explorerTxUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="underline inline-flex items-center gap-1"
+                  className="inline-flex items-center gap-1 underline"
                 >
                   {txHash.slice(0, 10)}…{txHash.slice(-8)}
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               ) : (
                 <span className="font-mono">{txHash}</span>
               )}
             </div>
           ) : null}
+        </div>
 
-          <div className="mt-4 flex justify-end">
-            <Button onClick={onClose} className="h-11 rounded-2xl">
-              Close
+        <div className="flex justify-end gap-2">
+          <Link href={`/minting-now/erc1155/${contract}`}>
+            <Button variant="outline" className="h-11 rounded-2xl">
+              Back to mint page
             </Button>
-          </div>
+          </Link>
+
+          <Button onClick={onClose} className="h-11 rounded-2xl">
+            Close
+          </Button>
         </div>
       </div>
     </PortalModal>
@@ -445,7 +493,7 @@ function SuccessModal({
 }
 
 /* ---------------------------------------------------------------------------
- * Hero media thumbnail (small top-left preview, robust video/image fallback)
+ * Hero media thumbnail
  * ------------------------------------------------------------------------- */
 function HeroMediaThumb({
   url,
@@ -516,7 +564,6 @@ function Hero({
   return (
     <section className="relative overflow-hidden rounded-[28px] border border-border">
       <div className="absolute inset-0">
-        {/* background: only use image background (keeps it stable & readable) */}
         {heroMediaUrl && heroMediaKind === "image" ? (
           <Image
             src={heroMediaUrl}
@@ -537,10 +584,9 @@ function Hero({
         <div className="absolute inset-0 [background:linear-gradient(180deg,rgba(0,0,0,.70),rgba(0,0,0,.25),rgba(0,0,0,.70))]" />
       </div>
 
-      <div className="relative p-4 md:p-6 text-white">
-        <div className="grid gap-5 md:gap-6 md:grid-cols-[auto,1fr] items-start">
-          {/* ✅ SMALL BOX ONLY (this is the only media preview now) */}
-          <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-2xl overflow-hidden ring-1 ring-white/20 bg-black/25">
+      <div className="relative p-4 text-white md:p-6">
+        <div className="grid items-start gap-5 md:grid-cols-[auto,1fr] md:gap-6">
+          <div className="relative h-24 w-24 overflow-hidden rounded-2xl bg-black/25 ring-1 ring-white/20 md:h-28 md:w-28">
             <HeroMediaThumb
               url={heroMediaUrl}
               kind={heroMediaKind}
@@ -554,20 +600,24 @@ function Hero({
               <Pill>
                 <span className="uppercase tracking-wide">ERC-1155</span>
               </Pill>
-              <span className="text-[11px] md:text-xs text-white/85 truncate">
+              <span className="truncate text-[11px] text-white/85 md:text-xs">
                 Contract: <span className="font-medium">{contract}</span>
               </span>
             </div>
 
-            <h1 className="mt-4 text-2xl md:text-3xl font-semibold tracking-tight truncate">{details.name}</h1>
+            <h1 className="mt-4 truncate text-2xl font-semibold tracking-tight md:text-3xl">
+              {details.name}
+            </h1>
 
             {details.description ? (
-              <p className="mt-1 text-sm text-white/85 line-clamp-3 max-w-3xl">{details.description}</p>
+              <p className="mt-1 line-clamp-3 max-w-3xl text-sm text-white/85">
+                {details.description}
+              </p>
             ) : null}
 
-            <div className="mt-5 pt-4 border-t border-white/15 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="relative h-10 w-10 rounded-full overflow-hidden ring-1 ring-white/15 bg-white/10">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/15">
                   <Image
                     src={creatorAvatar}
                     alt={details.creator.username || "Creator"}
@@ -580,16 +630,23 @@ function Hero({
                 <div className="min-w-0">
                   <Link
                     href={`/profile/${details.creator.walletAddress}`}
-                    className="font-medium leading-tight truncate block hover:underline"
-                    title={details.creator.username || details.creator.walletAddress}
+                    className="block truncate font-medium leading-tight hover:underline"
+                    title={
+                      details.creator.username || details.creator.walletAddress
+                    }
                   >
-                    {details.creator.username || shortenAddress(details.creator.walletAddress)}
+                    {details.creator.username ||
+                      shortenAddress(details.creator.walletAddress)}
                   </Link>
-                  <div className="text-[11px] text-white/70 truncate">{details.creator.walletAddress}</div>
+                  <div className="truncate text-[11px] text-white/70">
+                    {details.creator.walletAddress}
+                  </div>
                 </div>
               </div>
 
-              <div className="text-[11px] text-white/70">Single-drop mint on Electroneum (ETN)</div>
+              <div className="text-[11px] text-white/70">
+                Single-drop mint on Electroneum (ETN)
+              </div>
             </div>
           </div>
         </div>
@@ -601,15 +658,15 @@ function Hero({
 /* ---------------------------------------------------------------------------
  * Main component
  * ------------------------------------------------------------------------- */
-export default function ERC1155MintClient({ details }: { details: ERC1155MintDetails }) {
+export default function ERC1155MintClient({
+  details,
+}: {
+  details: ERC1155MintDetails;
+}) {
   const connected = useConnectedAddress();
   const { show, hide } = useLoaderStore();
 
   const rawMediaUrl = ipfsToHttp(details.imageUrl);
-
-  // Robust media handling:
-  // - if extension tells us => use it
-  // - if unknown => try video first, fallback to image
   const guessed = guessMediaKind(rawMediaUrl);
 
   const [heroKind, setHeroKind] = React.useState<"video" | "image">(
@@ -622,11 +679,10 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
     setHeroProbeTried(false);
     if (g === "video") setHeroKind("video");
     else if (g === "image") setHeroKind("image");
-    else setHeroKind("video"); // unknown -> optimistic video first
+    else setHeroKind("video");
   }, [rawMediaUrl]);
 
   const mediaUrl = rawMediaUrl;
-  const mediaIsVideo = heroKind === "video";
 
   const { data: live, mutate } = useSWR(
     ["erc1155-progress", details.contract],
@@ -662,7 +718,10 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
 
   const MAX_PER_TX = 20;
 
-  const mintedByYou = connected && typeof walletMinted === "number" ? Math.max(0, walletMinted) : null;
+  const mintedByYou =
+    connected && typeof walletMinted === "number"
+      ? Math.max(0, walletMinted)
+      : null;
 
   const walletRemaining =
     connected && typeof walletMinted === "number"
@@ -671,7 +730,13 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
 
   const maxQtyThisTx = Math.max(
     0,
-    Math.min(MAX_PER_TX, remaining, Number.isFinite(walletRemaining) ? (walletRemaining as number) : MAX_PER_TX)
+    Math.min(
+      MAX_PER_TX,
+      remaining,
+      Number.isFinite(walletRemaining)
+        ? (walletRemaining as number)
+        : MAX_PER_TX
+    )
   );
 
   const [qty, setQty] = React.useState(1);
@@ -700,7 +765,9 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
   const totalCostETN = formatEtnFromWei(totalCostWei);
 
   const explorerContractUrl =
-    EXPLORER_BASE && details.contract ? `${EXPLORER_BASE.replace(/\/+$/, "")}/address/${details.contract}` : undefined;
+    EXPLORER_BASE && details.contract
+      ? `${EXPLORER_BASE.replace(/\/+$/, "")}/address/${details.contract}`
+      : undefined;
 
   function validateQty(n: number) {
     if (!Number.isFinite(n) || n < 1) return "Enter a valid amount.";
@@ -813,31 +880,32 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
         }}
       />
 
-      {/* ✅ No big media preview anymore. Clean two-column: About + Mint */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr,.95fr] items-start isolate">
-        {/* Left: About */}
-        <div className="rounded-[28px] border border-border bg-card overflow-hidden">
+      <div className="isolate mt-8 grid items-start gap-6 lg:grid-cols-[1.05fr,.95fr]">
+        <div className="overflow-hidden rounded-[28px] border border-border bg-card">
           <div className="p-4 md:p-6">
             <div className="text-sm font-semibold">About</div>
             {details.description ? (
-              <p className="mt-2 text-sm leading-relaxed text-muted">{details.description}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                {details.description}
+              </p>
             ) : (
               <p className="mt-2 text-sm leading-relaxed text-muted">—</p>
             )}
           </div>
         </div>
 
-        {/* Right: sticky mint */}
         <div className="relative z-30">
-          <div className="lg:sticky lg:top-24 z-30 space-y-6">
-            <div className="rounded-[28px] border border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 shadow-sm">
+          <div className="z-30 space-y-6 lg:sticky lg:top-24">
+            <div className="rounded-[28px] border border-border bg-background/95 shadow-sm backdrop-blur supports-backdrop-filter:bg-background/80">
               <div className="p-4 md:p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-base font-semibold">Mint</div>
-                    <div className="mt-1 text-xs text-muted flex items-center gap-2">
+                    <div className="mt-1 flex items-center gap-2 text-xs text-muted">
                       <span>Contract:</span>
-                      <span className="font-medium">{shortenAddress(details.contract)}</span>
+                      <span className="font-medium">
+                        {shortenAddress(details.contract)}
+                      </span>
                       <CopyAddr value={details.contract} />
                       {explorerContractUrl ? (
                         <a
@@ -846,18 +914,19 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
                           rel="noreferrer noopener"
                           className="inline-flex items-center gap-1 hover:underline"
                         >
-                          View <ExternalLink className="w-3.5 h-3.5" />
+                          View <ExternalLink className="h-3.5 w-3.5" />
                         </a>
                       ) : null}
                     </div>
                   </div>
 
                   <Pill>
-                    <span className="uppercase tracking-wide">{soldOut ? "Sold Out" : "Live"}</span>
+                    <span className="uppercase tracking-wide">
+                      {soldOut ? "Sold Out" : "Live"}
+                    </span>
                   </Pill>
                 </div>
 
-                {/* Progress */}
                 <div className="mt-5 space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted">Minted</span>
@@ -870,7 +939,10 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
 
                   <div className="flex items-center justify-between text-[12px] text-muted">
                     <span className="tabular-nums">
-                      Remaining: <span className="font-medium text-foreground/80">{prettyNumber(remaining)}</span>
+                      Remaining:{" "}
+                      <span className="font-medium text-foreground/80">
+                        {prettyNumber(remaining)}
+                      </span>
                     </span>
                     <span className="tabular-nums">{mintedPct}%</span>
                   </div>
@@ -878,12 +950,13 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
                   {connected && mintedByYou !== null ? (
                     <div className="text-[12px] text-muted">
                       Per-wallet remaining:{" "}
-                      <span className="font-medium text-foreground/80 tabular-nums">{walletRemaining}</span>
+                      <span className="font-medium text-foreground/80 tabular-nums">
+                        {walletRemaining}
+                      </span>
                     </div>
                   ) : null}
                 </div>
 
-                {/* Stats */}
                 <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-2xl border border-border bg-foreground/5 p-3">
                     <div className="text-muted">Price</div>
@@ -891,22 +964,27 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
                   </div>
                   <div className="rounded-2xl border border-border bg-foreground/5 p-3">
                     <div className="text-muted">Max / wallet</div>
-                    <div className="mt-1 font-semibold tabular-nums">{prettyNumber(maxPerWallet)}</div>
+                    <div className="mt-1 font-semibold tabular-nums">
+                      {prettyNumber(maxPerWallet)}
+                    </div>
                   </div>
                   <div className="rounded-2xl border border-border bg-foreground/5 p-3">
                     <div className="text-muted">Max / tx</div>
-                    <div className="mt-1 font-semibold tabular-nums">{prettyNumber(MAX_PER_TX)}</div>
+                    <div className="mt-1 font-semibold tabular-nums">
+                      {prettyNumber(MAX_PER_TX)}
+                    </div>
                   </div>
                   <div className="rounded-2xl border border-border bg-foreground/5 p-3">
                     <div className="text-muted">Status</div>
-                    <div className="mt-1 font-semibold">{soldOut ? "Sold Out" : "Public Live"}</div>
+                    <div className="mt-1 font-semibold">
+                      {soldOut ? "Sold Out" : "Public Live"}
+                    </div>
                   </div>
                 </div>
 
-                {/* Primary CTA */}
                 <div className="mt-5">
                   <Button
-                    className="w-full h-11 rounded-2xl font-semibold"
+                    className="h-11 w-full rounded-2xl font-semibold"
                     disabled={soldOut || minting || maxQtyThisTx <= 0}
                     onClick={() => {
                       setQtyError(null);
@@ -916,18 +994,21 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
                     {soldOut ? "Sold Out" : "Mint"}
                   </Button>
 
-                  {qtyError ? <p className="mt-2 text-sm text-red-500">{qtyError}</p> : null}
+                  {qtyError ? (
+                    <p className="mt-2 text-sm text-red-500">{qtyError}</p>
+                  ) : null}
 
                   <div className="mt-2 text-[11px] text-muted">
-                    Tip: You’ll be prompted by your wallet. Network fees apply. Only mint from creators you trust.
+                    Tip: You’ll be prompted by your wallet. Network fees apply.
+                    Only mint from creators you trust.
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* helper line */}
             <div className="text-[11px] text-muted">
-              {prettyNumber(remaining)} remaining • up to {prettyNumber(Math.max(1, maxQtyThisTx || 1))} this transaction
+              {prettyNumber(remaining)} remaining • up to{" "}
+              {prettyNumber(Math.max(1, maxQtyThisTx || 1))} this transaction
               {connected && mintedByYou !== null ? (
                 <>
                   {" "}
@@ -939,7 +1020,6 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
         </div>
       </div>
 
-      {/* Mint modal */}
       <PortalModal
         open={openMint}
         title={`Mint ${details.name}`}
@@ -957,16 +1037,20 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-2xl border border-border bg-foreground/5 p-3">
               <div className="text-muted">Max / wallet</div>
-              <div className="mt-1 font-semibold tabular-nums">{prettyNumber(maxPerWallet)}</div>
+              <div className="mt-1 font-semibold tabular-nums">
+                {prettyNumber(maxPerWallet)}
+              </div>
             </div>
             <div className="rounded-2xl border border-border bg-foreground/5 p-3">
               <div className="text-muted">Max / tx</div>
-              <div className="mt-1 font-semibold tabular-nums">{prettyNumber(MAX_PER_TX)}</div>
+              <div className="mt-1 font-semibold tabular-nums">
+                {prettyNumber(MAX_PER_TX)}
+              </div>
             </div>
           </div>
 
           <div>
-            <div className="text-sm font-medium mb-2">Amount</div>
+            <div className="mb-2 text-sm font-medium">Amount</div>
 
             <div className="flex items-center gap-2">
               <Button
@@ -995,45 +1079,59 @@ export default function ERC1155MintClient({ details }: { details: ERC1155MintDet
                 variant="outline"
                 className="h-11 w-11 rounded-2xl"
                 disabled={minting || qty >= Math.max(1, maxQtyThisTx || 1)}
-                onClick={() => setQty((q) => Math.min(Math.max(1, maxQtyThisTx || 1), q + 1))}
+                onClick={() =>
+                  setQty((q) =>
+                    Math.min(Math.max(1, maxQtyThisTx || 1), q + 1)
+                  )
+                }
               >
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
 
             <div className="mt-2 text-xs text-muted tabular-nums">
-              Remaining now: {prettyNumber(remaining)} • Up to {prettyNumber(Math.max(1, maxQtyThisTx || 1))} this tx
+              Remaining now: {prettyNumber(remaining)} • Up to{" "}
+              {prettyNumber(Math.max(1, maxQtyThisTx || 1))} this tx
             </div>
 
             <div className="mt-2 text-xs text-muted tabular-nums">
-              Total: <span className="font-semibold text-foreground">{totalCostETN} ETN</span>
+              Total:{" "}
+              <span className="font-semibold text-foreground">
+                {totalCostETN} ETN
+              </span>
             </div>
           </div>
 
           {qtyError ? (
-            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 text-red-500 px-3 py-2 text-xs">
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-500">
               {qtyError}
             </div>
           ) : null}
 
-          <div className="flex gap-2 justify-end pt-2">
-            <Button variant="ghost" className="h-11 rounded-2xl" disabled={minting} onClick={() => setOpenMint(false)}>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="ghost"
+              className="h-11 rounded-2xl"
+              disabled={minting}
+              onClick={() => setOpenMint(false)}
+            >
               Cancel
             </Button>
-            <Button className="h-11 rounded-2xl" disabled={minting || soldOut} onClick={handleMintConfirm}>
+            <Button
+              className="h-11 rounded-2xl"
+              disabled={minting || soldOut}
+              onClick={handleMintConfirm}
+            >
               {minting ? "Minting…" : `Confirm Mint (${totalCostETN} ETN)`}
             </Button>
           </div>
         </div>
       </PortalModal>
 
-      {/* Success modal */}
       <SuccessModal
         open={showSuccess}
         onClose={() => setShowSuccess(false)}
         name={details.name}
-        mediaUrl={mediaUrl}
-        mediaIsVideo={mediaIsVideo}
         qty={successQty}
         contract={details.contract}
         txHash={successTx}

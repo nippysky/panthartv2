@@ -35,6 +35,7 @@ type ApiNftResponse = {
     tokenId?: string;
     name?: string | null;
     image?: string | null;
+    animation_url?: string | null;
     description?: string | null;
     attributes?: any;
   };
@@ -58,9 +59,15 @@ async function getBaseUrlFromHeaders() {
   return `${proto}://${host}`;
 }
 
-function pickAnimationUrl(rawMetadata: any): string | null {
-  if (!rawMetadata) return null;
-  return rawMetadata.animation_url ?? rawMetadata.animationUrl ?? rawMetadata.animation ?? null;
+function pickAnimationUrl(api: ApiNftResponse | null): string | null {
+  if (!api) return null;
+  return (
+    api.nft?.animation_url ??
+    api.rawMetadata?.animation_url ??
+    api.rawMetadata?.animationUrl ??
+    api.rawMetadata?.animation ??
+    null
+  );
 }
 
 async function getTokenDetails(contract: string, tokenId: string): Promise<TokenDetails | null> {
@@ -79,7 +86,7 @@ async function getTokenDetails(contract: string, tokenId: string): Promise<Token
     name: api.nft.name ?? null,
     description: api.nft.description ?? null,
     image: api.nft.image ?? null,
-    animation_url: pickAnimationUrl(api.rawMetadata),
+    animation_url: pickAnimationUrl(api),
     owner: api.owner?.walletAddress ?? null,
     collectionName: api.collection?.name ?? null,
     attributes: (Array.isArray(api.nft.attributes) ? api.nft.attributes : null) as Attribute[] | null,
@@ -153,14 +160,15 @@ export default async function Page(ctx: PageContext) {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:py-10">
-      {/* top bar */}
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs text-muted-foreground">
-    <BackButton/>
+            <BackButton />
           </div>
 
-          <h1 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight truncate">{title}</h1>
+          <h1 className="mt-1 truncate text-xl font-semibold tracking-tight sm:text-2xl">
+            {title}
+          </h1>
 
           <div className="mt-1 text-xs text-muted-foreground">
             <span className="font-mono">{contract}</span>
@@ -178,16 +186,15 @@ export default async function Page(ctx: PageContext) {
         <div className="flex items-center gap-2">
           <Link
             href={`/collections/${contract}/${tokenId}`}
-            className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+            className="rounded-full border border-black/10 px-3 py-1.5 text-xs hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
           >
             Refresh
           </Link>
 
-          {/* ✅ ERC1155: remove view collection button */}
           {!is1155 ? (
             <Link
               href={`/collections/${contract}`}
-              className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+              className="rounded-full border border-black/10 px-3 py-1.5 text-xs hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
             >
               View collection
             </Link>
@@ -195,17 +202,15 @@ export default async function Page(ctx: PageContext) {
         </div>
       </div>
 
-      {/* main grid */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* left: media + details */}
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-7">
-          <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 overflow-hidden">
-            <div className="p-3 sm:p-4 border-b border-black/5 dark:border-white/5">
+          <div className="overflow-hidden rounded-2xl border border-black/10 bg-white/50 dark:border-white/10 dark:bg-white/4">
+            <div className="border-b border-black/5 p-3 sm:p-4 dark:border-white/5">
               <div className="text-sm font-semibold">Media</div>
-              <div className="text-xs text-muted-foreground mt-1">Smart preview</div>
+              <div className="mt-1 text-xs text-muted-foreground">Smart preview</div>
             </div>
 
-            <div className="relative w-full aspect-square bg-black/5 dark:bg-white/5">
+            <div className="relative aspect-square w-full bg-black/5 dark:bg-white/5">
               <CardMedia
                 src={mediaUrl || undefined}
                 alt={title}
@@ -220,37 +225,39 @@ export default async function Page(ctx: PageContext) {
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
+          <div className="mt-6 rounded-2xl border border-black/10 bg-white/50 p-4 dark:border-white/10 dark:bg-white/4">
             <h2 className="font-semibold">Description</h2>
-            <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">
+            <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
               {token.description || "No description provided."}
             </p>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/4 p-4">
+          <div className="mt-4 rounded-2xl border border-black/10 bg-white/50 p-4 dark:border-white/10 dark:bg-white/4">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-semibold">Traits</h2>
 
               {typeof rarityRank === "number" ? (
-                <div className="text-xs rounded-full border border-black/10 dark:border-white/10 px-3 py-1 bg-white/40 dark:bg-white/5 font-semibold">
+                <div className="rounded-full border border-black/10 bg-white/40 px-3 py-1 text-xs font-semibold dark:border-white/10 dark:bg-white/5">
                   Rank #{rarityRank}
                 </div>
               ) : null}
             </div>
 
             {token.attributes && token.attributes.length ? (
-              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {token.attributes
                   .filter((a) => a && a.trait_type)
                   .map((a, idx) => (
                     <div
                       key={`${a.trait_type}-${String(a.value ?? "")}-${idx}`}
-                      className="rounded-xl border border-black/10 dark:border-white/10 px-3 py-2 bg-white/40 dark:bg-white/3"
+                      className="rounded-xl border border-black/10 bg-white/40 px-3 py-2 dark:border-white/10 dark:bg-white/3"
                     >
                       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
                         {a.trait_type}
                       </div>
-                      <div className="text-sm font-medium truncate">{String(a.value ?? "—")}</div>
+                      <div className="truncate text-sm font-medium">
+                        {String(a.value ?? "—")}
+                      </div>
                     </div>
                   ))}
               </div>
@@ -260,7 +267,6 @@ export default async function Page(ctx: PageContext) {
           </div>
         </div>
 
-        {/* right rail */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24">
             <NFTDetailsClient contract={contract} tokenId={tokenId} owner={token.owner ?? null} standard={standard} />
@@ -268,7 +274,6 @@ export default async function Page(ctx: PageContext) {
         </div>
       </section>
 
-      {/* ✅ ERC1155: remove “More from this collection” */}
       {!is1155 ? (
         <div className="mt-10">
           <NFTitemsTab contract={contract} excludeTokenId={tokenId} title="More from this collection" />

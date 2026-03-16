@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { ipfsToHttp } from "@/src/lib/media";
 
 type MediaKind = "image" | "video" | "unknown";
 type Fit = "cover" | "contain";
@@ -15,7 +16,7 @@ function cx(...cls: Array<string | false | undefined | null>) {
 }
 
 function cleanUrl(u: string) {
-  return u.trim();
+  return (ipfsToHttp(u) ?? u).trim();
 }
 
 function extGuess(u: string): MediaKind {
@@ -220,9 +221,7 @@ export default function CardMedia({
     v.volume = isMuted ? 0 : 1;
 
     if (autoPlay) {
-      void v.play().catch(() => {
-        // browser policy can block; user gesture still works
-      });
+      void v.play().catch(() => {});
     }
   }, [kind, safeSrc, autoPlay, isMuted]);
 
@@ -243,7 +242,7 @@ export default function CardMedia({
     return (
       <div
         aria-label={alt}
-        className={cx("w-full h-full grid place-items-center", "bg-muted", className)}
+        className={cx("grid h-full w-full place-items-center bg-muted", className)}
       >
         <div className="h-10 w-10 rounded-2xl bg-black/5 dark:bg-white/10" />
       </div>
@@ -252,7 +251,7 @@ export default function CardMedia({
 
   if (kind === "video") {
     return (
-      <div ref={wrapRef} className={cx("relative w-full h-full", className)}>
+      <div ref={wrapRef} className={cx("relative h-full w-full", className)}>
         <video
           key={`video:${safeSrc}`}
           ref={videoRef}
@@ -272,7 +271,7 @@ export default function CardMedia({
         </video>
 
         {!canPlayVideo ? (
-          <div className="absolute inset-0 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0" />
         ) : null}
 
         {audio === "toggle" && showAudioUI ? (
@@ -280,11 +279,11 @@ export default function CardMedia({
             type="button"
             onClick={toggleMute}
             className={cx(
-              "absolute left-3 bottom-3",
+              "absolute bottom-3 left-3",
               "inline-flex h-9 w-9 items-center justify-center",
               "rounded-full border border-white/15 bg-black/55 text-white",
               "backdrop-blur-md shadow-sm",
-              "hover:bg-black/65 transition"
+              "transition hover:bg-black/65"
             )}
             aria-label={isMuted ? "Unmute video" : "Mute video"}
             title={isMuted ? "Unmute" : "Mute"}

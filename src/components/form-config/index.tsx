@@ -253,8 +253,6 @@ type Props = {
   detectedSupply?: number;
   onBack: () => void;
   onDeploy: (payload: DeployPayload) => Promise<void>;
-
-  /** Fixes “double back button”: parent can render Back and set this false. */
   showBackButton?: boolean;
 };
 
@@ -302,7 +300,7 @@ export default function ConfigForm({
   const logoInputId = useId();
   const coverInputId = useId();
 
-  // Presale (rendered inside WhitelistInput)
+  // Presale
   const [enablePresale, setEnablePresale] = useState(false);
   const [presaleStart, setPresaleStart] = useState("");
   const [presaleEnd, setPresaleEnd] = useState("");
@@ -320,12 +318,14 @@ export default function ConfigForm({
   const [pv, setPv] = useState<MetaPreview | null>(null);
   const [debouncedBase, setDebouncedBase] = useState(baseUri);
 
-  // Supply detection (from Base URI)
+  // Supply detection
   const [detectingSupply, setDetectingSupply] = useState(false);
   const [detectedFromBase, setDetectedFromBase] = useState<number | null>(null);
 
-  // Modal
+  // Modal / action locks
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [openingPreview, setOpeningPreview] = useState(false);
+  const [confirmingDeploy, setConfirmingDeploy] = useState(false);
 
   // Inline errors
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -335,7 +335,7 @@ export default function ConfigForm({
   const markTouched = (key: string) => setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
   const showIfTouched = (key: keyof FieldErrors) => (touched[key as string] ? errors[key] : null);
 
-  // ---- Platform fee (expanded) ----
+  // ---- Platform fee ----
   type FeeInfo = {
     feeRecipient: string;
     feeAmountEtnWei: string;
@@ -471,17 +471,18 @@ export default function ConfigForm({
   }, [debouncedBase]);
 
   useEffect(() => {
-    if (debouncedBase && debouncedBase.startsWith("ipfs://")) fetchPreview();
+    if (debouncedBase && debouncedBase.startsWith("ipfs://")) {
+      fetchPreview();
+    }
   }, [debouncedBase, fetchPreview]);
 
-  // ---- Base-URI item counting (runs for BOTH modes) ----------------------
+  // ---- Base-URI item counting ----------------------
   const existsAt = useCallback(async (base: string, id: number): Promise<boolean> => {
     const url = toHttp(`${base}/${id}.json`);
     try {
       const h = await fetch(url, { method: "HEAD", cache: "no-store" });
       if (h.ok) return true;
 
-      // some gateways block HEAD
       if (h.status === 405 || h.status === 403) {
         const g = await fetch(url, { cache: "no-store" });
         return g.ok;
@@ -506,7 +507,6 @@ export default function ConfigForm({
 
       let hi = start === 0 ? 1 : 2;
 
-      // exponential search to find upper bound
       while (hi <= CAP) {
         const ok = await existsAt(base, hi);
         if (!ok) break;
@@ -516,7 +516,6 @@ export default function ConfigForm({
 
       if (hi > CAP) return start === 0 ? lo + 1 : lo;
 
-      // binary search between lo (exists) and hi (missing)
       while (lo + 1 < hi) {
         const mid = Math.floor((lo + hi) / 2);
         const ok = await existsAt(base, mid);
@@ -553,7 +552,6 @@ export default function ConfigForm({
     };
   }, [debouncedBase, estimateFromBase]);
 
-  // Choose the best available count and auto-fill Total Supply (read-only).
   useEffect(() => {
     const fromUploads = typeof detectedSupply === "number" && detectedSupply > 0 ? detectedSupply : null;
     const fromBase = typeof detectedFromBase === "number" && detectedFromBase > 0 ? detectedFromBase : null;
@@ -828,7 +826,13 @@ export default function ConfigForm({
     }
   }, [validateCore, enablePresale, validatePresale]);
 
+  const uiLocked = openingPreview || confirmingDeploy;
+
   const onConfirmDeploy = useCallback(async () => {
+    if (confirmingDeploy) return;
+
+    setConfirmingDeploy(true);
+
     try {
       const { totalSupply, maxPerWallet, maxPerTx, royaltyPercent } = validateCore();
       const presale = validatePresale(totalSupply);
@@ -870,15 +874,16 @@ export default function ConfigForm({
         };
       }
 
-      setConfirmOpen(false);
       show("Preparing deployment…");
       await onDeploy(payload);
     } catch (e: any) {
-      setConfirmOpen(false);
       hide();
       toast.error(e?.message || "Invalid input.");
+    } finally {
+      setConfirmingDeploy(false);
     }
   }, [
+    confirmingDeploy,
     validateCore,
     validatePresale,
     publicStart,
@@ -932,7 +937,7 @@ export default function ConfigForm({
     <div className="w-full max-w-full space-y-12">
       {showBackButton ? (
         <div>
-          <Button variant="ghost" className="px-0" onClick={onBack}>
+          <Button variant="ghost" className="px-0" onClick={onBack} disabled={uiLocked}>
             ← Back
           </Button>
         </div>
@@ -971,16 +976,23 @@ export default function ConfigForm({
                 value={baseUri}
                 onChange={(e) => setBaseUri(e.target.value)}
                 onBlur={() => markTouched("baseUri")}
-                disabled={mode === "upload"}
+                disabled={mode === "upload" || uiLocked}
               />
             </Field>
 
             <div>
               <div className="mb-3 flex items-center gap-2">
                 <span className="text-sm font-medium">Preview</span>
-                <Button type="button" variant="secondary" size="sm" className="h-8 px-3 gap-2" onClick={fetchPreview}>
-                  <RefreshCw className="h-4 w-4" />
-                  Retry
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 px-3 gap-2"
+                  onClick={fetchPreview}
+                  disabled={uiLocked || pvLoading}
+                >
+                  <RefreshCw className={`h-4 w-4 ${pvLoading ? "animate-spin" : ""}`} />
+                  {pvLoading ? "Loading…" : "Retry"}
                 </Button>
               </div>
 
@@ -1054,11 +1066,23 @@ export default function ConfigForm({
           <div className="space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10">
               <Field label="Name" tip="A human-friendly collection name." error={showIfTouched("name")}>
-                <Input className="h-11 rounded-2xl" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => markTouched("name")} />
+                <Input
+                  className="h-11 rounded-2xl"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={() => markTouched("name")}
+                  disabled={uiLocked}
+                />
               </Field>
 
               <Field label="Symbol" tip="Short uppercase ticker, e.g., DECENT." error={showIfTouched("symbol")}>
-                <Input className="h-11 rounded-2xl" value={symbol} onChange={(e) => setSymbol(e.target.value)} onBlur={() => markTouched("symbol")} />
+                <Input
+                  className="h-11 rounded-2xl"
+                  value={symbol}
+                  onChange={(e) => setSymbol(e.target.value)}
+                  onBlur={() => markTouched("symbol")}
+                  disabled={uiLocked}
+                />
               </Field>
 
               <Field
@@ -1097,103 +1121,103 @@ export default function ConfigForm({
                 onBlur={() => markTouched("description")}
                 placeholder="Tell collectors about this drop…"
                 className="rounded-2xl wrap-break-word"
+                disabled={uiLocked}
               />
             </Field>
-{/* Cover + Logo */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-  {/* Cover */}
-  <div className="space-y-3">
-    <div className="flex items-center gap-2">
-      <div className="text-sm font-medium leading-5">Cover Photo</div>
-      <TipIcon tip="Wide hero image shown on your collection page. Recommended ~1600×400." />
-    </div>
 
-    <label
-      htmlFor={coverInputId}
-      className={[
-        "relative w-full h-44 md:h-48 rounded-3xl border border-dashed border-border",
-        "flex items-center justify-center overflow-hidden cursor-pointer bg-background/40",
-        "transition hover:bg-background/60",
-      ].join(" ")}
-    >
-      {coverUrl ? (
-        <Image src={coverUrl} alt="Cover" fill className="object-cover" />
-      ) : (
-        <span className="text-sm text-muted-foreground">Click to upload</span>
-      )}
-    </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {/* Cover */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-medium leading-5">Cover Photo</div>
+                  <TipIcon tip="Wide hero image shown on your collection page. Recommended ~1600×400." />
+                </div>
 
-    <input
-      id={coverInputId}
-      ref={coverRef}
-      type="file"
-      accept="image/*"
-      className="hidden"
-      disabled={uploadingImg}
-      onChange={async (e) => {
-        const f = e.target.files?.[0];
-        if (f) await uploadToCloudinary(f, (u) => setCoverUrl(u), coverRef);
-      }}
-    />
+                <label
+                  htmlFor={coverInputId}
+                  className={[
+                    "relative w-full h-44 md:h-48 rounded-3xl border border-dashed border-border",
+                    "flex items-center justify-center overflow-hidden cursor-pointer bg-background/40",
+                    "transition hover:bg-background/60",
+                    uiLocked ? "pointer-events-none opacity-70" : "",
+                  ].join(" ")}
+                >
+                  {coverUrl ? (
+                    <Image src={coverUrl} alt="Cover" fill className="object-cover" />
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Click to upload</span>
+                  )}
+                </label>
 
-    <p className="text-xs text-muted-foreground">Recommended ~1600×400. Images only (jpg/png/gif).</p>
-  </div>
+                <input
+                  id={coverInputId}
+                  ref={coverRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploadingImg || uiLocked}
+                  onChange={async (e) => {
+                    const f = e.target.files?.[0];
+                    if (f) await uploadToCloudinary(f, (u) => setCoverUrl(u), coverRef);
+                  }}
+                />
 
-{/* Logo */}
-<div className="space-y-3">
-  <div className="flex items-center gap-2">
-    <div className="text-sm font-medium leading-5">Logo</div>
-    <TipIcon tip="Square logo for your collection. Recommended ≥ 400×400." />
-  </div>
+                <p className="text-xs text-muted-foreground">Recommended ~1600×400. Images only (jpg/png/gif).</p>
+              </div>
 
-  {/* Responsive layout: stacks on mobile, side-by-side on sm+ */}
-  <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-5">
-    {/* Perfect square preview */}
-    <div className="shrink-0">
-      <label
-        htmlFor={logoInputId}
-        className={[
-          "relative overflow-hidden cursor-pointer bg-background/40 transition hover:bg-background/60",
-          "border border-dashed border-border rounded-2xl",
-          "w-20 h-20 sm:w-24 sm:h-24", // ✅ explicit sizing (no Tailwind size-* dependency)
-          "flex items-center justify-center",
-        ].join(" ")}
-      >
-        {logoUrl ? (
-          <Image src={logoUrl} alt="Logo" fill className="object-cover" />
-        ) : (
-          <span className="text-xs text-muted-foreground">Upload</span>
-        )}
-      </label>
+              {/* Logo */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-medium leading-5">Logo</div>
+                  <TipIcon tip="Square logo for your collection. Recommended ≥ 400×400." />
+                </div>
 
-      <input
-        id={logoInputId}
-        ref={logoRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        disabled={uploadingImg}
-        onChange={async (e) => {
-          const f = e.target.files?.[0];
-          if (f) await uploadToCloudinary(f, (u) => setLogoUrl(u), logoRef);
-        }}
-      />
-    </div>
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-5">
+                  <div className="shrink-0">
+                    <label
+                      htmlFor={logoInputId}
+                      className={[
+                        "relative overflow-hidden cursor-pointer bg-background/40 transition hover:bg-background/60",
+                        "border border-dashed border-border rounded-2xl",
+                        "w-20 h-20 sm:w-24 sm:h-24",
+                        "flex items-center justify-center",
+                        uiLocked ? "pointer-events-none opacity-70" : "",
+                      ].join(" ")}
+                    >
+                      {logoUrl ? (
+                        <Image src={logoUrl} alt="Logo" fill className="object-cover" />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Upload</span>
+                      )}
+                    </label>
 
-    {/* Copy */}
-    <div className="min-w-0 space-y-1">
-      <p className="text-xs text-muted-foreground">
-        Recommended ≥ 400×400. Images only (jpg/png/gif).
-      </p>
-      <p className="text-[11px] leading-snug text-muted-foreground">
-        Tip: use a simple mark that reads well at small sizes.
-      </p>
-    </div>
-  </div>
-</div>
-</div>
+                    <input
+                      id={logoInputId}
+                      ref={logoRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingImg || uiLocked}
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (f) await uploadToCloudinary(f, (u) => setLogoUrl(u), logoRef);
+                      }}
+                    />
+                  </div>
 
-            {/* Royalties (spacing fixed) */}
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      Recommended ≥ 400×400. Images only (jpg/png/gif).
+                    </p>
+                    <p className="text-[11px] leading-snug text-muted-foreground">
+                      Tip: use a simple mark that reads well at small sizes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Royalties */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-10">
               <Field
                 label="Royalty Recipient"
@@ -1210,6 +1234,7 @@ export default function ConfigForm({
                     const v = royaltyRecipient.trim();
                     if (ethers.isAddress(v)) setRoyaltyRecipient(ethers.getAddress(v));
                   }}
+                  disabled={uiLocked}
                 />
               </Field>
 
@@ -1228,6 +1253,7 @@ export default function ConfigForm({
                   value={royaltyPercentStr}
                   onChange={(e) => setRoyaltyPercentStr(e.target.value)}
                   onBlur={() => markTouched("royaltyPercent")}
+                  disabled={uiLocked}
                 />
               </Field>
             </div>
@@ -1258,109 +1284,108 @@ export default function ConfigForm({
           totalSupplyMax={totalSupplyStr ? Number(totalSupplyStr) : undefined}
         />
 
-{/* Public sale */}
-<Section
-  title="Public sale"
-  subtitle="Set the public mint time, price, and per-wallet limits."
->
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14">
-    
-    {/* Row 1 */}
-    <div className="space-y-6">
-      <Field
-        label="Public sale start (Africa/Lagos)"
-        tip="When the public sale opens. Presale must end before this date/time."
-        error={showIfTouched("publicStart")}
-      >
-        <DateTimePicker
-          label=""
-          value={publicStart}
-          onChange={(v: React.SetStateAction<string>) => {
-            setPublicStart(v);
-            markTouched("publicStart");
-          }}
-          minNow
-        />
-      </Field>
-    </div>
+        {/* Public sale */}
+        <Section
+          title="Public sale"
+          subtitle="Set the public mint time, price, and per-wallet limits."
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14">
+            <div className="space-y-6">
+              <Field
+                label="Public sale start (Africa/Lagos)"
+                tip="When the public sale opens. Presale must end before this date/time."
+                error={showIfTouched("publicStart")}
+              >
+                <DateTimePicker
+                  label=""
+                  value={publicStart}
+                  onChange={(v: React.SetStateAction<string>) => {
+                    setPublicStart(v);
+                    markTouched("publicStart");
+                  }}
+                  minNow
+                />
+              </Field>
+            </div>
 
-    <div className="space-y-6">
-      <Field
-        label="Public price (ETN)"
-        tip="Price per token in ETN. Up to 18 decimal places."
-        error={showIfTouched("publicPrice")}
-      >
-        <Input
-          className="h-11 rounded-2xl"
-          placeholder="e.g. 25"
-          value={publicPriceEtn}
-          onChange={(e) => setPublicPriceEtn(e.target.value)}
-          onBlur={() => markTouched("publicPrice")}
-        />
-      </Field>
-    </div>
+            <div className="space-y-6">
+              <Field
+                label="Public price (ETN)"
+                tip="Price per token in ETN. Up to 18 decimal places."
+                error={showIfTouched("publicPrice")}
+              >
+                <Input
+                  className="h-11 rounded-2xl"
+                  placeholder="e.g. 25"
+                  value={publicPriceEtn}
+                  onChange={(e) => setPublicPriceEtn(e.target.value)}
+                  onBlur={() => markTouched("publicPrice")}
+                  disabled={uiLocked}
+                />
+              </Field>
+            </div>
 
-    {/* Row 2 */}
-    <div className="space-y-6">
-      <Field
-        label="Max per wallet"
-        tip="Max tokens a single wallet can mint across the entire sale. Toggle Unlimited to allow up to total supply."
-        rightSlot={
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Unlimited</span>
-            <Switch
-              checked={walletUnlimited}
-              onCheckedChange={(v) => {
-                setWalletUnlimited(v);
-                if (v) setMaxPerWalletStr(totalSupplyStr || "");
-                markTouched("maxPerWallet");
-              }}
-            />
+            <div className="space-y-6">
+              <Field
+                label="Max per wallet"
+                tip="Max tokens a single wallet can mint across the entire sale. Toggle Unlimited to allow up to total supply."
+                rightSlot={
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Unlimited</span>
+                    <Switch
+                      checked={walletUnlimited}
+                      onCheckedChange={(v) => {
+                        setWalletUnlimited(v);
+                        if (v) setMaxPerWalletStr(totalSupplyStr || "");
+                        markTouched("maxPerWallet");
+                      }}
+                    />
+                  </div>
+                }
+                hint="Cannot exceed Total supply."
+                error={showIfTouched("maxPerWallet")}
+              >
+                <Input
+                  className="h-11 rounded-2xl"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  step={1}
+                  max={walletUnlimited ? undefined : totalSupplyStr ? Number(totalSupplyStr) : undefined}
+                  value={walletUnlimited ? totalSupplyStr || "" : maxPerWalletStr}
+                  onChange={(e) => setMaxPerWalletStr(e.target.value)}
+                  onBlur={() => markTouched("maxPerWallet")}
+                  disabled={walletUnlimited || uiLocked}
+                  placeholder={walletUnlimited ? "Unlimited (<= Total supply)" : "e.g. 2"}
+                />
+              </Field>
+            </div>
+
+            <div className="space-y-6">
+              <Field
+                label="Max per transaction"
+                tip="Upper bound per mint transaction to keep gas sane. Must be ≤ 20, ≤ Max per wallet, and ≤ Total supply."
+                hint="Cannot exceed 20, Max per wallet, and Total supply. This prevents gas blowups."
+                error={showIfTouched("maxPerTx")}
+              >
+                <Input
+                  className="h-11 rounded-2xl"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  step={1}
+                  max={safeMaxPerTx}
+                  value={maxPerTxStr}
+                  onChange={(e) => setMaxPerTxStr(e.target.value)}
+                  onBlur={() => markTouched("maxPerTx")}
+                  placeholder="e.g. 5"
+                  disabled={uiLocked}
+                />
+              </Field>
+            </div>
           </div>
-        }
-        hint="Cannot exceed Total supply."
-        error={showIfTouched("maxPerWallet")}
-      >
-        <Input
-          className="h-11 rounded-2xl"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          step={1}
-          max={walletUnlimited ? undefined : totalSupplyStr ? Number(totalSupplyStr) : undefined}
-          value={walletUnlimited ? totalSupplyStr || "" : maxPerWalletStr}
-          onChange={(e) => setMaxPerWalletStr(e.target.value)}
-          onBlur={() => markTouched("maxPerWallet")}
-          disabled={walletUnlimited}
-          placeholder={walletUnlimited ? "Unlimited (<= Total supply)" : "e.g. 2"}
-        />
-      </Field>
-    </div>
+        </Section>
 
-    <div className="space-y-6">
-      <Field
-        label="Max per transaction"
-        tip="Upper bound per mint transaction to keep gas sane. Must be ≤ 20, ≤ Max per wallet, and ≤ Total supply."
-        hint="Cannot exceed 20, Max per wallet, and Total supply. This prevents gas blowups."
-        error={showIfTouched("maxPerTx")}
-      >
-        <Input
-          className="h-11 rounded-2xl"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          step={1}
-          max={safeMaxPerTx}
-          value={maxPerTxStr}
-          onChange={(e) => setMaxPerTxStr(e.target.value)}
-          onBlur={() => markTouched("maxPerTx")}
-          placeholder="e.g. 5"
-        />
-      </Field>
-    </div>
-
-  </div>
-</Section>
         {/* Platform fee */}
         <Section title="Platform fee (one-time)" subtitle="This fee covers deployment + platform services.">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 min-w-0">
@@ -1408,18 +1433,23 @@ export default function ConfigForm({
         <div className="flex justify-end">
           <Button
             onClick={() => {
+              if (uiLocked) return;
+
+              setOpeningPreview(true);
               try {
                 const { totalSupply } = validateCore();
                 if (enablePresale) validatePresale(totalSupply);
                 setConfirmOpen(true);
               } catch (e: any) {
                 toast.error(e?.message || "Please complete required fields.");
+              } finally {
+                setOpeningPreview(false);
               }
             }}
-            disabled={!canOpenModal || !totalSupplyStr || detectingSupply}
+            disabled={!canOpenModal || !totalSupplyStr || detectingSupply || uiLocked}
             title={!canOpenModal ? "Complete required fields before continuing" : undefined}
           >
-            Preview & Deploy
+            {openingPreview ? "Opening preview…" : confirmingDeploy ? "Preparing…" : "Preview & Deploy"}
           </Button>
         </div>
       </div>
@@ -1427,8 +1457,12 @@ export default function ConfigForm({
       {/* Modal */}
       <PreviewDeployModal
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={() => {
+          if (confirmingDeploy) return;
+          setConfirmOpen(false);
+        }}
         onConfirm={onConfirmDeploy}
+        confirming={confirmingDeploy}
         baseUri={normalizeBaseUri(baseUri)}
         baseUriWarning={baseUriWarning}
         name={name}

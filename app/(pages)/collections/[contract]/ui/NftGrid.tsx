@@ -11,6 +11,7 @@ type Item = {
   name: string | null;
   imageUrl: string | null;
   animationUrl: string | null;
+  tokenUri: string | null;
   hasVideo: boolean;
   isListed: boolean;
   isAuctioned: boolean;
@@ -83,7 +84,6 @@ export default function NftGrid({
           const merged = [...base];
           for (const it of next) if (!seen.has(it.id)) merged.push(it);
 
-          // client polish for sequential feel (still keep backend as source of truth)
           if (sortMode === "oldest") {
             merged.sort((a, b) => toNumTokenId(a.tokenId) - toNumTokenId(b.tokenId));
           } else if (sortMode === "newest") {
@@ -105,7 +105,6 @@ export default function NftGrid({
     [contract, qs, onBusyChange, sortMode]
   );
 
-  // ✅ Reset results when filters/search/sort changes (THIS is why your search felt “static”)
   useEffect(() => {
     setItems([]);
     setCursor(null);

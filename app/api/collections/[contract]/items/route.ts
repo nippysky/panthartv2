@@ -12,6 +12,60 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 import { detectMediaType, ipfsToHttp, isVideoType } from "@/src/lib/media";
 
+function normalizeMaybeString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function mapItem(n: {
+  id: string;
+  tokenId: string;
+  name: string | null;
+  imageUrl: string | null;
+  tokenUri: string | null;
+  rawMetadata: any;
+  createdAt: Date;
+  listingEntries?: Array<{ id: string }>;
+  auctionEntries?: Array<{ id: string }>;
+}) {
+  const rawM: any = n.rawMetadata ?? {};
+
+  const rawImage =
+    normalizeMaybeString(n.imageUrl) ??
+    normalizeMaybeString(rawM?.image) ??
+    normalizeMaybeString(rawM?.image_url) ??
+    null;
+
+  const rawAnimation =
+    normalizeMaybeString(rawM?.animation_url) ??
+    normalizeMaybeString(rawM?.animationUrl) ??
+    null;
+
+  const mimeType =
+    normalizeMaybeString(rawM?.mimeType) ??
+    normalizeMaybeString(rawM?.contentType) ??
+    null;
+
+  const img = ipfsToHttp(rawImage);
+  const anim = ipfsToHttp(rawAnimation);
+
+  const mediaType = detectMediaType(anim ?? img, mimeType);
+  const hasVideo = isVideoType(mediaType);
+
+  return {
+    id: n.id,
+    tokenId: n.tokenId,
+    name: n.name ?? normalizeMaybeString(rawM?.name) ?? null,
+    imageUrl: img ?? null,
+    animationUrl: anim ?? null,
+    tokenUri: n.tokenUri ?? null,
+    mediaType,
+    hasVideo,
+    isListed: (n.listingEntries?.length ?? 0) > 0,
+    isAuctioned: (n.auctionEntries?.length ?? 0) > 0,
+    createdAt: n.createdAt.toISOString(),
+  };
+}
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ contract: string }> }
@@ -21,26 +75,34 @@ export async function GET(
 
   const url = new URL(req.url);
 
-  const limit = Math.max(1, Math.min(60, parseInt(url.searchParams.get("limit") || "24", 10)));
+  const limit = Math.max(
+    1,
+    Math.min(60, parseInt(url.searchParams.get("limit") || "24", 10))
+  );
   const cursor = url.searchParams.get("cursor") || null;
 
   const search = url.searchParams.get("search")?.trim() || "";
   const listed = url.searchParams.get("listed") === "true";
   const auctioned = url.searchParams.get("auctioned") === "true";
 
-  const sort = (url.searchParams.get("sort") || "newest").toLowerCase(); // newest | oldest | rarity_asc | rarity_desc
+  const sort = (url.searchParams.get("sort") || "newest").toLowerCase();
 
-  // Resolve canonical contract
   const col = await prisma.collection.findFirst({
     where: { contract: { equals: rawContract, mode: "insensitive" } },
     select: { contract: true },
   });
-  if (!col) return NextResponse.json({ items: [], nextCursor: null });
+
+  if (!col) {
+    return NextResponse.json({ items: [], nextCursor: null });
+  }
 
   const canon = col.contract;
   const now = new Date();
 
-  const where: any = { contract: canon, status: NftStatus.SUCCESS };
+  const where: any = {
+    contract: canon,
+    status: NftStatus.SUCCESS,
+  };
 
   if (search) {
     where.OR = [
@@ -77,7 +139,6 @@ export async function GET(
     }
   }
 
-  // Rarity sorting: keep your existing raw SQL (IDs + rank), then fetch by IDs
   if (sort === "rarity_asc" || sort === "rarity_desc") {
     const dir = sort === "rarity_desc" ? "DESC" : "ASC";
 
@@ -89,7 +150,9 @@ export async function GET(
         const d = JSON.parse(Buffer.from(cursor, "base64").toString("utf8"));
         cursorRank = typeof d?.rank === "number" ? d.rank : null;
         cursorId = typeof d?.id === "string" ? d.id : null;
-      } catch {}
+      } catch {
+        // ignore malformed cursor
+      }
     }
 
     const rows = await prisma.$queryRawUnsafe<{ id: string; rank: number }[]>(
@@ -129,7 +192,9 @@ export async function GET(
     );
 
     const ids = rows.map((r) => r.id);
-    if (ids.length === 0) return NextResponse.json({ items: [], nextCursor: null });
+    if (ids.length === 0) {
+      return NextResponse.json({ items: [], nextCursor: null });
+    }
 
     const nfts = await prisma.nFT.findMany({
       where: { id: { in: ids } },
@@ -138,6 +203,7 @@ export async function GET(
         tokenId: true,
         name: true,
         imageUrl: true,
+        tokenUri: true,
         rawMetadata: true,
         createdAt: true,
         listingEntries: {
@@ -165,43 +231,27 @@ export async function GET(
     const items = ids
       .map((id) => map.get(id))
       .filter(Boolean)
-      .map((n) => {
-        const rawM: any = (n as any).rawMetadata ?? {};
-        const animationUrl = rawM?.animation_url ?? rawM?.animationUrl ?? null;
-        const mimeType = rawM?.mimeType ?? rawM?.contentType ?? null;
-
-        const img = ipfsToHttp(n!.imageUrl) ?? null;
-        const anim = ipfsToHttp(animationUrl) ?? null;
-
-        const mediaType = detectMediaType(anim, mimeType);
-        const hasVideo = isVideoType(mediaType);
-
-        return {
-          id: n!.id,
-          tokenId: n!.tokenId,
-          name: n!.name ?? null,
-          imageUrl: img,
-          animationUrl: anim,
-          mediaType,
-          hasVideo,
-          isListed: (n!.listingEntries?.length ?? 0) > 0,
-          isAuctioned: (n!.auctionEntries?.length ?? 0) > 0,
-          createdAt: n!.createdAt.toISOString(),
-        };
-      });
+      .map((n) => mapItem(n!));
 
     const last = rows[rows.length - 1];
     const nextCursor =
       rows.length === limit && last
-        ? Buffer.from(JSON.stringify({ rank: last.rank, id: last.id }), "utf8").toString("base64")
+        ? Buffer.from(
+            JSON.stringify({ rank: last.rank, id: last.id }),
+            "utf8"
+          ).toString("base64")
         : null;
 
-    return NextResponse.json({ items, nextCursor }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json(
+      { items, nextCursor },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   }
 
-  // newest/oldest
   const orderBy =
-    sort === "oldest" ? ({ createdAt: "asc" } as const) : ({ createdAt: "desc" } as const);
+    sort === "oldest"
+      ? ({ createdAt: "asc" } as const)
+      : ({ createdAt: "desc" } as const);
 
   const raw = await prisma.nFT.findMany({
     where,
@@ -213,6 +263,7 @@ export async function GET(
       tokenId: true,
       name: true,
       imageUrl: true,
+      tokenUri: true,
       rawMetadata: true,
       createdAt: true,
       listingEntries: {
@@ -225,39 +276,22 @@ export async function GET(
         select: { id: true },
       },
       auctionEntries: {
-        where: { status: AuctionStatus.ACTIVE, startTime: { lte: now }, endTime: { gt: now } },
+        where: {
+          status: AuctionStatus.ACTIVE,
+          startTime: { lte: now },
+          endTime: { gt: now },
+        },
         take: 1,
         select: { id: true },
       },
     },
   });
 
-  const items = raw.map((n) => {
-    const rawM: any = (n as any).rawMetadata ?? {};
-    const animationUrl = rawM?.animation_url ?? rawM?.animationUrl ?? null;
-    const mimeType = rawM?.mimeType ?? rawM?.contentType ?? null;
-
-    const img = ipfsToHttp(n.imageUrl) ?? null;
-    const anim = ipfsToHttp(animationUrl) ?? null;
-
-    const mediaType = detectMediaType(anim, mimeType);
-    const hasVideo = isVideoType(mediaType);
-
-    return {
-      id: n.id,
-      tokenId: n.tokenId,
-      name: n.name ?? null,
-      imageUrl: img,
-      animationUrl: anim,
-      mediaType,
-      hasVideo,
-      isListed: (n.listingEntries?.length ?? 0) > 0,
-      isAuctioned: (n.auctionEntries?.length ?? 0) > 0,
-      createdAt: n.createdAt.toISOString(),
-    };
-  });
-
+  const items = raw.map(mapItem);
   const nextCursor = raw.length === limit ? raw[raw.length - 1].id : null;
 
-  return NextResponse.json({ items, nextCursor }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json(
+    { items, nextCursor },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }

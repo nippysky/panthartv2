@@ -1,60 +1,78 @@
 // src/lib/media.ts
-export type MediaType = "video" | "image" | "unknown";
+
+import { toGatewayUrl } from "@/src/lib/ipfs";
+
+export type MediaType = "video" | "image" | "audio" | "html" | "unknown";
 
 export function ipfsToHttp(url?: string | null) {
-  if (!url) return null;
-  const u = String(url).trim();
-  if (!u) return null;
-
-  if (u.startsWith("ipfs://")) {
-    const cid = u.replace("ipfs://", "");
-    return `https://ipfs.io/ipfs/${cid}`;
-  }
-  return u;
+  return toGatewayUrl(url, "PINATA");
 }
 
-export function detectMediaType(url?: string | null, mimeType?: string | null): MediaType {
+function getExtension(url?: string | null) {
+  if (!url) return "";
+
+  const raw = String(url).trim();
+  if (!raw) return "";
+
+  try {
+    const u = new URL(raw);
+    const path = u.pathname.toLowerCase();
+    const idx = path.lastIndexOf(".");
+    return idx >= 0 ? path.slice(idx) : "";
+  } catch {
+    const cleaned = raw.toLowerCase().split("?")[0]?.split("#")[0] ?? raw.toLowerCase();
+    const idx = cleaned.lastIndexOf(".");
+    return idx >= 0 ? cleaned.slice(idx) : "";
+  }
+}
+
+export function detectMediaType(
+  url?: string | null,
+  mimeType?: string | null
+): MediaType {
   const mt = (mimeType || "").toLowerCase().trim();
 
   if (mt.startsWith("video/")) return "video";
   if (mt.startsWith("image/")) return "image";
+  if (mt.startsWith("audio/")) return "audio";
+  if (mt.includes("text/html") || mt.includes("application/html")) return "html";
 
   if (!url) return "unknown";
 
-  const raw = String(url).toLowerCase();
+  const resolved = ipfsToHttp(url) ?? url;
+  const ext = getExtension(resolved);
 
-  // Best-effort URL parse (handles query strings reliably)
-  try {
-    const u = new URL(raw);
-    const p = u.pathname.toLowerCase();
-
-    if (p.endsWith(".mp4") || p.endsWith(".webm") || p.endsWith(".mov") || p.endsWith(".m4v")) return "video";
-    if (
-      p.endsWith(".png") ||
-      p.endsWith(".jpg") ||
-      p.endsWith(".jpeg") ||
-      p.endsWith(".webp") ||
-      p.endsWith(".avif") ||
-      p.endsWith(".gif")
-    ) return "image";
-
-    return "unknown";
-  } catch {
-    // fallback: strip query/hash, check extension
-    const s = raw.split("?")[0]?.split("#")[0] ?? raw;
-
-    if (s.endsWith(".mp4") || s.endsWith(".webm") || s.endsWith(".mov") || s.endsWith(".m4v")) return "video";
-    if (
-      s.endsWith(".png") ||
-      s.endsWith(".jpg") ||
-      s.endsWith(".jpeg") ||
-      s.endsWith(".webp") ||
-      s.endsWith(".avif") ||
-      s.endsWith(".gif")
-    ) return "image";
-
-    return "unknown";
+  if (ext === ".mp4" || ext === ".webm" || ext === ".mov" || ext === ".m4v" || ext === ".ogv") {
+    return "video";
   }
+
+  if (
+    ext === ".png" ||
+    ext === ".jpg" ||
+    ext === ".jpeg" ||
+    ext === ".webp" ||
+    ext === ".avif" ||
+    ext === ".gif" ||
+    ext === ".svg"
+  ) {
+    return "image";
+  }
+
+  if (
+    ext === ".mp3" ||
+    ext === ".wav" ||
+    ext === ".ogg" ||
+    ext === ".aac" ||
+    ext === ".flac"
+  ) {
+    return "audio";
+  }
+
+  if (ext === ".html" || ext === ".htm") {
+    return "html";
+  }
+
+  return "unknown";
 }
 
 export function isVideoType(t: MediaType) {

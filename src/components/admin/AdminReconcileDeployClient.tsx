@@ -4,10 +4,9 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { useActiveAccount } from "thirdweb/react";
 
-import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 import { WalletPill } from "@/src/ui/WalletPill";
+import { useConnectedWalletAddress } from "@/src/lib/hooks/useConnectedWalletAddress";
 
 type Props = {
   allowedWallets: string[];
@@ -57,11 +56,7 @@ async function copyText(text: string) {
   }
 }
 
-function JsonBlock({
-  value,
-}: {
-  value: unknown;
-}) {
+function JsonBlock({ value }: { value: unknown }) {
   return (
     <pre className="overflow-x-auto rounded-[20px] border border-border bg-background p-4 text-xs leading-6 text-foreground">
       {JSON.stringify(value, null, 2)}
@@ -85,6 +80,7 @@ function KeyValueRow({
   return (
     <div className="rounded-[18px] border border-border bg-background p-4">
       <div className="text-xs text-muted">{label}</div>
+
       <div className="mt-1 flex items-start gap-2">
         <div
           className={[
@@ -163,24 +159,10 @@ function GateCard({
   );
 }
 
-export default function AdminReconcileDeployClient({ allowedWallets }: Props) {
-  const dw = useDecentWalletAccount();
-  const activeAccount = useActiveAccount();
-
-  const connectedAddress = React.useMemo(() => {
-    if (dw?.isDecentWallet) {
-      if (dw.ready && dw.isConnected && dw.address) return dw.address;
-      return null;
-    }
-
-    return activeAccount?.address || null;
-  }, [
-    dw?.isDecentWallet,
-    dw?.ready,
-    dw?.isConnected,
-    dw?.address,
-    activeAccount?.address,
-  ]);
+export default function AdminReconcileDeployClient({
+  allowedWallets,
+}: Props) {
+  const { mounted, address: connectedAddress, source } = useConnectedWalletAddress();
 
   const connected = Boolean(connectedAddress);
   const permitted = isAllowed(allowedWallets, connectedAddress);
@@ -270,6 +252,7 @@ export default function AdminReconcileDeployClient({ allowedWallets }: Props) {
 
       if ("ok" in data && data.ok === true) {
         setResult(data as ApiWriteOk);
+        setPreview(null);
         toast.success("Reconcile write complete");
       } else {
         setPreview(data as any);
@@ -286,6 +269,38 @@ export default function AdminReconcileDeployClient({ allowedWallets }: Props) {
 
   const hasFactory = Boolean(factory.trim());
   const previewKind = preview?.kind || result?.kind || "—";
+  const walletSourceLabel =
+    source === "decent-wallet"
+      ? "Decent Wallet"
+      : source === "thirdweb"
+      ? "External wallet"
+      : mounted
+      ? "Not connected"
+      : "Checking…";
+
+  if (!mounted) {
+    return (
+      <GateCard
+        title="Checking wallet session"
+        body="Loading your wallet session so admin access can be verified."
+        wallet={false}
+        icon={
+          <svg
+            viewBox="0 0 24 24"
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 6v6l4 2" />
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+        }
+      />
+    );
+  }
 
   if (!connected) {
     return (
@@ -350,7 +365,13 @@ export default function AdminReconcileDeployClient({ allowedWallets }: Props) {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Mode"
-            value={loading === "idle" ? "Ready" : loading === "preview" ? "Previewing" : "Writing"}
+            value={
+              loading === "idle"
+                ? "Ready"
+                : loading === "preview"
+                ? "Previewing"
+                : "Writing"
+            }
             helper="Current tool state"
           />
           <StatCard
@@ -366,7 +387,7 @@ export default function AdminReconcileDeployClient({ allowedWallets }: Props) {
           <StatCard
             label="Wallet"
             value={short(connectedAddress)}
-            helper="Authorized admin session"
+            helper={walletSourceLabel}
           />
         </div>
       </section>
@@ -613,6 +634,10 @@ export default function AdminReconcileDeployClient({ allowedWallets }: Props) {
                   value={connectedAddress}
                   mono
                   copyable
+                />
+                <KeyValueRow
+                  label="Wallet source"
+                  value={walletSourceLabel}
                 />
                 <KeyValueRow
                   label="Transaction hash"

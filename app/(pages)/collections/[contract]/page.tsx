@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import CollectionShell from "./ui/CollectionShell";
+import { toGatewayUrl } from "@/src/lib/ipfs";
 
 type HeaderDTO = {
   id?: string;
@@ -26,7 +27,6 @@ type HeaderDTO = {
   ownersCount?: number | null;
   ownerAddress?: string | null;
 
-
   listingActiveCount?: number | null;
   auctionActiveCount?: number | null;
 
@@ -40,11 +40,11 @@ async function getSiteUrl() {
   const env = process.env.NEXT_PUBLIC_BASE_URL;
   if (env) return env.replace(/\/$/, "");
 
-  // Next.js (newer) exposes headers() as async
   const h = await headers();
   const proto = h.get("x-forwarded-proto") ?? "https";
   const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (!host) return "http://localhost:3000"; // safe fallback for local dev
+
+  if (!host) return "http://localhost:3000";
   return `${proto}://${host}`;
 }
 
@@ -60,11 +60,11 @@ async function getHeader(contract: string): Promise<HeaderDTO | null> {
 
 async function toAbs(maybeUrl?: string | null) {
   if (!maybeUrl) return null;
-  if (/^https?:\/\//i.test(maybeUrl)) return maybeUrl;
 
-  if (maybeUrl.startsWith("ipfs://")) {
-    return `https://ipfs.io/ipfs/${maybeUrl.replace("ipfs://", "")}`;
-  }
+  const resolvedIpfs = toGatewayUrl(maybeUrl, "PINATA");
+  if (resolvedIpfs) return resolvedIpfs;
+
+  if (/^https?:\/\//i.test(maybeUrl)) return maybeUrl;
 
   const base = await getSiteUrl();
   return base ? new URL(maybeUrl, base).toString() : maybeUrl;
