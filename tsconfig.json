@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "script/warpool/bootstrap-contracts.mjs"  ],
   "exclude": ["node_modules"]
 }

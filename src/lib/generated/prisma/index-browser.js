@@ -24,12 +24,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 7.4.2
- * Query Engine version: 94a226be1cf2967af2541cca5529f0f7ba866919
+ * Prisma Client JS version: 7.5.0
+ * Query Engine version: 280c870be64f457428992c43c1f6d557fab6e29e
  */
 Prisma.prismaVersion = {
-  client: "7.4.2",
-  engine: "94a226be1cf2967af2541cca5529f0f7ba866919"
+  client: "7.5.0",
+  engine: "280c870be64f457428992c43c1f6d557fab6e29e"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -649,6 +649,247 @@ exports.Prisma.PendingChainActionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WarpoolContractScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  address: 'address',
+  chainId: 'chainId',
+  label: 'label',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolQueueConfigScalarFieldEnum = {
+  id: 'id',
+  chainId: 'chainId',
+  queueKey: 'queueKey',
+  slug: 'slug',
+  tier: 'tier',
+  mode: 'mode',
+  enabled: 'enabled',
+  singleEntryPerWallet: 'singleEntryPerWallet',
+  targetSize: 'targetSize',
+  minStartSize: 'minStartSize',
+  openDurationSeconds: 'openDurationSeconds',
+  stakeAmountRaw: 'stakeAmountRaw',
+  platformFeeBps: 'platformFeeBps',
+  firstPlaceBps: 'firstPlaceBps',
+  secondPlaceBps: 'secondPlaceBps',
+  thirdPlaceBps: 'thirdPlaceBps',
+  configVersion: 'configVersion',
+  sourceContract: 'sourceContract',
+  syncedAt: 'syncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolGlobalConfigSnapshotScalarFieldEnum = {
+  id: 'id',
+  chainId: 'chainId',
+  configContract: 'configContract',
+  configVersion: 'configVersion',
+  comradesCollection: 'comradesCollection',
+  relicsCollection: 'relicsCollection',
+  dcntToken: 'dcntToken',
+  treasury: 'treasury',
+  workerOperator: 'workerOperator',
+  entriesPaused: 'entriesPaused',
+  reservationsPaused: 'reservationsPaused',
+  settlementsPaused: 'settlementsPaused',
+  relicsEnabled: 'relicsEnabled',
+  fatigueEnabled: 'fatigueEnabled',
+  token11FeeShareEnabled: 'token11FeeShareEnabled',
+  token11FeeShareBps: 'token11FeeShareBps',
+  relicMinDiscountBps: 'relicMinDiscountBps',
+  relicMaxDiscountBps: 'relicMaxDiscountBps',
+  discountSeatCap: 'discountSeatCap',
+  token11SeatCap: 'token11SeatCap',
+  reservationTtlSeconds: 'reservationTtlSeconds',
+  fatigueMaxConsecutive: 'fatigueMaxConsecutive',
+  fatigueCooldownSeconds: 'fatigueCooldownSeconds',
+  roundsPerMatch: 'roundsPerMatch',
+  traitPowerMin: 'traitPowerMin',
+  traitPowerMax: 'traitPowerMax',
+  roundVarianceMax: 'roundVarianceMax',
+  microMomentumMax: 'microMomentumMax',
+  syncedAt: 'syncedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.WarpoolPoolScalarFieldEnum = {
+  id: 'id',
+  chainId: 'chainId',
+  coreContract: 'coreContract',
+  poolIdOnChain: 'poolIdOnChain',
+  queueKey: 'queueKey',
+  queueSlug: 'queueSlug',
+  configVersion: 'configVersion',
+  state: 'state',
+  tier: 'tier',
+  mode: 'mode',
+  singleEntryPerWallet: 'singleEntryPerWallet',
+  targetSize: 'targetSize',
+  minStartSize: 'minStartSize',
+  entrantCount: 'entrantCount',
+  runnableSize: 'runnableSize',
+  stakeAmountRaw: 'stakeAmountRaw',
+  platformFeeBps: 'platformFeeBps',
+  firstPlaceBps: 'firstPlaceBps',
+  secondPlaceBps: 'secondPlaceBps',
+  thirdPlaceBps: 'thirdPlaceBps',
+  relicMinDiscountBps: 'relicMinDiscountBps',
+  relicMaxDiscountBps: 'relicMaxDiscountBps',
+  discountSeatCap: 'discountSeatCap',
+  token11SeatCap: 'token11SeatCap',
+  token11FeeShareBps: 'token11FeeShareBps',
+  discountSeatsUsed: 'discountSeatsUsed',
+  discountSeatsReserved: 'discountSeatsReserved',
+  token11SeatsUsed: 'token11SeatsUsed',
+  comradesCollection: 'comradesCollection',
+  relicsCollection: 'relicsCollection',
+  dcntToken: 'dcntToken',
+  treasury: 'treasury',
+  openedAt: 'openedAt',
+  expiresAt: 'expiresAt',
+  lockedAt: 'lockedAt',
+  battleReadyAt: 'battleReadyAt',
+  settledAt: 'settledAt',
+  closedAt: 'closedAt',
+  expiredRefundedAt: 'expiredRefundedAt',
+  seedBlockNumber: 'seedBlockNumber',
+  openTxHash: 'openTxHash',
+  lockTxHash: 'lockTxHash',
+  settleTxHash: 'settleTxHash',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolEntryScalarFieldEnum = {
+  id: 'id',
+  chainId: 'chainId',
+  coreContract: 'coreContract',
+  entryIdOnChain: 'entryIdOnChain',
+  poolId: 'poolId',
+  userId: 'userId',
+  userAddress: 'userAddress',
+  nftId: 'nftId',
+  comradeContract: 'comradeContract',
+  comradeTokenId: 'comradeTokenId',
+  relicContract: 'relicContract',
+  relicTokenId: 'relicTokenId',
+  relicType: 'relicType',
+  status: 'status',
+  placement: 'placement',
+  selectedForBattle: 'selectedForBattle',
+  relicDiscountBps: 'relicDiscountBps',
+  baseStakeAmountRaw: 'baseStakeAmountRaw',
+  paidStakeAmountRaw: 'paidStakeAmountRaw',
+  refundedStakeAmountRaw: 'refundedStakeAmountRaw',
+  prizeAmountRaw: 'prizeAmountRaw',
+  joinedAt: 'joinedAt',
+  joinedTxHash: 'joinedTxHash',
+  reservationId: 'reservationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolReservationScalarFieldEnum = {
+  id: 'id',
+  chainId: 'chainId',
+  coreContract: 'coreContract',
+  reservationIdOnChain: 'reservationIdOnChain',
+  poolId: 'poolId',
+  userId: 'userId',
+  userAddress: 'userAddress',
+  nftId: 'nftId',
+  comradeContract: 'comradeContract',
+  comradeTokenId: 'comradeTokenId',
+  relicContract: 'relicContract',
+  relicTokenId: 'relicTokenId',
+  status: 'status',
+  discountBps: 'discountBps',
+  createdAtOnChain: 'createdAtOnChain',
+  expiresAtOnChain: 'expiresAtOnChain',
+  consumedAt: 'consumedAt',
+  expiredAt: 'expiredAt',
+  createdTxHash: 'createdTxHash',
+  resolvedTxHash: 'resolvedTxHash',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolBattleScalarFieldEnum = {
+  id: 'id',
+  poolId: 'poolId',
+  status: 'status',
+  bracketSeed: 'bracketSeed',
+  firstEntryId: 'firstEntryId',
+  secondEntryId: 'secondEntryId',
+  thirdEntryId: 'thirdEntryId',
+  totalStakeRaw: 'totalStakeRaw',
+  prizePoolRaw: 'prizePoolRaw',
+  platformFeeRaw: 'platformFeeRaw',
+  computedAt: 'computedAt',
+  submittedAt: 'submittedAt',
+  settledAt: 'settledAt',
+  settlementTxHash: 'settlementTxHash',
+  rawOutcome: 'rawOutcome',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolBattleMatchScalarFieldEnum = {
+  id: 'id',
+  battleId: 'battleId',
+  roundNumber: 'roundNumber',
+  matchNumber: 'matchNumber',
+  slotAEntryId: 'slotAEntryId',
+  slotBEntryId: 'slotBEntryId',
+  winnerEntryId: 'winnerEntryId',
+  loserEntryId: 'loserEntryId',
+  status: 'status',
+  rawResult: 'rawResult',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolCaptureScalarFieldEnum = {
+  id: 'id',
+  entryId: 'entryId',
+  nftId: 'nftId',
+  contract: 'contract',
+  tokenId: 'tokenId',
+  originalOwnerId: 'originalOwnerId',
+  originalOwnerAddress: 'originalOwnerAddress',
+  capturedAt: 'capturedAt',
+  status: 'status',
+  relistStatus: 'relistStatus',
+  relistListingId: 'relistListingId',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WarpoolActivityScalarFieldEnum = {
+  id: 'id',
+  chainId: 'chainId',
+  coreContract: 'coreContract',
+  poolId: 'poolId',
+  entryId: 'entryId',
+  reservationId: 'reservationId',
+  userId: 'userId',
+  userAddress: 'userAddress',
+  nftId: 'nftId',
+  type: 'type',
+  txHash: 'txHash',
+  logIndex: 'logIndex',
+  blockNumber: 'blockNumber',
+  timestamp: 'timestamp',
+  payload: 'payload',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -764,7 +1005,12 @@ exports.PendingChainActionType = exports.$Enums.PendingChainActionType = {
   NFT_AUCTION_CREATE: 'NFT_AUCTION_CREATE',
   NFT_AUCTION_BID: 'NFT_AUCTION_BID',
   NFT_AUCTION_CANCEL: 'NFT_AUCTION_CANCEL',
-  NFT_AUCTION_FINALIZE: 'NFT_AUCTION_FINALIZE'
+  NFT_AUCTION_FINALIZE: 'NFT_AUCTION_FINALIZE',
+  WARPOOL_RESERVATION_EXPIRE: 'WARPOOL_RESERVATION_EXPIRE',
+  WARPOOL_POOL_PROCESS_EXPIRED: 'WARPOOL_POOL_PROCESS_EXPIRED',
+  WARPOOL_POOL_MARK_BATTLE_READY: 'WARPOOL_POOL_MARK_BATTLE_READY',
+  WARPOOL_POOL_SETTLE: 'WARPOOL_POOL_SETTLE',
+  WARPOOL_CAPTURE_RELIST: 'WARPOOL_CAPTURE_RELIST'
 };
 
 exports.PendingStatus = exports.$Enums.PendingStatus = {
@@ -772,6 +1018,94 @@ exports.PendingStatus = exports.$Enums.PendingStatus = {
   CONFIRMED: 'CONFIRMED',
   FAILED: 'FAILED',
   EXPIRED: 'EXPIRED'
+};
+
+exports.WarpoolContractKind = exports.$Enums.WarpoolContractKind = {
+  CONFIG: 'CONFIG',
+  CORE: 'CORE',
+  LENS: 'LENS'
+};
+
+exports.WarpoolQueueSlug = exports.$Enums.WarpoolQueueSlug = {
+  FORGE_SAFEGUARD: 'FORGE_SAFEGUARD',
+  LEGION_SAFEGUARD: 'LEGION_SAFEGUARD',
+  LEGION_VAULTBOUND: 'LEGION_VAULTBOUND',
+  CROWN_VAULTBOUND: 'CROWN_VAULTBOUND'
+};
+
+exports.WarpoolPoolStatus = exports.$Enums.WarpoolPoolStatus = {
+  OPEN: 'OPEN',
+  LOCKED: 'LOCKED',
+  BATTLE_READY: 'BATTLE_READY',
+  SETTLING: 'SETTLING',
+  SETTLED: 'SETTLED',
+  CLOSED: 'CLOSED',
+  EXPIRED_REFUNDED: 'EXPIRED_REFUNDED'
+};
+
+exports.WarpoolRelicType = exports.$Enums.WarpoolRelicType = {
+  NONE: 'NONE',
+  DISCOUNT: 'DISCOUNT',
+  GOD: 'GOD'
+};
+
+exports.WarpoolEntryStatus = exports.$Enums.WarpoolEntryStatus = {
+  JOINED: 'JOINED',
+  REFUNDED: 'REFUNDED',
+  SELECTED: 'SELECTED',
+  SETTLED: 'SETTLED',
+  CAPTURED: 'CAPTURED',
+  RETURNED: 'RETURNED'
+};
+
+exports.WarpoolReservationStatus = exports.$Enums.WarpoolReservationStatus = {
+  ACTIVE: 'ACTIVE',
+  CONSUMED: 'CONSUMED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.WarpoolBattleStatus = exports.$Enums.WarpoolBattleStatus = {
+  PENDING: 'PENDING',
+  COMPUTED: 'COMPUTED',
+  SUBMITTED: 'SUBMITTED',
+  SETTLED: 'SETTLED',
+  FAILED: 'FAILED'
+};
+
+exports.WarpoolCaptureStatus = exports.$Enums.WarpoolCaptureStatus = {
+  HELD: 'HELD',
+  QUEUED_FOR_RELIST: 'QUEUED_FOR_RELIST',
+  RELISTED: 'RELISTED',
+  RELEASED: 'RELEASED'
+};
+
+exports.WarpoolRelistStatus = exports.$Enums.WarpoolRelistStatus = {
+  NONE: 'NONE',
+  QUEUED: 'QUEUED',
+  LISTED: 'LISTED',
+  SOLD: 'SOLD',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
+};
+
+exports.WarpoolActivityType = exports.$Enums.WarpoolActivityType = {
+  POOL_OPENED: 'POOL_OPENED',
+  POOL_LOCKED: 'POOL_LOCKED',
+  POOL_BATTLE_READY: 'POOL_BATTLE_READY',
+  POOL_SETTLED: 'POOL_SETTLED',
+  POOL_REOPENED: 'POOL_REOPENED',
+  POOL_EXPIRED_REFUNDED: 'POOL_EXPIRED_REFUNDED',
+  RESERVATION_CREATED: 'RESERVATION_CREATED',
+  RESERVATION_CONSUMED: 'RESERVATION_CONSUMED',
+  RESERVATION_EXPIRED: 'RESERVATION_EXPIRED',
+  ENTRY_JOINED: 'ENTRY_JOINED',
+  ENTRY_SELECTED: 'ENTRY_SELECTED',
+  ENTRY_REFUNDED: 'ENTRY_REFUNDED',
+  ENTRY_CAPTURED: 'ENTRY_CAPTURED',
+  ENTRY_RETURNED: 'ENTRY_RETURNED',
+  PRIZE_PAID: 'PRIZE_PAID',
+  RELIC_RETURNED: 'RELIC_RETURNED'
 };
 
 exports.Prisma.ModelName = {
@@ -812,7 +1146,17 @@ exports.Prisma.ModelName = {
   MultisigOwner: 'MultisigOwner',
   MultisigTx: 'MultisigTx',
   MultisigApproval: 'MultisigApproval',
-  PendingChainAction: 'PendingChainAction'
+  PendingChainAction: 'PendingChainAction',
+  WarpoolContract: 'WarpoolContract',
+  WarpoolQueueConfig: 'WarpoolQueueConfig',
+  WarpoolGlobalConfigSnapshot: 'WarpoolGlobalConfigSnapshot',
+  WarpoolPool: 'WarpoolPool',
+  WarpoolEntry: 'WarpoolEntry',
+  WarpoolReservation: 'WarpoolReservation',
+  WarpoolBattle: 'WarpoolBattle',
+  WarpoolBattleMatch: 'WarpoolBattleMatch',
+  WarpoolCapture: 'WarpoolCapture',
+  WarpoolActivity: 'WarpoolActivity'
 };
 
 /**

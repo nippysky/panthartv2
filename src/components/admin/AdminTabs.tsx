@@ -1,4 +1,3 @@
-// src/components/admin/AdminTabs.tsx
 "use client";
 
 import Link from "next/link";
@@ -8,6 +7,7 @@ const ITEMS = [
   { label: "Submissions", href: (slug: string) => `/${slug}/submissions` },
   { label: "Reconcile", href: (slug: string) => `/${slug}/reconcile` },
   { label: "Governance", href: (slug: string) => `/${slug}/governance` },
+  { label: "Warpool", href: (slug: string) => `/${slug}/warpool` },
 ];
 
 function isActive(pathname: string, href: string) {
