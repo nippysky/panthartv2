@@ -1,8 +1,9 @@
 import type {
   ApiResponse,
-  WarpoolActionResult,
   WarpoolBattlePayload,
   WarpoolHistoryPayload,
+  WarpoolLensPreviewPayload,
+  WarpoolQueueAssetsPayload,
   WarpoolQueuePayload,
   WarpoolQueuesPayload,
 } from "@/src/features/warpool/types";
@@ -38,10 +39,13 @@ export async function fetchWarpoolQueueBySlug(
     ? `?walletAddress=${encodeURIComponent(walletAddress)}`
     : "";
 
-  const res = await fetch(`/api/warpool/queues/${encodeURIComponent(slug)}${qs}`, {
-    method: "GET",
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `/api/warpool/queues/${encodeURIComponent(slug)}${qs}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
 
   if (res.status === 404) {
     return { queue: null, eligibility: null };
@@ -72,6 +76,7 @@ export async function fetchWarpoolBattle(
 
   return parseApiResponse<WarpoolBattlePayload>(res);
 }
+
 export async function fetchWarpoolHistory(): Promise<WarpoolHistoryPayload> {
   const res = await fetch("/api/warpool/history", {
     method: "GET",
@@ -81,56 +86,45 @@ export async function fetchWarpoolHistory(): Promise<WarpoolHistoryPayload> {
   return parseApiResponse<WarpoolHistoryPayload>(res);
 }
 
-export async function reserveWarpoolQueueSlot(
+export async function fetchWarpoolQueueAssets(
   queueSlug: string,
-  walletAddress?: string | null
-): Promise<WarpoolActionResult> {
+  walletAddress: string
+): Promise<WarpoolQueueAssetsPayload> {
+  const qs = `?walletAddress=${encodeURIComponent(walletAddress)}`;
+
   const res = await fetch(
-    `/api/warpool/queues/${encodeURIComponent(queueSlug)}/reserve`,
+    `/api/warpool/queues/${encodeURIComponent(queueSlug)}/assets${qs}`,
     {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ walletAddress }),
+      method: "GET",
+      cache: "no-store",
     }
   );
 
-  return parseApiResponse<WarpoolActionResult>(res);
+  return parseApiResponse<WarpoolQueueAssetsPayload>(res);
 }
 
-export async function confirmWarpoolParticipation(
-  poolId: string,
-  walletAddress?: string | null
-): Promise<WarpoolActionResult> {
+export async function fetchWarpoolLensPreview(params: {
+  queueSlug: string;
+  walletAddress: string;
+  comradeTokenId: string;
+  relicTokenId?: string | null;
+}): Promise<WarpoolLensPreviewPayload> {
+  const qs = new URLSearchParams({
+    walletAddress: params.walletAddress,
+    comradeTokenId: params.comradeTokenId,
+  });
+
+  if (params.relicTokenId) {
+    qs.set("relicTokenId", params.relicTokenId);
+  }
+
   const res = await fetch(
-    `/api/warpool/battles/${encodeURIComponent(poolId)}/confirm`,
+    `/api/warpool/queues/${encodeURIComponent(params.queueSlug)}/lens?${qs.toString()}`,
     {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ walletAddress }),
+      method: "GET",
+      cache: "no-store",
     }
   );
 
-  return parseApiResponse<WarpoolActionResult>(res);
-}
-
-export async function claimWarpoolResult(
-  poolId: string,
-  walletAddress?: string | null
-): Promise<WarpoolActionResult> {
-  const res = await fetch(
-    `/api/warpool/battles/${encodeURIComponent(poolId)}/claim`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ walletAddress }),
-    }
-  );
-
-  return parseApiResponse<WarpoolActionResult>(res);
+  return parseApiResponse<WarpoolLensPreviewPayload>(res);
 }

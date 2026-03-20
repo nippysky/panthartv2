@@ -45,7 +45,8 @@ export default function ComradesWarpoolPage() {
           <LoadingPanel className="h-16 w-2/3 rounded-3xl" />
           <LoadingPanel className="mt-4 h-5 w-1/2 rounded-full" />
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 lg:grid-cols-2">
+            <LoadingPanel className="h-64 rounded-[30px]" />
             <LoadingPanel className="h-64 rounded-[30px]" />
             <LoadingPanel className="h-64 rounded-[30px]" />
             <LoadingPanel className="h-64 rounded-[30px]" />
@@ -231,7 +232,9 @@ export default function ComradesWarpoolPage() {
             { label: "All statuses", value: "all" },
             { label: "Open", value: "Open" },
             { label: "Filling", value: "Filling" },
-            { label: "Starting Soon", value: "Starting Soon" },
+            { label: "Locked", value: "Locked" },
+            { label: "Battle Ready", value: "Battle Ready" },
+            { label: "Settled", value: "Settled" },
           ]}
         />
 
@@ -241,7 +244,7 @@ export default function ComradesWarpoolPage() {
             body="Try a different search or status filter."
           />
         ) : (
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-2">
             {filteredQueues.map((queue) => (
               <QueueCard key={queue.slug} queue={queue} />
             ))}

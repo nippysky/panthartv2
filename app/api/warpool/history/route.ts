@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
-import { listDevHistory } from "@/src/server/warpool-dev-state";
+import { listWarpoolHistory } from "@/src/server/warpool";
 import type { ApiResponse, WarpoolHistoryPayload } from "@/src/features/warpool/types";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
+  const items = await listWarpoolHistory();
+
   const payload: ApiResponse<WarpoolHistoryPayload> = {
     ok: true,
     data: {
-      items: listDevHistory(),
+      items,
       nextCursor: null,
     },
   };

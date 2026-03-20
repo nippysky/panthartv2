@@ -11,27 +11,17 @@ import EligibilityCard from "@/src/features/warpool/components/EligibilityCard";
 import LoadingPanel from "@/src/features/warpool/components/LoadingPanel";
 import SectionBadge from "@/src/features/warpool/components/SectionBadge";
 import TimelineCard from "@/src/features/warpool/components/TimelineCard";
-import WalletGateCard from "@/src/features/warpool/components/WalletGateCard";
 import { useWarpoolBattle } from "@/src/features/warpool/hook/useWarpoolBattle";
-
 
 export default function WarpoolBattlePage() {
   const params = useParams<{ poolId: string }>();
   const poolId = decodeURIComponent(params.poolId);
   const { address } = useDecentWalletAccount();
 
-  const {
-    battle,
-    eligibility,
-    isLoading,
-    error,
-    actionMessage,
-    isConfirming,
-    isClaiming,
-    confirm,
-    claim,
-    refetch,
-  } = useWarpoolBattle(poolId, address);
+  const { battle, eligibility, isLoading, error, refetch } = useWarpoolBattle(
+    poolId,
+    address
+  );
 
   if (isLoading) {
     return (
@@ -101,9 +91,9 @@ export default function WarpoolBattlePage() {
 
               <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                    Pool #{poolId}
-                  </h1>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+  Pool #{battle.poolId}
+</h1>
                   <p className="mt-2 text-sm text-foreground/60">
                     {battle.queue} · {battle.round}
                   </p>
@@ -144,15 +134,7 @@ export default function WarpoolBattlePage() {
               <BattleArenaCard battle={battle} />
             </div>
 
-            <aside className="space-y-5">
-              <WalletGateCard
-                eligibility={eligibility}
-                onConfirm={confirm}
-                onClaim={claim}
-                isConfirming={isConfirming}
-                isClaiming={isClaiming}
-                actionMessage={actionMessage}
-              />
+                   <aside className="space-y-5">
               <EligibilityCard type="battle" eligibility={eligibility} />
               <TimelineCard timeline={battle.timeline} />
               <BattleSummaryCard battle={battle} />

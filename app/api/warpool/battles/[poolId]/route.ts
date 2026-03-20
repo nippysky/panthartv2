@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getDevBattleById,
-  getDevBattleEligibility,
-} from "@/src/server/warpool-dev-state";
+  getWarpoolBattleByPoolId,
+  getWarpoolBattleEligibility,
+} from "@/src/server/warpool";
 import type { ApiResponse, WarpoolBattlePayload } from "@/src/features/warpool/types";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,14 @@ export async function GET(
 ) {
   const { poolId } = await context.params;
   const decoded = decodeURIComponent(poolId);
-  const battle = getDevBattleById(decoded);
+
+  const [battle, eligibility] = await Promise.all([
+    getWarpoolBattleByPoolId(decoded),
+    getWarpoolBattleEligibility(
+      decoded,
+      req.nextUrl.searchParams.get("walletAddress")
+    ),
+  ]);
 
   if (!battle) {
     const payload: ApiResponse<WarpoolBattlePayload> = {
@@ -24,9 +31,6 @@ export async function GET(
     };
     return NextResponse.json(payload, { status: 404 });
   }
-
-  const walletAddress = req.nextUrl.searchParams.get("walletAddress");
-  const eligibility = getDevBattleEligibility(decoded, walletAddress);
 
   const payload: ApiResponse<WarpoolBattlePayload> = {
     ok: true,

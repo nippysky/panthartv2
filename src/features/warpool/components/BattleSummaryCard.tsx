@@ -1,5 +1,6 @@
-import { Crown, Lock, Shield } from "lucide-react";
+import { Crown, Shield } from "lucide-react";
 import type { WarpoolBattle } from "@/src/features/warpool/types";
+import { shortAddress } from "@/src/features/warpool/lib/helpers";
 
 type Props = {
   battle: WarpoolBattle;
@@ -25,22 +26,22 @@ export default function BattleSummaryCard({ battle }: Props) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span>Reward path</span>
-          <span className="inline-flex items-center gap-1 text-foreground">
-            <Crown className="h-4 w-4 text-accent" />
-            Winner payout
-          </span>
+          <span>Prize pool</span>
+          <span className="text-foreground">{battle.prizePool}</span>
         </div>
       </div>
 
-      <div className="mt-4 rounded-[22px] border border-border bg-card p-4 text-xs leading-6 text-foreground/45">
-        <div className="mb-2 inline-flex items-center gap-2 text-foreground/65">
-          <Lock className="h-3.5 w-3.5 text-accent" />
-          Notes
+      <div className="mt-4 rounded-[22px] border border-border bg-card p-4 text-xs leading-6 text-foreground/55">
+        <div className="mb-2 inline-flex items-center gap-2 text-foreground/70">
+          <Crown className="h-3.5 w-3.5 text-accent" />
+          Podium
         </div>
-        Real battle events, reservation ownership, elimination state, relist
-        outcome cards, and settlement receipts will come next when we wire the
-        live frontend data layer from scratch.
+
+        <div className="space-y-2">
+          <div>1st: {battle.firstPlaceWallet ? shortAddress(battle.firstPlaceWallet) : "—"}</div>
+          <div>2nd: {battle.secondPlaceWallet ? shortAddress(battle.secondPlaceWallet) : "—"}</div>
+          <div>3rd: {battle.thirdPlaceWallet ? shortAddress(battle.thirdPlaceWallet) : "—"}</div>
+        </div>
       </div>
     </div>
   );

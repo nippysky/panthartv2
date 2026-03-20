@@ -189,11 +189,11 @@ export default function WarpoolQueuePage() {
           </section>
 
           <aside className="space-y-5">
-            <QueueJoinCard
-              queue={queue}
-              eligibility={eligibility}
-              onReserved={refetch}
-            />
+       <QueueJoinCard
+  queue={queue}
+  eligibility={eligibility}
+  onRefresh={refetch}
+/>
             <EligibilityCard type="queue" eligibility={eligibility} />
             <QueueRulesCard rules={queue.rules} />
           </aside>

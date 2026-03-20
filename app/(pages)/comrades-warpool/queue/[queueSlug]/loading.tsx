@@ -1,37 +1,55 @@
+import LoadingPanel from "@/src/features/warpool/components/LoadingPanel";
+
 export default function WarpoolQueueLoading() {
   return (
-    <main className="min-h-screen bg-[#06070A] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 animate-pulse">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="h-10 w-24 rounded-full bg-white/10" />
-          <div className="h-10 w-40 rounded-full bg-white/10" />
+    <main className="min-h-screen bg-background text-foreground page-enter">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-6">
+          <LoadingPanel className="h-10 w-24 rounded-full" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="rounded-[34px] bg-white/10 p-6">
-            <div className="h-7 w-28 rounded-full bg-white/10" />
-            <div className="mt-5 h-12 w-1/2 rounded-3xl bg-white/10" />
-            <div className="mt-4 h-5 w-full rounded-full bg-white/10" />
-            <div className="mt-2 h-5 w-2/3 rounded-full bg-white/10" />
+          <section className="rounded-[34px] border border-border bg-card/85 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)] sm:p-7">
+            <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+              <div className="space-y-4">
+                <LoadingPanel className="h-7 w-32 rounded-full" />
+                <LoadingPanel className="h-11 w-72 rounded-3xl" />
+                <LoadingPanel className="h-5 w-[90%] rounded-full" />
+                <LoadingPanel className="h-5 w-[70%] rounded-full" />
+              </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <div className="h-24 rounded-[24px] bg-black/20" />
-              <div className="h-24 rounded-[24px] bg-black/20" />
-              <div className="h-24 rounded-[24px] bg-black/20" />
+              <div className="rounded-[24px] border border-border bg-background/80 px-4 py-3">
+                <LoadingPanel className="h-3 w-12 rounded-full" />
+                <LoadingPanel className="mt-2 h-7 w-20 rounded-full" />
+              </div>
             </div>
 
-            <div className="mt-6 h-28 rounded-[28px] bg-black/20" />
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <div className="h-32 rounded-[24px] bg-black/20" />
-              <div className="h-32 rounded-[24px] bg-black/20" />
-              <div className="h-32 rounded-[24px] bg-black/20" />
+            <div className="grid gap-4 sm:grid-cols-3">
+              <LoadingPanel className="h-24 rounded-[24px]" />
+              <LoadingPanel className="h-24 rounded-[24px]" />
+              <LoadingPanel className="h-24 rounded-[24px]" />
             </div>
-          </div>
 
-          <div className="space-y-5">
-            <div className="h-[360px] rounded-[34px] bg-white/10" />
-            <div className="h-[280px] rounded-[34px] bg-white/10" />
-          </div>
+            <div className="mt-6 rounded-[28px] border border-border bg-background/80 p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <LoadingPanel className="h-4 w-28 rounded-full" />
+                <LoadingPanel className="h-4 w-14 rounded-full" />
+              </div>
+              <LoadingPanel className="h-2.5 w-full rounded-full" />
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              <LoadingPanel className="h-32 rounded-[24px]" />
+              <LoadingPanel className="h-32 rounded-[24px]" />
+              <LoadingPanel className="h-32 rounded-[24px]" />
+            </div>
+          </section>
+
+          <aside className="space-y-5">
+            <LoadingPanel className="h-[780px] rounded-[34px]" />
+            <LoadingPanel className="h-[340px] rounded-[30px]" />
+            <LoadingPanel className="h-[260px] rounded-[34px]" />
+          </aside>
         </div>
       </div>
     </main>

@@ -27,8 +27,12 @@ export function queueStatusTone(status: QueueStatus) {
       return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200";
     case "Filling":
       return "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-200";
-    case "Starting Soon":
+    case "Locked":
       return "border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-200";
+    case "Battle Ready":
+      return "border-violet-500/20 bg-violet-500/10 text-violet-700 dark:text-violet-200";
+    case "Settled":
+      return "border-foreground/15 bg-foreground/5 text-foreground/75";
     default:
       return "border-border bg-background text-foreground/75";
   }
@@ -46,7 +50,8 @@ export function matchesQueueFilter(
     queue.title.toLowerCase().includes(query) ||
     queue.format.toLowerCase().includes(query) ||
     queue.stake.toLowerCase().includes(query) ||
-    queue.highlight.toLowerCase().includes(query);
+    queue.highlight.toLowerCase().includes(query) ||
+    queue.slug.toLowerCase().includes(query);
 
   const matchesStatus = filter === "all" ? true : queue.status === filter;
 

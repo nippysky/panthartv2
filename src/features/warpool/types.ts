@@ -1,5 +1,11 @@
-export type QueueStatus = "Open" | "Filling" | "Starting Soon";
-export type BattleState = "Live" | "Pending" | "Settled";
+export type QueueStatus =
+  | "Open"
+  | "Filling"
+  | "Locked"
+  | "Battle Ready"
+  | "Settled";
+
+export type BattleState = "Live" | "Pending" | "Settled" | "Expired";
 
 export type WarpoolQueue = {
   id?: string;
@@ -15,6 +21,12 @@ export type WarpoolQueue = {
   highlight: string;
   summary: string;
   rules: string[];
+
+  poolId: string | null;
+  queueKey: string | null;
+  openedAt: string | null;
+  expiresAt: string | null;
+  configVersion: string | null;
 };
 
 export type WarpoolHistoryItem = {
@@ -22,7 +34,7 @@ export type WarpoolHistoryItem = {
   queue: string;
   winner: string;
   prize: string;
-  status: "Settled" | "Pending";
+  status: "Settled" | "Pending" | "Expired";
   time: string;
 };
 
@@ -34,11 +46,41 @@ export type WarpoolRecentWinner = {
   time: string;
 };
 
-export type WarpoolFighter = {
-  side: string;
+export type WarpoolBattleEntry = {
+  id: string;
+  entryIdOnChain: string;
   wallet: string;
-  health: number;
+  comradeTokenId: string;
+  comradeImageUrl: string | null;
+  comradeName: string | null;
+  relicTokenId: string | null;
+  relicType: string;
+  selectedForBattle: boolean;
+  placement: number | null;
   status: string;
+  paidStake: string;
+};
+
+export type WarpoolTimelineItem = {
+  id: string;
+  label: string;
+  time: string;
+};
+
+export type WarpoolBattle = {
+  poolId: string;
+  queue: string;
+  state: BattleState;
+  stake: string;
+  prizePool: string;
+  startedAt: string;
+  round: string;
+  arena: string;
+  entries: WarpoolBattleEntry[];
+  timeline: WarpoolTimelineItem[];
+  firstPlaceWallet: string | null;
+  secondPlaceWallet: string | null;
+  thirdPlaceWallet: string | null;
 };
 
 export type WarpoolQueueEligibility = {
@@ -52,6 +94,7 @@ export type WarpoolQueueEligibility = {
     | "queue_full"
     | "already_reserved"
     | "queue_locked"
+    | "live_pool_unavailable"
     | "unknown";
 };
 
@@ -73,17 +116,29 @@ export type WarpoolBattleEligibility = {
     | "unknown";
 };
 
-export type WarpoolBattle = {
+export type WarpoolOwnedAsset = {
+  nftId: string;
+  contract: string;
+  tokenId: string;
+  name: string | null;
+  imageUrl: string | null;
+  rarityScore: string | null;
+};
+
+export type WarpoolQueueAssetsPayload = {
+  comrades: WarpoolOwnedAsset[];
+  relics: WarpoolOwnedAsset[];
+};
+
+export type WarpoolLensPreviewPayload = {
+  queueSlug: string;
   poolId: string;
-  queue: string;
-  state: BattleState;
-  stake: string;
-  prizePool: string;
-  startedAt: string;
-  round: string;
-  arena: string;
-  fighters: WarpoolFighter[];
-  timeline: string[];
+  poolIdOnChain: string;
+  activeReservationIdOnChain: string | null;
+  canReserveRelic: boolean;
+  reserveReason: string;
+  canEnter: boolean;
+  enterReason: string;
 };
 
 export type ApiSuccess<T> = {
@@ -120,10 +175,5 @@ export type WarpoolBattlePayload = {
   eligibility: WarpoolBattleEligibility | null;
 };
 
-export type WarpoolActionResult = {
-  ok: boolean;
-  message: string;
-};
-
 export type QueueFilterValue = "all" | QueueStatus;
-export type HistoryFilterValue = "all" | "Settled" | "Pending";
+export type HistoryFilterValue = "all" | "Settled" | "Pending" | "Expired";

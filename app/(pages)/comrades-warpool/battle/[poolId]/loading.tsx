@@ -1,35 +1,57 @@
+import LoadingPanel from "@/src/features/warpool/components/LoadingPanel";
+
 export default function WarpoolBattleLoading() {
   return (
-    <main className="min-h-screen bg-[#06070A] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 animate-pulse">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="h-10 w-24 rounded-full bg-white/10" />
-          <div className="h-10 w-40 rounded-full bg-white/10" />
+    <main className="min-h-screen bg-background text-foreground page-enter">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-6">
+          <LoadingPanel className="h-10 w-24 rounded-full" />
         </div>
 
-        <div className="rounded-[36px] bg-white/10 p-6">
+        <section className="rounded-[36px] border border-border bg-card/85 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)] sm:p-7">
           <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <div className="h-7 w-28 rounded-full bg-white/10" />
-              <div className="mt-5 h-12 w-52 rounded-3xl bg-white/10" />
-              <div className="mt-3 h-5 w-56 rounded-full bg-white/10" />
+              <LoadingPanel className="h-7 w-24 rounded-full" />
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <div className="h-24 rounded-[24px] bg-black/20" />
-                <div className="h-24 rounded-[24px] bg-black/20" />
-                <div className="h-24 rounded-[24px] bg-black/20" />
+              <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
+                <div className="space-y-3">
+                  <LoadingPanel className="h-11 w-48 rounded-3xl" />
+                  <LoadingPanel className="h-5 w-52 rounded-full" />
+                </div>
+
+                <LoadingPanel className="h-12 w-28 rounded-[24px]" />
               </div>
 
-              <div className="mt-6 h-[320px] rounded-[28px] bg-black/20" />
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                <LoadingPanel className="h-24 rounded-[24px]" />
+                <LoadingPanel className="h-24 rounded-[24px]" />
+                <LoadingPanel className="h-24 rounded-[24px]" />
+              </div>
+
+              <div className="mt-6 rounded-[28px] border border-border bg-background/80 p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="space-y-2">
+                    <LoadingPanel className="h-4 w-24 rounded-full" />
+                    <LoadingPanel className="h-4 w-36 rounded-full" />
+                  </div>
+                  <LoadingPanel className="h-5 w-5 rounded-full" />
+                </div>
+
+                <div className="grid gap-4">
+                  <LoadingPanel className="h-28 rounded-[24px]" />
+                  <LoadingPanel className="h-28 rounded-[24px]" />
+                  <LoadingPanel className="h-28 rounded-[24px]" />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-5">
-              <div className="h-[240px] rounded-[30px] bg-black/20" />
-              <div className="h-[220px] rounded-[30px] bg-black/20" />
-              <div className="h-[220px] rounded-[30px] bg-black/20" />
-            </div>
+            <aside className="space-y-5">
+              <LoadingPanel className="h-[340px] rounded-[30px]" />
+              <LoadingPanel className="h-[320px] rounded-[30px]" />
+              <LoadingPanel className="h-[260px] rounded-[30px]" />
+            </aside>
           </div>
-        </div>
+        </section>
       </div>
     </main>
   );

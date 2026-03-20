@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getDevQueueBySlug,
-  getDevQueueEligibility,
-} from "@/src/server/warpool-dev-state";
+  getWarpoolQueueBySlug,
+  getWarpoolQueueEligibility,
+} from "@/src/server/warpool";
 import type { ApiResponse, WarpoolQueuePayload } from "@/src/features/warpool/types";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,14 @@ export async function GET(
 ) {
   const { queueSlug } = await context.params;
   const decoded = decodeURIComponent(queueSlug);
-  const queue = getDevQueueBySlug(decoded);
+
+  const [queue, eligibility] = await Promise.all([
+    getWarpoolQueueBySlug(decoded),
+    getWarpoolQueueEligibility(
+      decoded,
+      req.nextUrl.searchParams.get("walletAddress")
+    ),
+  ]);
 
   if (!queue) {
     const payload: ApiResponse<WarpoolQueuePayload> = {
@@ -24,9 +31,6 @@ export async function GET(
     };
     return NextResponse.json(payload, { status: 404 });
   }
-
-  const walletAddress = req.nextUrl.searchParams.get("walletAddress");
-  const eligibility = getDevQueueEligibility(decoded, walletAddress);
 
   const payload: ApiResponse<WarpoolQueuePayload> = {
     ok: true,

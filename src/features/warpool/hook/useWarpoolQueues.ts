@@ -53,7 +53,14 @@ export function useWarpoolQueues() {
   );
 
   const liveQueueCount = useMemo(
-    () => queues.filter((q) => q.status !== "Starting Soon").length,
+    () =>
+      queues.filter(
+        (q) =>
+          q.status === "Open" ||
+          q.status === "Filling" ||
+          q.status === "Locked" ||
+          q.status === "Battle Ready"
+      ).length,
     [queues]
   );
 
