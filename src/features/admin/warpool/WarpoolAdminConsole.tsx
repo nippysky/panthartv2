@@ -15,9 +15,11 @@ import type {
   WarpoolMultisigSummary,
   WarpoolRuntimePrefill,
   WarpoolRuntimePrefillEnvelope,
+  WarpoolWorkerOpsData,
   WarpoolWorkerReadinessData,
 } from "@/src/features/admin/warpool/types";
 import type { WarpoolRuntimeQueueStatus } from "@/src/features/admin/warpool/runtime-queries";
+import WarpoolWorkerOpsPanel from "./WarpoolWorkerOpsPanel";
 
 type Props = {
   configAddress: string | null;
@@ -32,6 +34,7 @@ type Props = {
   multisigResolutionSource: WarpoolMultisigResolutionSource | null;
   multisigSummary: WarpoolMultisigSummary | null;
   recentMultisigTxs: WarpoolAdminMultisigTxItem[];
+  workerOps: WarpoolWorkerOpsData;
 };
 
 export default function WarpoolAdminConsole({
@@ -47,6 +50,7 @@ export default function WarpoolAdminConsole({
   multisigResolutionSource,
   multisigSummary,
   recentMultisigTxs,
+  workerOps
 }: Props) {
   const [runtimePrefill, setRuntimePrefill] =
     React.useState<WarpoolRuntimePrefillEnvelope | null>(null);
@@ -84,6 +88,8 @@ export default function WarpoolAdminConsole({
         multisigSummary={multisigSummary}
         prefill={runtimePrefill}
       />
+
+        <WarpoolWorkerOpsPanel data={workerOps} />
 
       <WarpoolMultisigActivity
         multisigSummary={multisigSummary}

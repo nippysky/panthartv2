@@ -182,3 +182,44 @@ export type WarpoolRuntimePrefillEnvelope = {
   id: string;
   payload: WarpoolRuntimePrefill;
 };
+
+export type WarpoolWorkerBattleComputeCandidate = {
+  battleId: string;
+  poolId: string;
+  queueSlug: string | null;
+  status: string;
+  battleReadyAt: Date | null;
+  runnableSize: number;
+  createdAt: Date;
+};
+
+export type WarpoolWorkerRelistCandidate = {
+  captureId: string;
+  entryId: string;
+  contract: string;
+  tokenId: string;
+  originalOwnerAddress: string;
+  status: string;
+  relistStatus: string;
+  capturedAt: Date;
+  createdAt: Date;
+};
+
+export type WarpoolWorkerPendingActionItem = {
+  id: string;
+  type: string;
+  txHash: string;
+  from: string;
+  chainId: number;
+  status: string;
+  relatedId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type WarpoolWorkerOpsData = {
+  battleComputeCandidates: WarpoolWorkerBattleComputeCandidate[];
+  relistCandidates: WarpoolWorkerRelistCandidate[];
+  pendingActions: WarpoolWorkerPendingActionItem[];
+  failedActions: WarpoolWorkerPendingActionItem[];
+};

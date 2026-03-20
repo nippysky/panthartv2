@@ -1,4 +1,4 @@
-// app/(admin)/[slug]/warpool/page.tsx
+// app/admin/[slug]/warpool/page.tsx
 import { notFound } from "next/navigation";
 
 import { getWarpoolAdminOverviewData } from "@/src/features/admin/warpool/queries";
@@ -14,6 +14,7 @@ import {
 } from "@/src/features/admin/warpool/constants";
 import { getWarpoolWorkerReadinessData } from "@/src/features/admin/warpool/worker-readiness-queries";
 import WarpoolAdminConsole from "@/src/features/admin/warpool/WarpoolAdminConsole";
+import { getWarpoolWorkerOpsData } from "@/src/features/admin/warpool/worker-ops-queries";
 
 type Props = {
   params: Promise<{
@@ -103,10 +104,11 @@ export default async function WarpoolAdminPage({ params }: Props) {
   const { slug } = await params;
   if (!slug) notFound();
 
-const [data, runtimeData, workerReadiness] = await Promise.all([
+const [data, runtimeData, workerReadiness, workerOps] = await Promise.all([
   getWarpoolAdminOverviewData(),
   getWarpoolRuntimeOverviewData(),
   getWarpoolWorkerReadinessData(),
+  getWarpoolWorkerOpsData(),
 ]);
 
   return (
@@ -241,8 +243,8 @@ const [data, runtimeData, workerReadiness] = await Promise.all([
       >
         {data.queueCards.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {data.queueCards.map((queue) => {
-              const meta = WARPOOL_QUEUE_META[queue.slug];
+{data.queueCards.map((queue) => {
+  const meta = WARPOOL_QUEUE_META[queue.slug];
 
               return (
                 <div
@@ -370,6 +372,7 @@ const [data, runtimeData, workerReadiness] = await Promise.all([
   runtimeQueues={runtimeData.queues}
   runtimeWarnings={runtimeData.warnings}
   workerReadiness={workerReadiness}
+  workerOps={workerOps}
   defaultMultisigAddress={data.multisigAddress}
   multisigResolutionSource={data.multisigResolutionSource}
   multisigSummary={data.multisigSummary}

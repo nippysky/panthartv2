@@ -1,4 +1,4 @@
-// app/(admin)/[slug]/page.tsx
+// app/admin/[slug]/page.tsx
 import { redirect } from "next/navigation";
 
 export default async function CollectionAdminIndex({
@@ -7,5 +7,5 @@ export default async function CollectionAdminIndex({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  redirect(`/${slug}/submissions`);
+  redirect(`/admin/${slug}/submissions`);
 }

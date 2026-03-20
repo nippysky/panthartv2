@@ -1,0 +1,73 @@
+import type {
+  HistoryFilterValue,
+  QueueFilterValue,
+  QueueStatus,
+  WarpoolHistoryItem,
+  WarpoolQueue,
+} from "@/src/features/warpool/types";
+
+export function clampPercent(value: number, max: number) {
+  if (max <= 0) return 0;
+  return Math.max(0, Math.min(100, (value / max) * 100));
+}
+
+export function shortAddress(address?: string | null) {
+  if (!address) return "";
+  if (address.length <= 12) return address;
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}
+
+export function barWidth(value: number) {
+  return Math.max(0, Math.min(100, value));
+}
+
+export function queueStatusTone(status: QueueStatus) {
+  switch (status) {
+    case "Open":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200";
+    case "Filling":
+      return "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-200";
+    case "Starting Soon":
+      return "border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-200";
+    default:
+      return "border-border bg-background text-foreground/75";
+  }
+}
+
+export function matchesQueueFilter(
+  queue: WarpoolQueue,
+  search: string,
+  filter: QueueFilterValue
+) {
+  const query = search.trim().toLowerCase();
+
+  const matchesSearch =
+    query.length === 0 ||
+    queue.title.toLowerCase().includes(query) ||
+    queue.format.toLowerCase().includes(query) ||
+    queue.stake.toLowerCase().includes(query) ||
+    queue.highlight.toLowerCase().includes(query);
+
+  const matchesStatus = filter === "all" ? true : queue.status === filter;
+
+  return matchesSearch && matchesStatus;
+}
+
+export function matchesHistoryFilter(
+  item: WarpoolHistoryItem,
+  search: string,
+  filter: HistoryFilterValue
+) {
+  const query = search.trim().toLowerCase();
+
+  const matchesSearch =
+    query.length === 0 ||
+    item.id.toLowerCase().includes(query) ||
+    item.queue.toLowerCase().includes(query) ||
+    item.winner.toLowerCase().includes(query) ||
+    item.prize.toLowerCase().includes(query);
+
+  const matchesStatus = filter === "all" ? true : item.status === filter;
+
+  return matchesSearch && matchesStatus;
+}
