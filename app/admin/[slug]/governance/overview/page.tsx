@@ -25,7 +25,7 @@ export default async function OverviewPage(ctx: Ctx) {
       />
       <OverviewClient
         allowedWallets={allowedWallets}
-        baseHref={`/${slug}/governance`}
+        baseHref={`/admin/${slug}/governance`}
       />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ethers } from "ethers";
+import { useRouter } from "next/navigation";
 
 import {
   WARPOOL_QUEUE_META,
@@ -15,7 +16,6 @@ import { encodeWarpoolConfigActions } from "@/src/features/admin/warpool/encodeC
 import type {
   WarpoolAdminConfigSnapshot,
   WarpoolAdminQueueCard,
-  WarpoolConfigProposalSavePayload,
   WarpoolMultisigResolutionSource,
   WarpoolMultisigSummary,
 } from "@/src/features/admin/warpool/types";
@@ -24,9 +24,13 @@ import type {
   WarpoolConfigProposalDraft,
 } from "@/src/features/admin/warpool/multisig-types";
 import type { WarpoolRuntimeQueueStatus } from "@/src/features/admin/warpool/runtime-queries";
-import MultisigExecutionPanel from "@/src/features/admin/warpool/MultisigExecutionPanel";
+import {
+  dwGetAccounts,
+  useDecentWalletAccount,
+} from "@/src/lib/decentWallet";
 
 type Props = {
+  slug: string;
   configAddress: string | null;
   latestConfigSnapshot: WarpoolAdminConfigSnapshot | null;
   queueCards: WarpoolAdminQueueCard[];
@@ -50,59 +54,11 @@ type QueueDraft = {
   thirdPlaceBps: string;
 };
 
-const RECOMMENDED_TEST_PRESETS: Record<
-  QueueDraft["slug"],
-  Omit<QueueDraft, "slug">
-> = {
-  FORGE_SAFEGUARD: {
-    enabled: true,
-    singleEntryPerWallet: true,
-    targetSize: "8",
-    minStartSize: "4",
-    openDurationSeconds: "900",
-    stakeAmountDecimal: "10",
-    platformFeeBps: "1000",
-    firstPlaceBps: "6000",
-    secondPlaceBps: "2000",
-    thirdPlaceBps: "1000",
-  },
-  LEGION_SAFEGUARD: {
-    enabled: true,
-    singleEntryPerWallet: true,
-    targetSize: "8",
-    minStartSize: "4",
-    openDurationSeconds: "1200",
-    stakeAmountDecimal: "25",
-    platformFeeBps: "1000",
-    firstPlaceBps: "6000",
-    secondPlaceBps: "2000",
-    thirdPlaceBps: "1000",
-  },
-  LEGION_VAULTBOUND: {
-    enabled: true,
-    singleEntryPerWallet: true,
-    targetSize: "8",
-    minStartSize: "4",
-    openDurationSeconds: "1200",
-    stakeAmountDecimal: "35",
-    platformFeeBps: "500",
-    firstPlaceBps: "6500",
-    secondPlaceBps: "2000",
-    thirdPlaceBps: "1000",
-  },
-  CROWN_VAULTBOUND: {
-    enabled: true,
-    singleEntryPerWallet: true,
-    targetSize: "8",
-    minStartSize: "4",
-    openDurationSeconds: "1800",
-    stakeAmountDecimal: "50",
-    platformFeeBps: "500",
-    firstPlaceBps: "6500",
-    secondPlaceBps: "2000",
-    thirdPlaceBps: "1000",
-  },
-};
+type SaveState =
+  | { kind: "idle"; message: null }
+  | { kind: "saving"; message: string }
+  | { kind: "success"; message: string }
+  | { kind: "error"; message: string };
 
 function normalizeQueueCards(queueCards: WarpoolAdminQueueCard[]) {
   const map = new Map(queueCards.map((item) => [item.slug, item]));
@@ -142,6 +98,14 @@ function rawToDecimalString(raw: string, decimals = 18) {
     .replace(/0+$/, "");
 
   return `${whole.toString()}.${fractionStr}`;
+}
+
+function toJsonSafe<T>(value: T): T {
+  return JSON.parse(
+    JSON.stringify(value, (_key, currentValue) =>
+      typeof currentValue === "bigint" ? currentValue.toString() : currentValue
+    )
+  ) as T;
 }
 
 function SectionCard({
@@ -271,7 +235,7 @@ function queueRuntimeStateText(
 
   switch (runtime.state) {
     case 1:
-      return `Open · Pool ${runtime.poolId}`;
+      return `Live · Pool ${runtime.poolId}`;
     case 2:
       return `Locked · Pool ${runtime.poolId}`;
     case 3:
@@ -289,6 +253,7 @@ function queueRuntimeStateText(
 
 function diffSummaryLines(params: {
   current: WarpoolConfigProposalDraft | null;
+  proposal: WarpoolConfigProposalDraft;
   encodedSummaryLines: string[];
 }) {
   if (params.encodedSummaryLines.length > 0) {
@@ -302,14 +267,24 @@ function diffSummaryLines(params: {
   return ["No changes detected yet."];
 }
 
-function winnerBeatsStakeAtMinStart(params: {
-  minStartSize: number;
-  payoutBps: number;
-}) {
-  return (params.minStartSize * params.payoutBps) / 10000 > 1;
+function slugToTitle(value: string) {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function inferProposalTitle(queues: QueueDraft[]) {
+  const changedEnabledQueues = queues.filter((queue) => queue.enabled);
+  if (changedEnabledQueues.length === 1) {
+    return `Warpool config · ${slugToTitle(changedEnabledQueues[0].slug)}`;
+  }
+  return "Warpool config update";
 }
 
 export default function WarpoolMultisigComposer({
+  slug,
   configAddress,
   latestConfigSnapshot,
   queueCards,
@@ -318,6 +293,9 @@ export default function WarpoolMultisigComposer({
   multisigResolutionSource = null,
   multisigSummary = null,
 }: Props) {
+  const router = useRouter();
+  const { address } = useDecentWalletAccount();
+
   const [treasury, setTreasury] = React.useState(latestConfigSnapshot?.treasury ?? "");
   const [workerOperator, setWorkerOperator] = React.useState(
     latestConfigSnapshot?.workerOperator ?? ""
@@ -348,7 +326,11 @@ export default function WarpoolMultisigComposer({
   const [queues, setQueues] = React.useState<QueueDraft[]>(() =>
     normalizeQueueCards(queueCards)
   );
-  const [savedProposalId, setSavedProposalId] = React.useState<string | null>(null);
+
+  const [saveState, setSaveState] = React.useState<SaveState>({
+    kind: "idle",
+    message: null,
+  });
 
   React.useEffect(() => {
     setTreasury(latestConfigSnapshot?.treasury ?? "");
@@ -448,7 +430,7 @@ export default function WarpoolMultisigComposer({
         target: null,
         actions: [],
         warnings: ["Config contract address is missing or invalid."],
-        summaryLines: [],
+        summaryLines: [] as string[],
       };
     }
 
@@ -465,7 +447,7 @@ export default function WarpoolMultisigComposer({
         warnings: [
           error instanceof Error ? error.message : "Failed to prepare config actions.",
         ],
-        summaryLines: [],
+        summaryLines: [] as string[],
       };
     }
   }, [configAddress, currentDraft, proposal]);
@@ -474,66 +456,21 @@ export default function WarpoolMultisigComposer({
     () =>
       diffSummaryLines({
         current: currentDraft,
+        proposal,
         encodedSummaryLines: encodedPlan.summaryLines,
       }),
-    [currentDraft, encodedPlan.summaryLines]
+    [currentDraft, encodedPlan.summaryLines, proposal]
   );
 
-  const savePayload = React.useMemo<WarpoolConfigProposalSavePayload>(() => {
-    return {
-      title: "Warpool config update",
-      summary:
-        reviewLines.length > 0
-          ? reviewLines.slice(0, 2).join(" · ")
-          : "Warpool configuration proposal",
-      description:
-        "Saved from the Warpool config composer. Review in proposals before multisig submission.",
-      basedOnConfigVersion: proposal.basedOnConfigVersion ?? null,
-      safeContract: multisigSummary?.contract ?? defaultMultisigAddress ?? null,
-      snapshotJson: proposal,
-      actions: encodedPlan.actions.map((action, index) => ({
-        orderIndex: index,
-        label: action.functionName,
-        summary: action.summary,
-        target: action.target,
-        valueWei: action.value,
-        tokenAddress: null,
-        dataHex: action.data,
-        functionName: action.functionName,
-        argsJson: action.args,
-      })),
-    };
-  }, [
-    defaultMultisigAddress,
-    encodedPlan.actions,
-    multisigSummary?.contract,
-    proposal,
-    reviewLines,
-  ]);
-
   function updateQueue<K extends keyof QueueDraft>(
-    slug: QueueDraft["slug"],
+    queueSlug: QueueDraft["slug"],
     key: K,
     value: QueueDraft[K]
   ) {
     setQueues((prev) =>
       prev.map((queue) =>
-        queue.slug === slug ? { ...queue, [key]: value } : queue
+        queue.slug === queueSlug ? { ...queue, [key]: value } : queue
       )
-    );
-  }
-
-  function applyRecommendedPreset(slug: QueueDraft["slug"]) {
-    const preset = RECOMMENDED_TEST_PRESETS[slug];
-    setQueues((prev) => prev.map((queue) => (queue.slug === slug ? { slug, ...preset } : queue)));
-  }
-
-  function applyAllRecommendedPresets() {
-    setQueues(
-      WARPOOL_QUEUE_ORDER.map((slug) => ({
-        slug,
-        ...RECOMMENDED_TEST_PRESETS[slug],
-      }))
     );
   }
 
@@ -548,33 +485,147 @@ export default function WarpoolMultisigComposer({
     setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
     setToken11FeeShareBps(String(latestConfigSnapshot?.token11FeeShareBps ?? 0));
     setQueues(normalizeQueueCards(queueCards));
+    setSaveState({ kind: "idle", message: null });
   }
 
-  async function handleSaveProposal(payload: WarpoolConfigProposalSavePayload) {
-    const res = await fetch("/api/admin/warpool/proposals", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+  async function resolveConnectedWalletAddress() {
+    const hookAddress =
+      typeof address === "string" && address.trim().length > 0
+        ? address.trim()
+        : null;
 
-    const json = (await res.json()) as {
-      ok?: boolean;
-      proposalId?: string;
-      error?: string;
-    };
+    if (hookAddress) return hookAddress;
 
-    if (!res.ok || !json.ok || !json.proposalId) {
-      throw new Error(json.error || "Failed to save proposal.");
+    try {
+      const accounts = await dwGetAccounts();
+      const providerAddress =
+        Array.isArray(accounts) && typeof accounts[0] === "string"
+          ? accounts[0].trim()
+          : null;
+
+      if (providerAddress) return providerAddress;
+    } catch {}
+
+    return null;
+  }
+
+  async function saveProposal(nextStatus: "DRAFT" | "READY") {
+    const isReadyFlow = nextStatus === "READY";
+    const connectedWalletAddress = await resolveConnectedWalletAddress();
+
+    if (!connectedWalletAddress) {
+      setSaveState({
+        kind: "error",
+        message: "Connect an allowed admin wallet before saving this proposal.",
+      });
+      return;
     }
 
-    setSavedProposalId(json.proposalId);
-    return { proposalId: json.proposalId };
-  }
+    if (isReadyFlow && encodedPlan.warnings.length > 0) {
+      setSaveState({
+        kind: "error",
+        message: "Fix the current config warnings before marking this proposal ready.",
+      });
+      return;
+    }
 
-  function openProposalsPage() {
-    window.location.href = window.location.pathname.replace(/\/config$/, "/proposals");
+    if (!configAddress || !ethers.isAddress(configAddress)) {
+      setSaveState({
+        kind: "error",
+        message: "Config contract address is missing or invalid.",
+      });
+      return;
+    }
+
+    try {
+      setSaveState({
+        kind: "saving",
+        message:
+          nextStatus === "READY"
+            ? "Saving proposal and marking it ready..."
+            : "Saving draft proposal...",
+      });
+
+      const title = inferProposalTitle(queues);
+
+      const requestBody = toJsonSafe({
+        area: "WARPOOL",
+        kind: "CONFIG",
+        title,
+        summary:
+          nextStatus === "READY"
+            ? "Saved from Warpool config page and marked ready for multisig submission."
+            : "Saved from Warpool config page as a draft proposal.",
+        description:
+          reviewLines.length > 0 ? reviewLines.join("\n") : "Warpool config update.",
+        status: nextStatus,
+        safeContract: multisigSummary?.contract ?? defaultMultisigAddress ?? null,
+        chainId: latestConfigSnapshot?.chainId ?? queueCards[0]?.chainId ?? null,
+        basedOnConfigVersion: proposal.basedOnConfigVersion,
+        createdByAddress: connectedWalletAddress,
+        snapshotJson: proposal,
+        metadataJson: {
+          source: "warpool-config-page",
+          configAddress,
+          multisigResolutionSource,
+          multisigSummary,
+          reviewLines,
+          warnings: encodedPlan.warnings,
+        },
+        actions: encodedPlan.actions.map((action, index) => ({
+          orderIndex: index,
+          label: action.functionName ?? `Action ${index + 1}`,
+          summary: action.summary ?? null,
+          target: action.target,
+          valueWei: String(action.value ?? "0"),
+          tokenAddress: null,
+          dataHex: action.data,
+          functionName: action.functionName ?? null,
+          argsJson: action.args ?? {},
+        })),
+      });
+
+      const res = await fetch("/api/admin/warpool/proposals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-wallet": connectedWalletAddress,
+          "x-admin-slug": slug,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const json = (await res.json()) as {
+        ok?: boolean;
+        error?: string;
+        item?: { id: string };
+        proposal?: { id: string };
+      };
+
+      const proposalId = json.item?.id ?? json.proposal?.id;
+
+      if (!res.ok || !json.ok || !proposalId) {
+        throw new Error(json.error || "Failed to save proposal.");
+      }
+
+      setSaveState({
+        kind: "success",
+        message:
+          nextStatus === "READY"
+            ? "Proposal saved and marked ready."
+            : encodedPlan.warnings.length > 0
+              ? "Draft proposal saved with warnings."
+              : "Draft proposal saved.",
+      });
+
+      router.push(`/admin/${slug}/warpool/proposals/${proposalId}`);
+      router.refresh();
+    } catch (error) {
+      setSaveState({
+        kind: "error",
+        message: error instanceof Error ? error.message : "Failed to save proposal.",
+      });
+    }
   }
 
   return (
@@ -582,7 +633,7 @@ export default function WarpoolMultisigComposer({
       <div className="space-y-6">
         <SectionCard
           title="Configuration"
-          description="Adjust Warpool rules and queue settings, then save a clean multisig-ready config proposal for shared admin review."
+          description="Adjust Warpool rules and queue settings, then save a clean shared proposal for admin review."
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -662,83 +713,41 @@ export default function WarpoolMultisigComposer({
 
         <SectionCard
           title="Queue settings"
-          description="Each queue gets proper breathing room here. Apply recommended test presets or edit each queue individually before saving."
+          description="Each queue has enough room here so operators can review and save changes clearly before multisig submission."
         >
-          <div className="mb-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={applyAllRecommendedPresets}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90"
-            >
-              Apply recommended presets to all queues
-            </button>
-
-            <button
-              type="button"
-              onClick={resetToLiveSnapshot}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-            >
-              Reset to live values
-            </button>
-          </div>
-
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {queues.map((queue) => {
               const meta = WARPOOL_QUEUE_META[queue.slug];
               const runtimeText = queueRuntimeStateText(runtimeQueues, queue.slug);
-
-              const minStart = Number(queue.minStartSize || 0);
-              const firstBps = Number(queue.firstPlaceBps || 0);
-              const winnerPositive = winnerBeatsStakeAtMinStart({
-                minStartSize: minStart,
-                payoutBps: firstBps,
-              });
-
-              const totalBps =
-                Number(queue.platformFeeBps || 0) +
-                Number(queue.firstPlaceBps || 0) +
-                Number(queue.secondPlaceBps || 0) +
-                Number(queue.thirdPlaceBps || 0);
 
               return (
                 <div
                   key={queue.slug}
                   className="rounded-[28px] border border-border bg-background/60 p-4 md:p-5"
                 >
-                  <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
+                  <div className="mb-4 flex flex-col gap-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
                         <div className="text-base font-semibold tracking-tight text-foreground">
                           {meta.title}
                         </div>
+                        <p className="mt-1 text-sm leading-6 text-muted">{meta.description}</p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
                         <Pill>{meta.badge}</Pill>
                         <Pill tone={queue.enabled ? "good" : "warn"}>
                           {queue.enabled ? "Enabled" : "Disabled"}
                         </Pill>
                       </div>
-
-                      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-                        {meta.description}
-                      </p>
-
-                      <div className="mt-3 rounded-2xl border border-border bg-card/70 px-4 py-3 text-sm text-muted">
-                        Live status:{" "}
-                        <span className="font-medium text-foreground">{runtimeText}</span>
-                      </div>
                     </div>
 
-                    <div className="flex shrink-0 flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => applyRecommendedPreset(queue.slug)}
-                        className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-                      >
-                        Apply preset
-                      </button>
+                    <div className="rounded-2xl border border-border bg-card/70 px-4 py-3 text-sm text-muted">
+                      Live status: <span className="font-medium text-foreground">{runtimeText}</span>
                     </div>
                   </div>
 
-                  <div className="grid gap-4 lg:grid-cols-2">
+                  <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
                     <Toggle
                       checked={queue.enabled}
                       onChange={(value) => updateQueue(queue.slug, "enabled", value)}
@@ -757,7 +766,9 @@ export default function WarpoolMultisigComposer({
                       <TextInput
                         inputMode="numeric"
                         value={queue.targetSize}
-                        onChange={(e) => updateQueue(queue.slug, "targetSize", e.target.value)}
+                        onChange={(e) =>
+                          updateQueue(queue.slug, "targetSize", e.target.value)
+                        }
                       />
                     </div>
 
@@ -805,8 +816,8 @@ export default function WarpoolMultisigComposer({
                       />
                     </div>
 
-                    <div>
-                      <Label hint="Must total 10000 with fee">Payout split</Label>
+                    <div className="lg:col-span-2 xl:col-span-2">
+                      <Label hint="Basis points">1st / 2nd / 3rd payout</Label>
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         <TextInput
                           inputMode="numeric"
@@ -836,56 +847,25 @@ export default function WarpoolMultisigComposer({
                     </div>
                   </div>
 
-                  <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
-                      Stake preview:{" "}
-                      <span className="font-medium text-foreground">
-                        {formatTokenAmount(
-                          parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18)
-                        )}
-                      </span>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
-                      Window:{" "}
-                      <span className="font-medium text-foreground">
-                        {formatDurationSeconds(Number(queue.openDurationSeconds || 0))}
-                      </span>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
-                      Payout:{" "}
-                      <span className="font-medium text-foreground">
-                        {formatBps(Number(queue.firstPlaceBps || 0))} /{" "}
-                        {formatBps(Number(queue.secondPlaceBps || 0))} /{" "}
-                        {formatBps(Number(queue.thirdPlaceBps || 0))}
-                      </span>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
-                      Total BPS:{" "}
-                      <span
-                        className={
-                          totalBps === 10000
-                            ? "font-medium text-foreground"
-                            : "font-medium text-amber-600 dark:text-amber-400"
-                        }
-                      >
-                        {totalBps}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Pill tone={winnerPositive ? "good" : "warn"}>
-                      {winnerPositive
-                        ? "1st place beats stake at min start"
-                        : "1st place too low at min start"}
-                    </Pill>
-
-                    <Pill tone={totalBps === 10000 ? "good" : "warn"}>
-                      {totalBps === 10000 ? "BPS balanced" : "BPS must equal 10000"}
-                    </Pill>
+                  <div className="mt-4 rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
+                    Stake preview:{" "}
+                    <span className="font-medium text-foreground">
+                      {formatTokenAmount(
+                        parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18)
+                      )}
+                    </span>
+                    {" · "}
+                    Window:{" "}
+                    <span className="font-medium text-foreground">
+                      {formatDurationSeconds(Number(queue.openDurationSeconds || 0))}
+                    </span>
+                    {" · "}
+                    Payout:{" "}
+                    <span className="font-medium text-foreground">
+                      {formatBps(Number(queue.firstPlaceBps || 0))} /{" "}
+                      {formatBps(Number(queue.secondPlaceBps || 0))} /{" "}
+                      {formatBps(Number(queue.thirdPlaceBps || 0))}
+                    </span>
                   </div>
                 </div>
               );
@@ -896,8 +876,8 @@ export default function WarpoolMultisigComposer({
 
       <div className="space-y-6">
         <SectionCard
-          title="Review"
-          description="Review only the actual changes that will be saved into the shared admin proposal registry."
+          title="Review and save"
+          description="Review only the actual config changes, then save them as a shared draft or ready proposal."
         >
           <div className="rounded-3xl border border-border bg-background/70 p-4">
             {reviewLines.length > 0 ? (
@@ -916,7 +896,7 @@ export default function WarpoolMultisigComposer({
           {encodedPlan.warnings.length > 0 ? (
             <div className="mt-4 rounded-3xl border border-dashed border-border bg-background/70 p-4">
               <div className="text-sm font-semibold text-foreground">
-                Fix these before saving
+                These warnings do not block draft save, but must be fixed before marking ready
               </div>
               <div className="mt-2 space-y-1 text-sm leading-6 text-muted">
                 {encodedPlan.warnings.map((warning) => (
@@ -945,20 +925,51 @@ export default function WarpoolMultisigComposer({
               </div>
             </div>
           </div>
-        </SectionCard>
 
-        <MultisigExecutionPanel
-          title="Save proposal"
-          description="Save this configuration change as a shared admin proposal first. Submission, confirmation, and execution should happen from the proposals flow."
-          actions={encodedPlan.actions}
-          defaultMultisigAddress={defaultMultisigAddress}
-          multisigResolutionSource={multisigResolutionSource}
-          multisigSummary={multisigSummary}
-          savePayload={savePayload}
-          existingProposalId={savedProposalId}
-          onSaveProposal={handleSaveProposal}
-          onOpenProposals={openProposalsPage}
-        />
+          {saveState.message ? (
+            <div
+              className={[
+                "mt-4 rounded-3xl border p-4 text-sm",
+                saveState.kind === "error"
+                  ? "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                  : saveState.kind === "success"
+                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                    : "border-border bg-background/70 text-foreground",
+              ].join(" ")}
+            >
+              {saveState.message}
+            </div>
+          ) : null}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void saveProposal("DRAFT")}
+              disabled={saveState.kind === "saving"}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Save draft
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void saveProposal("READY")}
+              disabled={saveState.kind === "saving"}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Save and mark ready
+            </button>
+
+            <button
+              type="button"
+              onClick={resetToLiveSnapshot}
+              disabled={saveState.kind === "saving"}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Reset to live values
+            </button>
+          </div>
+        </SectionCard>
 
         <details className="rounded-[28px] border border-border bg-card p-5 md:p-6">
           <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-tight text-foreground">
@@ -969,7 +980,11 @@ export default function WarpoolMultisigComposer({
             <div>
               <div className="mb-2 text-sm font-semibold text-foreground">Proposal JSON</div>
               <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
-                {JSON.stringify(proposal, null, 2)}
+                {JSON.stringify(
+                  toJsonSafe(proposal),
+                  null,
+                  2
+                )}
               </pre>
             </div>
 
@@ -977,14 +992,16 @@ export default function WarpoolMultisigComposer({
               <div className="mb-2 text-sm font-semibold text-foreground">Encoded actions</div>
               <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
                 {JSON.stringify(
-                  encodedPlan.actions.map((action) => ({
-                    to: action.target,
-                    value: action.value,
-                    data: action.data,
-                    contractMethod: action.functionName,
-                    args: action.args,
-                    summary: action.summary,
-                  })),
+                  toJsonSafe(
+                    encodedPlan.actions.map((action) => ({
+                      to: action.target,
+                      value: action.value,
+                      data: action.data,
+                      contractMethod: action.functionName,
+                      args: action.args,
+                      summary: action.summary,
+                    }))
+                  ),
                   null,
                   2
                 )}

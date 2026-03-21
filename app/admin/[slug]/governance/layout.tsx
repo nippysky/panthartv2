@@ -117,7 +117,7 @@ export default async function GovernanceLayout(
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="xl:sticky xl:top-24 xl:self-start">
           <div className="grid gap-4">
-            <Sidebar baseHref={`/${slug}/governance`} />
+            <Sidebar baseHref={`/admin/${slug}/governance`} />
 
             <section className="rounded-3xl border border-border bg-card p-4">
               <div className="mb-3">

@@ -1,4 +1,3 @@
-// src/features/admin/warpool/proposal-queries.ts
 import "server-only";
 
 import { Prisma } from "@/src/lib/generated/prisma/client";
@@ -109,6 +108,12 @@ type ProposalListRow = Prisma.AdminProposalGetPayload<typeof proposalListInclude
 type ProposalDetailRow = Prisma.AdminProposalGetPayload<typeof proposalDetailInclude>;
 type ProposalActionRow = ProposalDetailRow["actions"][number];
 type ProposalEventRow = ProposalDetailRow["events"][number];
+
+export type WarpoolProposalDetailWithProgress = AdminProposalDetail & {
+  submittedActionCount: number;
+  approvedActionCount: number;
+  executedActionCount: number;
+};
 
 function toValueWeiString(value: unknown) {
   if (typeof value === "bigint") return value.toString();
@@ -224,6 +229,32 @@ function mapProposalEventItem(row: ProposalEventRow): AdminProposalEventItem {
   };
 }
 
+function buildActionProgressCounts(actions: ProposalActionRow[]) {
+  let submittedActionCount = 0;
+  let approvedActionCount = 0;
+  let executedActionCount = 0;
+
+  for (const action of actions) {
+    if (action.status === "SUBMITTED" || action.status === "EXECUTED") {
+      submittedActionCount += 1;
+    }
+
+    if (action.status === "SUBMITTED" || action.status === "EXECUTED") {
+      approvedActionCount += 1;
+    }
+
+    if (action.status === "EXECUTED") {
+      executedActionCount += 1;
+    }
+  }
+
+  return {
+    submittedActionCount,
+    approvedActionCount,
+    executedActionCount,
+  };
+}
+
 export async function getWarpoolProposalStats(): Promise<AdminProposalStats> {
   await prismaReady;
 
@@ -265,9 +296,13 @@ export async function getWarpoolProposalList(): Promise<AdminProposalListItem[]>
   return rows.map(mapProposalListItem);
 }
 
+export async function listWarpoolAdminProposals(): Promise<AdminProposalListItem[]> {
+  return getWarpoolProposalList();
+}
+
 export async function getWarpoolProposalById(
   proposalId: string
-): Promise<AdminProposalDetail | null> {
+): Promise<WarpoolProposalDetailWithProgress | null> {
   await prismaReady;
 
   const row = await prisma.adminProposal.findUnique({
@@ -276,6 +311,8 @@ export async function getWarpoolProposalById(
   });
 
   if (!row || row.area !== "WARPOOL") return null;
+
+  const progress = buildActionProgressCounts(row.actions);
 
   return {
     id: row.id,
@@ -350,5 +387,12 @@ export async function getWarpoolProposalById(
       : null,
     actions: row.actions.map(mapProposalActionItem),
     events: row.events.map(mapProposalEventItem),
+    ...progress,
   };
+}
+
+export async function getWarpoolAdminProposalForDetailPage(
+  proposalId: string
+): Promise<WarpoolProposalDetailWithProgress | null> {
+  return getWarpoolProposalById(proposalId);
 }

@@ -427,3 +427,36 @@ export type AdminProposalStats = {
   failed: number;
   cancelled: number;
 };
+
+export type WarpoolAdminProposalListItem = {
+  id: string;
+  area: "WARPOOL";
+  kind: "CONFIG" | "RECOVERY";
+  title: string;
+  slug: string | null;
+  summary: string | null;
+  status:
+    | "DRAFT"
+    | "READY"
+    | "SUBMITTED"
+    | "APPROVED"
+    | "EXECUTED"
+    | "CANCELLED"
+    | "FAILED";
+  actionCount: number;
+  submittedMultisigNonce: number | null;
+  safeContract: string | null;
+  createdByAddress: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  submittedAt: Date | null;
+  approvedAt: Date | null;
+  executedAt: Date | null;
+  submittedActionsCount: number;
+  approvedActionsCount: number;
+  executedActionsCount: number;
+};
+
+export type WarpoolAdminProposalListResult = {
+  items: WarpoolAdminProposalListItem[];
+};

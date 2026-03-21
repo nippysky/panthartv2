@@ -3,22 +3,45 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+type Props = {
+  slug: string;
+};
+
 const ITEMS = [
-  { label: "Submissions", href: (slug: string) => `/admin/${slug}/submissions` },
-  { label: "Reconcile", href: (slug: string) => `/admin/${slug}/reconcile` },
-  { label: "Governance", href: (slug: string) => `/admin/${slug}/governance` },
-  { label: "Warpool", href: (slug: string) => `/admin/${slug}/warpool` },
+  {
+    label: "Overview",
+    href: (slug: string) => `/admin/${slug}/warpool`,
+  },
+  {
+    label: "Config",
+    href: (slug: string) => `/admin/${slug}/warpool/config`,
+  },
+  {
+    label: "Proposals",
+    href: (slug: string) => `/admin/${slug}/warpool/proposals`,
+  },
+  {
+    label: "Runtime",
+    href: (slug: string) => `/admin/${slug}/warpool/runtime`,
+  },
 ];
 
 function isActive(pathname: string, href: string) {
+  if (href.endsWith("/warpool")) {
+    return pathname === href;
+  }
+
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function AdminTabs({ slug }: { slug: string }) {
+export default function WarpoolSectionTabs({ slug }: Props) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Admin sections" className="flex flex-wrap items-center gap-2">
+    <nav
+      aria-label="Warpool sections"
+      className="flex flex-wrap items-center gap-2"
+    >
       {ITEMS.map((item) => {
         const href = item.href(slug);
         const active = isActive(pathname, href);

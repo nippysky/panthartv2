@@ -7,5 +7,5 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  redirect(`/${slug}/governance/overview`);
+  redirect(`/admin/${slug}/governance/overview`);
 }

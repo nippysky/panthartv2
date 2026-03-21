@@ -2,19 +2,26 @@
 
 import * as React from "react";
 
-import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 import { normalizeAdminAddress } from "@/src/features/admin/warpool/admin-access";
 import { WalletPill } from "@/src/ui/WalletPill";
 
 type Props = {
-  slug: string;
   allowedWallets: string[];
-  title?: string;
-  description?: string;
   children: React.ReactNode;
 };
 
-function GateShell({
+type Eip1193Provider = {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  on?: (event: string, fn: (...args: unknown[]) => void) => void;
+  removeListener?: (event: string, fn: (...args: unknown[]) => void) => void;
+};
+
+function getEthereum(): Eip1193Provider | null {
+  if (typeof window === "undefined") return null;
+  return ((window as Window & { ethereum?: Eip1193Provider }).ethereum ?? null);
+}
+
+function AccessShell({
   title,
   description,
   children,
@@ -29,10 +36,15 @@ function GateShell({
         <div className="inline-flex rounded-full border border-border bg-background px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
           Warpool Admin Access
         </div>
+
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           {title}
         </h1>
-        <p className="mt-3 text-sm leading-6 text-muted md:text-base">{description}</p>
+
+        <p className="mt-3 text-sm leading-6 text-muted md:text-base">
+          {description}
+        </p>
+
         <div className="mt-6 flex justify-center">{children}</div>
       </div>
     </div>
@@ -40,45 +52,97 @@ function GateShell({
 }
 
 export default function WarpoolAdminAccessGate({
-  slug,
   allowedWallets,
-  title = "Protected admin surface",
-  description = "Connect an allowed admin wallet to continue into the Warpool control panel.",
   children,
 }: Props) {
-  const { address, isConnected } = useDecentWalletAccount();
+  const [address, setAddress] = React.useState<string | null>(null);
+  const [ready, setReady] = React.useState(false);
+
+  React.useEffect(() => {
+    let alive = true;
+    const eth = getEthereum();
+
+    async function syncAccounts() {
+      if (!eth) {
+        if (!alive) return;
+        setAddress(null);
+        setReady(true);
+        return;
+      }
+
+      try {
+        const result = await eth.request({ method: "eth_accounts" });
+        const accounts = Array.isArray(result)
+          ? result.filter((item): item is string => typeof item === "string")
+          : [];
+
+        if (!alive) return;
+        setAddress(accounts[0] ?? null);
+      } catch {
+        if (!alive) return;
+        setAddress(null);
+      } finally {
+        if (alive) setReady(true);
+      }
+    }
+
+    syncAccounts();
+
+    if (eth?.on) {
+      const handleAccountsChanged = (...args: unknown[]) => {
+        const first = args[0];
+        const accounts = Array.isArray(first)
+          ? first.filter((item): item is string => typeof item === "string")
+          : [];
+
+        setAddress(accounts[0] ?? null);
+      };
+
+      eth.on("accountsChanged", handleAccountsChanged);
+
+      return () => {
+        alive = false;
+        eth.removeListener?.("accountsChanged", handleAccountsChanged);
+      };
+    }
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const normalizedAllowed = React.useMemo(
+    () =>
+      allowedWallets
+        .map((item) => normalizeAdminAddress(item))
+        .filter(Boolean),
+    [allowedWallets]
+  );
 
   const normalizedAddress = normalizeAdminAddress(address);
-  const isAllowedWallet =
-    allowedWallets.length > 0 && !!normalizedAddress && allowedWallets.includes(normalizedAddress);
+  const isConnected = !!address;
+  const isAllowed =
+    !!normalizedAddress && normalizedAllowed.includes(normalizedAddress);
 
-  if (!slug) {
+  if (!ready || !isConnected) {
     return (
-      <GateShell
-        title="Invalid admin route"
-        description="This Warpool admin route is missing its admin slug."
+      <AccessShell
+        title="Protected admin surface"
+        description="Connect an allowed admin wallet to continue into the Warpool control panel."
       >
         <WalletPill />
-      </GateShell>
+      </AccessShell>
     );
   }
 
-  if (!isConnected || !address) {
+  if (!isAllowed) {
     return (
-      <GateShell title={title} description={description}>
-        <WalletPill />
-      </GateShell>
-    );
-  }
-
-  if (!isAllowedWallet) {
-    return (
-      <GateShell
+      <AccessShell
         title="Wallet not allowed"
-        description="This connected wallet is not currently included in the allowed Warpool admin list."
+        description="This connected wallet is not currently included in the Warpool admin wallet list."
       >
         <WalletPill />
-      </GateShell>
+      </AccessShell>
     );
   }
 
