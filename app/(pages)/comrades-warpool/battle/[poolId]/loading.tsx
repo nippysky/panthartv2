@@ -19,13 +19,13 @@ export default function WarpoolBattleLoading() {
                   <LoadingPanel className="h-5 w-52 rounded-full" />
                 </div>
 
-                <LoadingPanel className="h-12 w-28 rounded-[24px]" />
+                <LoadingPanel className="h-12 w-28 rounded-3xl" />
               </div>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <LoadingPanel className="h-24 rounded-[24px]" />
-                <LoadingPanel className="h-24 rounded-[24px]" />
-                <LoadingPanel className="h-24 rounded-[24px]" />
+                <LoadingPanel className="h-24 rounded-3xl" />
+                <LoadingPanel className="h-24 rounded-3xl" />
+                <LoadingPanel className="h-24 rounded-3xl" />
               </div>
 
               <div className="mt-6 rounded-[28px] border border-border bg-background/80 p-5">
@@ -38,17 +38,17 @@ export default function WarpoolBattleLoading() {
                 </div>
 
                 <div className="grid gap-4">
-                  <LoadingPanel className="h-28 rounded-[24px]" />
-                  <LoadingPanel className="h-28 rounded-[24px]" />
-                  <LoadingPanel className="h-28 rounded-[24px]" />
+                  <LoadingPanel className="h-28 rounded-3xl" />
+                  <LoadingPanel className="h-28 rounded-3xl" />
+                  <LoadingPanel className="h-28 rounded-3xl" />
                 </div>
               </div>
             </div>
 
             <aside className="space-y-5">
-              <LoadingPanel className="h-[340px] rounded-[30px]" />
-              <LoadingPanel className="h-[320px] rounded-[30px]" />
-              <LoadingPanel className="h-[260px] rounded-[30px]" />
+              <LoadingPanel className="h-85 rounded-[30px]" />
+              <LoadingPanel className="h-80 rounded-[30px]" />
+              <LoadingPanel className="h-65 rounded-[30px]" />
             </aside>
           </div>
         </section>

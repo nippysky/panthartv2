@@ -18,16 +18,16 @@ export default function WarpoolQueueLoading() {
                 <LoadingPanel className="h-5 w-[70%] rounded-full" />
               </div>
 
-              <div className="rounded-[24px] border border-border bg-background/80 px-4 py-3">
+              <div className="rounded-3xl border border-border bg-background/80 px-4 py-3">
                 <LoadingPanel className="h-3 w-12 rounded-full" />
                 <LoadingPanel className="mt-2 h-7 w-20 rounded-full" />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <LoadingPanel className="h-24 rounded-[24px]" />
-              <LoadingPanel className="h-24 rounded-[24px]" />
-              <LoadingPanel className="h-24 rounded-[24px]" />
+              <LoadingPanel className="h-24 rounded-3xl" />
+              <LoadingPanel className="h-24 rounded-3xl" />
+              <LoadingPanel className="h-24 rounded-3xl" />
             </div>
 
             <div className="mt-6 rounded-[28px] border border-border bg-background/80 p-5">
@@ -39,16 +39,16 @@ export default function WarpoolQueueLoading() {
             </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <LoadingPanel className="h-32 rounded-[24px]" />
-              <LoadingPanel className="h-32 rounded-[24px]" />
-              <LoadingPanel className="h-32 rounded-[24px]" />
+              <LoadingPanel className="h-32 rounded-3xl" />
+              <LoadingPanel className="h-32 rounded-3xl" />
+              <LoadingPanel className="h-32 rounded-3xl" />
             </div>
           </section>
 
           <aside className="space-y-5">
-            <LoadingPanel className="h-[780px] rounded-[34px]" />
-            <LoadingPanel className="h-[340px] rounded-[30px]" />
-            <LoadingPanel className="h-[260px] rounded-[34px]" />
+            <LoadingPanel className="h-195 rounded-[34px]" />
+            <LoadingPanel className="h-85 rounded-[30px]" />
+            <LoadingPanel className="h-65 rounded-[34px]" />
           </aside>
         </div>
       </div>

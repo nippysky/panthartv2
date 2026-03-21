@@ -19,7 +19,7 @@ export default function BattleArenaCard({ battle }: Props) {
       </div>
 
       {battle.entries.length === 0 ? (
-        <div className="rounded-[24px] border border-border bg-card p-4 text-sm text-foreground/60">
+        <div className="rounded-3xl border border-border bg-card p-4 text-sm text-foreground/60">
           No indexed entries available for this pool yet.
         </div>
       ) : (
@@ -27,7 +27,7 @@ export default function BattleArenaCard({ battle }: Props) {
           {battle.entries.map((entry) => (
             <div
               key={entry.id}
-              className="rounded-[24px] border border-border bg-card p-4"
+              className="rounded-3xl border border-border bg-card p-4"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">

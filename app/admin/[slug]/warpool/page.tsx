@@ -3,18 +3,13 @@ import { notFound } from "next/navigation";
 
 import { getWarpoolAdminOverviewData } from "@/src/features/admin/warpool/queries";
 import { getWarpoolRuntimeOverviewData } from "@/src/features/admin/warpool/runtime-queries";
+import { getWarpoolWorkerReadinessData } from "@/src/features/admin/warpool/worker-readiness-queries";
 import {
-  WARPOOL_QUEUE_META,
-  formatBps,
-  formatBool,
-  formatDurationSeconds,
   formatInteger,
-  formatTokenAmount,
   shortenAddress,
 } from "@/src/features/admin/warpool/constants";
-import { getWarpoolWorkerReadinessData } from "@/src/features/admin/warpool/worker-readiness-queries";
-import WarpoolAdminConsole from "@/src/features/admin/warpool/WarpoolAdminConsole";
-import { getWarpoolWorkerOpsData } from "@/src/features/admin/warpool/worker-ops-queries";
+import WarpoolGameReadiness from "@/src/features/admin/warpool/WarpoolGameReadiness";
+import WarpoolMultisigActivity from "@/src/features/admin/warpool/WarpoolMultisigActivity";
 
 type Props = {
   params: Promise<{
@@ -22,37 +17,13 @@ type Props = {
   }>;
 };
 
-function SectionCard({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-[28px] border border-border bg-card p-5 md:p-6">
-      <div className="mb-5">
-        <h2 className="text-[15px] font-semibold tracking-tight text-foreground md:text-base">
-          {title}
-        </h2>
-        {description ? (
-          <p className="mt-1 text-sm leading-6 text-muted">{description}</p>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
 function StatCard({
   label,
   value,
   hint,
 }: {
   label: string;
-  value: number | string;
+  value: string | number;
   hint?: string;
 }) {
   return (
@@ -64,6 +35,36 @@ function StatCard({
         {value}
       </div>
       {hint ? <div className="mt-1 text-xs text-muted">{hint}</div> : null}
+    </div>
+  );
+}
+
+function ActionCard({
+  title,
+  text,
+  href,
+  cta,
+}: {
+  title: string;
+  text: string;
+  href: string;
+  cta: string;
+}) {
+  return (
+    <div className="rounded-[28px] border border-border bg-card p-5 md:p-6">
+      <div className="text-base font-semibold tracking-tight text-foreground">
+        {title}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-muted">{text}</p>
+
+      <div className="mt-5">
+        <a
+          href={href}
+          className="inline-flex h-11 items-center justify-center rounded-full border border-border bg-foreground px-5 text-sm font-medium text-background transition hover:opacity-90"
+        >
+          {cta}
+        </a>
+      </div>
     </div>
   );
 }
@@ -104,12 +105,23 @@ export default async function WarpoolAdminPage({ params }: Props) {
   const { slug } = await params;
   if (!slug) notFound();
 
-const [data, runtimeData, workerReadiness, workerOps] = await Promise.all([
-  getWarpoolAdminOverviewData(),
-  getWarpoolRuntimeOverviewData(),
-  getWarpoolWorkerReadinessData(),
-  getWarpoolWorkerOpsData(),
-]);
+  const [data, runtimeData, workerReadiness] = await Promise.all([
+    getWarpoolAdminOverviewData(),
+    getWarpoolRuntimeOverviewData(),
+    getWarpoolWorkerReadinessData(),
+  ]);
+
+  const configAddress =
+    data.contracts.find((contract) => contract.kind === "CONFIG")?.address ?? null;
+
+  const enabledQueueCount = data.queueCards.filter((queue) => queue.enabled).length;
+  const activeQueueCount = runtimeData.queues.filter((queue) => !!queue.poolId).length;
+
+  const workerAttentionCount =
+    workerReadiness.expiredOpenPools.length +
+    workerReadiness.battleReadyCandidates.length +
+    workerReadiness.settlementCandidates.length +
+    workerReadiness.expiredReservations.length;
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
@@ -123,9 +135,8 @@ const [data, runtimeData, workerReadiness, workerOps] = await Promise.all([
               Comrades Warpool
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted md:text-base">
-              Operational control surface for Warpool contracts, queues, pools,
-              sync health, and multisig-ready configuration drafting inside the
-              Panth.art admin panel.
+              Clean control surface for configuration, proposal review, and live
+              runtime visibility.
             </p>
           </div>
 
@@ -136,248 +147,183 @@ const [data, runtimeData, workerReadiness, workerOps] = await Promise.all([
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <StatCard label="Enabled Queues" value={enabledQueueCount} />
+        <StatCard label="Active Pools" value={activeQueueCount} />
         <StatCard label="Total Pools" value={formatInteger(data.stats.totalPools)} />
-        <StatCard label="Open Pools" value={formatInteger(data.stats.openPools)} />
         <StatCard
           label="Battle Ready"
           value={formatInteger(data.stats.battleReadyPools)}
         />
-        <StatCard label="Captures" value={formatInteger(data.stats.totalCaptures)} />
+        <StatCard
+          label="Worker Attention"
+          value={workerAttentionCount}
+          hint="Items the worker should process automatically"
+        />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <SectionCard
-          title="Registered Contracts"
-          description="Canonical on-chain contract registry used by admin, indexers, and future worker tooling."
-        >
-          {data.contracts.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-3">
-              {data.contracts.map((contract) => (
-                <div
-                  key={contract.id}
-                  className="rounded-3xl border border-border bg-background/60 p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold text-foreground">
-                      {contract.label || contract.kind}
-                    </div>
-                    <div className="rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                      {contract.kind}
-                    </div>
-                  </div>
+      <WarpoolGameReadiness
+        configAddress={configAddress}
+        coreAddress={runtimeData.coreAddress}
+        lensAddress={runtimeData.lensAddress}
+        latestConfigSnapshot={data.latestConfigSnapshot}
+        queueCards={data.queueCards}
+        runtimeQueues={runtimeData.queues}
+        multisigSummary={data.multisigSummary}
+        multisigResolutionSource={data.multisigResolutionSource}
+        workerReadiness={workerReadiness}
+      />
 
-                  <div className="mt-4 space-y-1">
-                    <Kvp label="Address" value={contract.address} />
-                    <Kvp label="Chain ID" value={contract.chainId} />
-                    <Kvp label="Status" value={contract.active ? "Active" : "Inactive"} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyPanel
-              title="No contracts registered yet"
-              text="Bootstrap has not yet inserted the Config, Core, and Lens contract records into WarpoolContract."
-            />
-          )}
-        </SectionCard>
-
-        <SectionCard
-          title="Global Snapshot"
-          description="Latest indexed config state from the Warpool config contract."
-        >
-          {data.latestConfigSnapshot ? (
-            <div className="space-y-1">
-              <Kvp
-                label="Config Version"
-                value={data.latestConfigSnapshot.configVersion.toString()}
-              />
-              <Kvp
-                label="Entries"
-                value={formatBool(data.latestConfigSnapshot.entriesPaused)}
-              />
-              <Kvp
-                label="Reservations"
-                value={formatBool(data.latestConfigSnapshot.reservationsPaused)}
-              />
-              <Kvp
-                label="Settlements"
-                value={formatBool(data.latestConfigSnapshot.settlementsPaused)}
-              />
-              <Kvp
-                label="Relics"
-                value={formatBool(data.latestConfigSnapshot.relicsEnabled)}
-              />
-              <Kvp
-                label="Fatigue"
-                value={formatBool(data.latestConfigSnapshot.fatigueEnabled)}
-              />
-              <Kvp
-                label="Token11 Fee Share"
-                value={`${formatBool(
-                  data.latestConfigSnapshot.token11FeeShareEnabled
-                )} · ${formatBps(data.latestConfigSnapshot.token11FeeShareBps)}`}
-              />
-              <Kvp
-                label="Treasury"
-                value={shortenAddress(data.latestConfigSnapshot.treasury)}
-              />
-              <Kvp
-                label="Worker"
-                value={shortenAddress(data.latestConfigSnapshot.workerOperator)}
-              />
-            </div>
-          ) : (
-            <EmptyPanel
-              title="No config snapshot indexed yet"
-              text="The config contract has been registered, but no snapshot has been written into WarpoolGlobalConfigSnapshot yet."
-            />
-          )}
-        </SectionCard>
+      <div className="grid gap-4 xl:grid-cols-3">
+        <ActionCard
+          title="Config"
+          text="Edit only long-lived Warpool rules here. Save clean proposals for multisig review."
+          href={`/admin/${slug}/warpool/config`}
+          cta="Open config"
+        />
+        <ActionCard
+          title="Proposals"
+          text="Review saved config proposals, pending handoffs, approvals, and execution history."
+          href={`/admin/${slug}/warpool/proposals`}
+          cta="Open proposals"
+        />
+        <ActionCard
+          title="Runtime"
+          text="Monitor live pools, worker-ready states, and manual recovery-only actions when needed."
+          href={`/admin/${slug}/warpool/runtime`}
+          cta="Open runtime"
+        />
       </div>
 
-      <SectionCard
-        title="Queues"
-        description="Latest stored queue snapshots by queue slug, including stake, bracket sizing, and fee structure."
-      >
-        {data.queueCards.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-{data.queueCards.map((queue) => {
-  const meta = WARPOOL_QUEUE_META[queue.slug];
+      <WarpoolMultisigActivity
+        multisigSummary={data.multisigSummary}
+        multisigResolutionSource={data.multisigResolutionSource}
+        recentTxs={data.recentMultisigTxs}
+      />
 
-              return (
-                <div
-                  key={queue.id}
-                  className="rounded-3xl border border-border bg-background/60 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+      <details className="rounded-[28px] border border-border bg-card p-5 md:p-6">
+        <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-tight text-foreground">
+          Diagnostics and indexed state
+        </summary>
+
+        <div className="mt-5 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-3xl border border-border bg-background/60 p-4">
+            <div className="text-sm font-semibold text-foreground">
+              Registered contracts
+            </div>
+
+            {data.contracts.length > 0 ? (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {data.contracts.map((contract) => (
+                  <div
+                    key={contract.id}
+                    className="rounded-2xl border border-border bg-card p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
                       <div className="text-sm font-semibold text-foreground">
-                        {meta.title}
+                        {contract.label || contract.kind}
                       </div>
-                      <p className="mt-1 text-xs leading-5 text-muted">
-                        {meta.description}
-                      </p>
-                    </div>
-
-                    <div className="rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                      {queue.enabled ? meta.badge : "Off"}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <div className="rounded-[18px] border border-border bg-card p-3">
-                      <div className="text-[10px] uppercase tracking-[0.14em] text-muted">
-                        Stake
-                      </div>
-                      <div className="mt-1 text-sm font-semibold text-foreground">
-                        {formatTokenAmount(queue.stakeAmountRaw)}
+                      <div className="rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+                        {contract.kind}
                       </div>
                     </div>
 
-                    <div className="rounded-[18px] border border-border bg-card p-3">
-                      <div className="text-[10px] uppercase tracking-[0.14em] text-muted">
-                        Window
-                      </div>
-                      <div className="mt-1 text-sm font-semibold text-foreground">
-                        {formatDurationSeconds(queue.openDurationSeconds)}
-                      </div>
+                    <div className="mt-4 space-y-1">
+                      <Kvp label="Address" value={contract.address} />
+                      <Kvp label="Chain ID" value={contract.chainId} />
+                      <Kvp label="Status" value={contract.active ? "Active" : "Inactive"} />
                     </div>
                   </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyPanel
+                title="No contracts registered yet"
+                text="Bootstrap has not yet inserted the Config, Core, and Lens contract rows."
+              />
+            )}
+          </div>
 
-                  <div className="mt-4 space-y-1">
-                    <Kvp label="Target Size" value={formatInteger(queue.targetSize)} />
-                    <Kvp label="Min Start" value={formatInteger(queue.minStartSize)} />
-                    <Kvp
-                      label="Single Entry"
-                      value={queue.singleEntryPerWallet ? "Yes" : "No"}
-                    />
-                    <Kvp label="Platform Fee" value={formatBps(queue.platformFeeBps)} />
-                    <Kvp
-                      label="Payout Split"
-                      value={`${formatBps(queue.firstPlaceBps)} / ${formatBps(
-                        queue.secondPlaceBps
-                      )} / ${formatBps(queue.thirdPlaceBps)}`}
-                    />
-                    <Kvp
-                      label="Config Version"
-                      value={queue.configVersion.toString()}
-                    />
-                  </div>
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="text-sm font-semibold text-foreground">
+                Global snapshot
+              </div>
+
+              {data.latestConfigSnapshot ? (
+                <div className="mt-4 space-y-1">
+                  <Kvp
+                    label="Config Version"
+                    value={data.latestConfigSnapshot.configVersion.toString()}
+                  />
+                  <Kvp
+                    label="Treasury"
+                    value={shortenAddress(data.latestConfigSnapshot.treasury)}
+                  />
+                  <Kvp
+                    label="Worker"
+                    value={shortenAddress(data.latestConfigSnapshot.workerOperator)}
+                  />
+                  <Kvp
+                    label="Entries"
+                    value={data.latestConfigSnapshot.entriesPaused ? "Paused" : "Live"}
+                  />
+                  <Kvp
+                    label="Reservations"
+                    value={
+                      data.latestConfigSnapshot.reservationsPaused ? "Paused" : "Live"
+                    }
+                  />
+                  <Kvp
+                    label="Settlements"
+                    value={
+                      data.latestConfigSnapshot.settlementsPaused ? "Paused" : "Live"
+                    }
+                  />
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <EmptyPanel
-            title="No queue snapshots yet"
-            text="Queue configuration has not been projected into WarpoolQueueConfig yet. Once the config sync/indexer runs, queue cards will appear here."
-          />
-        )}
-      </SectionCard>
-
-      <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-        <SectionCard
-          title="Pool Totals"
-          description="High-level Warpool system counts from the local database projection."
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <StatCard label="Locked" value={formatInteger(data.stats.lockedPools)} />
-            <StatCard label="Settled" value={formatInteger(data.stats.settledPools)} />
-            <StatCard
-              label="Expired Refunded"
-              value={formatInteger(data.stats.expiredRefundedPools)}
-            />
-            <StatCard label="Entries" value={formatInteger(data.stats.totalEntries)} />
-            <StatCard
-              label="Reservations"
-              value={formatInteger(data.stats.totalReservations)}
-            />
-            <StatCard label="Captures" value={formatInteger(data.stats.totalCaptures)} />
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Chain Cursors"
-          description="Latest indexed block position by contract from shared ChainState."
-        >
-          {data.cursors.length > 0 ? (
-            <div className="space-y-1">
-              {data.cursors.map((cursor) => (
-                <Kvp
-                  key={cursor.contract}
-                  label={shortenAddress(cursor.contract)}
-                  value={formatInteger(cursor.lastBlockNumber)}
+              ) : (
+                <EmptyPanel
+                  title="No config snapshot indexed yet"
+                  text="The latest config snapshot has not yet been written."
                 />
-              ))}
+              )}
             </div>
-          ) : (
-            <EmptyPanel
-              title="No Warpool cursor rows yet"
-              text="ChainState does not yet have cursor positions for registered Warpool contracts."
-            />
-          )}
-        </SectionCard>
-      </div>
 
-<WarpoolAdminConsole
-  configAddress={
-    data.contracts.find((contract) => contract.kind === "CONFIG")?.address ?? null
-  }
-  coreAddress={runtimeData.coreAddress}
-  lensAddress={runtimeData.lensAddress}
-  latestConfigSnapshot={data.latestConfigSnapshot}
-  queueCards={data.queueCards}
-  runtimeQueues={runtimeData.queues}
-  runtimeWarnings={runtimeData.warnings}
-  workerReadiness={workerReadiness}
-  workerOps={workerOps}
-  defaultMultisigAddress={data.multisigAddress}
-  multisigResolutionSource={data.multisigResolutionSource}
-  multisigSummary={data.multisigSummary}
-  recentMultisigTxs={data.recentMultisigTxs}
-/>
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="text-sm font-semibold text-foreground">
+                System totals
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <StatCard
+                  label="Open Pools"
+                  value={formatInteger(data.stats.openPools)}
+                />
+                <StatCard
+                  label="Locked"
+                  value={formatInteger(data.stats.lockedPools)}
+                />
+                <StatCard
+                  label="Settled"
+                  value={formatInteger(data.stats.settledPools)}
+                />
+                <StatCard
+                  label="Expired Refunded"
+                  value={formatInteger(data.stats.expiredRefundedPools)}
+                />
+                <StatCard
+                  label="Entries"
+                  value={formatInteger(data.stats.totalEntries)}
+                />
+                <StatCard
+                  label="Captures"
+                  value={formatInteger(data.stats.totalCaptures)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

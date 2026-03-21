@@ -74,7 +74,7 @@ export default function ComradesWarpoolPage() {
     <main className="min-h-screen bg-background text-foreground page-enter">
       <section className="relative overflow-hidden border-b border-border">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-[-220px] h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl dark:bg-accent/8" />
+          <div className="absolute left-1/2 -top-55 h-130 w-130 -translate-x-1/2 rounded-full bg-accent/10 blur-3xl dark:bg-accent/8" />
           <div className="absolute left-[10%] top-[14%] h-48 w-48 rounded-full bg-accent/8 blur-3xl dark:bg-accent/6" />
           <div className="absolute right-[10%] top-[18%] h-56 w-56 rounded-full bg-foreground/5 blur-3xl dark:bg-accent/5" />
         </div>
@@ -145,7 +145,7 @@ export default function ComradesWarpoolPage() {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-border bg-card/85 p-5 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)]">
+            <div className="rounded-4xl border border-border bg-card/85 p-5 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)]">
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-foreground/45">
@@ -162,7 +162,7 @@ export default function ComradesWarpoolPage() {
                 {recentWinners.map((battle) => (
                   <div
                     key={battle.id}
-                    className="rounded-[24px] border border-border bg-background/80 p-4"
+                    className="rounded-3xl border border-border bg-background/80 p-4"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>

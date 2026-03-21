@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Shield, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -53,7 +53,7 @@ function AssetCard({
       type="button"
       onClick={onClick}
       className={[
-        "group rounded-[24px] border p-3 text-left transition",
+        "group rounded-3xl border p-3 text-left transition",
         selected
           ? "border-accent bg-accent/8"
           : "border-border bg-background/80 hover:bg-card",
@@ -126,7 +126,7 @@ export default function QueueJoinCard({
   const [modalStatus, setModalStatus] = useState("Starting...");
   const [modalTxHash, setModalTxHash] = useState<string | null>(null);
 
-  async function loadAssets() {
+  const loadAssets = useCallback(async () => {
     if (!address) return;
     setAssetsLoading(true);
 
@@ -160,7 +160,7 @@ export default function QueueJoinCard({
     } finally {
       setAssetsLoading(false);
     }
-  }
+  }, [address, queue.slug]);
 
   useEffect(() => {
     if (!isConnected || !address) {
@@ -172,7 +172,7 @@ export default function QueueJoinCard({
     }
 
     void loadAssets();
-  }, [isConnected, address, queue.slug]);
+  }, [isConnected, address, queue.slug, loadAssets]);
 
   useEffect(() => {
     if (!address || !selectedComrade || !queue.poolId) {
@@ -395,12 +395,12 @@ export default function QueueJoinCard({
         </div>
 
         {isConnected ? (
-          <div className="mb-4 rounded-[24px] border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-200">
+          <div className="mb-4 rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-200">
             Wallet connected as{" "}
             <span className="font-medium">{shortAddress(address)}</span>
           </div>
         ) : (
-          <div className="mb-4 rounded-[24px] border border-border bg-background/80 p-4 text-sm text-foreground/70">
+          <div className="mb-4 rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/70">
             Connect your wallet from the global header to load your comrades and relics.
           </div>
         )}
@@ -436,11 +436,11 @@ export default function QueueJoinCard({
           </div>
 
           {assetsLoading ? (
-            <div className="rounded-[24px] border border-border bg-background/80 p-4 text-sm text-foreground/60">
+            <div className="rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/60">
               Loading owned comrades...
             </div>
           ) : assets.comrades.length === 0 ? (
-            <div className="rounded-[24px] border border-border bg-background/80 p-4 text-sm text-foreground/60">
+            <div className="rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/60">
               No owned comrades found for this wallet under the configured collection.
             </div>
           ) : (
@@ -479,11 +479,11 @@ export default function QueueJoinCard({
           </div>
 
           {assetsLoading ? (
-            <div className="rounded-[24px] border border-border bg-background/80 p-4 text-sm text-foreground/60">
+            <div className="rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/60">
               Loading owned relics...
             </div>
           ) : assets.relics.length === 0 ? (
-            <div className="rounded-[24px] border border-border bg-background/80 p-4 text-sm text-foreground/60">
+            <div className="rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/60">
               No owned relics found for this wallet under the configured collection.
             </div>
           ) : (
@@ -501,7 +501,7 @@ export default function QueueJoinCard({
           )}
         </div>
 
-        <div className="mt-6 rounded-[24px] border border-border bg-background/80 p-4">
+        <div className="mt-6 rounded-3xl border border-border bg-background/80 p-4">
           <div className="text-sm font-medium text-foreground">Live lens check</div>
 
           {!isConnected ? (

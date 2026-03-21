@@ -33,12 +33,12 @@ export type WarpoolAdminConfigSnapshot = {
 };
 
 export type WarpoolAdminQueueCard = {
-  id: string;
   slug:
     | "FORGE_SAFEGUARD"
     | "LEGION_SAFEGUARD"
     | "LEGION_VAULTBOUND"
     | "CROWN_VAULTBOUND";
+  id: string;
   queueKey: string;
   chainId: number;
   tier: number;
@@ -118,7 +118,6 @@ export type WarpoolAdminOverviewData = {
   recentMultisigTxs: WarpoolAdminMultisigTxItem[];
 };
 
-
 export type WarpoolWorkerQueueReadinessItem = {
   poolId: string;
   queueSlug: string | null;
@@ -159,7 +158,6 @@ export type WarpoolWorkerReadinessData = {
   expiredReservations: WarpoolWorkerReservationItem[];
 };
 
-
 export type WarpoolRuntimePrefill =
   | {
       type: "PROCESS_EXPIRED_POOL";
@@ -183,43 +181,249 @@ export type WarpoolRuntimePrefillEnvelope = {
   payload: WarpoolRuntimePrefill;
 };
 
-export type WarpoolWorkerBattleComputeCandidate = {
-  battleId: string;
-  poolId: string;
-  queueSlug: string | null;
-  status: string;
-  battleReadyAt: Date | null;
-  runnableSize: number;
-  createdAt: Date;
-};
+export type AdminProposalArea = "WARPOOL";
 
-export type WarpoolWorkerRelistCandidate = {
-  captureId: string;
-  entryId: string;
-  contract: string;
-  tokenId: string;
-  originalOwnerAddress: string;
-  status: string;
-  relistStatus: string;
-  capturedAt: Date;
-  createdAt: Date;
-};
+export type AdminProposalKind = "CONFIG" | "RECOVERY";
 
-export type WarpoolWorkerPendingActionItem = {
+export type AdminProposalStatus =
+  | "DRAFT"
+  | "READY"
+  | "SUBMITTED"
+  | "APPROVED"
+  | "EXECUTED"
+  | "CANCELLED"
+  | "FAILED";
+
+export type AdminProposalActionStatus =
+  | "PENDING"
+  | "SUBMITTED"
+  | "EXECUTED"
+  | "FAILED";
+
+export type AdminProposalSafeSummary = {
   id: string;
-  type: string;
-  txHash: string;
-  from: string;
-  chainId: number;
-  status: string;
-  relatedId: string | null;
+  contract: string;
+  name: string | null;
+  threshold: number;
+};
+
+export type AdminProposalSubmittedMultisigTxSummary = {
+  id: string;
+  nonce: number;
+  to: string;
+  status:
+    | "SUBMITTED"
+    | "APPROVED"
+    | "EXECUTED"
+    | "FAILED"
+    | "CANCELLED"
+    | "EXPIRED";
+  executedTxHash: string | null;
+  createdAt: Date;
+  executedAt: Date | null;
+};
+
+export type AdminProposalActionItem = {
+  id: string;
+  proposalId: string;
+  orderIndex: number;
+  label: string | null;
+  summary: string | null;
+  target: string;
+  valueWei: string;
+  tokenAddress: string | null;
+  dataHex: string;
+  functionName: string | null;
+  argsJson: unknown;
+  status: AdminProposalActionStatus;
+  submittedAt: Date | null;
+  executedAt: Date | null;
+  failedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type WarpoolWorkerOpsData = {
-  battleComputeCandidates: WarpoolWorkerBattleComputeCandidate[];
-  relistCandidates: WarpoolWorkerRelistCandidate[];
-  pendingActions: WarpoolWorkerPendingActionItem[];
-  failedActions: WarpoolWorkerPendingActionItem[];
+export type AdminProposalEventActorUser = {
+  id: string;
+  walletAddress: string;
+  username: string;
+};
+
+export type AdminProposalEventItem = {
+  id: string;
+  proposalId: string;
+  actorUserId: string | null;
+  actorAddress: string | null;
+  type: string;
+  note: string | null;
+  payloadJson: unknown;
+  createdAt: Date;
+  actorUser: AdminProposalEventActorUser | null;
+};
+
+export type AdminProposalListItem = {
+  id: string;
+  area: AdminProposalArea;
+  kind: AdminProposalKind;
+  title: string;
+  slug: string | null;
+  summary: string | null;
+  description: string | null;
+  safeId: string | null;
+  safeContract: string | null;
+  chainId: number | null;
+  createdByUserId: string | null;
+  createdByAddress: string | null;
+  lastEditedByUserId: string | null;
+  lastEditedByAddress: string | null;
+  basedOnConfigVersion: bigint | null;
+  runtimeReferenceId: string | null;
+  status: AdminProposalStatus;
+  actionCount: number;
+  submittedMultisigTxId: string | null;
+  submittedMultisigNonce: number | null;
+  submittedAt: Date | null;
+  approvedAt: Date | null;
+  executedAt: Date | null;
+  cancelledAt: Date | null;
+  failedAt: Date | null;
+  snapshotJson: unknown;
+  metadataJson: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+
+  safe: AdminProposalSafeSummary | null;
+  submittedMultisigTx: AdminProposalSubmittedMultisigTxSummary | null;
+  _count: {
+    actions: number;
+    events: number;
+  };
+};
+
+export type AdminProposalDetail = {
+  id: string;
+  area: AdminProposalArea;
+  kind: AdminProposalKind;
+  title: string;
+  slug: string | null;
+  summary: string | null;
+  description: string | null;
+  safeId: string | null;
+  safeContract: string | null;
+  chainId: number | null;
+  createdByUserId: string | null;
+  createdByAddress: string | null;
+  lastEditedByUserId: string | null;
+  lastEditedByAddress: string | null;
+  basedOnConfigVersion: bigint | null;
+  runtimeReferenceId: string | null;
+  status: AdminProposalStatus;
+  actionCount: number;
+  submittedMultisigTxId: string | null;
+  submittedMultisigNonce: number | null;
+  submittedAt: Date | null;
+  approvedAt: Date | null;
+  executedAt: Date | null;
+  cancelledAt: Date | null;
+  failedAt: Date | null;
+  snapshotJson: unknown;
+  metadataJson: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+
+  safe: AdminProposalSafeSummary | null;
+  createdByUser: {
+    id: string;
+    walletAddress: string;
+    username: string;
+  } | null;
+  lastEditedByUser: {
+    id: string;
+    walletAddress: string;
+    username: string;
+  } | null;
+  submittedMultisigTx:
+    | {
+        id: string;
+        nonce: number;
+        to: string;
+        valueWei: string;
+        dataHex: string | null;
+        status:
+          | "SUBMITTED"
+          | "APPROVED"
+          | "EXECUTED"
+          | "FAILED"
+          | "CANCELLED"
+          | "EXPIRED";
+        executedTxHash: string | null;
+        createdAt: Date;
+        executedAt: Date | null;
+        approvals: Array<{
+          id: string;
+          ownerAddress: string;
+          signature: string | null;
+          createdAt: Date;
+        }>;
+      }
+    | null;
+  actions: AdminProposalActionItem[];
+  events: AdminProposalEventItem[];
+};
+
+export type CreateAdminProposalActionInput = {
+  orderIndex: number;
+  label?: string | null;
+  summary?: string | null;
+  target: string;
+  valueWei: string;
+  tokenAddress?: string | null;
+  dataHex: string;
+  functionName?: string | null;
+  argsJson?: unknown;
+};
+
+export type CreateAdminProposalInput = {
+  area: AdminProposalArea;
+  kind: AdminProposalKind;
+  title: string;
+  slug?: string | null;
+  summary?: string | null;
+  description?: string | null;
+  safeContract?: string | null;
+  chainId?: number | null;
+  basedOnConfigVersion?: string | null;
+  runtimeReferenceId?: string | null;
+  snapshotJson?: unknown;
+  metadataJson?: unknown;
+  actions: CreateAdminProposalActionInput[];
+};
+
+export type AdminProposalCreateResult = {
+  proposal: AdminProposalDetail;
+};
+
+export type AdminProposalListResult = {
+  proposals: AdminProposalListItem[];
+};
+
+export type WarpoolConfigProposalSavePayload = {
+  title: string;
+  summary?: string | null;
+  description?: string | null;
+  basedOnConfigVersion?: string | null;
+  snapshotJson: unknown;
+  actions: CreateAdminProposalActionInput[];
+  safeContract?: string | null;
+};
+
+export type AdminProposalStats = {
+  total: number;
+  draft: number;
+  ready: number;
+  submitted: number;
+  approved: number;
+  executed: number;
+  failed: number;
+  cancelled: number;
 };

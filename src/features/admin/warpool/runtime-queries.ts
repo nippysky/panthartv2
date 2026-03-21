@@ -1,9 +1,8 @@
-// src/features/admin/warpool/runtime-queries.ts
 import "server-only";
 
 import { ethers } from "ethers";
 
-import prisma from "@/src/lib/db";
+import prisma, { prismaReady } from "@/src/lib/db";
 import { WARPOOL_LENS_ABI } from "@/src/lib/abis/warpoolLensAbi";
 import type { WarpoolQueueSlug } from "@/src/features/admin/warpool/multisig-types";
 
@@ -65,6 +64,8 @@ function toStr(value: bigint | string | null | undefined) {
 }
 
 export async function getWarpoolRuntimeOverviewData(): Promise<WarpoolRuntimeOverviewData> {
+  await prismaReady;
+
   const warnings: string[] = [];
 
   const contracts = await prisma.warpoolContract.findMany({
@@ -146,9 +147,7 @@ export async function getWarpoolRuntimeOverviewData(): Promise<WarpoolRuntimeOve
           return {
             ...queue,
             poolId:
-              result.poolId && BigInt(result.poolId) > BigInt(0)
-                ? String(result.poolId)
-                : null,
+              result.poolId && BigInt(result.poolId) > BigInt(0) ? String(result.poolId) : null,
             state: toNum(result.state),
             singleEntryPerWallet:
               typeof result.singleEntryPerWallet === "boolean"

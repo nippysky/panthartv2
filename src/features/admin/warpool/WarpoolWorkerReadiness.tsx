@@ -118,38 +118,50 @@ export default function WarpoolWorkerReadiness({
   data,
   onPrefillAction,
 }: Props) {
+  const hasItems =
+    data.expiredOpenPools.length > 0 ||
+    data.battleReadyCandidates.length > 0 ||
+    data.settlementCandidates.length > 0 ||
+    data.expiredReservations.length > 0;
+
   return (
     <SectionCard
-      title="Worker Readiness"
-      description="Operator-focused strip showing items likely ready for worker-compatible admin actions."
+      title="Automation and recovery"
+      description="This view highlights items the worker is processing or items an operator may need to recover manually if automation stalls."
     >
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SmallStat
           label="Expired Open Pools"
           value={data.expiredOpenPools.length}
-          hint="Likely processExpiredPool candidates"
+          hint="Recovery candidates"
         />
         <SmallStat
-          label="Battle Ready Candidates"
+          label="Battle Ready"
           value={data.battleReadyCandidates.length}
-          hint="Locked pools awaiting mark battle ready"
+          hint="Usually worker-driven"
         />
         <SmallStat
-          label="Settlement Candidates"
+          label="Awaiting Settlement"
           value={data.settlementCandidates.length}
-          hint="Battle-ready pools awaiting winner submission"
+          hint="Usually worker-driven"
         />
         <SmallStat
           label="Expired Reservations"
           value={data.expiredReservations.length}
-          hint="Likely expireReservation candidates"
+          hint="Recovery candidates"
         />
       </div>
+
+      {!hasItems ? (
+        <div className="mt-6">
+          <EmptyState text="Everything looks calm right now. No obvious runtime recovery items are waiting in this view." />
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <div className="space-y-4">
           <div className="text-sm font-semibold text-foreground">
-            Expired Open Pools
+            Expired open pools
           </div>
           {data.expiredOpenPools.length > 0 ? (
             data.expiredOpenPools.map((item) => (
@@ -167,7 +179,7 @@ export default function WarpoolWorkerReadiness({
 
                 <div className="mt-4">
                   <ActionButton
-                    label="Prefill Process Expired"
+                    label="Prefill process expired"
                     onClick={() =>
                       onPrefillAction?.({
                         type: "PROCESS_EXPIRED_POOL",
@@ -185,7 +197,7 @@ export default function WarpoolWorkerReadiness({
 
         <div className="space-y-4">
           <div className="text-sm font-semibold text-foreground">
-            Locked Pools Awaiting Battle Ready
+            Locked pools awaiting battle-ready
           </div>
           {data.battleReadyCandidates.length > 0 ? (
             data.battleReadyCandidates.map((item) => (
@@ -204,7 +216,7 @@ export default function WarpoolWorkerReadiness({
 
                 <div className="mt-4">
                   <ActionButton
-                    label="Prefill Battle Ready"
+                    label="Prefill battle ready"
                     onClick={() =>
                       onPrefillAction?.({
                         type: "MARK_BATTLE_READY",
@@ -216,13 +228,13 @@ export default function WarpoolWorkerReadiness({
               </div>
             ))
           ) : (
-            <EmptyState text="No locked pools are currently tracked as battle-ready candidates." />
+            <EmptyState text="No locked pools are currently waiting in this view." />
           )}
         </div>
 
         <div className="space-y-4">
           <div className="text-sm font-semibold text-foreground">
-            Battle Ready Pools Awaiting Settlement
+            Battle-ready pools awaiting settlement
           </div>
           {data.settlementCandidates.length > 0 ? (
             data.settlementCandidates.map((item) => (
@@ -237,7 +249,7 @@ export default function WarpoolWorkerReadiness({
 
                 <div className="mt-4">
                   <ActionButton
-                    label="Prefill Settle Pool"
+                    label="Prefill settle pool"
                     onClick={() =>
                       onPrefillAction?.({
                         type: "SETTLE_POOL",
@@ -249,13 +261,13 @@ export default function WarpoolWorkerReadiness({
               </div>
             ))
           ) : (
-            <EmptyState text="No battle-ready pools are currently awaiting settlement." />
+            <EmptyState text="No battle-ready pools are awaiting settlement in this view." />
           )}
         </div>
 
         <div className="space-y-4">
           <div className="text-sm font-semibold text-foreground">
-            Expired Active Reservations
+            Expired active reservations
           </div>
           {data.expiredReservations.length > 0 ? (
             data.expiredReservations.map((item) => (
@@ -271,7 +283,7 @@ export default function WarpoolWorkerReadiness({
 
                 <div className="mt-4">
                   <ActionButton
-                    label="Prefill Expire Reservation"
+                    label="Prefill expire reservation"
                     onClick={() =>
                       onPrefillAction?.({
                         type: "EXPIRE_RESERVATION",

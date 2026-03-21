@@ -43,7 +43,12 @@ model User {
   warpoolEntries         WarpoolEntry[]
   warpoolReservations    WarpoolReservation[]
   warpoolActivities      WarpoolActivity[]
-  warpoolCapturesAsOwner WarpoolCapture[]     @relation("WarpoolCaptureOriginalOwner")
+  warpoolCapturesAsOwner WarpoolCapture[]   @relation("WarpoolCaptureOriginalOwner")
+
+  // Admin proposals
+  adminProposalsCreated AdminProposal[]      @relation("AdminProposalCreatedByUser")
+  adminProposalsEdited  AdminProposal[]      @relation("AdminProposalLastEditedByUser")
+  adminProposalEvents   AdminProposalEvent[] @relation("AdminProposalEventActorUser")
 }
 
 model Collection {
@@ -671,14 +676,15 @@ model StolenEvent {
 }
 
 model MultisigSafe {
-  id        String          @id @default(cuid())
-  contract  String          @unique @db.Citext
-  name      String?
-  threshold Int
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  owners    MultisigOwner[]
-  txs       MultisigTx[]
+  id             String          @id @default(cuid())
+  contract       String          @unique @db.Citext
+  name           String?
+  threshold      Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  owners         MultisigOwner[]
+  txs            MultisigTx[]
+  adminProposals AdminProposal[]
 
   @@index([threshold])
 }
@@ -696,20 +702,21 @@ model MultisigOwner {
 }
 
 model MultisigTx {
-  id             String             @id @default(cuid())
-  safeId         String
-  nonce          Int
-  to             String             @db.Citext
-  valueWei       Decimal            @default(0) @db.Decimal(65, 0)
-  dataHex        String?
-  operation      Int?
-  submittedBy    String?            @db.Citext
-  status         MultisigTxStatus   @default(SUBMITTED)
-  executedTxHash String?
-  createdAt      DateTime           @default(now())
-  executedAt     DateTime?
-  approvals      MultisigApproval[]
-  safe           MultisigSafe       @relation(fields: [safeId], references: [id])
+  id                   String             @id @default(cuid())
+  safeId               String
+  nonce                Int
+  to                   String             @db.Citext
+  valueWei             Decimal            @default(0) @db.Decimal(65, 0)
+  dataHex              String?
+  operation            Int?
+  submittedBy          String?            @db.Citext
+  status               MultisigTxStatus   @default(SUBMITTED)
+  executedTxHash       String?
+  createdAt            DateTime           @default(now())
+  executedAt           DateTime?
+  approvals            MultisigApproval[]
+  safe                 MultisigSafe       @relation(fields: [safeId], references: [id])
+  linkedAdminProposals AdminProposal[]    @relation("AdminProposalSubmittedMultisigTx")
 
   @@unique([safeId, nonce])
   @@index([status])
@@ -1055,6 +1062,94 @@ model WarpoolActivity {
   @@index([type, timestamp])
 }
 
+//
+// Admin proposal models
+//
+
+model AdminProposal {
+  id                     String               @id @default(cuid())
+  area                   AdminProposalArea
+  kind                   AdminProposalKind
+  title                  String
+  slug                   String?              @db.Citext
+  summary                String?
+  description            String?
+  safeId                 String?
+  safe                   MultisigSafe?        @relation(fields: [safeId], references: [id])
+  safeContract           String?              @db.Citext
+  chainId                Int?
+  createdByUserId        String?
+  createdByUser          User?                @relation("AdminProposalCreatedByUser", fields: [createdByUserId], references: [id])
+  createdByAddress       String?              @db.Citext
+  lastEditedByUserId     String?
+  lastEditedByUser       User?                @relation("AdminProposalLastEditedByUser", fields: [lastEditedByUserId], references: [id])
+  lastEditedByAddress    String?              @db.Citext
+  basedOnConfigVersion   BigInt?
+  runtimeReferenceId     String?
+  status                 AdminProposalStatus  @default(DRAFT)
+  actionCount            Int                  @default(0)
+  submittedMultisigTxId  String?
+  submittedMultisigTx    MultisigTx?          @relation("AdminProposalSubmittedMultisigTx", fields: [submittedMultisigTxId], references: [id])
+  submittedMultisigNonce Int?
+  submittedAt            DateTime?
+  approvedAt             DateTime?
+  executedAt             DateTime?
+  cancelledAt            DateTime?
+  failedAt               DateTime?
+  snapshotJson           Json?
+  metadataJson           Json?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+
+  actions AdminProposalAction[]
+  events  AdminProposalEvent[]
+
+  @@index([area, kind, status, createdAt])
+  @@index([safeContract, status, createdAt])
+  @@index([createdByAddress, createdAt])
+  @@index([submittedMultisigNonce])
+}
+
+model AdminProposalAction {
+  id           String                    @id @default(cuid())
+  proposalId   String
+  proposal     AdminProposal             @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  orderIndex   Int
+  label        String?
+  summary      String?
+  target       String                    @db.Citext
+  valueWei     Decimal                   @default(0) @db.Decimal(78, 0)
+  tokenAddress String?                   @db.Citext
+  dataHex      String
+  functionName String?
+  argsJson     Json?
+  status       AdminProposalActionStatus @default(PENDING)
+  submittedAt  DateTime?
+  executedAt   DateTime?
+  failedAt     DateTime?
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+
+  @@unique([proposalId, orderIndex], map: "uq_admin_proposal_action_order")
+  @@index([proposalId, status, orderIndex])
+}
+
+model AdminProposalEvent {
+  id           String        @id @default(cuid())
+  proposalId   String
+  proposal     AdminProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  actorUserId  String?
+  actorUser    User?         @relation("AdminProposalEventActorUser", fields: [actorUserId], references: [id])
+  actorAddress String?       @db.Citext
+  type         String
+  note         String?
+  payloadJson  Json?
+  createdAt    DateTime      @default(now())
+
+  @@index([proposalId, createdAt])
+  @@index([actorAddress, createdAt])
+}
+
 enum ContractType {
   ERC721_DROP
   ERC721_SINGLE
@@ -1242,5 +1337,31 @@ enum WarpoolBattleStatus {
   COMPUTED
   SUBMITTED
   SETTLED
+  FAILED
+}
+
+enum AdminProposalArea {
+  WARPOOL
+}
+
+enum AdminProposalKind {
+  CONFIG
+  RECOVERY
+}
+
+enum AdminProposalStatus {
+  DRAFT
+  READY
+  SUBMITTED
+  APPROVED
+  EXECUTED
+  CANCELLED
+  FAILED
+}
+
+enum AdminProposalActionStatus {
+  PENDING
+  SUBMITTED
+  EXECUTED
   FAILED
 }

@@ -1,9 +1,8 @@
-// src/features/admin/warpool/queries.ts
 import "server-only";
 
 import { ethers } from "ethers";
 
-import prisma from "@/src/lib/db";
+import prisma, { prismaReady } from "@/src/lib/db";
 import { WARPOOL_CONFIG_ABI } from "@/src/lib/abis/warpoolConfigAbi";
 import type {
   WarpoolAdminMultisigTxItem,
@@ -32,12 +31,8 @@ async function resolveWarpoolMultisig(params: {
       contract: true,
       threshold: true,
       owners: {
-        where: {
-          removedAt: null,
-        },
-        select: {
-          id: true,
-        },
+        where: { removedAt: null },
+        select: { id: true },
       },
     },
   });
@@ -50,17 +45,7 @@ async function resolveWarpoolMultisig(params: {
       }
     : null;
 
-  if (!params.configAddress || !ethers.isAddress(params.configAddress)) {
-    return {
-      multisigAddress: fallbackSummary?.contract ?? null,
-      multisigResolutionSource: fallbackSummary
-        ? "LATEST_REGISTERED_FALLBACK"
-        : "UNAVAILABLE",
-      multisigSummary: fallbackSummary,
-    };
-  }
-
-  if (!RPC_URL) {
+  if (!params.configAddress || !ethers.isAddress(params.configAddress) || !RPC_URL) {
     return {
       multisigAddress: fallbackSummary?.contract ?? null,
       multisigResolutionSource: fallbackSummary
@@ -85,12 +70,8 @@ async function resolveWarpoolMultisig(params: {
         contract: true,
         threshold: true,
         owners: {
-          where: {
-            removedAt: null,
-          },
-          select: {
-            id: true,
-          },
+          where: { removedAt: null },
+          select: { id: true },
         },
       },
     });
@@ -131,9 +112,7 @@ async function getRecentMultisigTxs(
   if (!multisigAddress) return [];
 
   const safe = await prisma.multisigSafe.findFirst({
-    where: {
-      contract: multisigAddress,
-    },
+    where: { contract: multisigAddress },
     select: {
       txs: {
         orderBy: [{ createdAt: "desc" }],
@@ -150,9 +129,7 @@ async function getRecentMultisigTxs(
           createdAt: true,
           executedAt: true,
           approvals: {
-            select: {
-              id: true,
-            },
+            select: { id: true },
           },
         },
       },
@@ -177,6 +154,8 @@ async function getRecentMultisigTxs(
 }
 
 export async function getWarpoolAdminOverviewData(): Promise<WarpoolAdminOverviewData> {
+  await prismaReady;
+
   const [
     contracts,
     latestConfigSnapshot,
@@ -194,16 +173,13 @@ export async function getWarpoolAdminOverviewData(): Promise<WarpoolAdminOvervie
     prisma.warpoolContract.findMany({
       orderBy: [{ kind: "asc" }],
     }),
-
     prisma.warpoolGlobalConfigSnapshot.findFirst({
       orderBy: [{ syncedAt: "desc" }],
     }),
-
     prisma.warpoolQueueConfig.findMany({
       orderBy: [{ slug: "asc" }, { syncedAt: "desc" }],
       distinct: ["slug"],
     }),
-
     prisma.warpoolPool.count(),
     prisma.warpoolPool.count({ where: { state: "OPEN" } }),
     prisma.warpoolPool.count({ where: { state: "LOCKED" } }),

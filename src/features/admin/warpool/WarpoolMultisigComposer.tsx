@@ -15,6 +15,7 @@ import { encodeWarpoolConfigActions } from "@/src/features/admin/warpool/encodeC
 import type {
   WarpoolAdminConfigSnapshot,
   WarpoolAdminQueueCard,
+  WarpoolConfigProposalSavePayload,
   WarpoolMultisigResolutionSource,
   WarpoolMultisigSummary,
 } from "@/src/features/admin/warpool/types";
@@ -22,12 +23,14 @@ import type {
   WarpoolComposerQueueDraft,
   WarpoolConfigProposalDraft,
 } from "@/src/features/admin/warpool/multisig-types";
+import type { WarpoolRuntimeQueueStatus } from "@/src/features/admin/warpool/runtime-queries";
 import MultisigExecutionPanel from "@/src/features/admin/warpool/MultisigExecutionPanel";
 
 type Props = {
   configAddress: string | null;
   latestConfigSnapshot: WarpoolAdminConfigSnapshot | null;
   queueCards: WarpoolAdminQueueCard[];
+  runtimeQueues: WarpoolRuntimeQueueStatus[];
   defaultMultisigAddress?: string | null;
   multisigResolutionSource?: WarpoolMultisigResolutionSource | null;
   multisigSummary?: WarpoolMultisigSummary | null;
@@ -45,6 +48,60 @@ type QueueDraft = {
   firstPlaceBps: string;
   secondPlaceBps: string;
   thirdPlaceBps: string;
+};
+
+const RECOMMENDED_TEST_PRESETS: Record<
+  QueueDraft["slug"],
+  Omit<QueueDraft, "slug">
+> = {
+  FORGE_SAFEGUARD: {
+    enabled: true,
+    singleEntryPerWallet: true,
+    targetSize: "8",
+    minStartSize: "4",
+    openDurationSeconds: "900",
+    stakeAmountDecimal: "10",
+    platformFeeBps: "1000",
+    firstPlaceBps: "6000",
+    secondPlaceBps: "2000",
+    thirdPlaceBps: "1000",
+  },
+  LEGION_SAFEGUARD: {
+    enabled: true,
+    singleEntryPerWallet: true,
+    targetSize: "8",
+    minStartSize: "4",
+    openDurationSeconds: "1200",
+    stakeAmountDecimal: "25",
+    platformFeeBps: "1000",
+    firstPlaceBps: "6000",
+    secondPlaceBps: "2000",
+    thirdPlaceBps: "1000",
+  },
+  LEGION_VAULTBOUND: {
+    enabled: true,
+    singleEntryPerWallet: true,
+    targetSize: "8",
+    minStartSize: "4",
+    openDurationSeconds: "1200",
+    stakeAmountDecimal: "35",
+    platformFeeBps: "500",
+    firstPlaceBps: "6500",
+    secondPlaceBps: "2000",
+    thirdPlaceBps: "1000",
+  },
+  CROWN_VAULTBOUND: {
+    enabled: true,
+    singleEntryPerWallet: true,
+    targetSize: "8",
+    minStartSize: "4",
+    openDurationSeconds: "1800",
+    stakeAmountDecimal: "50",
+    platformFeeBps: "500",
+    firstPlaceBps: "6500",
+    secondPlaceBps: "2000",
+    thirdPlaceBps: "1000",
+  },
 };
 
 function normalizeQueueCards(queueCards: WarpoolAdminQueueCard[]) {
@@ -85,6 +142,30 @@ function rawToDecimalString(raw: string, decimals = 18) {
     .replace(/0+$/, "");
 
   return `${whole.toString()}.${fractionStr}`;
+}
+
+function SectionCard({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-[28px] border border-border bg-card p-5 md:p-6">
+      <div className="mb-5">
+        <h2 className="text-[15px] font-semibold tracking-tight text-foreground md:text-base">
+          {title}
+        </h2>
+        {description ? (
+          <p className="mt-1 text-sm leading-6 text-muted">{description}</p>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
 }
 
 function Label({
@@ -158,30 +239,6 @@ function Toggle({
   );
 }
 
-function SectionCard({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-[28px] border border-border bg-card p-5 md:p-6">
-      <div className="mb-5">
-        <h2 className="text-[15px] font-semibold tracking-tight text-foreground md:text-base">
-          {title}
-        </h2>
-        {description ? (
-          <p className="mt-1 text-sm leading-6 text-muted">{description}</p>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
 function Pill({
   children,
   tone = "default",
@@ -191,9 +248,9 @@ function Pill({
 }) {
   const className =
     tone === "good"
-      ? "border-border bg-background text-foreground"
+      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       : tone === "warn"
-        ? "border-border bg-background text-foreground"
+        ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
         : "border-border bg-background text-muted";
 
   return (
@@ -205,13 +262,61 @@ function Pill({
   );
 }
 
+function queueRuntimeStateText(
+  runtimeQueues: WarpoolRuntimeQueueStatus[],
+  slug: QueueDraft["slug"]
+) {
+  const runtime = runtimeQueues.find((queue) => queue.slug === slug);
+  if (!runtime || !runtime.poolId) return "No active pool";
+
+  switch (runtime.state) {
+    case 1:
+      return `Open · Pool ${runtime.poolId}`;
+    case 2:
+      return `Locked · Pool ${runtime.poolId}`;
+    case 3:
+      return `Battle Ready · Pool ${runtime.poolId}`;
+    case 4:
+      return `Settling · Pool ${runtime.poolId}`;
+    case 5:
+      return `Settled · Pool ${runtime.poolId}`;
+    case 7:
+      return `Expired Refunded · Pool ${runtime.poolId}`;
+    default:
+      return `Pool ${runtime.poolId}`;
+  }
+}
+
+function diffSummaryLines(params: {
+  current: WarpoolConfigProposalDraft | null;
+  encodedSummaryLines: string[];
+}) {
+  if (params.encodedSummaryLines.length > 0) {
+    return params.encodedSummaryLines;
+  }
+
+  if (!params.current) {
+    return ["This proposal is based on an empty current snapshot."];
+  }
+
+  return ["No changes detected yet."];
+}
+
+function winnerBeatsStakeAtMinStart(params: {
+  minStartSize: number;
+  payoutBps: number;
+}) {
+  return (params.minStartSize * params.payoutBps) / 10000 > 1;
+}
+
 export default function WarpoolMultisigComposer({
   configAddress,
   latestConfigSnapshot,
   queueCards,
+  runtimeQueues,
   defaultMultisigAddress = null,
   multisigResolutionSource = null,
-    multisigSummary = null,
+  multisigSummary = null,
 }: Props) {
   const [treasury, setTreasury] = React.useState(latestConfigSnapshot?.treasury ?? "");
   const [workerOperator, setWorkerOperator] = React.useState(
@@ -243,6 +348,7 @@ export default function WarpoolMultisigComposer({
   const [queues, setQueues] = React.useState<QueueDraft[]>(() =>
     normalizeQueueCards(queueCards)
   );
+  const [savedProposalId, setSavedProposalId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setTreasury(latestConfigSnapshot?.treasury ?? "");
@@ -252,9 +358,7 @@ export default function WarpoolMultisigComposer({
     setSettlementsPaused(latestConfigSnapshot?.settlementsPaused ?? false);
     setRelicsEnabled(latestConfigSnapshot?.relicsEnabled ?? false);
     setFatigueEnabled(latestConfigSnapshot?.fatigueEnabled ?? false);
-    setToken11FeeShareEnabled(
-      latestConfigSnapshot?.token11FeeShareEnabled ?? false
-    );
+    setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
     setToken11FeeShareBps(String(latestConfigSnapshot?.token11FeeShareBps ?? 0));
   }, [latestConfigSnapshot]);
 
@@ -359,87 +463,53 @@ export default function WarpoolMultisigComposer({
         target: null,
         actions: [],
         warnings: [
-          error instanceof Error ? error.message : "Failed to encode config actions.",
+          error instanceof Error ? error.message : "Failed to prepare config actions.",
         ],
         summaryLines: [],
       };
     }
   }, [configAddress, currentDraft, proposal]);
 
-  const summaryText = React.useMemo(() => {
-    const lines: string[] = [];
+  const reviewLines = React.useMemo(
+    () =>
+      diffSummaryLines({
+        current: currentDraft,
+        encodedSummaryLines: encodedPlan.summaryLines,
+      }),
+    [currentDraft, encodedPlan.summaryLines]
+  );
 
-    lines.push("Warpool multisig proposal summary");
-    lines.push("");
-    lines.push(`Base config version: ${proposal.basedOnConfigVersion ?? "none"}`);
-    lines.push(`Config contract: ${configAddress ?? "unset"}`);
-    lines.push(`Treasury: ${proposal.global.treasury ?? "unset"}`);
-    lines.push(`Worker operator: ${proposal.global.workerOperator ?? "unset"}`);
-    lines.push(`Entries paused: ${proposal.global.entriesPaused ? "yes" : "no"}`);
-    lines.push(
-      `Reservations paused: ${proposal.global.reservationsPaused ? "yes" : "no"}`
-    );
-    lines.push(
-      `Settlements paused: ${proposal.global.settlementsPaused ? "yes" : "no"}`
-    );
-    lines.push(`Relics enabled: ${proposal.global.relicsEnabled ? "yes" : "no"}`);
-    lines.push(`Fatigue enabled: ${proposal.global.fatigueEnabled ? "yes" : "no"}`);
-    lines.push(
-      `Token11 fee share: ${
-        proposal.global.token11FeeShareEnabled ? "enabled" : "disabled"
-      } at ${formatBps(proposal.global.token11FeeShareBps)}`
-    );
-    lines.push("");
-    lines.push("Queues");
-    lines.push("");
-
-    for (const queue of proposal.queues) {
-      const meta = WARPOOL_QUEUE_META[queue.slug];
-      lines.push(`- ${meta.title}`);
-      lines.push(`  enabled: ${queue.enabled ? "yes" : "no"}`);
-      lines.push(`  target size: ${queue.targetSize}`);
-      lines.push(`  min start size: ${queue.minStartSize}`);
-      lines.push(`  open window: ${formatDurationSeconds(queue.openDurationSeconds)}`);
-      lines.push(`  stake: ${formatTokenAmount(queue.stakeAmountRaw)}`);
-      lines.push(`  single entry: ${queue.singleEntryPerWallet ? "yes" : "no"}`);
-      lines.push(
-        `  fees: platform ${formatBps(queue.platformFeeBps)} | payouts ${formatBps(
-          queue.firstPlaceBps
-        )} / ${formatBps(queue.secondPlaceBps)} / ${formatBps(queue.thirdPlaceBps)}`
-      );
-      lines.push("");
-    }
-
-    if (encodedPlan.summaryLines.length > 0) {
-      lines.push("Detected action changes");
-      lines.push("");
-      for (const line of encodedPlan.summaryLines) {
-        lines.push(`- ${line}`);
-      }
-      lines.push("");
-    }
-
-    if (encodedPlan.warnings.length > 0) {
-      lines.push("Warnings");
-      lines.push("");
-      for (const warning of encodedPlan.warnings) {
-        lines.push(`- ${warning}`);
-      }
-      lines.push("");
-    }
-
-    lines.push(`Encoded actions: ${encodedPlan.actions.length}`);
-
-    return lines.join("\n");
-  }, [configAddress, encodedPlan.actions.length, encodedPlan.summaryLines, encodedPlan.warnings, proposal]);
-
-  async function copyText(value: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch {
-      // no-op
-    }
-  }
+  const savePayload = React.useMemo<WarpoolConfigProposalSavePayload>(() => {
+    return {
+      title: "Warpool config update",
+      summary:
+        reviewLines.length > 0
+          ? reviewLines.slice(0, 2).join(" · ")
+          : "Warpool configuration proposal",
+      description:
+        "Saved from the Warpool config composer. Review in proposals before multisig submission.",
+      basedOnConfigVersion: proposal.basedOnConfigVersion ?? null,
+      safeContract: multisigSummary?.contract ?? defaultMultisigAddress ?? null,
+      snapshotJson: proposal,
+      actions: encodedPlan.actions.map((action, index) => ({
+        orderIndex: index,
+        label: action.functionName,
+        summary: action.summary,
+        target: action.target,
+        valueWei: action.value,
+        tokenAddress: null,
+        dataHex: action.data,
+        functionName: action.functionName,
+        argsJson: action.args,
+      })),
+    };
+  }, [
+    defaultMultisigAddress,
+    encodedPlan.actions,
+    multisigSummary?.contract,
+    proposal,
+    reviewLines,
+  ]);
 
   function updateQueue<K extends keyof QueueDraft>(
     slug: QueueDraft["slug"],
@@ -453,123 +523,222 @@ export default function WarpoolMultisigComposer({
     );
   }
 
+  function applyRecommendedPreset(slug: QueueDraft["slug"]) {
+    const preset = RECOMMENDED_TEST_PRESETS[slug];
+    setQueues((prev) => prev.map((queue) => (queue.slug === slug ? { slug, ...preset } : queue)));
+  }
+
+  function applyAllRecommendedPresets() {
+    setQueues(
+      WARPOOL_QUEUE_ORDER.map((slug) => ({
+        slug,
+        ...RECOMMENDED_TEST_PRESETS[slug],
+      }))
+    );
+  }
+
+  function resetToLiveSnapshot() {
+    setTreasury(latestConfigSnapshot?.treasury ?? "");
+    setWorkerOperator(latestConfigSnapshot?.workerOperator ?? "");
+    setEntriesPaused(latestConfigSnapshot?.entriesPaused ?? false);
+    setReservationsPaused(latestConfigSnapshot?.reservationsPaused ?? false);
+    setSettlementsPaused(latestConfigSnapshot?.settlementsPaused ?? false);
+    setRelicsEnabled(latestConfigSnapshot?.relicsEnabled ?? false);
+    setFatigueEnabled(latestConfigSnapshot?.fatigueEnabled ?? false);
+    setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
+    setToken11FeeShareBps(String(latestConfigSnapshot?.token11FeeShareBps ?? 0));
+    setQueues(normalizeQueueCards(queueCards));
+  }
+
+  async function handleSaveProposal(payload: WarpoolConfigProposalSavePayload) {
+    const res = await fetch("/api/admin/warpool/proposals", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = (await res.json()) as {
+      ok?: boolean;
+      proposalId?: string;
+      error?: string;
+    };
+
+    if (!res.ok || !json.ok || !json.proposalId) {
+      throw new Error(json.error || "Failed to save proposal.");
+    }
+
+    setSavedProposalId(json.proposalId);
+    return { proposalId: json.proposalId };
+  }
+
+  function openProposalsPage() {
+    window.location.href = window.location.pathname.replace(/\/config$/, "/proposals");
+  }
+
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
       <div className="space-y-6">
         <SectionCard
-          title="Multisig Config Composer"
-          description="Stage the next Warpool configuration set from the latest indexed snapshot. This panel prepares the exact operator payload and encoded config calls for multisig execution."
+          title="Configuration"
+          description="Adjust Warpool rules and queue settings, then save a clean multisig-ready config proposal for shared admin review."
         >
-          <div className="grid gap-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label hint="Global payout receiver">Treasury address</Label>
-                <TextInput
-                  value={treasury}
-                  onChange={(e) => setTreasury(e.target.value)}
-                  placeholder="0x..."
-                  spellCheck={false}
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                />
-              </div>
-
-              <div>
-                <Label hint="Worker / automation operator">Worker address</Label>
-                <TextInput
-                  value={workerOperator}
-                  onChange={(e) => setWorkerOperator(e.target.value)}
-                  placeholder="0x..."
-                  spellCheck={false}
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <Toggle
-                checked={entriesPaused}
-                onChange={setEntriesPaused}
-                label="Entries"
-                description="Pause or allow new queue entries."
-              />
-              <Toggle
-                checked={reservationsPaused}
-                onChange={setReservationsPaused}
-                label="Reservations"
-                description="Pause or allow reservation flow."
-              />
-              <Toggle
-                checked={settlementsPaused}
-                onChange={setSettlementsPaused}
-                label="Settlements"
-                description="Pause or allow settlement operations."
-              />
-              <Toggle
-                checked={relicsEnabled}
-                onChange={setRelicsEnabled}
-                label="Relics"
-                description="Enable or disable relic-based mechanics."
-              />
-              <Toggle
-                checked={fatigueEnabled}
-                onChange={setFatigueEnabled}
-                label="Fatigue"
-                description="Enable or disable fatigue logic."
-              />
-              <Toggle
-                checked={token11FeeShareEnabled}
-                onChange={setToken11FeeShareEnabled}
-                label="Token11 fee share"
-                description="Enable fee sharing to Token11 holders."
-              />
-            </div>
-
-            <div className="max-w-sm">
-              <Label hint="Basis points">Token11 fee share BPS</Label>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label hint="Global payout receiver">Treasury address</Label>
               <TextInput
-                inputMode="numeric"
-                value={token11FeeShareBps}
-                onChange={(e) => setToken11FeeShareBps(e.target.value)}
-                placeholder="0"
+                value={treasury}
+                onChange={(e) => setTreasury(e.target.value)}
+                placeholder="0x..."
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
               />
             </div>
+
+            <div>
+              <Label hint="Automation / worker operator">Worker operator</Label>
+              <TextInput
+                value={workerOperator}
+                onChange={(e) => setWorkerOperator(e.target.value)}
+                placeholder="0x..."
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <Toggle
+              checked={entriesPaused}
+              onChange={setEntriesPaused}
+              label="Entries"
+              description="Pause or allow players to join queues."
+            />
+            <Toggle
+              checked={reservationsPaused}
+              onChange={setReservationsPaused}
+              label="Reservations"
+              description="Pause or allow relic reservation flow."
+            />
+            <Toggle
+              checked={settlementsPaused}
+              onChange={setSettlementsPaused}
+              label="Settlements"
+              description="Pause or allow pool settlement actions."
+            />
+            <Toggle
+              checked={relicsEnabled}
+              onChange={setRelicsEnabled}
+              label="Relics"
+              description="Enable or disable relic-based mechanics."
+            />
+            <Toggle
+              checked={fatigueEnabled}
+              onChange={setFatigueEnabled}
+              label="Fatigue"
+              description="Enable or disable fighter fatigue logic."
+            />
+            <Toggle
+              checked={token11FeeShareEnabled}
+              onChange={setToken11FeeShareEnabled}
+              label="Token11 fee share"
+              description="Enable or disable Token11 fee sharing."
+            />
+          </div>
+
+          <div className="mt-4 max-w-sm">
+            <Label hint="Basis points">Token11 fee share BPS</Label>
+            <TextInput
+              inputMode="numeric"
+              value={token11FeeShareBps}
+              onChange={(e) => setToken11FeeShareBps(e.target.value)}
+              placeholder="0"
+            />
           </div>
         </SectionCard>
 
         <SectionCard
-          title="Queue Overrides"
-          description="Tune each queue independently. Stake is entered in human-readable DCNT and converted into raw 18-decimal amount for the final payload."
+          title="Queue settings"
+          description="Each queue gets proper breathing room here. Apply recommended test presets or edit each queue individually before saving."
         >
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={applyAllRecommendedPresets}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90"
+            >
+              Apply recommended presets to all queues
+            </button>
+
+            <button
+              type="button"
+              onClick={resetToLiveSnapshot}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
+            >
+              Reset to live values
+            </button>
+          </div>
+
           <div className="space-y-4">
             {queues.map((queue) => {
               const meta = WARPOOL_QUEUE_META[queue.slug];
+              const runtimeText = queueRuntimeStateText(runtimeQueues, queue.slug);
+
+              const minStart = Number(queue.minStartSize || 0);
+              const firstBps = Number(queue.firstPlaceBps || 0);
+              const winnerPositive = winnerBeatsStakeAtMinStart({
+                minStartSize: minStart,
+                payoutBps: firstBps,
+              });
+
+              const totalBps =
+                Number(queue.platformFeeBps || 0) +
+                Number(queue.firstPlaceBps || 0) +
+                Number(queue.secondPlaceBps || 0) +
+                Number(queue.thirdPlaceBps || 0);
 
               return (
                 <div
                   key={queue.slug}
                   className="rounded-[28px] border border-border bg-background/60 p-4 md:p-5"
                 >
-                  <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div>
-                      <div className="text-base font-semibold tracking-tight text-foreground">
-                        {meta.title}
+                  <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="text-base font-semibold tracking-tight text-foreground">
+                          {meta.title}
+                        </div>
+                        <Pill>{meta.badge}</Pill>
+                        <Pill tone={queue.enabled ? "good" : "warn"}>
+                          {queue.enabled ? "Enabled" : "Disabled"}
+                        </Pill>
                       </div>
-                      <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
                         {meta.description}
                       </p>
+
+                      <div className="mt-3 rounded-2xl border border-border bg-card/70 px-4 py-3 text-sm text-muted">
+                        Live status:{" "}
+                        <span className="font-medium text-foreground">{runtimeText}</span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <Pill>{meta.badge}</Pill>
-                      <Pill tone={queue.enabled ? "good" : "warn"}>
-                        {queue.enabled ? "Enabled" : "Disabled"}
-                      </Pill>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => applyRecommendedPreset(queue.slug)}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
+                      >
+                        Apply preset
+                      </button>
                     </div>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid gap-4 lg:grid-cols-2">
                     <Toggle
                       checked={queue.enabled}
                       onChange={(value) => updateQueue(queue.slug, "enabled", value)}
@@ -588,9 +757,7 @@ export default function WarpoolMultisigComposer({
                       <TextInput
                         inputMode="numeric"
                         value={queue.targetSize}
-                        onChange={(e) =>
-                          updateQueue(queue.slug, "targetSize", e.target.value)
-                        }
+                        onChange={(e) => updateQueue(queue.slug, "targetSize", e.target.value)}
                       />
                     </div>
 
@@ -639,37 +806,86 @@ export default function WarpoolMultisigComposer({
                     </div>
 
                     <div>
-                      <Label hint="Basis points">1st place</Label>
-                      <TextInput
-                        inputMode="numeric"
-                        value={queue.firstPlaceBps}
-                        onChange={(e) =>
-                          updateQueue(queue.slug, "firstPlaceBps", e.target.value)
-                        }
-                      />
+                      <Label hint="Must total 10000 with fee">Payout split</Label>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        <TextInput
+                          inputMode="numeric"
+                          value={queue.firstPlaceBps}
+                          onChange={(e) =>
+                            updateQueue(queue.slug, "firstPlaceBps", e.target.value)
+                          }
+                          placeholder="1st place"
+                        />
+                        <TextInput
+                          inputMode="numeric"
+                          value={queue.secondPlaceBps}
+                          onChange={(e) =>
+                            updateQueue(queue.slug, "secondPlaceBps", e.target.value)
+                          }
+                          placeholder="2nd place"
+                        />
+                        <TextInput
+                          inputMode="numeric"
+                          value={queue.thirdPlaceBps}
+                          onChange={(e) =>
+                            updateQueue(queue.slug, "thirdPlaceBps", e.target.value)
+                          }
+                          placeholder="3rd place"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
+                      Stake preview:{" "}
+                      <span className="font-medium text-foreground">
+                        {formatTokenAmount(
+                          parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18)
+                        )}
+                      </span>
                     </div>
 
-                    <div>
-                      <Label hint="Basis points">2nd place</Label>
-                      <TextInput
-                        inputMode="numeric"
-                        value={queue.secondPlaceBps}
-                        onChange={(e) =>
-                          updateQueue(queue.slug, "secondPlaceBps", e.target.value)
-                        }
-                      />
+                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
+                      Window:{" "}
+                      <span className="font-medium text-foreground">
+                        {formatDurationSeconds(Number(queue.openDurationSeconds || 0))}
+                      </span>
                     </div>
 
-                    <div>
-                      <Label hint="Basis points">3rd place</Label>
-                      <TextInput
-                        inputMode="numeric"
-                        value={queue.thirdPlaceBps}
-                        onChange={(e) =>
-                          updateQueue(queue.slug, "thirdPlaceBps", e.target.value)
-                        }
-                      />
+                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
+                      Payout:{" "}
+                      <span className="font-medium text-foreground">
+                        {formatBps(Number(queue.firstPlaceBps || 0))} /{" "}
+                        {formatBps(Number(queue.secondPlaceBps || 0))} /{" "}
+                        {formatBps(Number(queue.thirdPlaceBps || 0))}
+                      </span>
                     </div>
+
+                    <div className="rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
+                      Total BPS:{" "}
+                      <span
+                        className={
+                          totalBps === 10000
+                            ? "font-medium text-foreground"
+                            : "font-medium text-amber-600 dark:text-amber-400"
+                        }
+                      >
+                        {totalBps}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Pill tone={winnerPositive ? "good" : "warn"}>
+                      {winnerPositive
+                        ? "1st place beats stake at min start"
+                        : "1st place too low at min start"}
+                    </Pill>
+
+                    <Pill tone={totalBps === 10000 ? "good" : "warn"}>
+                      {totalBps === 10000 ? "BPS balanced" : "BPS must equal 10000"}
+                    </Pill>
                   </div>
                 </div>
               );
@@ -680,157 +896,102 @@ export default function WarpoolMultisigComposer({
 
       <div className="space-y-6">
         <SectionCard
-          title="Operator Review"
-          description="Human-readable summary for review before submitting the multisig batch."
+          title="Review"
+          description="Review only the actual changes that will be saved into the shared admin proposal registry."
         >
           <div className="rounded-3xl border border-border bg-background/70 p-4">
-            <pre className="whitespace-pre-wrap wrap-break-word text-xs leading-6 text-foreground">
-              {summaryText}
-            </pre>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => copyText(summaryText)}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-            >
-              Copy summary
-            </button>
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Generated Payload"
-          description="Structured proposal payload for review, storage, or handoff into proposer tooling."
-        >
-          <div className="rounded-3xl border border-border bg-background/70 p-4">
-            <pre className="max-h-180 overflow-auto whitespace-pre-wrap wrap-break-word text-xs leading-6 text-foreground">
-              {JSON.stringify(proposal, null, 2)}
-            </pre>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => copyText(JSON.stringify(proposal, null, 2))}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-            >
-              Copy JSON
-            </button>
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Encoded Multisig Actions"
-          description="Exact config contract calls in execution order. These are the actions the Safe or multisig batch should execute."
-        >
-          <div className="space-y-3">
-            {encodedPlan.warnings.length > 0 ? (
-              <div className="rounded-3xl border border-dashed border-border bg-background/70 p-4">
-                <div className="text-sm font-semibold text-foreground">
-                  Cannot generate executable action batch yet
-                </div>
-                <div className="mt-2 space-y-1 text-sm leading-6 text-muted">
-                  {encodedPlan.warnings.map((warning) => (
-                    <div key={warning}>• {warning}</div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {encodedPlan.actions.length > 0 ? (
-              <>
-                {encodedPlan.actions.map((action, index) => (
-                  <div
-                    key={action.id}
-                    className="rounded-3xl border border-border bg-background/70 p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="text-sm font-semibold text-foreground">
-                        {index + 1}. {action.functionName}
-                      </div>
-                      <div className="rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                        {action.value} ETH
-                      </div>
-                    </div>
-
-                    <p className="mt-2 text-sm leading-6 text-muted">
-                      {action.summary}
-                    </p>
-
-                    <div className="mt-4 space-y-3 text-xs">
-                      <div>
-                        <div className="mb-1 font-medium text-muted">Target</div>
-                        <pre className="overflow-auto whitespace-pre-wrap break-all rounded-2xl border border-border bg-card p-3 text-foreground">
-                          {action.target}
-                        </pre>
-                      </div>
-
-                      <div>
-                        <div className="mb-1 font-medium text-muted">Calldata</div>
-                        <pre className="overflow-auto whitespace-pre-wrap break-all rounded-2xl border border-border bg-card p-3 text-foreground">
-                          {action.data}
-                        </pre>
-                      </div>
-                    </div>
+            {reviewLines.length > 0 ? (
+              <div className="space-y-2">
+                {reviewLines.map((line) => (
+                  <div key={line} className="text-sm leading-6 text-foreground">
+                    • {line}
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted">No changes detected yet.</div>
+            )}
+          </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      copyText(
-                        JSON.stringify(
-                          encodedPlan.actions.map((action) => ({
-                            to: action.target,
-                            value: action.value,
-                            data: action.data,
-                            contractMethod: action.functionName,
-                            args: action.args,
-                            summary: action.summary,
-                          })),
-                          null,
-                          2
-                        )
-                      )
-                    }
-                    className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-                  >
-                    Copy action batch JSON
-                  </button>
-                </div>
-              </>
-            ) : null}
+          {encodedPlan.warnings.length > 0 ? (
+            <div className="mt-4 rounded-3xl border border-dashed border-border bg-background/70 p-4">
+              <div className="text-sm font-semibold text-foreground">
+                Fix these before saving
+              </div>
+              <div className="mt-2 space-y-1 text-sm leading-6 text-muted">
+                {encodedPlan.warnings.map((warning) => (
+                  <div key={warning}>• {warning}</div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Config version
+              </div>
+              <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+                {proposal.basedOnConfigVersion ?? "—"}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Actions prepared
+              </div>
+              <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+                {encodedPlan.actions.length}
+              </div>
+            </div>
           </div>
         </SectionCard>
 
-  <MultisigExecutionPanel
-  title="Config Multisig Handoff"
-  description="Wrap the encoded config actions into exact multisig submitTransaction and submitAndConfirm calldata."
-  actions={encodedPlan.actions}
-  defaultMultisigAddress={defaultMultisigAddress}
-  multisigResolutionSource={multisigResolutionSource}
-  multisigSummary={multisigSummary}
-/>
+        <MultisigExecutionPanel
+          title="Save proposal"
+          description="Save this configuration change as a shared admin proposal first. Submission, confirmation, and execution should happen from the proposals flow."
+          actions={encodedPlan.actions}
+          defaultMultisigAddress={defaultMultisigAddress}
+          multisigResolutionSource={multisigResolutionSource}
+          multisigSummary={multisigSummary}
+          savePayload={savePayload}
+          existingProposalId={savedProposalId}
+          onSaveProposal={handleSaveProposal}
+          onOpenProposals={openProposalsPage}
+        />
 
-        <SectionCard
-          title="Next Wiring"
-          description="This UI now prepares real config contract action batches. The next layer is proposal persistence or direct Safe handoff."
-        >
-          <div className="space-y-3 text-sm leading-6 text-muted">
-            <p>
-              Recommended next step is a proposal review flow that stores draft
-              metadata, signer notes, action count, and final export payload before
-              execution.
-            </p>
-            <p>
-              After that, you can add Safe-specific export formatting or a direct
-              multisig creation route without changing this composer surface.
-            </p>
+        <details className="rounded-[28px] border border-border bg-card p-5 md:p-6">
+          <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-tight text-foreground">
+            Advanced technical details
+          </summary>
+
+          <div className="mt-5 space-y-6">
+            <div>
+              <div className="mb-2 text-sm font-semibold text-foreground">Proposal JSON</div>
+              <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
+                {JSON.stringify(proposal, null, 2)}
+              </pre>
+            </div>
+
+            <div>
+              <div className="mb-2 text-sm font-semibold text-foreground">Encoded actions</div>
+              <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
+                {JSON.stringify(
+                  encodedPlan.actions.map((action) => ({
+                    to: action.target,
+                    value: action.value,
+                    data: action.data,
+                    contractMethod: action.functionName,
+                    args: action.args,
+                    summary: action.summary,
+                  })),
+                  null,
+                  2
+                )}
+              </pre>
+            </div>
           </div>
-        </SectionCard>
+        </details>
       </div>
     </div>
   );

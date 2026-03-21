@@ -20,13 +20,13 @@ export default function WarpoolTxModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[120]">
+    <div className="fixed inset-0 z-120">
       <button
         aria-label="Close"
         className="absolute inset-0 bg-black/45 backdrop-blur-sm"
         onClick={busy ? undefined : onClose}
       />
-      <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[32px] border border-border bg-card p-6 shadow-[0_30px_120px_rgba(0,0,0,0.30)]">
+      <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-4xl border border-border bg-card p-6 shadow-[0_30px_120px_rgba(0,0,0,0.30)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-foreground/42">
@@ -47,7 +47,7 @@ export default function WarpoolTxModal({
           </button>
         </div>
 
-        <div className="mt-5 rounded-[24px] border border-border bg-background/80 p-4">
+        <div className="mt-5 rounded-3xl border border-border bg-background/80 p-4">
           <div className="flex items-center gap-3">
             <div
               className={[

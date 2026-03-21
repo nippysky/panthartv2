@@ -111,9 +111,9 @@ function Pill({
 }) {
   const className =
     tone === "good"
-      ? "border-border bg-background text-foreground"
+      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       : tone === "warn"
-        ? "border-border bg-background text-foreground"
+        ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
         : "border-border bg-background text-muted";
 
   return (
@@ -149,7 +149,7 @@ type PreviewPlan = EncodedRuntimePlan & {
 type FocusSection = "queues" | "settlement" | "utility" | null;
 
 const EMPTY_PREVIEW: PreviewPlan = {
-  title: "No runtime action selected yet",
+  title: "No action selected yet",
   target: "",
   warnings: [],
   summaryLines: [],
@@ -183,6 +183,14 @@ function unixToText(value: number | null) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function suggestedPrimaryAction(queue: WarpoolRuntimeQueueStatus) {
+  if (!queue.poolId) return "Open pool";
+  if (queue.state === 1) return "Process expired pool";
+  if (queue.state === 2) return "Mark battle ready";
+  if (queue.state === 3) return "Prepare settlement";
+  return "Review queue";
 }
 
 export default function WarpoolRuntimeOperations({
@@ -221,25 +229,25 @@ export default function WarpoolRuntimeOperations({
     if (prefill.payload.type === "PROCESS_EXPIRED_POOL") {
       setManualPoolId(prefill.payload.poolId);
       nextFocus = "utility";
-      banner = `Prefilled Process Expired for pool ${prefill.payload.poolId}.`;
+      banner = `Prepared expired-pool action for pool ${prefill.payload.poolId}.`;
     }
 
     if (prefill.payload.type === "MARK_BATTLE_READY") {
       setManualPoolId(prefill.payload.poolId);
       nextFocus = "utility";
-      banner = `Prefilled Battle Ready for pool ${prefill.payload.poolId}.`;
+      banner = `Prepared battle-ready action for pool ${prefill.payload.poolId}.`;
     }
 
     if (prefill.payload.type === "SETTLE_POOL") {
       setSettlePoolId(prefill.payload.poolId);
       nextFocus = "settlement";
-      banner = `Prefilled Settle Pool for pool ${prefill.payload.poolId}.`;
+      banner = `Prepared settlement flow for pool ${prefill.payload.poolId}.`;
     }
 
     if (prefill.payload.type === "EXPIRE_RESERVATION") {
       setManualReservationId(prefill.payload.reservationId);
       nextFocus = "utility";
-      banner = `Prefilled Expire Reservation for reservation ${prefill.payload.reservationId}.`;
+      banner = `Prepared reservation expiry for reservation ${prefill.payload.reservationId}.`;
     }
 
     setFocusSection(nextFocus);
@@ -277,14 +285,6 @@ export default function WarpoolRuntimeOperations({
     });
   }, [focusSection]);
 
-  async function copyText(value: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch {
-      // no-op
-    }
-  }
-
   function setErrorPreview(title: string, message: string) {
     setPreview({
       title,
@@ -297,7 +297,7 @@ export default function WarpoolRuntimeOperations({
 
   function handleQueueOpen(queueSlug: WarpoolQueueSlug) {
     if (!coreAddress || !ethers.isAddress(coreAddress)) {
-      setErrorPreview("Open Pool", "Core contract address is missing or invalid.");
+      setErrorPreview("Open pool", "Core contract address is missing or invalid.");
       return;
     }
 
@@ -308,7 +308,7 @@ export default function WarpoolRuntimeOperations({
       });
 
       setPreview({
-        title: `Open Pool · ${WARPOOL_QUEUE_META[queueSlug].title}`,
+        title: `Open pool · ${WARPOOL_QUEUE_META[queueSlug].title}`,
         target: plan.target,
         warnings: plan.warnings,
         summaryLines: plan.summaryLines,
@@ -316,8 +316,8 @@ export default function WarpoolRuntimeOperations({
       });
     } catch (error) {
       setErrorPreview(
-        "Open Pool",
-        error instanceof Error ? error.message : "Failed to encode openPool action."
+        "Open pool",
+        error instanceof Error ? error.message : "Failed to prepare open-pool action."
       );
     }
   }
@@ -326,10 +326,7 @@ export default function WarpoolRuntimeOperations({
     const selectedPoolId = poolId ?? manualPoolId;
 
     if (!coreAddress || !ethers.isAddress(coreAddress)) {
-      setErrorPreview(
-        "Process Expired Pool",
-        "Core contract address is missing or invalid."
-      );
+      setErrorPreview("Process expired pool", "Core contract address is missing or invalid.");
       return;
     }
 
@@ -340,7 +337,7 @@ export default function WarpoolRuntimeOperations({
       });
 
       setPreview({
-        title: "Process Expired Pool",
+        title: "Process expired pool",
         target: plan.target,
         warnings: plan.warnings,
         summaryLines: plan.summaryLines,
@@ -348,10 +345,10 @@ export default function WarpoolRuntimeOperations({
       });
     } catch (error) {
       setErrorPreview(
-        "Process Expired Pool",
+        "Process expired pool",
         error instanceof Error
           ? error.message
-          : "Failed to encode processExpiredPool action."
+          : "Failed to prepare process-expired action."
       );
     }
   }
@@ -360,10 +357,7 @@ export default function WarpoolRuntimeOperations({
     const selectedPoolId = poolId ?? manualPoolId;
 
     if (!coreAddress || !ethers.isAddress(coreAddress)) {
-      setErrorPreview(
-        "Mark Battle Ready",
-        "Core contract address is missing or invalid."
-      );
+      setErrorPreview("Mark battle ready", "Core contract address is missing or invalid.");
       return;
     }
 
@@ -374,7 +368,7 @@ export default function WarpoolRuntimeOperations({
       });
 
       setPreview({
-        title: "Mark Pool Battle Ready",
+        title: "Mark battle ready",
         target: plan.target,
         warnings: plan.warnings,
         summaryLines: plan.summaryLines,
@@ -382,20 +376,17 @@ export default function WarpoolRuntimeOperations({
       });
     } catch (error) {
       setErrorPreview(
-        "Mark Battle Ready",
+        "Mark battle ready",
         error instanceof Error
           ? error.message
-          : "Failed to encode markPoolBattleReady action."
+          : "Failed to prepare battle-ready action."
       );
     }
   }
 
   function handleExpireReservation() {
     if (!coreAddress || !ethers.isAddress(coreAddress)) {
-      setErrorPreview(
-        "Expire Reservation",
-        "Core contract address is missing or invalid."
-      );
+      setErrorPreview("Expire reservation", "Core contract address is missing or invalid.");
       return;
     }
 
@@ -406,7 +397,7 @@ export default function WarpoolRuntimeOperations({
       });
 
       setPreview({
-        title: "Expire Reservation",
+        title: "Expire reservation",
         target: plan.target,
         warnings: plan.warnings,
         summaryLines: plan.summaryLines,
@@ -414,17 +405,17 @@ export default function WarpoolRuntimeOperations({
       });
     } catch (error) {
       setErrorPreview(
-        "Expire Reservation",
+        "Expire reservation",
         error instanceof Error
           ? error.message
-          : "Failed to encode expireReservation action."
+          : "Failed to prepare reservation-expiry action."
       );
     }
   }
 
   function handleSettlePool() {
     if (!coreAddress || !ethers.isAddress(coreAddress)) {
-      setErrorPreview("Settle Pool", "Core contract address is missing or invalid.");
+      setErrorPreview("Prepare settlement", "Core contract address is missing or invalid.");
       return;
     }
 
@@ -438,7 +429,7 @@ export default function WarpoolRuntimeOperations({
       });
 
       setPreview({
-        title: "Settle Pool",
+        title: "Prepare settlement",
         target: plan.target,
         warnings: plan.warnings,
         summaryLines: plan.summaryLines,
@@ -446,8 +437,8 @@ export default function WarpoolRuntimeOperations({
       });
     } catch (error) {
       setErrorPreview(
-        "Settle Pool",
-        error instanceof Error ? error.message : "Failed to encode settlePool action."
+        "Prepare settlement",
+        error instanceof Error ? error.message : "Failed to prepare settlement action."
       );
     }
   }
@@ -465,40 +456,6 @@ export default function WarpoolRuntimeOperations({
     });
   }, [preview]);
 
-  const previewSummaryText = React.useMemo(() => {
-    const lines: string[] = [];
-
-    lines.push(preview.title);
-    lines.push("");
-
-    if (preview.target) {
-      lines.push(`Core contract: ${preview.target}`);
-      lines.push("");
-    }
-
-    if (preview.summaryLines.length > 0) {
-      lines.push("Summary");
-      lines.push("");
-      for (const line of preview.summaryLines) {
-        lines.push(`- ${line}`);
-      }
-      lines.push("");
-    }
-
-    if (preview.warnings.length > 0) {
-      lines.push("Warnings");
-      lines.push("");
-      for (const line of preview.warnings) {
-        lines.push(`- ${line}`);
-      }
-      lines.push("");
-    }
-
-    lines.push(`Encoded actions: ${preview.actions.length}`);
-
-    return lines.join("\n");
-  }, [preview]);
-
   return (
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
       <div className="space-y-6">
@@ -509,16 +466,14 @@ export default function WarpoolRuntimeOperations({
         ) : null}
 
         <SectionCard
-          title="Queue Operations"
-          description="Live queue state from Lens plus quick runtime actions for pool management."
+          title="Live queue operations"
+          description="Open pool means: prepare the real on-chain openPool action for multisig approval. It does not silently execute by itself."
           tone={focusSection === "queues" ? "highlight" : "default"}
           sectionRef={queueSectionRef}
         >
           {(warnings.length > 0 || !lensAddress) && (
             <div className="mb-4 rounded-3xl border border-dashed border-border bg-background/70 p-4">
-              <div className="text-sm font-semibold text-foreground">
-                Live lens notes
-              </div>
+              <div className="text-sm font-semibold text-foreground">Live read notes</div>
               <div className="mt-2 space-y-1 text-sm leading-6 text-muted">
                 {!lensAddress ? <div>• Lens contract address is not available.</div> : null}
                 {warnings.map((warning) => (
@@ -543,15 +498,13 @@ export default function WarpoolRuntimeOperations({
                       <div className="text-sm font-semibold text-foreground">
                         {meta.title}
                       </div>
-                      <p className="mt-1 text-xs leading-5 text-muted">
-                        {meta.description}
-                      </p>
+                      <p className="mt-1 text-xs leading-5 text-muted">{meta.description}</p>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
                       <Pill>{meta.badge}</Pill>
                       <Pill tone={hasActivePool ? "good" : "warn"}>
-                        {hasActivePool ? "Active" : "Idle"}
+                        {hasActivePool ? "Live" : "Idle"}
                       </Pill>
                     </div>
                   </div>
@@ -579,45 +532,55 @@ export default function WarpoolRuntimeOperations({
                     />
                     <Kvp label="Opened" value={unixToText(queue.openedAt)} />
                     <Kvp label="Expires" value={unixToText(queue.expiresAt)} />
-                    <Kvp
-                      label="Discount Seats"
-                      value={
-                        queue.discountSeatsUsed !== null &&
-                        queue.discountSeatsReserved !== null
-                          ? `${queue.discountSeatsUsed} used · ${queue.discountSeatsReserved} reserved`
-                          : "—"
-                      }
-                    />
-                    <Kvp label="Token11 Seats" value={queue.token11SeatsUsed ?? "—"} />
+                    <Kvp label="Primary action" value={suggestedPrimaryAction(queue)} />
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleQueueOpen(queue.slug)}
-                      className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-                    >
-                      Encode Open Pool
-                    </button>
+                    {!queue.poolId ? (
+                      <button
+                        type="button"
+                        onClick={() => handleQueueOpen(queue.slug)}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
+                      >
+                        Open pool
+                      </button>
+                    ) : null}
 
-                    {queue.poolId ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => handleProcessExpired(queue.poolId)}
-                          className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-                        >
-                          Process Expired
-                        </button>
+                    {queue.poolId && queue.state === 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => handleProcessExpired(queue.poolId)}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
+                      >
+                        Process expired pool
+                      </button>
+                    ) : null}
 
-                        <button
-                          type="button"
-                          onClick={() => handleMarkBattleReady(queue.poolId)}
-                          className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-                        >
-                          Battle Ready
-                        </button>
-                      </>
+                    {queue.poolId && queue.state === 2 ? (
+                      <button
+                        type="button"
+                        onClick={() => handleMarkBattleReady(queue.poolId)}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
+                      >
+                        Mark battle ready
+                      </button>
+                    ) : null}
+
+                    {queue.poolId && queue.state === 3 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSettlePoolId(queue.poolId ?? "");
+                          setFocusSection("settlement");
+                          settlementSectionRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }}
+                        className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
+                      >
+                        Prepare settlement
+                      </button>
                     ) : null}
                   </div>
                 </div>
@@ -627,8 +590,8 @@ export default function WarpoolRuntimeOperations({
         </SectionCard>
 
         <SectionCard
-          title="Settlement Composer"
-          description="Prepare settlement calldata for a battle-ready pool by supplying the winning entry IDs in order."
+          title="Settlement"
+          description="Enter the final winner entry IDs in 1st / 2nd / 3rd order, then prepare the settlement action for multisig."
           tone={focusSection === "settlement" ? "highlight" : "default"}
           sectionRef={settlementSectionRef}
         >
@@ -680,24 +643,22 @@ export default function WarpoolRuntimeOperations({
               onClick={handleSettlePool}
               className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
             >
-              Encode Settle Pool
+              Prepare settlement
             </button>
           </div>
         </SectionCard>
 
         <SectionCard
-          title="Utility Actions"
-          description="Manual runtime utilities for worker-compatible actions on the Warpool core contract."
+          title="Manual utilities"
+          description="Use these only when you already know the exact pool or reservation you want to act on."
           tone={focusSection === "utility" ? "highlight" : "default"}
           sectionRef={utilitySectionRef}
         >
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-3xl border border-border bg-background/60 p-4">
-              <div className="text-sm font-semibold text-foreground">
-                Pool Utilities
-              </div>
+              <div className="text-sm font-semibold text-foreground">Pool utilities</div>
               <p className="mt-1 text-sm leading-6 text-muted">
-                Encode manual process-expired or battle-ready actions by pool ID.
+                Prepare process-expired or battle-ready actions by pool ID.
               </p>
 
               <div className="mt-4">
@@ -716,7 +677,7 @@ export default function WarpoolRuntimeOperations({
                   onClick={() => handleProcessExpired()}
                   className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
                 >
-                  Encode Process Expired
+                  Process expired pool
                 </button>
 
                 <button
@@ -724,17 +685,15 @@ export default function WarpoolRuntimeOperations({
                   onClick={() => handleMarkBattleReady()}
                   className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
                 >
-                  Encode Battle Ready
+                  Mark battle ready
                 </button>
               </div>
             </div>
 
             <div className="rounded-3xl border border-border bg-background/60 p-4">
-              <div className="text-sm font-semibold text-foreground">
-                Reservation Utility
-              </div>
+              <div className="text-sm font-semibold text-foreground">Reservation utility</div>
               <p className="mt-1 text-sm leading-6 text-muted">
-                Encode manual reservation expiry for an overdue active reservation.
+                Prepare reservation expiry for a specific overdue active reservation.
               </p>
 
               <div className="mt-4">
@@ -753,7 +712,7 @@ export default function WarpoolRuntimeOperations({
                   onClick={handleExpireReservation}
                   className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
                 >
-                  Encode Expire Reservation
+                  Expire reservation
                 </button>
               </div>
             </div>
@@ -763,125 +722,85 @@ export default function WarpoolRuntimeOperations({
 
       <div className="space-y-6">
         <SectionCard
-          title="Runtime Review"
-          description="Human-readable review of the selected runtime operation before multisig submission."
+          title="Action review"
+          description="The selected runtime action appears here before it is sent to multisig."
         >
           <div className="rounded-3xl border border-border bg-background/70 p-4">
-            <pre className="whitespace-pre-wrap wrap-break-word text-xs leading-6 text-foreground">
-              {previewSummaryText}
-            </pre>
-          </div>
+            <div className="space-y-2">
+              <div className="text-sm font-semibold text-foreground">{preview.title}</div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => copyText(previewSummaryText)}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-            >
-              Copy summary
-            </button>
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Encoded Runtime Actions"
-          description="Exact core contract calls in execution order for the selected runtime operation."
-        >
-          <div className="space-y-3">
-            {preview.warnings.length > 0 ? (
-              <div className="rounded-3xl border border-dashed border-border bg-background/70 p-4">
-                <div className="text-sm font-semibold text-foreground">
-                  Cannot generate executable runtime action yet
+              {preview.target ? (
+                <div className="text-sm text-muted">
+                  Target contract:{" "}
+                  <span className="font-medium text-foreground">{preview.target}</span>
                 </div>
-                <div className="mt-2 space-y-1 text-sm leading-6 text-muted">
+              ) : null}
+
+              {preview.summaryLines.length > 0 ? (
+                <div className="pt-2 space-y-2">
+                  {preview.summaryLines.map((line) => (
+                    <div key={line} className="text-sm leading-6 text-foreground">
+                      • {line}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted">
+                  Select a queue action, prepare settlement, or use a manual utility to continue.
+                </div>
+              )}
+
+              {preview.warnings.length > 0 ? (
+                <div className="pt-2 space-y-1 text-sm leading-6 text-amber-600 dark:text-amber-400">
                   {preview.warnings.map((warning) => (
                     <div key={warning}>• {warning}</div>
                   ))}
                 </div>
-              </div>
-            ) : null}
-
-            {preview.actions.length > 0 ? (
-              <>
-                {preview.actions.map((action, index) => (
-                  <div
-                    key={action.id}
-                    className="rounded-3xl border border-border bg-background/70 p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="text-sm font-semibold text-foreground">
-                        {index + 1}. {action.functionName}
-                      </div>
-                      <div className="rounded-full border border-border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                        {action.value} ETH
-                      </div>
-                    </div>
-
-                    <p className="mt-2 text-sm leading-6 text-muted">
-                      {action.summary}
-                    </p>
-
-                    <div className="mt-4 space-y-3 text-xs">
-                      <div>
-                        <div className="mb-1 font-medium text-muted">Target</div>
-                        <pre className="overflow-auto whitespace-pre-wrap break-all rounded-2xl border border-border bg-card p-3 text-foreground">
-                          {action.target}
-                        </pre>
-                      </div>
-
-                      <div>
-                        <div className="mb-1 font-medium text-muted">Calldata</div>
-                        <pre className="overflow-auto whitespace-pre-wrap break-all rounded-2xl border border-border bg-card p-3 text-foreground">
-                          {action.data}
-                        </pre>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </>
-            ) : null}
-          </div>
-        </SectionCard>
-
-        <SectionCard
-          title="Multisig Submission Payload"
-          description="Runtime action batch shaped for multisig submitTransaction or submitAndConfirm workflows."
-        >
-          <div className="rounded-3xl border border-border bg-background/70 p-4">
-            <pre className="max-h-140 overflow-auto whitespace-pre-wrap wrap-break-word text-xs leading-6 text-foreground">
-              {JSON.stringify(multisigPayload, null, 2)}
-            </pre>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => copyText(JSON.stringify(multisigPayload, null, 2))}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background"
-            >
-              Copy multisig JSON
-            </button>
+              ) : null}
+            </div>
           </div>
         </SectionCard>
 
         <MultisigExecutionPanel
-          title="Runtime Multisig Handoff"
-          description="Wrap the selected runtime action into exact multisig submitTransaction and submitAndConfirm calldata."
+          title="Submit runtime proposal"
+          description="Send this runtime action to multisig. Clicking actions on the queue cards only prepares the action — the chain changes only after multisig approval."
           actions={preview.actions}
           defaultMultisigAddress={defaultMultisigAddress}
           multisigResolutionSource={multisigResolutionSource}
           multisigSummary={multisigSummary}
         />
 
-        <SectionCard
-          title="Live Sources"
-          description="Registered contract endpoints currently feeding the runtime surface."
-        >
-          <div className="space-y-1">
-            <Kvp label="Core" value={coreAddress ?? "—"} />
-            <Kvp label="Lens" value={lensAddress ?? "—"} />
+        <details className="rounded-[28px] border border-border bg-card p-5 md:p-6">
+          <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-tight text-foreground">
+            Advanced runtime details
+          </summary>
+
+          <div className="mt-5 space-y-6">
+            <div>
+              <div className="mb-2 text-sm font-semibold text-foreground">Encoded actions</div>
+              <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
+                {JSON.stringify(preview.actions, null, 2)}
+              </pre>
+            </div>
+
+            <div>
+              <div className="mb-2 text-sm font-semibold text-foreground">Multisig payload</div>
+              <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
+                {JSON.stringify(multisigPayload, null, 2)}
+              </pre>
+            </div>
+
+            <div>
+              <div className="mb-2 text-sm font-semibold text-foreground">Live sources</div>
+              <div className="rounded-3xl border border-border bg-background/70 p-4">
+                <div className="space-y-1">
+                  <Kvp label="Core" value={coreAddress ?? "—"} />
+                  <Kvp label="Lens" value={lensAddress ?? "—"} />
+                </div>
+              </div>
+            </div>
           </div>
-        </SectionCard>
+        </details>
       </div>
     </div>
   );

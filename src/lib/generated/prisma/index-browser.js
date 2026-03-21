@@ -890,6 +890,69 @@ exports.Prisma.WarpoolActivityScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AdminProposalScalarFieldEnum = {
+  id: 'id',
+  area: 'area',
+  kind: 'kind',
+  title: 'title',
+  slug: 'slug',
+  summary: 'summary',
+  description: 'description',
+  safeId: 'safeId',
+  safeContract: 'safeContract',
+  chainId: 'chainId',
+  createdByUserId: 'createdByUserId',
+  createdByAddress: 'createdByAddress',
+  lastEditedByUserId: 'lastEditedByUserId',
+  lastEditedByAddress: 'lastEditedByAddress',
+  basedOnConfigVersion: 'basedOnConfigVersion',
+  runtimeReferenceId: 'runtimeReferenceId',
+  status: 'status',
+  actionCount: 'actionCount',
+  submittedMultisigTxId: 'submittedMultisigTxId',
+  submittedMultisigNonce: 'submittedMultisigNonce',
+  submittedAt: 'submittedAt',
+  approvedAt: 'approvedAt',
+  executedAt: 'executedAt',
+  cancelledAt: 'cancelledAt',
+  failedAt: 'failedAt',
+  snapshotJson: 'snapshotJson',
+  metadataJson: 'metadataJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AdminProposalActionScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  orderIndex: 'orderIndex',
+  label: 'label',
+  summary: 'summary',
+  target: 'target',
+  valueWei: 'valueWei',
+  tokenAddress: 'tokenAddress',
+  dataHex: 'dataHex',
+  functionName: 'functionName',
+  argsJson: 'argsJson',
+  status: 'status',
+  submittedAt: 'submittedAt',
+  executedAt: 'executedAt',
+  failedAt: 'failedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AdminProposalEventScalarFieldEnum = {
+  id: 'id',
+  proposalId: 'proposalId',
+  actorUserId: 'actorUserId',
+  actorAddress: 'actorAddress',
+  type: 'type',
+  note: 'note',
+  payloadJson: 'payloadJson',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1108,6 +1171,32 @@ exports.WarpoolActivityType = exports.$Enums.WarpoolActivityType = {
   RELIC_RETURNED: 'RELIC_RETURNED'
 };
 
+exports.AdminProposalArea = exports.$Enums.AdminProposalArea = {
+  WARPOOL: 'WARPOOL'
+};
+
+exports.AdminProposalKind = exports.$Enums.AdminProposalKind = {
+  CONFIG: 'CONFIG',
+  RECOVERY: 'RECOVERY'
+};
+
+exports.AdminProposalStatus = exports.$Enums.AdminProposalStatus = {
+  DRAFT: 'DRAFT',
+  READY: 'READY',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  EXECUTED: 'EXECUTED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
+};
+
+exports.AdminProposalActionStatus = exports.$Enums.AdminProposalActionStatus = {
+  PENDING: 'PENDING',
+  SUBMITTED: 'SUBMITTED',
+  EXECUTED: 'EXECUTED',
+  FAILED: 'FAILED'
+};
+
 exports.Prisma.ModelName = {
   ChainState: 'ChainState',
   User: 'User',
@@ -1156,7 +1245,10 @@ exports.Prisma.ModelName = {
   WarpoolBattle: 'WarpoolBattle',
   WarpoolBattleMatch: 'WarpoolBattleMatch',
   WarpoolCapture: 'WarpoolCapture',
-  WarpoolActivity: 'WarpoolActivity'
+  WarpoolActivity: 'WarpoolActivity',
+  AdminProposal: 'AdminProposal',
+  AdminProposalAction: 'AdminProposalAction',
+  AdminProposalEvent: 'AdminProposalEvent'
 };
 
 /**

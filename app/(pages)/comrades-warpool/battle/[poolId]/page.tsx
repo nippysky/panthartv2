@@ -29,7 +29,7 @@ export default function WarpoolBattlePage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <LoadingPanel className="h-10 w-24 rounded-full" />
           <div className="mt-6">
-            <LoadingPanel className="h-[560px] rounded-[36px]" />
+            <LoadingPanel className="h-140 rounded-[36px]" />
           </div>
         </div>
       </main>
@@ -99,20 +99,20 @@ export default function WarpoolBattlePage() {
                   </p>
                 </div>
 
-                <div className="rounded-[24px] border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-200">
+                <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-200">
                   {battle.state}
                 </div>
               </div>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-[24px] border border-border bg-background/80 p-4">
+                <div className="rounded-3xl border border-border bg-background/80 p-4">
                   <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                     Stake
                   </div>
                   <div className="mt-2 text-lg font-medium">{battle.stake}</div>
                 </div>
 
-                <div className="rounded-[24px] border border-border bg-background/80 p-4">
+                <div className="rounded-3xl border border-border bg-background/80 p-4">
                   <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                     Prize pool
                   </div>
@@ -121,7 +121,7 @@ export default function WarpoolBattlePage() {
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-border bg-background/80 p-4">
+                <div className="rounded-3xl border border-border bg-background/80 p-4">
                   <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                     Started
                   </div>

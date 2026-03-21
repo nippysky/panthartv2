@@ -253,6 +253,21 @@ export type WarpoolCapture = $Result.DefaultSelection<Prisma.$WarpoolCapturePayl
  * 
  */
 export type WarpoolActivity = $Result.DefaultSelection<Prisma.$WarpoolActivityPayload>
+/**
+ * Model AdminProposal
+ * 
+ */
+export type AdminProposal = $Result.DefaultSelection<Prisma.$AdminProposalPayload>
+/**
+ * Model AdminProposalAction
+ * 
+ */
+export type AdminProposalAction = $Result.DefaultSelection<Prisma.$AdminProposalActionPayload>
+/**
+ * Model AdminProposalEvent
+ * 
+ */
+export type AdminProposalEvent = $Result.DefaultSelection<Prisma.$AdminProposalEventPayload>
 
 /**
  * Enums
@@ -521,6 +536,44 @@ export const WarpoolBattleStatus: {
 
 export type WarpoolBattleStatus = (typeof WarpoolBattleStatus)[keyof typeof WarpoolBattleStatus]
 
+
+export const AdminProposalArea: {
+  WARPOOL: 'WARPOOL'
+};
+
+export type AdminProposalArea = (typeof AdminProposalArea)[keyof typeof AdminProposalArea]
+
+
+export const AdminProposalKind: {
+  CONFIG: 'CONFIG',
+  RECOVERY: 'RECOVERY'
+};
+
+export type AdminProposalKind = (typeof AdminProposalKind)[keyof typeof AdminProposalKind]
+
+
+export const AdminProposalStatus: {
+  DRAFT: 'DRAFT',
+  READY: 'READY',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  EXECUTED: 'EXECUTED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
+};
+
+export type AdminProposalStatus = (typeof AdminProposalStatus)[keyof typeof AdminProposalStatus]
+
+
+export const AdminProposalActionStatus: {
+  PENDING: 'PENDING',
+  SUBMITTED: 'SUBMITTED',
+  EXECUTED: 'EXECUTED',
+  FAILED: 'FAILED'
+};
+
+export type AdminProposalActionStatus = (typeof AdminProposalActionStatus)[keyof typeof AdminProposalActionStatus]
+
 }
 
 export type ContractType = $Enums.ContractType
@@ -622,6 +675,22 @@ export const WarpoolRelistStatus: typeof $Enums.WarpoolRelistStatus
 export type WarpoolBattleStatus = $Enums.WarpoolBattleStatus
 
 export const WarpoolBattleStatus: typeof $Enums.WarpoolBattleStatus
+
+export type AdminProposalArea = $Enums.AdminProposalArea
+
+export const AdminProposalArea: typeof $Enums.AdminProposalArea
+
+export type AdminProposalKind = $Enums.AdminProposalKind
+
+export const AdminProposalKind: typeof $Enums.AdminProposalKind
+
+export type AdminProposalStatus = $Enums.AdminProposalStatus
+
+export const AdminProposalStatus: typeof $Enums.AdminProposalStatus
+
+export type AdminProposalActionStatus = $Enums.AdminProposalActionStatus
+
+export const AdminProposalActionStatus: typeof $Enums.AdminProposalActionStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1223,6 +1292,36 @@ export class PrismaClient<
     * ```
     */
   get warpoolActivity(): Prisma.WarpoolActivityDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.adminProposal`: Exposes CRUD operations for the **AdminProposal** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdminProposals
+    * const adminProposals = await prisma.adminProposal.findMany()
+    * ```
+    */
+  get adminProposal(): Prisma.AdminProposalDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.adminProposalAction`: Exposes CRUD operations for the **AdminProposalAction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdminProposalActions
+    * const adminProposalActions = await prisma.adminProposalAction.findMany()
+    * ```
+    */
+  get adminProposalAction(): Prisma.AdminProposalActionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.adminProposalEvent`: Exposes CRUD operations for the **AdminProposalEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdminProposalEvents
+    * const adminProposalEvents = await prisma.adminProposalEvent.findMany()
+    * ```
+    */
+  get adminProposalEvent(): Prisma.AdminProposalEventDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1704,7 +1803,10 @@ export namespace Prisma {
     WarpoolBattle: 'WarpoolBattle',
     WarpoolBattleMatch: 'WarpoolBattleMatch',
     WarpoolCapture: 'WarpoolCapture',
-    WarpoolActivity: 'WarpoolActivity'
+    WarpoolActivity: 'WarpoolActivity',
+    AdminProposal: 'AdminProposal',
+    AdminProposalAction: 'AdminProposalAction',
+    AdminProposalEvent: 'AdminProposalEvent'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1720,7 +1822,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "chainState" | "user" | "collection" | "nFT" | "traitStat" | "nFTActivity" | "single721" | "single1155" | "erc1155Balance" | "erc1155Holding" | "marketplaceListing" | "auction" | "auctionBid" | "deployedContract" | "feeConfig" | "feeConfigLog" | "publicSale" | "presale" | "presaleWhitelistAddress" | "presaleDraft" | "assetUpload" | "collectionSubmission" | "nFTRarity" | "holderReward" | "rewardAccumulator" | "currency" | "marketplaceSale" | "rewardAccumulatorMulti" | "holderRewardMulti" | "rewardDistributionLog" | "rewardClaimLog" | "stolenItem" | "stolenEvent" | "multisigSafe" | "multisigOwner" | "multisigTx" | "multisigApproval" | "pendingChainAction" | "warpoolContract" | "warpoolQueueConfig" | "warpoolGlobalConfigSnapshot" | "warpoolPool" | "warpoolEntry" | "warpoolReservation" | "warpoolBattle" | "warpoolBattleMatch" | "warpoolCapture" | "warpoolActivity"
+      modelProps: "chainState" | "user" | "collection" | "nFT" | "traitStat" | "nFTActivity" | "single721" | "single1155" | "erc1155Balance" | "erc1155Holding" | "marketplaceListing" | "auction" | "auctionBid" | "deployedContract" | "feeConfig" | "feeConfigLog" | "publicSale" | "presale" | "presaleWhitelistAddress" | "presaleDraft" | "assetUpload" | "collectionSubmission" | "nFTRarity" | "holderReward" | "rewardAccumulator" | "currency" | "marketplaceSale" | "rewardAccumulatorMulti" | "holderRewardMulti" | "rewardDistributionLog" | "rewardClaimLog" | "stolenItem" | "stolenEvent" | "multisigSafe" | "multisigOwner" | "multisigTx" | "multisigApproval" | "pendingChainAction" | "warpoolContract" | "warpoolQueueConfig" | "warpoolGlobalConfigSnapshot" | "warpoolPool" | "warpoolEntry" | "warpoolReservation" | "warpoolBattle" | "warpoolBattleMatch" | "warpoolCapture" | "warpoolActivity" | "adminProposal" | "adminProposalAction" | "adminProposalEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5276,6 +5378,228 @@ export namespace Prisma {
           }
         }
       }
+      AdminProposal: {
+        payload: Prisma.$AdminProposalPayload<ExtArgs>
+        fields: Prisma.AdminProposalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdminProposalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdminProposalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>
+          }
+          findFirst: {
+            args: Prisma.AdminProposalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdminProposalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>
+          }
+          findMany: {
+            args: Prisma.AdminProposalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>[]
+          }
+          create: {
+            args: Prisma.AdminProposalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>
+          }
+          createMany: {
+            args: Prisma.AdminProposalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdminProposalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>[]
+          }
+          delete: {
+            args: Prisma.AdminProposalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>
+          }
+          update: {
+            args: Prisma.AdminProposalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdminProposalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdminProposalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdminProposalUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdminProposalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalPayload>
+          }
+          aggregate: {
+            args: Prisma.AdminProposalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminProposal>
+          }
+          groupBy: {
+            args: Prisma.AdminProposalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminProposalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdminProposalCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminProposalCountAggregateOutputType> | number
+          }
+        }
+      }
+      AdminProposalAction: {
+        payload: Prisma.$AdminProposalActionPayload<ExtArgs>
+        fields: Prisma.AdminProposalActionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdminProposalActionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdminProposalActionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>
+          }
+          findFirst: {
+            args: Prisma.AdminProposalActionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdminProposalActionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>
+          }
+          findMany: {
+            args: Prisma.AdminProposalActionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>[]
+          }
+          create: {
+            args: Prisma.AdminProposalActionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>
+          }
+          createMany: {
+            args: Prisma.AdminProposalActionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdminProposalActionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>[]
+          }
+          delete: {
+            args: Prisma.AdminProposalActionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>
+          }
+          update: {
+            args: Prisma.AdminProposalActionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdminProposalActionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdminProposalActionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdminProposalActionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdminProposalActionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalActionPayload>
+          }
+          aggregate: {
+            args: Prisma.AdminProposalActionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminProposalAction>
+          }
+          groupBy: {
+            args: Prisma.AdminProposalActionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminProposalActionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdminProposalActionCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminProposalActionCountAggregateOutputType> | number
+          }
+        }
+      }
+      AdminProposalEvent: {
+        payload: Prisma.$AdminProposalEventPayload<ExtArgs>
+        fields: Prisma.AdminProposalEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdminProposalEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdminProposalEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>
+          }
+          findFirst: {
+            args: Prisma.AdminProposalEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdminProposalEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>
+          }
+          findMany: {
+            args: Prisma.AdminProposalEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>[]
+          }
+          create: {
+            args: Prisma.AdminProposalEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>
+          }
+          createMany: {
+            args: Prisma.AdminProposalEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdminProposalEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>[]
+          }
+          delete: {
+            args: Prisma.AdminProposalEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>
+          }
+          update: {
+            args: Prisma.AdminProposalEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdminProposalEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdminProposalEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdminProposalEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdminProposalEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminProposalEventPayload>
+          }
+          aggregate: {
+            args: Prisma.AdminProposalEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminProposalEvent>
+          }
+          groupBy: {
+            args: Prisma.AdminProposalEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminProposalEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdminProposalEventCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminProposalEventCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5432,6 +5756,9 @@ export namespace Prisma {
     warpoolBattleMatch?: WarpoolBattleMatchOmit
     warpoolCapture?: WarpoolCaptureOmit
     warpoolActivity?: WarpoolActivityOmit
+    adminProposal?: AdminProposalOmit
+    adminProposalAction?: AdminProposalActionOmit
+    adminProposalEvent?: AdminProposalEventOmit
   }
 
   /* Types for Logging */
@@ -5522,6 +5849,9 @@ export namespace Prisma {
     warpoolReservations: number
     warpoolActivities: number
     warpoolCapturesAsOwner: number
+    adminProposalsCreated: number
+    adminProposalsEdited: number
+    adminProposalEvents: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5535,6 +5865,9 @@ export namespace Prisma {
     warpoolReservations?: boolean | UserCountOutputTypeCountWarpoolReservationsArgs
     warpoolActivities?: boolean | UserCountOutputTypeCountWarpoolActivitiesArgs
     warpoolCapturesAsOwner?: boolean | UserCountOutputTypeCountWarpoolCapturesAsOwnerArgs
+    adminProposalsCreated?: boolean | UserCountOutputTypeCountAdminProposalsCreatedArgs
+    adminProposalsEdited?: boolean | UserCountOutputTypeCountAdminProposalsEditedArgs
+    adminProposalEvents?: boolean | UserCountOutputTypeCountAdminProposalEventsArgs
   }
 
   // Custom InputTypes
@@ -5616,6 +5949,27 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountWarpoolCapturesAsOwnerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolCaptureWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAdminProposalsCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAdminProposalsEditedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAdminProposalEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalEventWhereInput
   }
 
 
@@ -6058,11 +6412,13 @@ export namespace Prisma {
   export type MultisigSafeCountOutputType = {
     owners: number
     txs: number
+    adminProposals: number
   }
 
   export type MultisigSafeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owners?: boolean | MultisigSafeCountOutputTypeCountOwnersArgs
     txs?: boolean | MultisigSafeCountOutputTypeCountTxsArgs
+    adminProposals?: boolean | MultisigSafeCountOutputTypeCountAdminProposalsArgs
   }
 
   // Custom InputTypes
@@ -6090,6 +6446,13 @@ export namespace Prisma {
     where?: MultisigTxWhereInput
   }
 
+  /**
+   * MultisigSafeCountOutputType without action
+   */
+  export type MultisigSafeCountOutputTypeCountAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
+  }
+
 
   /**
    * Count Type MultisigTxCountOutputType
@@ -6097,10 +6460,12 @@ export namespace Prisma {
 
   export type MultisigTxCountOutputType = {
     approvals: number
+    linkedAdminProposals: number
   }
 
   export type MultisigTxCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     approvals?: boolean | MultisigTxCountOutputTypeCountApprovalsArgs
+    linkedAdminProposals?: boolean | MultisigTxCountOutputTypeCountLinkedAdminProposalsArgs
   }
 
   // Custom InputTypes
@@ -6119,6 +6484,13 @@ export namespace Prisma {
    */
   export type MultisigTxCountOutputTypeCountApprovalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MultisigApprovalWhereInput
+  }
+
+  /**
+   * MultisigTxCountOutputType without action
+   */
+  export type MultisigTxCountOutputTypeCountLinkedAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
   }
 
 
@@ -6261,6 +6633,46 @@ export namespace Prisma {
    */
   export type WarpoolBattleCountOutputTypeCountMatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolBattleMatchWhereInput
+  }
+
+
+  /**
+   * Count Type AdminProposalCountOutputType
+   */
+
+  export type AdminProposalCountOutputType = {
+    actions: number
+    events: number
+  }
+
+  export type AdminProposalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    actions?: boolean | AdminProposalCountOutputTypeCountActionsArgs
+    events?: boolean | AdminProposalCountOutputTypeCountEventsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AdminProposalCountOutputType without action
+   */
+  export type AdminProposalCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalCountOutputType
+     */
+    select?: AdminProposalCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposalCountOutputType without action
+   */
+  export type AdminProposalCountOutputTypeCountActionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalActionWhereInput
+  }
+
+  /**
+   * AdminProposalCountOutputType without action
+   */
+  export type AdminProposalCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalEventWhereInput
   }
 
 
@@ -7519,6 +7931,9 @@ export namespace Prisma {
     warpoolReservations?: boolean | User$warpoolReservationsArgs<ExtArgs>
     warpoolActivities?: boolean | User$warpoolActivitiesArgs<ExtArgs>
     warpoolCapturesAsOwner?: boolean | User$warpoolCapturesAsOwnerArgs<ExtArgs>
+    adminProposalsCreated?: boolean | User$adminProposalsCreatedArgs<ExtArgs>
+    adminProposalsEdited?: boolean | User$adminProposalsEditedArgs<ExtArgs>
+    adminProposalEvents?: boolean | User$adminProposalEventsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7579,6 +7994,9 @@ export namespace Prisma {
     warpoolReservations?: boolean | User$warpoolReservationsArgs<ExtArgs>
     warpoolActivities?: boolean | User$warpoolActivitiesArgs<ExtArgs>
     warpoolCapturesAsOwner?: boolean | User$warpoolCapturesAsOwnerArgs<ExtArgs>
+    adminProposalsCreated?: boolean | User$adminProposalsCreatedArgs<ExtArgs>
+    adminProposalsEdited?: boolean | User$adminProposalsEditedArgs<ExtArgs>
+    adminProposalEvents?: boolean | User$adminProposalEventsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7597,6 +8015,9 @@ export namespace Prisma {
       warpoolReservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
       warpoolActivities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
       warpoolCapturesAsOwner: Prisma.$WarpoolCapturePayload<ExtArgs>[]
+      adminProposalsCreated: Prisma.$AdminProposalPayload<ExtArgs>[]
+      adminProposalsEdited: Prisma.$AdminProposalPayload<ExtArgs>[]
+      adminProposalEvents: Prisma.$AdminProposalEventPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8015,6 +8436,9 @@ export namespace Prisma {
     warpoolReservations<T extends User$warpoolReservationsArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     warpoolActivities<T extends User$warpoolActivitiesArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     warpoolCapturesAsOwner<T extends User$warpoolCapturesAsOwnerArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolCapturesAsOwnerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolCapturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminProposalsCreated<T extends User$adminProposalsCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminProposalsEdited<T extends User$adminProposalsEditedArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalsEditedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminProposalEvents<T extends User$adminProposalEventsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8686,6 +9110,78 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WarpoolCaptureScalarFieldEnum | WarpoolCaptureScalarFieldEnum[]
+  }
+
+  /**
+   * User.adminProposalsCreated
+   */
+  export type User$adminProposalsCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * User.adminProposalsEdited
+   */
+  export type User$adminProposalsEditedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * User.adminProposalEvents
+   */
+  export type User$adminProposalEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    where?: AdminProposalEventWhereInput
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    cursor?: AdminProposalEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
   }
 
   /**
@@ -46524,6 +47020,7 @@ export namespace Prisma {
     updatedAt?: boolean
     owners?: boolean | MultisigSafe$ownersArgs<ExtArgs>
     txs?: boolean | MultisigSafe$txsArgs<ExtArgs>
+    adminProposals?: boolean | MultisigSafe$adminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigSafeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["multisigSafe"]>
 
@@ -46558,6 +47055,7 @@ export namespace Prisma {
   export type MultisigSafeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owners?: boolean | MultisigSafe$ownersArgs<ExtArgs>
     txs?: boolean | MultisigSafe$txsArgs<ExtArgs>
+    adminProposals?: boolean | MultisigSafe$adminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigSafeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MultisigSafeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -46568,6 +47066,7 @@ export namespace Prisma {
     objects: {
       owners: Prisma.$MultisigOwnerPayload<ExtArgs>[]
       txs: Prisma.$MultisigTxPayload<ExtArgs>[]
+      adminProposals: Prisma.$AdminProposalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -46972,6 +47471,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     owners<T extends MultisigSafe$ownersArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$ownersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigOwnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     txs<T extends MultisigSafe$txsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$txsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigTxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminProposals<T extends MultisigSafe$adminProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$adminProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -47445,6 +47945,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MultisigTxScalarFieldEnum | MultisigTxScalarFieldEnum[]
+  }
+
+  /**
+   * MultisigSafe.adminProposals
+   */
+  export type MultisigSafe$adminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
   }
 
   /**
@@ -48793,6 +49317,7 @@ export namespace Prisma {
     executedAt?: boolean
     approvals?: boolean | MultisigTx$approvalsArgs<ExtArgs>
     safe?: boolean | MultisigSafeDefaultArgs<ExtArgs>
+    linkedAdminProposals?: boolean | MultisigTx$linkedAdminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigTxCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["multisigTx"]>
 
@@ -48847,6 +49372,7 @@ export namespace Prisma {
   export type MultisigTxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     approvals?: boolean | MultisigTx$approvalsArgs<ExtArgs>
     safe?: boolean | MultisigSafeDefaultArgs<ExtArgs>
+    linkedAdminProposals?: boolean | MultisigTx$linkedAdminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigTxCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MultisigTxIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -48861,6 +49387,7 @@ export namespace Prisma {
     objects: {
       approvals: Prisma.$MultisigApprovalPayload<ExtArgs>[]
       safe: Prisma.$MultisigSafePayload<ExtArgs>
+      linkedAdminProposals: Prisma.$AdminProposalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -49271,6 +49798,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     approvals<T extends MultisigTx$approvalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigTx$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     safe<T extends MultisigSafeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafeDefaultArgs<ExtArgs>>): Prisma__MultisigSafeClient<$Result.GetResult<Prisma.$MultisigSafePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    linkedAdminProposals<T extends MultisigTx$linkedAdminProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigTx$linkedAdminProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -49734,6 +50262,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MultisigApprovalScalarFieldEnum | MultisigApprovalScalarFieldEnum[]
+  }
+
+  /**
+   * MultisigTx.linkedAdminProposals
+   */
+  export type MultisigTx$linkedAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
   }
 
   /**
@@ -65556,6 +66108,3955 @@ export namespace Prisma {
 
 
   /**
+   * Model AdminProposal
+   */
+
+  export type AggregateAdminProposal = {
+    _count: AdminProposalCountAggregateOutputType | null
+    _avg: AdminProposalAvgAggregateOutputType | null
+    _sum: AdminProposalSumAggregateOutputType | null
+    _min: AdminProposalMinAggregateOutputType | null
+    _max: AdminProposalMaxAggregateOutputType | null
+  }
+
+  export type AdminProposalAvgAggregateOutputType = {
+    chainId: number | null
+    basedOnConfigVersion: number | null
+    actionCount: number | null
+    submittedMultisigNonce: number | null
+  }
+
+  export type AdminProposalSumAggregateOutputType = {
+    chainId: number | null
+    basedOnConfigVersion: bigint | null
+    actionCount: number | null
+    submittedMultisigNonce: number | null
+  }
+
+  export type AdminProposalMinAggregateOutputType = {
+    id: string | null
+    area: $Enums.AdminProposalArea | null
+    kind: $Enums.AdminProposalKind | null
+    title: string | null
+    slug: string | null
+    summary: string | null
+    description: string | null
+    safeId: string | null
+    safeContract: string | null
+    chainId: number | null
+    createdByUserId: string | null
+    createdByAddress: string | null
+    lastEditedByUserId: string | null
+    lastEditedByAddress: string | null
+    basedOnConfigVersion: bigint | null
+    runtimeReferenceId: string | null
+    status: $Enums.AdminProposalStatus | null
+    actionCount: number | null
+    submittedMultisigTxId: string | null
+    submittedMultisigNonce: number | null
+    submittedAt: Date | null
+    approvedAt: Date | null
+    executedAt: Date | null
+    cancelledAt: Date | null
+    failedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdminProposalMaxAggregateOutputType = {
+    id: string | null
+    area: $Enums.AdminProposalArea | null
+    kind: $Enums.AdminProposalKind | null
+    title: string | null
+    slug: string | null
+    summary: string | null
+    description: string | null
+    safeId: string | null
+    safeContract: string | null
+    chainId: number | null
+    createdByUserId: string | null
+    createdByAddress: string | null
+    lastEditedByUserId: string | null
+    lastEditedByAddress: string | null
+    basedOnConfigVersion: bigint | null
+    runtimeReferenceId: string | null
+    status: $Enums.AdminProposalStatus | null
+    actionCount: number | null
+    submittedMultisigTxId: string | null
+    submittedMultisigNonce: number | null
+    submittedAt: Date | null
+    approvedAt: Date | null
+    executedAt: Date | null
+    cancelledAt: Date | null
+    failedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdminProposalCountAggregateOutputType = {
+    id: number
+    area: number
+    kind: number
+    title: number
+    slug: number
+    summary: number
+    description: number
+    safeId: number
+    safeContract: number
+    chainId: number
+    createdByUserId: number
+    createdByAddress: number
+    lastEditedByUserId: number
+    lastEditedByAddress: number
+    basedOnConfigVersion: number
+    runtimeReferenceId: number
+    status: number
+    actionCount: number
+    submittedMultisigTxId: number
+    submittedMultisigNonce: number
+    submittedAt: number
+    approvedAt: number
+    executedAt: number
+    cancelledAt: number
+    failedAt: number
+    snapshotJson: number
+    metadataJson: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AdminProposalAvgAggregateInputType = {
+    chainId?: true
+    basedOnConfigVersion?: true
+    actionCount?: true
+    submittedMultisigNonce?: true
+  }
+
+  export type AdminProposalSumAggregateInputType = {
+    chainId?: true
+    basedOnConfigVersion?: true
+    actionCount?: true
+    submittedMultisigNonce?: true
+  }
+
+  export type AdminProposalMinAggregateInputType = {
+    id?: true
+    area?: true
+    kind?: true
+    title?: true
+    slug?: true
+    summary?: true
+    description?: true
+    safeId?: true
+    safeContract?: true
+    chainId?: true
+    createdByUserId?: true
+    createdByAddress?: true
+    lastEditedByUserId?: true
+    lastEditedByAddress?: true
+    basedOnConfigVersion?: true
+    runtimeReferenceId?: true
+    status?: true
+    actionCount?: true
+    submittedMultisigTxId?: true
+    submittedMultisigNonce?: true
+    submittedAt?: true
+    approvedAt?: true
+    executedAt?: true
+    cancelledAt?: true
+    failedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdminProposalMaxAggregateInputType = {
+    id?: true
+    area?: true
+    kind?: true
+    title?: true
+    slug?: true
+    summary?: true
+    description?: true
+    safeId?: true
+    safeContract?: true
+    chainId?: true
+    createdByUserId?: true
+    createdByAddress?: true
+    lastEditedByUserId?: true
+    lastEditedByAddress?: true
+    basedOnConfigVersion?: true
+    runtimeReferenceId?: true
+    status?: true
+    actionCount?: true
+    submittedMultisigTxId?: true
+    submittedMultisigNonce?: true
+    submittedAt?: true
+    approvedAt?: true
+    executedAt?: true
+    cancelledAt?: true
+    failedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdminProposalCountAggregateInputType = {
+    id?: true
+    area?: true
+    kind?: true
+    title?: true
+    slug?: true
+    summary?: true
+    description?: true
+    safeId?: true
+    safeContract?: true
+    chainId?: true
+    createdByUserId?: true
+    createdByAddress?: true
+    lastEditedByUserId?: true
+    lastEditedByAddress?: true
+    basedOnConfigVersion?: true
+    runtimeReferenceId?: true
+    status?: true
+    actionCount?: true
+    submittedMultisigTxId?: true
+    submittedMultisigNonce?: true
+    submittedAt?: true
+    approvedAt?: true
+    executedAt?: true
+    cancelledAt?: true
+    failedAt?: true
+    snapshotJson?: true
+    metadataJson?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AdminProposalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminProposal to aggregate.
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposals to fetch.
+     */
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdminProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdminProposals
+    **/
+    _count?: true | AdminProposalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AdminProposalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AdminProposalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdminProposalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdminProposalMaxAggregateInputType
+  }
+
+  export type GetAdminProposalAggregateType<T extends AdminProposalAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminProposal]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdminProposal[P]>
+      : GetScalarType<T[P], AggregateAdminProposal[P]>
+  }
+
+
+
+
+  export type AdminProposalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithAggregationInput | AdminProposalOrderByWithAggregationInput[]
+    by: AdminProposalScalarFieldEnum[] | AdminProposalScalarFieldEnum
+    having?: AdminProposalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdminProposalCountAggregateInputType | true
+    _avg?: AdminProposalAvgAggregateInputType
+    _sum?: AdminProposalSumAggregateInputType
+    _min?: AdminProposalMinAggregateInputType
+    _max?: AdminProposalMaxAggregateInputType
+  }
+
+  export type AdminProposalGroupByOutputType = {
+    id: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug: string | null
+    summary: string | null
+    description: string | null
+    safeId: string | null
+    safeContract: string | null
+    chainId: number | null
+    createdByUserId: string | null
+    createdByAddress: string | null
+    lastEditedByUserId: string | null
+    lastEditedByAddress: string | null
+    basedOnConfigVersion: bigint | null
+    runtimeReferenceId: string | null
+    status: $Enums.AdminProposalStatus
+    actionCount: number
+    submittedMultisigTxId: string | null
+    submittedMultisigNonce: number | null
+    submittedAt: Date | null
+    approvedAt: Date | null
+    executedAt: Date | null
+    cancelledAt: Date | null
+    failedAt: Date | null
+    snapshotJson: JsonValue | null
+    metadataJson: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AdminProposalCountAggregateOutputType | null
+    _avg: AdminProposalAvgAggregateOutputType | null
+    _sum: AdminProposalSumAggregateOutputType | null
+    _min: AdminProposalMinAggregateOutputType | null
+    _max: AdminProposalMaxAggregateOutputType | null
+  }
+
+  type GetAdminProposalGroupByPayload<T extends AdminProposalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdminProposalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdminProposalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdminProposalGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminProposalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdminProposalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    area?: boolean
+    kind?: boolean
+    title?: boolean
+    slug?: boolean
+    summary?: boolean
+    description?: boolean
+    safeId?: boolean
+    safeContract?: boolean
+    chainId?: boolean
+    createdByUserId?: boolean
+    createdByAddress?: boolean
+    lastEditedByUserId?: boolean
+    lastEditedByAddress?: boolean
+    basedOnConfigVersion?: boolean
+    runtimeReferenceId?: boolean
+    status?: boolean
+    actionCount?: boolean
+    submittedMultisigTxId?: boolean
+    submittedMultisigNonce?: boolean
+    submittedAt?: boolean
+    approvedAt?: boolean
+    executedAt?: boolean
+    cancelledAt?: boolean
+    failedAt?: boolean
+    snapshotJson?: boolean
+    metadataJson?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
+    createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
+    lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
+    actions?: boolean | AdminProposal$actionsArgs<ExtArgs>
+    events?: boolean | AdminProposal$eventsArgs<ExtArgs>
+    _count?: boolean | AdminProposalCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposal"]>
+
+  export type AdminProposalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    area?: boolean
+    kind?: boolean
+    title?: boolean
+    slug?: boolean
+    summary?: boolean
+    description?: boolean
+    safeId?: boolean
+    safeContract?: boolean
+    chainId?: boolean
+    createdByUserId?: boolean
+    createdByAddress?: boolean
+    lastEditedByUserId?: boolean
+    lastEditedByAddress?: boolean
+    basedOnConfigVersion?: boolean
+    runtimeReferenceId?: boolean
+    status?: boolean
+    actionCount?: boolean
+    submittedMultisigTxId?: boolean
+    submittedMultisigNonce?: boolean
+    submittedAt?: boolean
+    approvedAt?: boolean
+    executedAt?: boolean
+    cancelledAt?: boolean
+    failedAt?: boolean
+    snapshotJson?: boolean
+    metadataJson?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
+    createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
+    lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposal"]>
+
+  export type AdminProposalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    area?: boolean
+    kind?: boolean
+    title?: boolean
+    slug?: boolean
+    summary?: boolean
+    description?: boolean
+    safeId?: boolean
+    safeContract?: boolean
+    chainId?: boolean
+    createdByUserId?: boolean
+    createdByAddress?: boolean
+    lastEditedByUserId?: boolean
+    lastEditedByAddress?: boolean
+    basedOnConfigVersion?: boolean
+    runtimeReferenceId?: boolean
+    status?: boolean
+    actionCount?: boolean
+    submittedMultisigTxId?: boolean
+    submittedMultisigNonce?: boolean
+    submittedAt?: boolean
+    approvedAt?: boolean
+    executedAt?: boolean
+    cancelledAt?: boolean
+    failedAt?: boolean
+    snapshotJson?: boolean
+    metadataJson?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
+    createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
+    lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposal"]>
+
+  export type AdminProposalSelectScalar = {
+    id?: boolean
+    area?: boolean
+    kind?: boolean
+    title?: boolean
+    slug?: boolean
+    summary?: boolean
+    description?: boolean
+    safeId?: boolean
+    safeContract?: boolean
+    chainId?: boolean
+    createdByUserId?: boolean
+    createdByAddress?: boolean
+    lastEditedByUserId?: boolean
+    lastEditedByAddress?: boolean
+    basedOnConfigVersion?: boolean
+    runtimeReferenceId?: boolean
+    status?: boolean
+    actionCount?: boolean
+    submittedMultisigTxId?: boolean
+    submittedMultisigNonce?: boolean
+    submittedAt?: boolean
+    approvedAt?: boolean
+    executedAt?: boolean
+    cancelledAt?: boolean
+    failedAt?: boolean
+    snapshotJson?: boolean
+    metadataJson?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AdminProposalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "area" | "kind" | "title" | "slug" | "summary" | "description" | "safeId" | "safeContract" | "chainId" | "createdByUserId" | "createdByAddress" | "lastEditedByUserId" | "lastEditedByAddress" | "basedOnConfigVersion" | "runtimeReferenceId" | "status" | "actionCount" | "submittedMultisigTxId" | "submittedMultisigNonce" | "submittedAt" | "approvedAt" | "executedAt" | "cancelledAt" | "failedAt" | "snapshotJson" | "metadataJson" | "createdAt" | "updatedAt", ExtArgs["result"]["adminProposal"]>
+  export type AdminProposalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
+    createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
+    lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
+    actions?: boolean | AdminProposal$actionsArgs<ExtArgs>
+    events?: boolean | AdminProposal$eventsArgs<ExtArgs>
+    _count?: boolean | AdminProposalCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AdminProposalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
+    createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
+    lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
+  }
+  export type AdminProposalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
+    createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
+    lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
+  }
+
+  export type $AdminProposalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminProposal"
+    objects: {
+      safe: Prisma.$MultisigSafePayload<ExtArgs> | null
+      createdByUser: Prisma.$UserPayload<ExtArgs> | null
+      lastEditedByUser: Prisma.$UserPayload<ExtArgs> | null
+      submittedMultisigTx: Prisma.$MultisigTxPayload<ExtArgs> | null
+      actions: Prisma.$AdminProposalActionPayload<ExtArgs>[]
+      events: Prisma.$AdminProposalEventPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      area: $Enums.AdminProposalArea
+      kind: $Enums.AdminProposalKind
+      title: string
+      slug: string | null
+      summary: string | null
+      description: string | null
+      safeId: string | null
+      safeContract: string | null
+      chainId: number | null
+      createdByUserId: string | null
+      createdByAddress: string | null
+      lastEditedByUserId: string | null
+      lastEditedByAddress: string | null
+      basedOnConfigVersion: bigint | null
+      runtimeReferenceId: string | null
+      status: $Enums.AdminProposalStatus
+      actionCount: number
+      submittedMultisigTxId: string | null
+      submittedMultisigNonce: number | null
+      submittedAt: Date | null
+      approvedAt: Date | null
+      executedAt: Date | null
+      cancelledAt: Date | null
+      failedAt: Date | null
+      snapshotJson: Prisma.JsonValue | null
+      metadataJson: Prisma.JsonValue | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["adminProposal"]>
+    composites: {}
+  }
+
+  type AdminProposalGetPayload<S extends boolean | null | undefined | AdminProposalDefaultArgs> = $Result.GetResult<Prisma.$AdminProposalPayload, S>
+
+  type AdminProposalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdminProposalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdminProposalCountAggregateInputType | true
+    }
+
+  export interface AdminProposalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminProposal'], meta: { name: 'AdminProposal' } }
+    /**
+     * Find zero or one AdminProposal that matches the filter.
+     * @param {AdminProposalFindUniqueArgs} args - Arguments to find a AdminProposal
+     * @example
+     * // Get one AdminProposal
+     * const adminProposal = await prisma.adminProposal.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdminProposalFindUniqueArgs>(args: SelectSubset<T, AdminProposalFindUniqueArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdminProposal that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdminProposalFindUniqueOrThrowArgs} args - Arguments to find a AdminProposal
+     * @example
+     * // Get one AdminProposal
+     * const adminProposal = await prisma.adminProposal.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdminProposalFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminProposalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminProposal that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalFindFirstArgs} args - Arguments to find a AdminProposal
+     * @example
+     * // Get one AdminProposal
+     * const adminProposal = await prisma.adminProposal.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdminProposalFindFirstArgs>(args?: SelectSubset<T, AdminProposalFindFirstArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminProposal that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalFindFirstOrThrowArgs} args - Arguments to find a AdminProposal
+     * @example
+     * // Get one AdminProposal
+     * const adminProposal = await prisma.adminProposal.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdminProposalFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminProposalFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdminProposals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdminProposals
+     * const adminProposals = await prisma.adminProposal.findMany()
+     * 
+     * // Get first 10 AdminProposals
+     * const adminProposals = await prisma.adminProposal.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const adminProposalWithIdOnly = await prisma.adminProposal.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdminProposalFindManyArgs>(args?: SelectSubset<T, AdminProposalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdminProposal.
+     * @param {AdminProposalCreateArgs} args - Arguments to create a AdminProposal.
+     * @example
+     * // Create one AdminProposal
+     * const AdminProposal = await prisma.adminProposal.create({
+     *   data: {
+     *     // ... data to create a AdminProposal
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdminProposalCreateArgs>(args: SelectSubset<T, AdminProposalCreateArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdminProposals.
+     * @param {AdminProposalCreateManyArgs} args - Arguments to create many AdminProposals.
+     * @example
+     * // Create many AdminProposals
+     * const adminProposal = await prisma.adminProposal.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdminProposalCreateManyArgs>(args?: SelectSubset<T, AdminProposalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdminProposals and returns the data saved in the database.
+     * @param {AdminProposalCreateManyAndReturnArgs} args - Arguments to create many AdminProposals.
+     * @example
+     * // Create many AdminProposals
+     * const adminProposal = await prisma.adminProposal.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdminProposals and only return the `id`
+     * const adminProposalWithIdOnly = await prisma.adminProposal.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdminProposalCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminProposalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdminProposal.
+     * @param {AdminProposalDeleteArgs} args - Arguments to delete one AdminProposal.
+     * @example
+     * // Delete one AdminProposal
+     * const AdminProposal = await prisma.adminProposal.delete({
+     *   where: {
+     *     // ... filter to delete one AdminProposal
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdminProposalDeleteArgs>(args: SelectSubset<T, AdminProposalDeleteArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdminProposal.
+     * @param {AdminProposalUpdateArgs} args - Arguments to update one AdminProposal.
+     * @example
+     * // Update one AdminProposal
+     * const adminProposal = await prisma.adminProposal.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdminProposalUpdateArgs>(args: SelectSubset<T, AdminProposalUpdateArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdminProposals.
+     * @param {AdminProposalDeleteManyArgs} args - Arguments to filter AdminProposals to delete.
+     * @example
+     * // Delete a few AdminProposals
+     * const { count } = await prisma.adminProposal.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdminProposalDeleteManyArgs>(args?: SelectSubset<T, AdminProposalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminProposals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdminProposals
+     * const adminProposal = await prisma.adminProposal.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdminProposalUpdateManyArgs>(args: SelectSubset<T, AdminProposalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminProposals and returns the data updated in the database.
+     * @param {AdminProposalUpdateManyAndReturnArgs} args - Arguments to update many AdminProposals.
+     * @example
+     * // Update many AdminProposals
+     * const adminProposal = await prisma.adminProposal.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdminProposals and only return the `id`
+     * const adminProposalWithIdOnly = await prisma.adminProposal.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdminProposalUpdateManyAndReturnArgs>(args: SelectSubset<T, AdminProposalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdminProposal.
+     * @param {AdminProposalUpsertArgs} args - Arguments to update or create a AdminProposal.
+     * @example
+     * // Update or create a AdminProposal
+     * const adminProposal = await prisma.adminProposal.upsert({
+     *   create: {
+     *     // ... data to create a AdminProposal
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdminProposal we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdminProposalUpsertArgs>(args: SelectSubset<T, AdminProposalUpsertArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdminProposals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalCountArgs} args - Arguments to filter AdminProposals to count.
+     * @example
+     * // Count the number of AdminProposals
+     * const count = await prisma.adminProposal.count({
+     *   where: {
+     *     // ... the filter for the AdminProposals we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdminProposalCountArgs>(
+      args?: Subset<T, AdminProposalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdminProposalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdminProposal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdminProposalAggregateArgs>(args: Subset<T, AdminProposalAggregateArgs>): Prisma.PrismaPromise<GetAdminProposalAggregateType<T>>
+
+    /**
+     * Group by AdminProposal.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdminProposalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdminProposalGroupByArgs['orderBy'] }
+        : { orderBy?: AdminProposalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdminProposalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminProposalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdminProposal model
+   */
+  readonly fields: AdminProposalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdminProposal.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdminProposalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    safe<T extends AdminProposal$safeArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$safeArgs<ExtArgs>>): Prisma__MultisigSafeClient<$Result.GetResult<Prisma.$MultisigSafePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    createdByUser<T extends AdminProposal$createdByUserArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$createdByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    lastEditedByUser<T extends AdminProposal$lastEditedByUserArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$lastEditedByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    submittedMultisigTx<T extends AdminProposal$submittedMultisigTxArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$submittedMultisigTxArgs<ExtArgs>>): Prisma__MultisigTxClient<$Result.GetResult<Prisma.$MultisigTxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    actions<T extends AdminProposal$actionsArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$actionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    events<T extends AdminProposal$eventsArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdminProposal model
+   */
+  interface AdminProposalFieldRefs {
+    readonly id: FieldRef<"AdminProposal", 'String'>
+    readonly area: FieldRef<"AdminProposal", 'AdminProposalArea'>
+    readonly kind: FieldRef<"AdminProposal", 'AdminProposalKind'>
+    readonly title: FieldRef<"AdminProposal", 'String'>
+    readonly slug: FieldRef<"AdminProposal", 'String'>
+    readonly summary: FieldRef<"AdminProposal", 'String'>
+    readonly description: FieldRef<"AdminProposal", 'String'>
+    readonly safeId: FieldRef<"AdminProposal", 'String'>
+    readonly safeContract: FieldRef<"AdminProposal", 'String'>
+    readonly chainId: FieldRef<"AdminProposal", 'Int'>
+    readonly createdByUserId: FieldRef<"AdminProposal", 'String'>
+    readonly createdByAddress: FieldRef<"AdminProposal", 'String'>
+    readonly lastEditedByUserId: FieldRef<"AdminProposal", 'String'>
+    readonly lastEditedByAddress: FieldRef<"AdminProposal", 'String'>
+    readonly basedOnConfigVersion: FieldRef<"AdminProposal", 'BigInt'>
+    readonly runtimeReferenceId: FieldRef<"AdminProposal", 'String'>
+    readonly status: FieldRef<"AdminProposal", 'AdminProposalStatus'>
+    readonly actionCount: FieldRef<"AdminProposal", 'Int'>
+    readonly submittedMultisigTxId: FieldRef<"AdminProposal", 'String'>
+    readonly submittedMultisigNonce: FieldRef<"AdminProposal", 'Int'>
+    readonly submittedAt: FieldRef<"AdminProposal", 'DateTime'>
+    readonly approvedAt: FieldRef<"AdminProposal", 'DateTime'>
+    readonly executedAt: FieldRef<"AdminProposal", 'DateTime'>
+    readonly cancelledAt: FieldRef<"AdminProposal", 'DateTime'>
+    readonly failedAt: FieldRef<"AdminProposal", 'DateTime'>
+    readonly snapshotJson: FieldRef<"AdminProposal", 'Json'>
+    readonly metadataJson: FieldRef<"AdminProposal", 'Json'>
+    readonly createdAt: FieldRef<"AdminProposal", 'DateTime'>
+    readonly updatedAt: FieldRef<"AdminProposal", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdminProposal findUnique
+   */
+  export type AdminProposalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposal to fetch.
+     */
+    where: AdminProposalWhereUniqueInput
+  }
+
+  /**
+   * AdminProposal findUniqueOrThrow
+   */
+  export type AdminProposalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposal to fetch.
+     */
+    where: AdminProposalWhereUniqueInput
+  }
+
+  /**
+   * AdminProposal findFirst
+   */
+  export type AdminProposalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposal to fetch.
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposals to fetch.
+     */
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminProposals.
+     */
+    cursor?: AdminProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposals.
+     */
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposal findFirstOrThrow
+   */
+  export type AdminProposalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposal to fetch.
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposals to fetch.
+     */
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminProposals.
+     */
+    cursor?: AdminProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposals.
+     */
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposal findMany
+   */
+  export type AdminProposalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposals to fetch.
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposals to fetch.
+     */
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdminProposals.
+     */
+    cursor?: AdminProposalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposals.
+     */
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposal create
+   */
+  export type AdminProposalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdminProposal.
+     */
+    data: XOR<AdminProposalCreateInput, AdminProposalUncheckedCreateInput>
+  }
+
+  /**
+   * AdminProposal createMany
+   */
+  export type AdminProposalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdminProposals.
+     */
+    data: AdminProposalCreateManyInput | AdminProposalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminProposal createManyAndReturn
+   */
+  export type AdminProposalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdminProposals.
+     */
+    data: AdminProposalCreateManyInput | AdminProposalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposal update
+   */
+  export type AdminProposalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdminProposal.
+     */
+    data: XOR<AdminProposalUpdateInput, AdminProposalUncheckedUpdateInput>
+    /**
+     * Choose, which AdminProposal to update.
+     */
+    where: AdminProposalWhereUniqueInput
+  }
+
+  /**
+   * AdminProposal updateMany
+   */
+  export type AdminProposalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdminProposals.
+     */
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminProposals to update
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * Limit how many AdminProposals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminProposal updateManyAndReturn
+   */
+  export type AdminProposalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * The data used to update AdminProposals.
+     */
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminProposals to update
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * Limit how many AdminProposals to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposal upsert
+   */
+  export type AdminProposalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdminProposal to update in case it exists.
+     */
+    where: AdminProposalWhereUniqueInput
+    /**
+     * In case the AdminProposal found by the `where` argument doesn't exist, create a new AdminProposal with this data.
+     */
+    create: XOR<AdminProposalCreateInput, AdminProposalUncheckedCreateInput>
+    /**
+     * In case the AdminProposal was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdminProposalUpdateInput, AdminProposalUncheckedUpdateInput>
+  }
+
+  /**
+   * AdminProposal delete
+   */
+  export type AdminProposalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    /**
+     * Filter which AdminProposal to delete.
+     */
+    where: AdminProposalWhereUniqueInput
+  }
+
+  /**
+   * AdminProposal deleteMany
+   */
+  export type AdminProposalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminProposals to delete
+     */
+    where?: AdminProposalWhereInput
+    /**
+     * Limit how many AdminProposals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminProposal.safe
+   */
+  export type AdminProposal$safeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MultisigSafe
+     */
+    select?: MultisigSafeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MultisigSafe
+     */
+    omit?: MultisigSafeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigSafeInclude<ExtArgs> | null
+    where?: MultisigSafeWhereInput
+  }
+
+  /**
+   * AdminProposal.createdByUser
+   */
+  export type AdminProposal$createdByUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * AdminProposal.lastEditedByUser
+   */
+  export type AdminProposal$lastEditedByUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * AdminProposal.submittedMultisigTx
+   */
+  export type AdminProposal$submittedMultisigTxArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MultisigTx
+     */
+    select?: MultisigTxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MultisigTx
+     */
+    omit?: MultisigTxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigTxInclude<ExtArgs> | null
+    where?: MultisigTxWhereInput
+  }
+
+  /**
+   * AdminProposal.actions
+   */
+  export type AdminProposal$actionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    where?: AdminProposalActionWhereInput
+    orderBy?: AdminProposalActionOrderByWithRelationInput | AdminProposalActionOrderByWithRelationInput[]
+    cursor?: AdminProposalActionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalActionScalarFieldEnum | AdminProposalActionScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposal.events
+   */
+  export type AdminProposal$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    where?: AdminProposalEventWhereInput
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    cursor?: AdminProposalEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposal without action
+   */
+  export type AdminProposalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AdminProposalAction
+   */
+
+  export type AggregateAdminProposalAction = {
+    _count: AdminProposalActionCountAggregateOutputType | null
+    _avg: AdminProposalActionAvgAggregateOutputType | null
+    _sum: AdminProposalActionSumAggregateOutputType | null
+    _min: AdminProposalActionMinAggregateOutputType | null
+    _max: AdminProposalActionMaxAggregateOutputType | null
+  }
+
+  export type AdminProposalActionAvgAggregateOutputType = {
+    orderIndex: number | null
+    valueWei: Decimal | null
+  }
+
+  export type AdminProposalActionSumAggregateOutputType = {
+    orderIndex: number | null
+    valueWei: Decimal | null
+  }
+
+  export type AdminProposalActionMinAggregateOutputType = {
+    id: string | null
+    proposalId: string | null
+    orderIndex: number | null
+    label: string | null
+    summary: string | null
+    target: string | null
+    valueWei: Decimal | null
+    tokenAddress: string | null
+    dataHex: string | null
+    functionName: string | null
+    status: $Enums.AdminProposalActionStatus | null
+    submittedAt: Date | null
+    executedAt: Date | null
+    failedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdminProposalActionMaxAggregateOutputType = {
+    id: string | null
+    proposalId: string | null
+    orderIndex: number | null
+    label: string | null
+    summary: string | null
+    target: string | null
+    valueWei: Decimal | null
+    tokenAddress: string | null
+    dataHex: string | null
+    functionName: string | null
+    status: $Enums.AdminProposalActionStatus | null
+    submittedAt: Date | null
+    executedAt: Date | null
+    failedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdminProposalActionCountAggregateOutputType = {
+    id: number
+    proposalId: number
+    orderIndex: number
+    label: number
+    summary: number
+    target: number
+    valueWei: number
+    tokenAddress: number
+    dataHex: number
+    functionName: number
+    argsJson: number
+    status: number
+    submittedAt: number
+    executedAt: number
+    failedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AdminProposalActionAvgAggregateInputType = {
+    orderIndex?: true
+    valueWei?: true
+  }
+
+  export type AdminProposalActionSumAggregateInputType = {
+    orderIndex?: true
+    valueWei?: true
+  }
+
+  export type AdminProposalActionMinAggregateInputType = {
+    id?: true
+    proposalId?: true
+    orderIndex?: true
+    label?: true
+    summary?: true
+    target?: true
+    valueWei?: true
+    tokenAddress?: true
+    dataHex?: true
+    functionName?: true
+    status?: true
+    submittedAt?: true
+    executedAt?: true
+    failedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdminProposalActionMaxAggregateInputType = {
+    id?: true
+    proposalId?: true
+    orderIndex?: true
+    label?: true
+    summary?: true
+    target?: true
+    valueWei?: true
+    tokenAddress?: true
+    dataHex?: true
+    functionName?: true
+    status?: true
+    submittedAt?: true
+    executedAt?: true
+    failedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdminProposalActionCountAggregateInputType = {
+    id?: true
+    proposalId?: true
+    orderIndex?: true
+    label?: true
+    summary?: true
+    target?: true
+    valueWei?: true
+    tokenAddress?: true
+    dataHex?: true
+    functionName?: true
+    argsJson?: true
+    status?: true
+    submittedAt?: true
+    executedAt?: true
+    failedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AdminProposalActionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminProposalAction to aggregate.
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalActions to fetch.
+     */
+    orderBy?: AdminProposalActionOrderByWithRelationInput | AdminProposalActionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdminProposalActionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalActions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalActions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdminProposalActions
+    **/
+    _count?: true | AdminProposalActionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AdminProposalActionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AdminProposalActionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdminProposalActionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdminProposalActionMaxAggregateInputType
+  }
+
+  export type GetAdminProposalActionAggregateType<T extends AdminProposalActionAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminProposalAction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdminProposalAction[P]>
+      : GetScalarType<T[P], AggregateAdminProposalAction[P]>
+  }
+
+
+
+
+  export type AdminProposalActionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalActionWhereInput
+    orderBy?: AdminProposalActionOrderByWithAggregationInput | AdminProposalActionOrderByWithAggregationInput[]
+    by: AdminProposalActionScalarFieldEnum[] | AdminProposalActionScalarFieldEnum
+    having?: AdminProposalActionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdminProposalActionCountAggregateInputType | true
+    _avg?: AdminProposalActionAvgAggregateInputType
+    _sum?: AdminProposalActionSumAggregateInputType
+    _min?: AdminProposalActionMinAggregateInputType
+    _max?: AdminProposalActionMaxAggregateInputType
+  }
+
+  export type AdminProposalActionGroupByOutputType = {
+    id: string
+    proposalId: string
+    orderIndex: number
+    label: string | null
+    summary: string | null
+    target: string
+    valueWei: Decimal
+    tokenAddress: string | null
+    dataHex: string
+    functionName: string | null
+    argsJson: JsonValue | null
+    status: $Enums.AdminProposalActionStatus
+    submittedAt: Date | null
+    executedAt: Date | null
+    failedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AdminProposalActionCountAggregateOutputType | null
+    _avg: AdminProposalActionAvgAggregateOutputType | null
+    _sum: AdminProposalActionSumAggregateOutputType | null
+    _min: AdminProposalActionMinAggregateOutputType | null
+    _max: AdminProposalActionMaxAggregateOutputType | null
+  }
+
+  type GetAdminProposalActionGroupByPayload<T extends AdminProposalActionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdminProposalActionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdminProposalActionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdminProposalActionGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminProposalActionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdminProposalActionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    proposalId?: boolean
+    orderIndex?: boolean
+    label?: boolean
+    summary?: boolean
+    target?: boolean
+    valueWei?: boolean
+    tokenAddress?: boolean
+    dataHex?: boolean
+    functionName?: boolean
+    argsJson?: boolean
+    status?: boolean
+    submittedAt?: boolean
+    executedAt?: boolean
+    failedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposalAction"]>
+
+  export type AdminProposalActionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    proposalId?: boolean
+    orderIndex?: boolean
+    label?: boolean
+    summary?: boolean
+    target?: boolean
+    valueWei?: boolean
+    tokenAddress?: boolean
+    dataHex?: boolean
+    functionName?: boolean
+    argsJson?: boolean
+    status?: boolean
+    submittedAt?: boolean
+    executedAt?: boolean
+    failedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposalAction"]>
+
+  export type AdminProposalActionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    proposalId?: boolean
+    orderIndex?: boolean
+    label?: boolean
+    summary?: boolean
+    target?: boolean
+    valueWei?: boolean
+    tokenAddress?: boolean
+    dataHex?: boolean
+    functionName?: boolean
+    argsJson?: boolean
+    status?: boolean
+    submittedAt?: boolean
+    executedAt?: boolean
+    failedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposalAction"]>
+
+  export type AdminProposalActionSelectScalar = {
+    id?: boolean
+    proposalId?: boolean
+    orderIndex?: boolean
+    label?: boolean
+    summary?: boolean
+    target?: boolean
+    valueWei?: boolean
+    tokenAddress?: boolean
+    dataHex?: boolean
+    functionName?: boolean
+    argsJson?: boolean
+    status?: boolean
+    submittedAt?: boolean
+    executedAt?: boolean
+    failedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AdminProposalActionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "proposalId" | "orderIndex" | "label" | "summary" | "target" | "valueWei" | "tokenAddress" | "dataHex" | "functionName" | "argsJson" | "status" | "submittedAt" | "executedAt" | "failedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["adminProposalAction"]>
+  export type AdminProposalActionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+  }
+  export type AdminProposalActionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+  }
+  export type AdminProposalActionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+  }
+
+  export type $AdminProposalActionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminProposalAction"
+    objects: {
+      proposal: Prisma.$AdminProposalPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      proposalId: string
+      orderIndex: number
+      label: string | null
+      summary: string | null
+      target: string
+      valueWei: Prisma.Decimal
+      tokenAddress: string | null
+      dataHex: string
+      functionName: string | null
+      argsJson: Prisma.JsonValue | null
+      status: $Enums.AdminProposalActionStatus
+      submittedAt: Date | null
+      executedAt: Date | null
+      failedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["adminProposalAction"]>
+    composites: {}
+  }
+
+  type AdminProposalActionGetPayload<S extends boolean | null | undefined | AdminProposalActionDefaultArgs> = $Result.GetResult<Prisma.$AdminProposalActionPayload, S>
+
+  type AdminProposalActionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdminProposalActionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdminProposalActionCountAggregateInputType | true
+    }
+
+  export interface AdminProposalActionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminProposalAction'], meta: { name: 'AdminProposalAction' } }
+    /**
+     * Find zero or one AdminProposalAction that matches the filter.
+     * @param {AdminProposalActionFindUniqueArgs} args - Arguments to find a AdminProposalAction
+     * @example
+     * // Get one AdminProposalAction
+     * const adminProposalAction = await prisma.adminProposalAction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdminProposalActionFindUniqueArgs>(args: SelectSubset<T, AdminProposalActionFindUniqueArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdminProposalAction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdminProposalActionFindUniqueOrThrowArgs} args - Arguments to find a AdminProposalAction
+     * @example
+     * // Get one AdminProposalAction
+     * const adminProposalAction = await prisma.adminProposalAction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdminProposalActionFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminProposalActionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminProposalAction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionFindFirstArgs} args - Arguments to find a AdminProposalAction
+     * @example
+     * // Get one AdminProposalAction
+     * const adminProposalAction = await prisma.adminProposalAction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdminProposalActionFindFirstArgs>(args?: SelectSubset<T, AdminProposalActionFindFirstArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminProposalAction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionFindFirstOrThrowArgs} args - Arguments to find a AdminProposalAction
+     * @example
+     * // Get one AdminProposalAction
+     * const adminProposalAction = await prisma.adminProposalAction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdminProposalActionFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminProposalActionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdminProposalActions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdminProposalActions
+     * const adminProposalActions = await prisma.adminProposalAction.findMany()
+     * 
+     * // Get first 10 AdminProposalActions
+     * const adminProposalActions = await prisma.adminProposalAction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const adminProposalActionWithIdOnly = await prisma.adminProposalAction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdminProposalActionFindManyArgs>(args?: SelectSubset<T, AdminProposalActionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdminProposalAction.
+     * @param {AdminProposalActionCreateArgs} args - Arguments to create a AdminProposalAction.
+     * @example
+     * // Create one AdminProposalAction
+     * const AdminProposalAction = await prisma.adminProposalAction.create({
+     *   data: {
+     *     // ... data to create a AdminProposalAction
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdminProposalActionCreateArgs>(args: SelectSubset<T, AdminProposalActionCreateArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdminProposalActions.
+     * @param {AdminProposalActionCreateManyArgs} args - Arguments to create many AdminProposalActions.
+     * @example
+     * // Create many AdminProposalActions
+     * const adminProposalAction = await prisma.adminProposalAction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdminProposalActionCreateManyArgs>(args?: SelectSubset<T, AdminProposalActionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdminProposalActions and returns the data saved in the database.
+     * @param {AdminProposalActionCreateManyAndReturnArgs} args - Arguments to create many AdminProposalActions.
+     * @example
+     * // Create many AdminProposalActions
+     * const adminProposalAction = await prisma.adminProposalAction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdminProposalActions and only return the `id`
+     * const adminProposalActionWithIdOnly = await prisma.adminProposalAction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdminProposalActionCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminProposalActionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdminProposalAction.
+     * @param {AdminProposalActionDeleteArgs} args - Arguments to delete one AdminProposalAction.
+     * @example
+     * // Delete one AdminProposalAction
+     * const AdminProposalAction = await prisma.adminProposalAction.delete({
+     *   where: {
+     *     // ... filter to delete one AdminProposalAction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdminProposalActionDeleteArgs>(args: SelectSubset<T, AdminProposalActionDeleteArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdminProposalAction.
+     * @param {AdminProposalActionUpdateArgs} args - Arguments to update one AdminProposalAction.
+     * @example
+     * // Update one AdminProposalAction
+     * const adminProposalAction = await prisma.adminProposalAction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdminProposalActionUpdateArgs>(args: SelectSubset<T, AdminProposalActionUpdateArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdminProposalActions.
+     * @param {AdminProposalActionDeleteManyArgs} args - Arguments to filter AdminProposalActions to delete.
+     * @example
+     * // Delete a few AdminProposalActions
+     * const { count } = await prisma.adminProposalAction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdminProposalActionDeleteManyArgs>(args?: SelectSubset<T, AdminProposalActionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminProposalActions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdminProposalActions
+     * const adminProposalAction = await prisma.adminProposalAction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdminProposalActionUpdateManyArgs>(args: SelectSubset<T, AdminProposalActionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminProposalActions and returns the data updated in the database.
+     * @param {AdminProposalActionUpdateManyAndReturnArgs} args - Arguments to update many AdminProposalActions.
+     * @example
+     * // Update many AdminProposalActions
+     * const adminProposalAction = await prisma.adminProposalAction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdminProposalActions and only return the `id`
+     * const adminProposalActionWithIdOnly = await prisma.adminProposalAction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdminProposalActionUpdateManyAndReturnArgs>(args: SelectSubset<T, AdminProposalActionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdminProposalAction.
+     * @param {AdminProposalActionUpsertArgs} args - Arguments to update or create a AdminProposalAction.
+     * @example
+     * // Update or create a AdminProposalAction
+     * const adminProposalAction = await prisma.adminProposalAction.upsert({
+     *   create: {
+     *     // ... data to create a AdminProposalAction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdminProposalAction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdminProposalActionUpsertArgs>(args: SelectSubset<T, AdminProposalActionUpsertArgs<ExtArgs>>): Prisma__AdminProposalActionClient<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdminProposalActions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionCountArgs} args - Arguments to filter AdminProposalActions to count.
+     * @example
+     * // Count the number of AdminProposalActions
+     * const count = await prisma.adminProposalAction.count({
+     *   where: {
+     *     // ... the filter for the AdminProposalActions we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdminProposalActionCountArgs>(
+      args?: Subset<T, AdminProposalActionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdminProposalActionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdminProposalAction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdminProposalActionAggregateArgs>(args: Subset<T, AdminProposalActionAggregateArgs>): Prisma.PrismaPromise<GetAdminProposalActionAggregateType<T>>
+
+    /**
+     * Group by AdminProposalAction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalActionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdminProposalActionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdminProposalActionGroupByArgs['orderBy'] }
+        : { orderBy?: AdminProposalActionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdminProposalActionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminProposalActionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdminProposalAction model
+   */
+  readonly fields: AdminProposalActionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdminProposalAction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdminProposalActionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    proposal<T extends AdminProposalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposalDefaultArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdminProposalAction model
+   */
+  interface AdminProposalActionFieldRefs {
+    readonly id: FieldRef<"AdminProposalAction", 'String'>
+    readonly proposalId: FieldRef<"AdminProposalAction", 'String'>
+    readonly orderIndex: FieldRef<"AdminProposalAction", 'Int'>
+    readonly label: FieldRef<"AdminProposalAction", 'String'>
+    readonly summary: FieldRef<"AdminProposalAction", 'String'>
+    readonly target: FieldRef<"AdminProposalAction", 'String'>
+    readonly valueWei: FieldRef<"AdminProposalAction", 'Decimal'>
+    readonly tokenAddress: FieldRef<"AdminProposalAction", 'String'>
+    readonly dataHex: FieldRef<"AdminProposalAction", 'String'>
+    readonly functionName: FieldRef<"AdminProposalAction", 'String'>
+    readonly argsJson: FieldRef<"AdminProposalAction", 'Json'>
+    readonly status: FieldRef<"AdminProposalAction", 'AdminProposalActionStatus'>
+    readonly submittedAt: FieldRef<"AdminProposalAction", 'DateTime'>
+    readonly executedAt: FieldRef<"AdminProposalAction", 'DateTime'>
+    readonly failedAt: FieldRef<"AdminProposalAction", 'DateTime'>
+    readonly createdAt: FieldRef<"AdminProposalAction", 'DateTime'>
+    readonly updatedAt: FieldRef<"AdminProposalAction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdminProposalAction findUnique
+   */
+  export type AdminProposalActionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalAction to fetch.
+     */
+    where: AdminProposalActionWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalAction findUniqueOrThrow
+   */
+  export type AdminProposalActionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalAction to fetch.
+     */
+    where: AdminProposalActionWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalAction findFirst
+   */
+  export type AdminProposalActionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalAction to fetch.
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalActions to fetch.
+     */
+    orderBy?: AdminProposalActionOrderByWithRelationInput | AdminProposalActionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminProposalActions.
+     */
+    cursor?: AdminProposalActionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalActions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalActions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposalActions.
+     */
+    distinct?: AdminProposalActionScalarFieldEnum | AdminProposalActionScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposalAction findFirstOrThrow
+   */
+  export type AdminProposalActionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalAction to fetch.
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalActions to fetch.
+     */
+    orderBy?: AdminProposalActionOrderByWithRelationInput | AdminProposalActionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminProposalActions.
+     */
+    cursor?: AdminProposalActionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalActions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalActions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposalActions.
+     */
+    distinct?: AdminProposalActionScalarFieldEnum | AdminProposalActionScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposalAction findMany
+   */
+  export type AdminProposalActionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalActions to fetch.
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalActions to fetch.
+     */
+    orderBy?: AdminProposalActionOrderByWithRelationInput | AdminProposalActionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdminProposalActions.
+     */
+    cursor?: AdminProposalActionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalActions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalActions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposalActions.
+     */
+    distinct?: AdminProposalActionScalarFieldEnum | AdminProposalActionScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposalAction create
+   */
+  export type AdminProposalActionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdminProposalAction.
+     */
+    data: XOR<AdminProposalActionCreateInput, AdminProposalActionUncheckedCreateInput>
+  }
+
+  /**
+   * AdminProposalAction createMany
+   */
+  export type AdminProposalActionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdminProposalActions.
+     */
+    data: AdminProposalActionCreateManyInput | AdminProposalActionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminProposalAction createManyAndReturn
+   */
+  export type AdminProposalActionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdminProposalActions.
+     */
+    data: AdminProposalActionCreateManyInput | AdminProposalActionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposalAction update
+   */
+  export type AdminProposalActionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdminProposalAction.
+     */
+    data: XOR<AdminProposalActionUpdateInput, AdminProposalActionUncheckedUpdateInput>
+    /**
+     * Choose, which AdminProposalAction to update.
+     */
+    where: AdminProposalActionWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalAction updateMany
+   */
+  export type AdminProposalActionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdminProposalActions.
+     */
+    data: XOR<AdminProposalActionUpdateManyMutationInput, AdminProposalActionUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminProposalActions to update
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * Limit how many AdminProposalActions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminProposalAction updateManyAndReturn
+   */
+  export type AdminProposalActionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * The data used to update AdminProposalActions.
+     */
+    data: XOR<AdminProposalActionUpdateManyMutationInput, AdminProposalActionUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminProposalActions to update
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * Limit how many AdminProposalActions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposalAction upsert
+   */
+  export type AdminProposalActionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdminProposalAction to update in case it exists.
+     */
+    where: AdminProposalActionWhereUniqueInput
+    /**
+     * In case the AdminProposalAction found by the `where` argument doesn't exist, create a new AdminProposalAction with this data.
+     */
+    create: XOR<AdminProposalActionCreateInput, AdminProposalActionUncheckedCreateInput>
+    /**
+     * In case the AdminProposalAction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdminProposalActionUpdateInput, AdminProposalActionUncheckedUpdateInput>
+  }
+
+  /**
+   * AdminProposalAction delete
+   */
+  export type AdminProposalActionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+    /**
+     * Filter which AdminProposalAction to delete.
+     */
+    where: AdminProposalActionWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalAction deleteMany
+   */
+  export type AdminProposalActionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminProposalActions to delete
+     */
+    where?: AdminProposalActionWhereInput
+    /**
+     * Limit how many AdminProposalActions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminProposalAction without action
+   */
+  export type AdminProposalActionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalAction
+     */
+    select?: AdminProposalActionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalAction
+     */
+    omit?: AdminProposalActionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalActionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AdminProposalEvent
+   */
+
+  export type AggregateAdminProposalEvent = {
+    _count: AdminProposalEventCountAggregateOutputType | null
+    _min: AdminProposalEventMinAggregateOutputType | null
+    _max: AdminProposalEventMaxAggregateOutputType | null
+  }
+
+  export type AdminProposalEventMinAggregateOutputType = {
+    id: string | null
+    proposalId: string | null
+    actorUserId: string | null
+    actorAddress: string | null
+    type: string | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type AdminProposalEventMaxAggregateOutputType = {
+    id: string | null
+    proposalId: string | null
+    actorUserId: string | null
+    actorAddress: string | null
+    type: string | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type AdminProposalEventCountAggregateOutputType = {
+    id: number
+    proposalId: number
+    actorUserId: number
+    actorAddress: number
+    type: number
+    note: number
+    payloadJson: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AdminProposalEventMinAggregateInputType = {
+    id?: true
+    proposalId?: true
+    actorUserId?: true
+    actorAddress?: true
+    type?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type AdminProposalEventMaxAggregateInputType = {
+    id?: true
+    proposalId?: true
+    actorUserId?: true
+    actorAddress?: true
+    type?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type AdminProposalEventCountAggregateInputType = {
+    id?: true
+    proposalId?: true
+    actorUserId?: true
+    actorAddress?: true
+    type?: true
+    note?: true
+    payloadJson?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AdminProposalEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminProposalEvent to aggregate.
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalEvents to fetch.
+     */
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdminProposalEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdminProposalEvents
+    **/
+    _count?: true | AdminProposalEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdminProposalEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdminProposalEventMaxAggregateInputType
+  }
+
+  export type GetAdminProposalEventAggregateType<T extends AdminProposalEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminProposalEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdminProposalEvent[P]>
+      : GetScalarType<T[P], AggregateAdminProposalEvent[P]>
+  }
+
+
+
+
+  export type AdminProposalEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalEventWhereInput
+    orderBy?: AdminProposalEventOrderByWithAggregationInput | AdminProposalEventOrderByWithAggregationInput[]
+    by: AdminProposalEventScalarFieldEnum[] | AdminProposalEventScalarFieldEnum
+    having?: AdminProposalEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdminProposalEventCountAggregateInputType | true
+    _min?: AdminProposalEventMinAggregateInputType
+    _max?: AdminProposalEventMaxAggregateInputType
+  }
+
+  export type AdminProposalEventGroupByOutputType = {
+    id: string
+    proposalId: string
+    actorUserId: string | null
+    actorAddress: string | null
+    type: string
+    note: string | null
+    payloadJson: JsonValue | null
+    createdAt: Date
+    _count: AdminProposalEventCountAggregateOutputType | null
+    _min: AdminProposalEventMinAggregateOutputType | null
+    _max: AdminProposalEventMaxAggregateOutputType | null
+  }
+
+  type GetAdminProposalEventGroupByPayload<T extends AdminProposalEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdminProposalEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdminProposalEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdminProposalEventGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminProposalEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdminProposalEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    proposalId?: boolean
+    actorUserId?: boolean
+    actorAddress?: boolean
+    type?: boolean
+    note?: boolean
+    payloadJson?: boolean
+    createdAt?: boolean
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+    actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposalEvent"]>
+
+  export type AdminProposalEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    proposalId?: boolean
+    actorUserId?: boolean
+    actorAddress?: boolean
+    type?: boolean
+    note?: boolean
+    payloadJson?: boolean
+    createdAt?: boolean
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+    actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposalEvent"]>
+
+  export type AdminProposalEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    proposalId?: boolean
+    actorUserId?: boolean
+    actorAddress?: boolean
+    type?: boolean
+    note?: boolean
+    payloadJson?: boolean
+    createdAt?: boolean
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+    actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+  }, ExtArgs["result"]["adminProposalEvent"]>
+
+  export type AdminProposalEventSelectScalar = {
+    id?: boolean
+    proposalId?: boolean
+    actorUserId?: boolean
+    actorAddress?: boolean
+    type?: boolean
+    note?: boolean
+    payloadJson?: boolean
+    createdAt?: boolean
+  }
+
+  export type AdminProposalEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "proposalId" | "actorUserId" | "actorAddress" | "type" | "note" | "payloadJson" | "createdAt", ExtArgs["result"]["adminProposalEvent"]>
+  export type AdminProposalEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+    actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+  }
+  export type AdminProposalEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+    actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+  }
+  export type AdminProposalEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
+    actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+  }
+
+  export type $AdminProposalEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminProposalEvent"
+    objects: {
+      proposal: Prisma.$AdminProposalPayload<ExtArgs>
+      actorUser: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      proposalId: string
+      actorUserId: string | null
+      actorAddress: string | null
+      type: string
+      note: string | null
+      payloadJson: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["adminProposalEvent"]>
+    composites: {}
+  }
+
+  type AdminProposalEventGetPayload<S extends boolean | null | undefined | AdminProposalEventDefaultArgs> = $Result.GetResult<Prisma.$AdminProposalEventPayload, S>
+
+  type AdminProposalEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdminProposalEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdminProposalEventCountAggregateInputType | true
+    }
+
+  export interface AdminProposalEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminProposalEvent'], meta: { name: 'AdminProposalEvent' } }
+    /**
+     * Find zero or one AdminProposalEvent that matches the filter.
+     * @param {AdminProposalEventFindUniqueArgs} args - Arguments to find a AdminProposalEvent
+     * @example
+     * // Get one AdminProposalEvent
+     * const adminProposalEvent = await prisma.adminProposalEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdminProposalEventFindUniqueArgs>(args: SelectSubset<T, AdminProposalEventFindUniqueArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdminProposalEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdminProposalEventFindUniqueOrThrowArgs} args - Arguments to find a AdminProposalEvent
+     * @example
+     * // Get one AdminProposalEvent
+     * const adminProposalEvent = await prisma.adminProposalEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdminProposalEventFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminProposalEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminProposalEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventFindFirstArgs} args - Arguments to find a AdminProposalEvent
+     * @example
+     * // Get one AdminProposalEvent
+     * const adminProposalEvent = await prisma.adminProposalEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdminProposalEventFindFirstArgs>(args?: SelectSubset<T, AdminProposalEventFindFirstArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdminProposalEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventFindFirstOrThrowArgs} args - Arguments to find a AdminProposalEvent
+     * @example
+     * // Get one AdminProposalEvent
+     * const adminProposalEvent = await prisma.adminProposalEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdminProposalEventFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminProposalEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdminProposalEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdminProposalEvents
+     * const adminProposalEvents = await prisma.adminProposalEvent.findMany()
+     * 
+     * // Get first 10 AdminProposalEvents
+     * const adminProposalEvents = await prisma.adminProposalEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const adminProposalEventWithIdOnly = await prisma.adminProposalEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdminProposalEventFindManyArgs>(args?: SelectSubset<T, AdminProposalEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdminProposalEvent.
+     * @param {AdminProposalEventCreateArgs} args - Arguments to create a AdminProposalEvent.
+     * @example
+     * // Create one AdminProposalEvent
+     * const AdminProposalEvent = await prisma.adminProposalEvent.create({
+     *   data: {
+     *     // ... data to create a AdminProposalEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdminProposalEventCreateArgs>(args: SelectSubset<T, AdminProposalEventCreateArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdminProposalEvents.
+     * @param {AdminProposalEventCreateManyArgs} args - Arguments to create many AdminProposalEvents.
+     * @example
+     * // Create many AdminProposalEvents
+     * const adminProposalEvent = await prisma.adminProposalEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdminProposalEventCreateManyArgs>(args?: SelectSubset<T, AdminProposalEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdminProposalEvents and returns the data saved in the database.
+     * @param {AdminProposalEventCreateManyAndReturnArgs} args - Arguments to create many AdminProposalEvents.
+     * @example
+     * // Create many AdminProposalEvents
+     * const adminProposalEvent = await prisma.adminProposalEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdminProposalEvents and only return the `id`
+     * const adminProposalEventWithIdOnly = await prisma.adminProposalEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdminProposalEventCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminProposalEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdminProposalEvent.
+     * @param {AdminProposalEventDeleteArgs} args - Arguments to delete one AdminProposalEvent.
+     * @example
+     * // Delete one AdminProposalEvent
+     * const AdminProposalEvent = await prisma.adminProposalEvent.delete({
+     *   where: {
+     *     // ... filter to delete one AdminProposalEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdminProposalEventDeleteArgs>(args: SelectSubset<T, AdminProposalEventDeleteArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdminProposalEvent.
+     * @param {AdminProposalEventUpdateArgs} args - Arguments to update one AdminProposalEvent.
+     * @example
+     * // Update one AdminProposalEvent
+     * const adminProposalEvent = await prisma.adminProposalEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdminProposalEventUpdateArgs>(args: SelectSubset<T, AdminProposalEventUpdateArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdminProposalEvents.
+     * @param {AdminProposalEventDeleteManyArgs} args - Arguments to filter AdminProposalEvents to delete.
+     * @example
+     * // Delete a few AdminProposalEvents
+     * const { count } = await prisma.adminProposalEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdminProposalEventDeleteManyArgs>(args?: SelectSubset<T, AdminProposalEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminProposalEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdminProposalEvents
+     * const adminProposalEvent = await prisma.adminProposalEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdminProposalEventUpdateManyArgs>(args: SelectSubset<T, AdminProposalEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminProposalEvents and returns the data updated in the database.
+     * @param {AdminProposalEventUpdateManyAndReturnArgs} args - Arguments to update many AdminProposalEvents.
+     * @example
+     * // Update many AdminProposalEvents
+     * const adminProposalEvent = await prisma.adminProposalEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdminProposalEvents and only return the `id`
+     * const adminProposalEventWithIdOnly = await prisma.adminProposalEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdminProposalEventUpdateManyAndReturnArgs>(args: SelectSubset<T, AdminProposalEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdminProposalEvent.
+     * @param {AdminProposalEventUpsertArgs} args - Arguments to update or create a AdminProposalEvent.
+     * @example
+     * // Update or create a AdminProposalEvent
+     * const adminProposalEvent = await prisma.adminProposalEvent.upsert({
+     *   create: {
+     *     // ... data to create a AdminProposalEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdminProposalEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdminProposalEventUpsertArgs>(args: SelectSubset<T, AdminProposalEventUpsertArgs<ExtArgs>>): Prisma__AdminProposalEventClient<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdminProposalEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventCountArgs} args - Arguments to filter AdminProposalEvents to count.
+     * @example
+     * // Count the number of AdminProposalEvents
+     * const count = await prisma.adminProposalEvent.count({
+     *   where: {
+     *     // ... the filter for the AdminProposalEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdminProposalEventCountArgs>(
+      args?: Subset<T, AdminProposalEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdminProposalEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdminProposalEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdminProposalEventAggregateArgs>(args: Subset<T, AdminProposalEventAggregateArgs>): Prisma.PrismaPromise<GetAdminProposalEventAggregateType<T>>
+
+    /**
+     * Group by AdminProposalEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminProposalEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdminProposalEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdminProposalEventGroupByArgs['orderBy'] }
+        : { orderBy?: AdminProposalEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdminProposalEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminProposalEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdminProposalEvent model
+   */
+  readonly fields: AdminProposalEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdminProposalEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdminProposalEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    proposal<T extends AdminProposalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposalDefaultArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    actorUser<T extends AdminProposalEvent$actorUserArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposalEvent$actorUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdminProposalEvent model
+   */
+  interface AdminProposalEventFieldRefs {
+    readonly id: FieldRef<"AdminProposalEvent", 'String'>
+    readonly proposalId: FieldRef<"AdminProposalEvent", 'String'>
+    readonly actorUserId: FieldRef<"AdminProposalEvent", 'String'>
+    readonly actorAddress: FieldRef<"AdminProposalEvent", 'String'>
+    readonly type: FieldRef<"AdminProposalEvent", 'String'>
+    readonly note: FieldRef<"AdminProposalEvent", 'String'>
+    readonly payloadJson: FieldRef<"AdminProposalEvent", 'Json'>
+    readonly createdAt: FieldRef<"AdminProposalEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdminProposalEvent findUnique
+   */
+  export type AdminProposalEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalEvent to fetch.
+     */
+    where: AdminProposalEventWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalEvent findUniqueOrThrow
+   */
+  export type AdminProposalEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalEvent to fetch.
+     */
+    where: AdminProposalEventWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalEvent findFirst
+   */
+  export type AdminProposalEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalEvent to fetch.
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalEvents to fetch.
+     */
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminProposalEvents.
+     */
+    cursor?: AdminProposalEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposalEvents.
+     */
+    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposalEvent findFirstOrThrow
+   */
+  export type AdminProposalEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalEvent to fetch.
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalEvents to fetch.
+     */
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminProposalEvents.
+     */
+    cursor?: AdminProposalEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposalEvents.
+     */
+    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposalEvent findMany
+   */
+  export type AdminProposalEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AdminProposalEvents to fetch.
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminProposalEvents to fetch.
+     */
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdminProposalEvents.
+     */
+    cursor?: AdminProposalEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminProposalEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminProposalEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminProposalEvents.
+     */
+    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
+  }
+
+  /**
+   * AdminProposalEvent create
+   */
+  export type AdminProposalEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdminProposalEvent.
+     */
+    data: XOR<AdminProposalEventCreateInput, AdminProposalEventUncheckedCreateInput>
+  }
+
+  /**
+   * AdminProposalEvent createMany
+   */
+  export type AdminProposalEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdminProposalEvents.
+     */
+    data: AdminProposalEventCreateManyInput | AdminProposalEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminProposalEvent createManyAndReturn
+   */
+  export type AdminProposalEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdminProposalEvents.
+     */
+    data: AdminProposalEventCreateManyInput | AdminProposalEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposalEvent update
+   */
+  export type AdminProposalEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdminProposalEvent.
+     */
+    data: XOR<AdminProposalEventUpdateInput, AdminProposalEventUncheckedUpdateInput>
+    /**
+     * Choose, which AdminProposalEvent to update.
+     */
+    where: AdminProposalEventWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalEvent updateMany
+   */
+  export type AdminProposalEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdminProposalEvents.
+     */
+    data: XOR<AdminProposalEventUpdateManyMutationInput, AdminProposalEventUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminProposalEvents to update
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * Limit how many AdminProposalEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminProposalEvent updateManyAndReturn
+   */
+  export type AdminProposalEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * The data used to update AdminProposalEvents.
+     */
+    data: XOR<AdminProposalEventUpdateManyMutationInput, AdminProposalEventUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminProposalEvents to update
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * Limit how many AdminProposalEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdminProposalEvent upsert
+   */
+  export type AdminProposalEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdminProposalEvent to update in case it exists.
+     */
+    where: AdminProposalEventWhereUniqueInput
+    /**
+     * In case the AdminProposalEvent found by the `where` argument doesn't exist, create a new AdminProposalEvent with this data.
+     */
+    create: XOR<AdminProposalEventCreateInput, AdminProposalEventUncheckedCreateInput>
+    /**
+     * In case the AdminProposalEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdminProposalEventUpdateInput, AdminProposalEventUncheckedUpdateInput>
+  }
+
+  /**
+   * AdminProposalEvent delete
+   */
+  export type AdminProposalEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    /**
+     * Filter which AdminProposalEvent to delete.
+     */
+    where: AdminProposalEventWhereUniqueInput
+  }
+
+  /**
+   * AdminProposalEvent deleteMany
+   */
+  export type AdminProposalEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminProposalEvents to delete
+     */
+    where?: AdminProposalEventWhereInput
+    /**
+     * Limit how many AdminProposalEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdminProposalEvent.actorUser
+   */
+  export type AdminProposalEvent$actorUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * AdminProposalEvent without action
+   */
+  export type AdminProposalEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -66483,6 +70984,78 @@ export namespace Prisma {
   export type WarpoolActivityScalarFieldEnum = (typeof WarpoolActivityScalarFieldEnum)[keyof typeof WarpoolActivityScalarFieldEnum]
 
 
+  export const AdminProposalScalarFieldEnum: {
+    id: 'id',
+    area: 'area',
+    kind: 'kind',
+    title: 'title',
+    slug: 'slug',
+    summary: 'summary',
+    description: 'description',
+    safeId: 'safeId',
+    safeContract: 'safeContract',
+    chainId: 'chainId',
+    createdByUserId: 'createdByUserId',
+    createdByAddress: 'createdByAddress',
+    lastEditedByUserId: 'lastEditedByUserId',
+    lastEditedByAddress: 'lastEditedByAddress',
+    basedOnConfigVersion: 'basedOnConfigVersion',
+    runtimeReferenceId: 'runtimeReferenceId',
+    status: 'status',
+    actionCount: 'actionCount',
+    submittedMultisigTxId: 'submittedMultisigTxId',
+    submittedMultisigNonce: 'submittedMultisigNonce',
+    submittedAt: 'submittedAt',
+    approvedAt: 'approvedAt',
+    executedAt: 'executedAt',
+    cancelledAt: 'cancelledAt',
+    failedAt: 'failedAt',
+    snapshotJson: 'snapshotJson',
+    metadataJson: 'metadataJson',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AdminProposalScalarFieldEnum = (typeof AdminProposalScalarFieldEnum)[keyof typeof AdminProposalScalarFieldEnum]
+
+
+  export const AdminProposalActionScalarFieldEnum: {
+    id: 'id',
+    proposalId: 'proposalId',
+    orderIndex: 'orderIndex',
+    label: 'label',
+    summary: 'summary',
+    target: 'target',
+    valueWei: 'valueWei',
+    tokenAddress: 'tokenAddress',
+    dataHex: 'dataHex',
+    functionName: 'functionName',
+    argsJson: 'argsJson',
+    status: 'status',
+    submittedAt: 'submittedAt',
+    executedAt: 'executedAt',
+    failedAt: 'failedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AdminProposalActionScalarFieldEnum = (typeof AdminProposalActionScalarFieldEnum)[keyof typeof AdminProposalActionScalarFieldEnum]
+
+
+  export const AdminProposalEventScalarFieldEnum: {
+    id: 'id',
+    proposalId: 'proposalId',
+    actorUserId: 'actorUserId',
+    actorAddress: 'actorAddress',
+    type: 'type',
+    note: 'note',
+    payloadJson: 'payloadJson',
+    createdAt: 'createdAt'
+  };
+
+  export type AdminProposalEventScalarFieldEnum = (typeof AdminProposalEventScalarFieldEnum)[keyof typeof AdminProposalEventScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -66989,6 +71562,62 @@ export namespace Prisma {
    */
   export type ListEnumWarpoolActivityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WarpoolActivityType[]'>
     
+
+
+  /**
+   * Reference to a field of type 'AdminProposalArea'
+   */
+  export type EnumAdminProposalAreaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalArea'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalArea[]'
+   */
+  export type ListEnumAdminProposalAreaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalArea[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalKind'
+   */
+  export type EnumAdminProposalKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalKind'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalKind[]'
+   */
+  export type ListEnumAdminProposalKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalKind[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalStatus'
+   */
+  export type EnumAdminProposalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalStatus[]'
+   */
+  export type ListEnumAdminProposalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalActionStatus'
+   */
+  export type EnumAdminProposalActionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalActionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdminProposalActionStatus[]'
+   */
+  export type ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdminProposalActionStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -67070,6 +71699,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationListRelationFilter
     warpoolActivities?: WarpoolActivityListRelationFilter
     warpoolCapturesAsOwner?: WarpoolCaptureListRelationFilter
+    adminProposalsCreated?: AdminProposalListRelationFilter
+    adminProposalsEdited?: AdminProposalListRelationFilter
+    adminProposalEvents?: AdminProposalEventListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -67095,6 +71727,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationOrderByRelationAggregateInput
     warpoolActivities?: WarpoolActivityOrderByRelationAggregateInput
     warpoolCapturesAsOwner?: WarpoolCaptureOrderByRelationAggregateInput
+    adminProposalsCreated?: AdminProposalOrderByRelationAggregateInput
+    adminProposalsEdited?: AdminProposalOrderByRelationAggregateInput
+    adminProposalEvents?: AdminProposalEventOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -67123,6 +71758,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationListRelationFilter
     warpoolActivities?: WarpoolActivityListRelationFilter
     warpoolCapturesAsOwner?: WarpoolCaptureListRelationFilter
+    adminProposalsCreated?: AdminProposalListRelationFilter
+    adminProposalsEdited?: AdminProposalListRelationFilter
+    adminProposalEvents?: AdminProposalEventListRelationFilter
   }, "id" | "walletAddress">
 
   export type UserOrderByWithAggregationInput = {
@@ -70084,6 +74722,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MultisigSafe"> | Date | string
     owners?: MultisigOwnerListRelationFilter
     txs?: MultisigTxListRelationFilter
+    adminProposals?: AdminProposalListRelationFilter
   }
 
   export type MultisigSafeOrderByWithRelationInput = {
@@ -70095,6 +74734,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     owners?: MultisigOwnerOrderByRelationAggregateInput
     txs?: MultisigTxOrderByRelationAggregateInput
+    adminProposals?: AdminProposalOrderByRelationAggregateInput
   }
 
   export type MultisigSafeWhereUniqueInput = Prisma.AtLeast<{
@@ -70109,6 +74749,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MultisigSafe"> | Date | string
     owners?: MultisigOwnerListRelationFilter
     txs?: MultisigTxListRelationFilter
+    adminProposals?: AdminProposalListRelationFilter
   }, "id" | "contract">
 
   export type MultisigSafeOrderByWithAggregationInput = {
@@ -70211,6 +74852,7 @@ export namespace Prisma {
     executedAt?: DateTimeNullableFilter<"MultisigTx"> | Date | string | null
     approvals?: MultisigApprovalListRelationFilter
     safe?: XOR<MultisigSafeScalarRelationFilter, MultisigSafeWhereInput>
+    linkedAdminProposals?: AdminProposalListRelationFilter
   }
 
   export type MultisigTxOrderByWithRelationInput = {
@@ -70228,6 +74870,7 @@ export namespace Prisma {
     executedAt?: SortOrderInput | SortOrder
     approvals?: MultisigApprovalOrderByRelationAggregateInput
     safe?: MultisigSafeOrderByWithRelationInput
+    linkedAdminProposals?: AdminProposalOrderByRelationAggregateInput
   }
 
   export type MultisigTxWhereUniqueInput = Prisma.AtLeast<{
@@ -70249,6 +74892,7 @@ export namespace Prisma {
     executedAt?: DateTimeNullableFilter<"MultisigTx"> | Date | string | null
     approvals?: MultisigApprovalListRelationFilter
     safe?: XOR<MultisigSafeScalarRelationFilter, MultisigSafeWhereInput>
+    linkedAdminProposals?: AdminProposalListRelationFilter
   }, "id" | "safeId_nonce">
 
   export type MultisigTxOrderByWithAggregationInput = {
@@ -71858,6 +76502,389 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"WarpoolActivity"> | Date | string
   }
 
+  export type AdminProposalWhereInput = {
+    AND?: AdminProposalWhereInput | AdminProposalWhereInput[]
+    OR?: AdminProposalWhereInput[]
+    NOT?: AdminProposalWhereInput | AdminProposalWhereInput[]
+    id?: StringFilter<"AdminProposal"> | string
+    area?: EnumAdminProposalAreaFilter<"AdminProposal"> | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFilter<"AdminProposal"> | $Enums.AdminProposalKind
+    title?: StringFilter<"AdminProposal"> | string
+    slug?: StringNullableFilter<"AdminProposal"> | string | null
+    summary?: StringNullableFilter<"AdminProposal"> | string | null
+    description?: StringNullableFilter<"AdminProposal"> | string | null
+    safeId?: StringNullableFilter<"AdminProposal"> | string | null
+    safeContract?: StringNullableFilter<"AdminProposal"> | string | null
+    chainId?: IntNullableFilter<"AdminProposal"> | number | null
+    createdByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    createdByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    basedOnConfigVersion?: BigIntNullableFilter<"AdminProposal"> | bigint | number | null
+    runtimeReferenceId?: StringNullableFilter<"AdminProposal"> | string | null
+    status?: EnumAdminProposalStatusFilter<"AdminProposal"> | $Enums.AdminProposalStatus
+    actionCount?: IntFilter<"AdminProposal"> | number
+    submittedMultisigTxId?: StringNullableFilter<"AdminProposal"> | string | null
+    submittedMultisigNonce?: IntNullableFilter<"AdminProposal"> | number | null
+    submittedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    approvedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    snapshotJson?: JsonNullableFilter<"AdminProposal">
+    metadataJson?: JsonNullableFilter<"AdminProposal">
+    createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
+    safe?: XOR<MultisigSafeNullableScalarRelationFilter, MultisigSafeWhereInput> | null
+    createdByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    lastEditedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    submittedMultisigTx?: XOR<MultisigTxNullableScalarRelationFilter, MultisigTxWhereInput> | null
+    actions?: AdminProposalActionListRelationFilter
+    events?: AdminProposalEventListRelationFilter
+  }
+
+  export type AdminProposalOrderByWithRelationInput = {
+    id?: SortOrder
+    area?: SortOrder
+    kind?: SortOrder
+    title?: SortOrder
+    slug?: SortOrderInput | SortOrder
+    summary?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    safeId?: SortOrderInput | SortOrder
+    safeContract?: SortOrderInput | SortOrder
+    chainId?: SortOrderInput | SortOrder
+    createdByUserId?: SortOrderInput | SortOrder
+    createdByAddress?: SortOrderInput | SortOrder
+    lastEditedByUserId?: SortOrderInput | SortOrder
+    lastEditedByAddress?: SortOrderInput | SortOrder
+    basedOnConfigVersion?: SortOrderInput | SortOrder
+    runtimeReferenceId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigTxId?: SortOrderInput | SortOrder
+    submittedMultisigNonce?: SortOrderInput | SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    executedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    snapshotJson?: SortOrderInput | SortOrder
+    metadataJson?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    safe?: MultisigSafeOrderByWithRelationInput
+    createdByUser?: UserOrderByWithRelationInput
+    lastEditedByUser?: UserOrderByWithRelationInput
+    submittedMultisigTx?: MultisigTxOrderByWithRelationInput
+    actions?: AdminProposalActionOrderByRelationAggregateInput
+    events?: AdminProposalEventOrderByRelationAggregateInput
+  }
+
+  export type AdminProposalWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AdminProposalWhereInput | AdminProposalWhereInput[]
+    OR?: AdminProposalWhereInput[]
+    NOT?: AdminProposalWhereInput | AdminProposalWhereInput[]
+    area?: EnumAdminProposalAreaFilter<"AdminProposal"> | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFilter<"AdminProposal"> | $Enums.AdminProposalKind
+    title?: StringFilter<"AdminProposal"> | string
+    slug?: StringNullableFilter<"AdminProposal"> | string | null
+    summary?: StringNullableFilter<"AdminProposal"> | string | null
+    description?: StringNullableFilter<"AdminProposal"> | string | null
+    safeId?: StringNullableFilter<"AdminProposal"> | string | null
+    safeContract?: StringNullableFilter<"AdminProposal"> | string | null
+    chainId?: IntNullableFilter<"AdminProposal"> | number | null
+    createdByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    createdByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    basedOnConfigVersion?: BigIntNullableFilter<"AdminProposal"> | bigint | number | null
+    runtimeReferenceId?: StringNullableFilter<"AdminProposal"> | string | null
+    status?: EnumAdminProposalStatusFilter<"AdminProposal"> | $Enums.AdminProposalStatus
+    actionCount?: IntFilter<"AdminProposal"> | number
+    submittedMultisigTxId?: StringNullableFilter<"AdminProposal"> | string | null
+    submittedMultisigNonce?: IntNullableFilter<"AdminProposal"> | number | null
+    submittedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    approvedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    snapshotJson?: JsonNullableFilter<"AdminProposal">
+    metadataJson?: JsonNullableFilter<"AdminProposal">
+    createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
+    safe?: XOR<MultisigSafeNullableScalarRelationFilter, MultisigSafeWhereInput> | null
+    createdByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    lastEditedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    submittedMultisigTx?: XOR<MultisigTxNullableScalarRelationFilter, MultisigTxWhereInput> | null
+    actions?: AdminProposalActionListRelationFilter
+    events?: AdminProposalEventListRelationFilter
+  }, "id">
+
+  export type AdminProposalOrderByWithAggregationInput = {
+    id?: SortOrder
+    area?: SortOrder
+    kind?: SortOrder
+    title?: SortOrder
+    slug?: SortOrderInput | SortOrder
+    summary?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    safeId?: SortOrderInput | SortOrder
+    safeContract?: SortOrderInput | SortOrder
+    chainId?: SortOrderInput | SortOrder
+    createdByUserId?: SortOrderInput | SortOrder
+    createdByAddress?: SortOrderInput | SortOrder
+    lastEditedByUserId?: SortOrderInput | SortOrder
+    lastEditedByAddress?: SortOrderInput | SortOrder
+    basedOnConfigVersion?: SortOrderInput | SortOrder
+    runtimeReferenceId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigTxId?: SortOrderInput | SortOrder
+    submittedMultisigNonce?: SortOrderInput | SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    executedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    snapshotJson?: SortOrderInput | SortOrder
+    metadataJson?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AdminProposalCountOrderByAggregateInput
+    _avg?: AdminProposalAvgOrderByAggregateInput
+    _max?: AdminProposalMaxOrderByAggregateInput
+    _min?: AdminProposalMinOrderByAggregateInput
+    _sum?: AdminProposalSumOrderByAggregateInput
+  }
+
+  export type AdminProposalScalarWhereWithAggregatesInput = {
+    AND?: AdminProposalScalarWhereWithAggregatesInput | AdminProposalScalarWhereWithAggregatesInput[]
+    OR?: AdminProposalScalarWhereWithAggregatesInput[]
+    NOT?: AdminProposalScalarWhereWithAggregatesInput | AdminProposalScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdminProposal"> | string
+    area?: EnumAdminProposalAreaWithAggregatesFilter<"AdminProposal"> | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindWithAggregatesFilter<"AdminProposal"> | $Enums.AdminProposalKind
+    title?: StringWithAggregatesFilter<"AdminProposal"> | string
+    slug?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    summary?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    description?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    safeId?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    safeContract?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    chainId?: IntNullableWithAggregatesFilter<"AdminProposal"> | number | null
+    createdByUserId?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    createdByAddress?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    lastEditedByUserId?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    lastEditedByAddress?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    basedOnConfigVersion?: BigIntNullableWithAggregatesFilter<"AdminProposal"> | bigint | number | null
+    runtimeReferenceId?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    status?: EnumAdminProposalStatusWithAggregatesFilter<"AdminProposal"> | $Enums.AdminProposalStatus
+    actionCount?: IntWithAggregatesFilter<"AdminProposal"> | number
+    submittedMultisigTxId?: StringNullableWithAggregatesFilter<"AdminProposal"> | string | null
+    submittedMultisigNonce?: IntNullableWithAggregatesFilter<"AdminProposal"> | number | null
+    submittedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposal"> | Date | string | null
+    approvedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposal"> | Date | string | null
+    executedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposal"> | Date | string | null
+    cancelledAt?: DateTimeNullableWithAggregatesFilter<"AdminProposal"> | Date | string | null
+    failedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposal"> | Date | string | null
+    snapshotJson?: JsonNullableWithAggregatesFilter<"AdminProposal">
+    metadataJson?: JsonNullableWithAggregatesFilter<"AdminProposal">
+    createdAt?: DateTimeWithAggregatesFilter<"AdminProposal"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AdminProposal"> | Date | string
+  }
+
+  export type AdminProposalActionWhereInput = {
+    AND?: AdminProposalActionWhereInput | AdminProposalActionWhereInput[]
+    OR?: AdminProposalActionWhereInput[]
+    NOT?: AdminProposalActionWhereInput | AdminProposalActionWhereInput[]
+    id?: StringFilter<"AdminProposalAction"> | string
+    proposalId?: StringFilter<"AdminProposalAction"> | string
+    orderIndex?: IntFilter<"AdminProposalAction"> | number
+    label?: StringNullableFilter<"AdminProposalAction"> | string | null
+    summary?: StringNullableFilter<"AdminProposalAction"> | string | null
+    target?: StringFilter<"AdminProposalAction"> | string
+    valueWei?: DecimalFilter<"AdminProposalAction"> | Decimal | DecimalJsLike | number | string
+    tokenAddress?: StringNullableFilter<"AdminProposalAction"> | string | null
+    dataHex?: StringFilter<"AdminProposalAction"> | string
+    functionName?: StringNullableFilter<"AdminProposalAction"> | string | null
+    argsJson?: JsonNullableFilter<"AdminProposalAction">
+    status?: EnumAdminProposalActionStatusFilter<"AdminProposalAction"> | $Enums.AdminProposalActionStatus
+    submittedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    createdAt?: DateTimeFilter<"AdminProposalAction"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposalAction"> | Date | string
+    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
+  }
+
+  export type AdminProposalActionOrderByWithRelationInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    orderIndex?: SortOrder
+    label?: SortOrderInput | SortOrder
+    summary?: SortOrderInput | SortOrder
+    target?: SortOrder
+    valueWei?: SortOrder
+    tokenAddress?: SortOrderInput | SortOrder
+    dataHex?: SortOrder
+    functionName?: SortOrderInput | SortOrder
+    argsJson?: SortOrderInput | SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    executedAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    proposal?: AdminProposalOrderByWithRelationInput
+  }
+
+  export type AdminProposalActionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    proposalId_orderIndex?: AdminProposalActionProposalIdOrderIndexCompoundUniqueInput
+    AND?: AdminProposalActionWhereInput | AdminProposalActionWhereInput[]
+    OR?: AdminProposalActionWhereInput[]
+    NOT?: AdminProposalActionWhereInput | AdminProposalActionWhereInput[]
+    proposalId?: StringFilter<"AdminProposalAction"> | string
+    orderIndex?: IntFilter<"AdminProposalAction"> | number
+    label?: StringNullableFilter<"AdminProposalAction"> | string | null
+    summary?: StringNullableFilter<"AdminProposalAction"> | string | null
+    target?: StringFilter<"AdminProposalAction"> | string
+    valueWei?: DecimalFilter<"AdminProposalAction"> | Decimal | DecimalJsLike | number | string
+    tokenAddress?: StringNullableFilter<"AdminProposalAction"> | string | null
+    dataHex?: StringFilter<"AdminProposalAction"> | string
+    functionName?: StringNullableFilter<"AdminProposalAction"> | string | null
+    argsJson?: JsonNullableFilter<"AdminProposalAction">
+    status?: EnumAdminProposalActionStatusFilter<"AdminProposalAction"> | $Enums.AdminProposalActionStatus
+    submittedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    createdAt?: DateTimeFilter<"AdminProposalAction"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposalAction"> | Date | string
+    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
+  }, "id" | "proposalId_orderIndex">
+
+  export type AdminProposalActionOrderByWithAggregationInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    orderIndex?: SortOrder
+    label?: SortOrderInput | SortOrder
+    summary?: SortOrderInput | SortOrder
+    target?: SortOrder
+    valueWei?: SortOrder
+    tokenAddress?: SortOrderInput | SortOrder
+    dataHex?: SortOrder
+    functionName?: SortOrderInput | SortOrder
+    argsJson?: SortOrderInput | SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrderInput | SortOrder
+    executedAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AdminProposalActionCountOrderByAggregateInput
+    _avg?: AdminProposalActionAvgOrderByAggregateInput
+    _max?: AdminProposalActionMaxOrderByAggregateInput
+    _min?: AdminProposalActionMinOrderByAggregateInput
+    _sum?: AdminProposalActionSumOrderByAggregateInput
+  }
+
+  export type AdminProposalActionScalarWhereWithAggregatesInput = {
+    AND?: AdminProposalActionScalarWhereWithAggregatesInput | AdminProposalActionScalarWhereWithAggregatesInput[]
+    OR?: AdminProposalActionScalarWhereWithAggregatesInput[]
+    NOT?: AdminProposalActionScalarWhereWithAggregatesInput | AdminProposalActionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdminProposalAction"> | string
+    proposalId?: StringWithAggregatesFilter<"AdminProposalAction"> | string
+    orderIndex?: IntWithAggregatesFilter<"AdminProposalAction"> | number
+    label?: StringNullableWithAggregatesFilter<"AdminProposalAction"> | string | null
+    summary?: StringNullableWithAggregatesFilter<"AdminProposalAction"> | string | null
+    target?: StringWithAggregatesFilter<"AdminProposalAction"> | string
+    valueWei?: DecimalWithAggregatesFilter<"AdminProposalAction"> | Decimal | DecimalJsLike | number | string
+    tokenAddress?: StringNullableWithAggregatesFilter<"AdminProposalAction"> | string | null
+    dataHex?: StringWithAggregatesFilter<"AdminProposalAction"> | string
+    functionName?: StringNullableWithAggregatesFilter<"AdminProposalAction"> | string | null
+    argsJson?: JsonNullableWithAggregatesFilter<"AdminProposalAction">
+    status?: EnumAdminProposalActionStatusWithAggregatesFilter<"AdminProposalAction"> | $Enums.AdminProposalActionStatus
+    submittedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposalAction"> | Date | string | null
+    executedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposalAction"> | Date | string | null
+    failedAt?: DateTimeNullableWithAggregatesFilter<"AdminProposalAction"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AdminProposalAction"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AdminProposalAction"> | Date | string
+  }
+
+  export type AdminProposalEventWhereInput = {
+    AND?: AdminProposalEventWhereInput | AdminProposalEventWhereInput[]
+    OR?: AdminProposalEventWhereInput[]
+    NOT?: AdminProposalEventWhereInput | AdminProposalEventWhereInput[]
+    id?: StringFilter<"AdminProposalEvent"> | string
+    proposalId?: StringFilter<"AdminProposalEvent"> | string
+    actorUserId?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    actorAddress?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    type?: StringFilter<"AdminProposalEvent"> | string
+    note?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"AdminProposalEvent">
+    createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
+    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
+    actorUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type AdminProposalEventOrderByWithRelationInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    actorUserId?: SortOrderInput | SortOrder
+    actorAddress?: SortOrderInput | SortOrder
+    type?: SortOrder
+    note?: SortOrderInput | SortOrder
+    payloadJson?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    proposal?: AdminProposalOrderByWithRelationInput
+    actorUser?: UserOrderByWithRelationInput
+  }
+
+  export type AdminProposalEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AdminProposalEventWhereInput | AdminProposalEventWhereInput[]
+    OR?: AdminProposalEventWhereInput[]
+    NOT?: AdminProposalEventWhereInput | AdminProposalEventWhereInput[]
+    proposalId?: StringFilter<"AdminProposalEvent"> | string
+    actorUserId?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    actorAddress?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    type?: StringFilter<"AdminProposalEvent"> | string
+    note?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"AdminProposalEvent">
+    createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
+    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
+    actorUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type AdminProposalEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    actorUserId?: SortOrderInput | SortOrder
+    actorAddress?: SortOrderInput | SortOrder
+    type?: SortOrder
+    note?: SortOrderInput | SortOrder
+    payloadJson?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AdminProposalEventCountOrderByAggregateInput
+    _max?: AdminProposalEventMaxOrderByAggregateInput
+    _min?: AdminProposalEventMinOrderByAggregateInput
+  }
+
+  export type AdminProposalEventScalarWhereWithAggregatesInput = {
+    AND?: AdminProposalEventScalarWhereWithAggregatesInput | AdminProposalEventScalarWhereWithAggregatesInput[]
+    OR?: AdminProposalEventScalarWhereWithAggregatesInput[]
+    NOT?: AdminProposalEventScalarWhereWithAggregatesInput | AdminProposalEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdminProposalEvent"> | string
+    proposalId?: StringWithAggregatesFilter<"AdminProposalEvent"> | string
+    actorUserId?: StringNullableWithAggregatesFilter<"AdminProposalEvent"> | string | null
+    actorAddress?: StringNullableWithAggregatesFilter<"AdminProposalEvent"> | string | null
+    type?: StringWithAggregatesFilter<"AdminProposalEvent"> | string
+    note?: StringNullableWithAggregatesFilter<"AdminProposalEvent"> | string | null
+    payloadJson?: JsonNullableWithAggregatesFilter<"AdminProposalEvent">
+    createdAt?: DateTimeWithAggregatesFilter<"AdminProposalEvent"> | Date | string
+  }
+
   export type ChainStateCreateInput = {
     id?: string
     userAddress: string
@@ -71930,6 +76957,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -71955,6 +76985,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUpdateInput = {
@@ -71980,6 +77013,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -72005,6 +77041,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -75334,6 +80373,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     owners?: MultisigOwnerCreateNestedManyWithoutSafeInput
     txs?: MultisigTxCreateNestedManyWithoutSafeInput
+    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUncheckedCreateInput = {
@@ -75345,6 +80385,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     owners?: MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput
     txs?: MultisigTxUncheckedCreateNestedManyWithoutSafeInput
+    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUpdateInput = {
@@ -75356,6 +80397,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owners?: MultisigOwnerUpdateManyWithoutSafeNestedInput
     txs?: MultisigTxUpdateManyWithoutSafeNestedInput
+    adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeUncheckedUpdateInput = {
@@ -75367,6 +80409,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
     txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
+    adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeCreateManyInput = {
@@ -75465,6 +80508,7 @@ export namespace Prisma {
     executedAt?: Date | string | null
     approvals?: MultisigApprovalCreateNestedManyWithoutTxInput
     safe: MultisigSafeCreateNestedOneWithoutTxsInput
+    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxUncheckedCreateInput = {
@@ -75481,6 +80525,7 @@ export namespace Prisma {
     createdAt?: Date | string
     executedAt?: Date | string | null
     approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
+    linkedAdminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxUpdateInput = {
@@ -75497,6 +80542,7 @@ export namespace Prisma {
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     approvals?: MultisigApprovalUpdateManyWithoutTxNestedInput
     safe?: MultisigSafeUpdateOneRequiredWithoutTxsNestedInput
+    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type MultisigTxUncheckedUpdateInput = {
@@ -75513,6 +80559,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
+    linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type MultisigTxCreateManyInput = {
@@ -77410,6 +82457,448 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AdminProposalCreateInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
+    createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
+    actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    actions?: AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalCreateManyInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalActionCreateInput = {
+    id?: string
+    orderIndex: number
+    label?: string | null
+    summary?: string | null
+    target: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    tokenAddress?: string | null
+    dataHex: string
+    functionName?: string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.AdminProposalActionStatus
+    submittedAt?: Date | string | null
+    executedAt?: Date | string | null
+    failedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    proposal: AdminProposalCreateNestedOneWithoutActionsInput
+  }
+
+  export type AdminProposalActionUncheckedCreateInput = {
+    id?: string
+    proposalId: string
+    orderIndex: number
+    label?: string | null
+    summary?: string | null
+    target: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    tokenAddress?: string | null
+    dataHex: string
+    functionName?: string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.AdminProposalActionStatus
+    submittedAt?: Date | string | null
+    executedAt?: Date | string | null
+    failedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalActionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    proposal?: AdminProposalUpdateOneRequiredWithoutActionsNestedInput
+  }
+
+  export type AdminProposalActionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalActionCreateManyInput = {
+    id?: string
+    proposalId: string
+    orderIndex: number
+    label?: string | null
+    summary?: string | null
+    target: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    tokenAddress?: string | null
+    dataHex: string
+    functionName?: string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.AdminProposalActionStatus
+    submittedAt?: Date | string | null
+    executedAt?: Date | string | null
+    failedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalActionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalActionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventCreateInput = {
+    id?: string
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    proposal: AdminProposalCreateNestedOneWithoutEventsInput
+    actorUser?: UserCreateNestedOneWithoutAdminProposalEventsInput
+  }
+
+  export type AdminProposalEventUncheckedCreateInput = {
+    id?: string
+    proposalId: string
+    actorUserId?: string | null
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AdminProposalEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    proposal?: AdminProposalUpdateOneRequiredWithoutEventsNestedInput
+    actorUser?: UserUpdateOneWithoutAdminProposalEventsNestedInput
+  }
+
+  export type AdminProposalEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    actorUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventCreateManyInput = {
+    id?: string
+    proposalId: string
+    actorUserId?: string | null
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AdminProposalEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    actorUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -77590,6 +83079,18 @@ export namespace Prisma {
     none?: WarpoolCaptureWhereInput
   }
 
+  export type AdminProposalListRelationFilter = {
+    every?: AdminProposalWhereInput
+    some?: AdminProposalWhereInput
+    none?: AdminProposalWhereInput
+  }
+
+  export type AdminProposalEventListRelationFilter = {
+    every?: AdminProposalEventWhereInput
+    some?: AdminProposalEventWhereInput
+    none?: AdminProposalEventWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -77632,6 +83133,14 @@ export namespace Prisma {
   }
 
   export type WarpoolCaptureOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AdminProposalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AdminProposalEventOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -81634,6 +87143,336 @@ export namespace Prisma {
     _max?: NestedEnumWarpoolActivityTypeFilter<$PrismaModel>
   }
 
+  export type EnumAdminProposalAreaFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalArea | EnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalAreaFilter<$PrismaModel> | $Enums.AdminProposalArea
+  }
+
+  export type EnumAdminProposalKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalKind | EnumAdminProposalKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalKindFilter<$PrismaModel> | $Enums.AdminProposalKind
+  }
+
+  export type BigIntNullableFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
+  }
+
+  export type EnumAdminProposalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalStatus | EnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalStatusFilter<$PrismaModel> | $Enums.AdminProposalStatus
+  }
+
+  export type MultisigSafeNullableScalarRelationFilter = {
+    is?: MultisigSafeWhereInput | null
+    isNot?: MultisigSafeWhereInput | null
+  }
+
+  export type MultisigTxNullableScalarRelationFilter = {
+    is?: MultisigTxWhereInput | null
+    isNot?: MultisigTxWhereInput | null
+  }
+
+  export type AdminProposalActionListRelationFilter = {
+    every?: AdminProposalActionWhereInput
+    some?: AdminProposalActionWhereInput
+    none?: AdminProposalActionWhereInput
+  }
+
+  export type AdminProposalActionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AdminProposalCountOrderByAggregateInput = {
+    id?: SortOrder
+    area?: SortOrder
+    kind?: SortOrder
+    title?: SortOrder
+    slug?: SortOrder
+    summary?: SortOrder
+    description?: SortOrder
+    safeId?: SortOrder
+    safeContract?: SortOrder
+    chainId?: SortOrder
+    createdByUserId?: SortOrder
+    createdByAddress?: SortOrder
+    lastEditedByUserId?: SortOrder
+    lastEditedByAddress?: SortOrder
+    basedOnConfigVersion?: SortOrder
+    runtimeReferenceId?: SortOrder
+    status?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigTxId?: SortOrder
+    submittedMultisigNonce?: SortOrder
+    submittedAt?: SortOrder
+    approvedAt?: SortOrder
+    executedAt?: SortOrder
+    cancelledAt?: SortOrder
+    failedAt?: SortOrder
+    snapshotJson?: SortOrder
+    metadataJson?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminProposalAvgOrderByAggregateInput = {
+    chainId?: SortOrder
+    basedOnConfigVersion?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigNonce?: SortOrder
+  }
+
+  export type AdminProposalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    area?: SortOrder
+    kind?: SortOrder
+    title?: SortOrder
+    slug?: SortOrder
+    summary?: SortOrder
+    description?: SortOrder
+    safeId?: SortOrder
+    safeContract?: SortOrder
+    chainId?: SortOrder
+    createdByUserId?: SortOrder
+    createdByAddress?: SortOrder
+    lastEditedByUserId?: SortOrder
+    lastEditedByAddress?: SortOrder
+    basedOnConfigVersion?: SortOrder
+    runtimeReferenceId?: SortOrder
+    status?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigTxId?: SortOrder
+    submittedMultisigNonce?: SortOrder
+    submittedAt?: SortOrder
+    approvedAt?: SortOrder
+    executedAt?: SortOrder
+    cancelledAt?: SortOrder
+    failedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminProposalMinOrderByAggregateInput = {
+    id?: SortOrder
+    area?: SortOrder
+    kind?: SortOrder
+    title?: SortOrder
+    slug?: SortOrder
+    summary?: SortOrder
+    description?: SortOrder
+    safeId?: SortOrder
+    safeContract?: SortOrder
+    chainId?: SortOrder
+    createdByUserId?: SortOrder
+    createdByAddress?: SortOrder
+    lastEditedByUserId?: SortOrder
+    lastEditedByAddress?: SortOrder
+    basedOnConfigVersion?: SortOrder
+    runtimeReferenceId?: SortOrder
+    status?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigTxId?: SortOrder
+    submittedMultisigNonce?: SortOrder
+    submittedAt?: SortOrder
+    approvedAt?: SortOrder
+    executedAt?: SortOrder
+    cancelledAt?: SortOrder
+    failedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminProposalSumOrderByAggregateInput = {
+    chainId?: SortOrder
+    basedOnConfigVersion?: SortOrder
+    actionCount?: SortOrder
+    submittedMultisigNonce?: SortOrder
+  }
+
+  export type EnumAdminProposalAreaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalArea | EnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalAreaWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalArea
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalAreaFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalAreaFilter<$PrismaModel>
+  }
+
+  export type EnumAdminProposalKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalKind | EnumAdminProposalKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalKindWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalKindFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalKindFilter<$PrismaModel>
+  }
+
+  export type BigIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableWithAggregatesFilter<$PrismaModel> | bigint | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedBigIntNullableFilter<$PrismaModel>
+    _min?: NestedBigIntNullableFilter<$PrismaModel>
+    _max?: NestedBigIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumAdminProposalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalStatus | EnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalStatusFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalStatusFilter<$PrismaModel>
+  }
+
+  export type EnumAdminProposalActionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalActionStatus | EnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel> | $Enums.AdminProposalActionStatus
+  }
+
+  export type AdminProposalScalarRelationFilter = {
+    is?: AdminProposalWhereInput
+    isNot?: AdminProposalWhereInput
+  }
+
+  export type AdminProposalActionProposalIdOrderIndexCompoundUniqueInput = {
+    proposalId: string
+    orderIndex: number
+  }
+
+  export type AdminProposalActionCountOrderByAggregateInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    orderIndex?: SortOrder
+    label?: SortOrder
+    summary?: SortOrder
+    target?: SortOrder
+    valueWei?: SortOrder
+    tokenAddress?: SortOrder
+    dataHex?: SortOrder
+    functionName?: SortOrder
+    argsJson?: SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrder
+    executedAt?: SortOrder
+    failedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminProposalActionAvgOrderByAggregateInput = {
+    orderIndex?: SortOrder
+    valueWei?: SortOrder
+  }
+
+  export type AdminProposalActionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    orderIndex?: SortOrder
+    label?: SortOrder
+    summary?: SortOrder
+    target?: SortOrder
+    valueWei?: SortOrder
+    tokenAddress?: SortOrder
+    dataHex?: SortOrder
+    functionName?: SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrder
+    executedAt?: SortOrder
+    failedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminProposalActionMinOrderByAggregateInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    orderIndex?: SortOrder
+    label?: SortOrder
+    summary?: SortOrder
+    target?: SortOrder
+    valueWei?: SortOrder
+    tokenAddress?: SortOrder
+    dataHex?: SortOrder
+    functionName?: SortOrder
+    status?: SortOrder
+    submittedAt?: SortOrder
+    executedAt?: SortOrder
+    failedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdminProposalActionSumOrderByAggregateInput = {
+    orderIndex?: SortOrder
+    valueWei?: SortOrder
+  }
+
+  export type EnumAdminProposalActionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalActionStatus | EnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalActionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalActionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel>
+  }
+
+  export type AdminProposalEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    actorUserId?: SortOrder
+    actorAddress?: SortOrder
+    type?: SortOrder
+    note?: SortOrder
+    payloadJson?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminProposalEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    actorUserId?: SortOrder
+    actorAddress?: SortOrder
+    type?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminProposalEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    proposalId?: SortOrder
+    actorUserId?: SortOrder
+    actorAddress?: SortOrder
+    type?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -81716,6 +87555,27 @@ export namespace Prisma {
     connect?: WarpoolCaptureWhereUniqueInput | WarpoolCaptureWhereUniqueInput[]
   }
 
+  export type AdminProposalCreateNestedManyWithoutCreatedByUserInput = {
+    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
+    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
+  export type AdminProposalCreateNestedManyWithoutLastEditedByUserInput = {
+    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
+    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
+  export type AdminProposalEventCreateNestedManyWithoutActorUserInput = {
+    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
+    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+  }
+
   export type CollectionUncheckedCreateNestedManyWithoutCreatorInput = {
     create?: XOR<CollectionCreateWithoutCreatorInput, CollectionUncheckedCreateWithoutCreatorInput> | CollectionCreateWithoutCreatorInput[] | CollectionUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: CollectionCreateOrConnectWithoutCreatorInput | CollectionCreateOrConnectWithoutCreatorInput[]
@@ -81784,6 +87644,27 @@ export namespace Prisma {
     connectOrCreate?: WarpoolCaptureCreateOrConnectWithoutOriginalOwnerInput | WarpoolCaptureCreateOrConnectWithoutOriginalOwnerInput[]
     createMany?: WarpoolCaptureCreateManyOriginalOwnerInputEnvelope
     connect?: WarpoolCaptureWhereUniqueInput | WarpoolCaptureWhereUniqueInput[]
+  }
+
+  export type AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput = {
+    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
+    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
+  export type AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput = {
+    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
+    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
+  export type AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput = {
+    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
+    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -81934,6 +87815,48 @@ export namespace Prisma {
     deleteMany?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
   }
 
+  export type AdminProposalUpdateManyWithoutCreatedByUserNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput[]
+    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput | AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
+  export type AdminProposalUpdateManyWithoutLastEditedByUserNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput[]
+    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput | AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
+  export type AdminProposalEventUpdateManyWithoutActorUserNestedInput = {
+    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
+    upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput[]
+    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
+    set?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    disconnect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    delete?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    update?: AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput[]
+    updateMany?: AdminProposalEventUpdateManyWithWhereWithoutActorUserInput | AdminProposalEventUpdateManyWithWhereWithoutActorUserInput[]
+    deleteMany?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+  }
+
   export type CollectionUncheckedUpdateManyWithoutCreatorNestedInput = {
     create?: XOR<CollectionCreateWithoutCreatorInput, CollectionUncheckedCreateWithoutCreatorInput> | CollectionCreateWithoutCreatorInput[] | CollectionUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: CollectionCreateOrConnectWithoutCreatorInput | CollectionCreateOrConnectWithoutCreatorInput[]
@@ -82072,6 +87995,48 @@ export namespace Prisma {
     update?: WarpoolCaptureUpdateWithWhereUniqueWithoutOriginalOwnerInput | WarpoolCaptureUpdateWithWhereUniqueWithoutOriginalOwnerInput[]
     updateMany?: WarpoolCaptureUpdateManyWithWhereWithoutOriginalOwnerInput | WarpoolCaptureUpdateManyWithWhereWithoutOriginalOwnerInput[]
     deleteMany?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput[]
+    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput | AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput[]
+    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput | AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
+  export type AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput = {
+    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
+    upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput[]
+    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
+    set?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    disconnect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    delete?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    update?: AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput[]
+    updateMany?: AdminProposalEventUpdateManyWithWhereWithoutActorUserInput | AdminProposalEventUpdateManyWithWhereWithoutActorUserInput[]
+    deleteMany?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
   }
 
   export type AssetUploadCreateNestedManyWithoutCollectionInput = {
@@ -83956,6 +89921,13 @@ export namespace Prisma {
     connect?: MultisigTxWhereUniqueInput | MultisigTxWhereUniqueInput[]
   }
 
+  export type AdminProposalCreateNestedManyWithoutSafeInput = {
+    create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
+    createMany?: AdminProposalCreateManySafeInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
   export type MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput = {
     create?: XOR<MultisigOwnerCreateWithoutSafeInput, MultisigOwnerUncheckedCreateWithoutSafeInput> | MultisigOwnerCreateWithoutSafeInput[] | MultisigOwnerUncheckedCreateWithoutSafeInput[]
     connectOrCreate?: MultisigOwnerCreateOrConnectWithoutSafeInput | MultisigOwnerCreateOrConnectWithoutSafeInput[]
@@ -83968,6 +89940,13 @@ export namespace Prisma {
     connectOrCreate?: MultisigTxCreateOrConnectWithoutSafeInput | MultisigTxCreateOrConnectWithoutSafeInput[]
     createMany?: MultisigTxCreateManySafeInputEnvelope
     connect?: MultisigTxWhereUniqueInput | MultisigTxWhereUniqueInput[]
+  }
+
+  export type AdminProposalUncheckedCreateNestedManyWithoutSafeInput = {
+    create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
+    createMany?: AdminProposalCreateManySafeInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
   }
 
   export type MultisigOwnerUpdateManyWithoutSafeNestedInput = {
@@ -83998,6 +89977,20 @@ export namespace Prisma {
     deleteMany?: MultisigTxScalarWhereInput | MultisigTxScalarWhereInput[]
   }
 
+  export type AdminProposalUpdateManyWithoutSafeNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSafeInput | AdminProposalUpsertWithWhereUniqueWithoutSafeInput[]
+    createMany?: AdminProposalCreateManySafeInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutSafeInput | AdminProposalUpdateWithWhereUniqueWithoutSafeInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutSafeInput | AdminProposalUpdateManyWithWhereWithoutSafeInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
   export type MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput = {
     create?: XOR<MultisigOwnerCreateWithoutSafeInput, MultisigOwnerUncheckedCreateWithoutSafeInput> | MultisigOwnerCreateWithoutSafeInput[] | MultisigOwnerUncheckedCreateWithoutSafeInput[]
     connectOrCreate?: MultisigOwnerCreateOrConnectWithoutSafeInput | MultisigOwnerCreateOrConnectWithoutSafeInput[]
@@ -84024,6 +90017,20 @@ export namespace Prisma {
     update?: MultisigTxUpdateWithWhereUniqueWithoutSafeInput | MultisigTxUpdateWithWhereUniqueWithoutSafeInput[]
     updateMany?: MultisigTxUpdateManyWithWhereWithoutSafeInput | MultisigTxUpdateManyWithWhereWithoutSafeInput[]
     deleteMany?: MultisigTxScalarWhereInput | MultisigTxScalarWhereInput[]
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutSafeNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSafeInput | AdminProposalUpsertWithWhereUniqueWithoutSafeInput[]
+    createMany?: AdminProposalCreateManySafeInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutSafeInput | AdminProposalUpdateWithWhereUniqueWithoutSafeInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutSafeInput | AdminProposalUpdateManyWithWhereWithoutSafeInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
   export type MultisigSafeCreateNestedOneWithoutOwnersInput = {
@@ -84053,11 +90060,25 @@ export namespace Prisma {
     connect?: MultisigSafeWhereUniqueInput
   }
 
+  export type AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput = {
+    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
+    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
   export type MultisigApprovalUncheckedCreateNestedManyWithoutTxInput = {
     create?: XOR<MultisigApprovalCreateWithoutTxInput, MultisigApprovalUncheckedCreateWithoutTxInput> | MultisigApprovalCreateWithoutTxInput[] | MultisigApprovalUncheckedCreateWithoutTxInput[]
     connectOrCreate?: MultisigApprovalCreateOrConnectWithoutTxInput | MultisigApprovalCreateOrConnectWithoutTxInput[]
     createMany?: MultisigApprovalCreateManyTxInputEnvelope
     connect?: MultisigApprovalWhereUniqueInput | MultisigApprovalWhereUniqueInput[]
+  }
+
+  export type AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput = {
+    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
+    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
   }
 
   export type EnumMultisigTxStatusFieldUpdateOperationsInput = {
@@ -84086,6 +90107,20 @@ export namespace Prisma {
     update?: XOR<XOR<MultisigSafeUpdateToOneWithWhereWithoutTxsInput, MultisigSafeUpdateWithoutTxsInput>, MultisigSafeUncheckedUpdateWithoutTxsInput>
   }
 
+  export type AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput[]
+    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput | AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
   export type MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput = {
     create?: XOR<MultisigApprovalCreateWithoutTxInput, MultisigApprovalUncheckedCreateWithoutTxInput> | MultisigApprovalCreateWithoutTxInput[] | MultisigApprovalUncheckedCreateWithoutTxInput[]
     connectOrCreate?: MultisigApprovalCreateOrConnectWithoutTxInput | MultisigApprovalCreateOrConnectWithoutTxInput[]
@@ -84098,6 +90133,20 @@ export namespace Prisma {
     update?: MultisigApprovalUpdateWithWhereUniqueWithoutTxInput | MultisigApprovalUpdateWithWhereUniqueWithoutTxInput[]
     updateMany?: MultisigApprovalUpdateManyWithWhereWithoutTxInput | MultisigApprovalUpdateManyWithWhereWithoutTxInput[]
     deleteMany?: MultisigApprovalScalarWhereInput | MultisigApprovalScalarWhereInput[]
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput[]
+    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput | AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
   export type MultisigTxCreateNestedOneWithoutApprovalsInput = {
@@ -84798,6 +90847,222 @@ export namespace Prisma {
     delete?: NFTWhereInput | boolean
     connect?: NFTWhereUniqueInput
     update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolActivitiesInput, NFTUpdateWithoutWarpoolActivitiesInput>, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
+  }
+
+  export type MultisigSafeCreateNestedOneWithoutAdminProposalsInput = {
+    create?: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
+    connectOrCreate?: MultisigSafeCreateOrConnectWithoutAdminProposalsInput
+    connect?: MultisigSafeWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAdminProposalsCreatedInput = {
+    create?: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsCreatedInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAdminProposalsEditedInput = {
+    create?: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsEditedInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput = {
+    create?: XOR<MultisigTxCreateWithoutLinkedAdminProposalsInput, MultisigTxUncheckedCreateWithoutLinkedAdminProposalsInput>
+    connectOrCreate?: MultisigTxCreateOrConnectWithoutLinkedAdminProposalsInput
+    connect?: MultisigTxWhereUniqueInput
+  }
+
+  export type AdminProposalActionCreateNestedManyWithoutProposalInput = {
+    create?: XOR<AdminProposalActionCreateWithoutProposalInput, AdminProposalActionUncheckedCreateWithoutProposalInput> | AdminProposalActionCreateWithoutProposalInput[] | AdminProposalActionUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalActionCreateOrConnectWithoutProposalInput | AdminProposalActionCreateOrConnectWithoutProposalInput[]
+    createMany?: AdminProposalActionCreateManyProposalInputEnvelope
+    connect?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+  }
+
+  export type AdminProposalEventCreateNestedManyWithoutProposalInput = {
+    create?: XOR<AdminProposalEventCreateWithoutProposalInput, AdminProposalEventUncheckedCreateWithoutProposalInput> | AdminProposalEventCreateWithoutProposalInput[] | AdminProposalEventUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutProposalInput | AdminProposalEventCreateOrConnectWithoutProposalInput[]
+    createMany?: AdminProposalEventCreateManyProposalInputEnvelope
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+  }
+
+  export type AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput = {
+    create?: XOR<AdminProposalActionCreateWithoutProposalInput, AdminProposalActionUncheckedCreateWithoutProposalInput> | AdminProposalActionCreateWithoutProposalInput[] | AdminProposalActionUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalActionCreateOrConnectWithoutProposalInput | AdminProposalActionCreateOrConnectWithoutProposalInput[]
+    createMany?: AdminProposalActionCreateManyProposalInputEnvelope
+    connect?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+  }
+
+  export type AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput = {
+    create?: XOR<AdminProposalEventCreateWithoutProposalInput, AdminProposalEventUncheckedCreateWithoutProposalInput> | AdminProposalEventCreateWithoutProposalInput[] | AdminProposalEventUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutProposalInput | AdminProposalEventCreateOrConnectWithoutProposalInput[]
+    createMany?: AdminProposalEventCreateManyProposalInputEnvelope
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+  }
+
+  export type EnumAdminProposalAreaFieldUpdateOperationsInput = {
+    set?: $Enums.AdminProposalArea
+  }
+
+  export type EnumAdminProposalKindFieldUpdateOperationsInput = {
+    set?: $Enums.AdminProposalKind
+  }
+
+  export type NullableBigIntFieldUpdateOperationsInput = {
+    set?: bigint | number | null
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type EnumAdminProposalStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AdminProposalStatus
+  }
+
+  export type MultisigSafeUpdateOneWithoutAdminProposalsNestedInput = {
+    create?: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
+    connectOrCreate?: MultisigSafeCreateOrConnectWithoutAdminProposalsInput
+    upsert?: MultisigSafeUpsertWithoutAdminProposalsInput
+    disconnect?: MultisigSafeWhereInput | boolean
+    delete?: MultisigSafeWhereInput | boolean
+    connect?: MultisigSafeWhereUniqueInput
+    update?: XOR<XOR<MultisigSafeUpdateToOneWithWhereWithoutAdminProposalsInput, MultisigSafeUpdateWithoutAdminProposalsInput>, MultisigSafeUncheckedUpdateWithoutAdminProposalsInput>
+  }
+
+  export type UserUpdateOneWithoutAdminProposalsCreatedNestedInput = {
+    create?: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsCreatedInput
+    upsert?: UserUpsertWithoutAdminProposalsCreatedInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminProposalsCreatedInput, UserUpdateWithoutAdminProposalsCreatedInput>, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
+  }
+
+  export type UserUpdateOneWithoutAdminProposalsEditedNestedInput = {
+    create?: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsEditedInput
+    upsert?: UserUpsertWithoutAdminProposalsEditedInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminProposalsEditedInput, UserUpdateWithoutAdminProposalsEditedInput>, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
+  }
+
+  export type MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput = {
+    create?: XOR<MultisigTxCreateWithoutLinkedAdminProposalsInput, MultisigTxUncheckedCreateWithoutLinkedAdminProposalsInput>
+    connectOrCreate?: MultisigTxCreateOrConnectWithoutLinkedAdminProposalsInput
+    upsert?: MultisigTxUpsertWithoutLinkedAdminProposalsInput
+    disconnect?: MultisigTxWhereInput | boolean
+    delete?: MultisigTxWhereInput | boolean
+    connect?: MultisigTxWhereUniqueInput
+    update?: XOR<XOR<MultisigTxUpdateToOneWithWhereWithoutLinkedAdminProposalsInput, MultisigTxUpdateWithoutLinkedAdminProposalsInput>, MultisigTxUncheckedUpdateWithoutLinkedAdminProposalsInput>
+  }
+
+  export type AdminProposalActionUpdateManyWithoutProposalNestedInput = {
+    create?: XOR<AdminProposalActionCreateWithoutProposalInput, AdminProposalActionUncheckedCreateWithoutProposalInput> | AdminProposalActionCreateWithoutProposalInput[] | AdminProposalActionUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalActionCreateOrConnectWithoutProposalInput | AdminProposalActionCreateOrConnectWithoutProposalInput[]
+    upsert?: AdminProposalActionUpsertWithWhereUniqueWithoutProposalInput | AdminProposalActionUpsertWithWhereUniqueWithoutProposalInput[]
+    createMany?: AdminProposalActionCreateManyProposalInputEnvelope
+    set?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    disconnect?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    delete?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    connect?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    update?: AdminProposalActionUpdateWithWhereUniqueWithoutProposalInput | AdminProposalActionUpdateWithWhereUniqueWithoutProposalInput[]
+    updateMany?: AdminProposalActionUpdateManyWithWhereWithoutProposalInput | AdminProposalActionUpdateManyWithWhereWithoutProposalInput[]
+    deleteMany?: AdminProposalActionScalarWhereInput | AdminProposalActionScalarWhereInput[]
+  }
+
+  export type AdminProposalEventUpdateManyWithoutProposalNestedInput = {
+    create?: XOR<AdminProposalEventCreateWithoutProposalInput, AdminProposalEventUncheckedCreateWithoutProposalInput> | AdminProposalEventCreateWithoutProposalInput[] | AdminProposalEventUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutProposalInput | AdminProposalEventCreateOrConnectWithoutProposalInput[]
+    upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutProposalInput | AdminProposalEventUpsertWithWhereUniqueWithoutProposalInput[]
+    createMany?: AdminProposalEventCreateManyProposalInputEnvelope
+    set?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    disconnect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    delete?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    update?: AdminProposalEventUpdateWithWhereUniqueWithoutProposalInput | AdminProposalEventUpdateWithWhereUniqueWithoutProposalInput[]
+    updateMany?: AdminProposalEventUpdateManyWithWhereWithoutProposalInput | AdminProposalEventUpdateManyWithWhereWithoutProposalInput[]
+    deleteMany?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+  }
+
+  export type AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput = {
+    create?: XOR<AdminProposalActionCreateWithoutProposalInput, AdminProposalActionUncheckedCreateWithoutProposalInput> | AdminProposalActionCreateWithoutProposalInput[] | AdminProposalActionUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalActionCreateOrConnectWithoutProposalInput | AdminProposalActionCreateOrConnectWithoutProposalInput[]
+    upsert?: AdminProposalActionUpsertWithWhereUniqueWithoutProposalInput | AdminProposalActionUpsertWithWhereUniqueWithoutProposalInput[]
+    createMany?: AdminProposalActionCreateManyProposalInputEnvelope
+    set?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    disconnect?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    delete?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    connect?: AdminProposalActionWhereUniqueInput | AdminProposalActionWhereUniqueInput[]
+    update?: AdminProposalActionUpdateWithWhereUniqueWithoutProposalInput | AdminProposalActionUpdateWithWhereUniqueWithoutProposalInput[]
+    updateMany?: AdminProposalActionUpdateManyWithWhereWithoutProposalInput | AdminProposalActionUpdateManyWithWhereWithoutProposalInput[]
+    deleteMany?: AdminProposalActionScalarWhereInput | AdminProposalActionScalarWhereInput[]
+  }
+
+  export type AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput = {
+    create?: XOR<AdminProposalEventCreateWithoutProposalInput, AdminProposalEventUncheckedCreateWithoutProposalInput> | AdminProposalEventCreateWithoutProposalInput[] | AdminProposalEventUncheckedCreateWithoutProposalInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutProposalInput | AdminProposalEventCreateOrConnectWithoutProposalInput[]
+    upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutProposalInput | AdminProposalEventUpsertWithWhereUniqueWithoutProposalInput[]
+    createMany?: AdminProposalEventCreateManyProposalInputEnvelope
+    set?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    disconnect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    delete?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    update?: AdminProposalEventUpdateWithWhereUniqueWithoutProposalInput | AdminProposalEventUpdateWithWhereUniqueWithoutProposalInput[]
+    updateMany?: AdminProposalEventUpdateManyWithWhereWithoutProposalInput | AdminProposalEventUpdateManyWithWhereWithoutProposalInput[]
+    deleteMany?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+  }
+
+  export type AdminProposalCreateNestedOneWithoutActionsInput = {
+    create?: XOR<AdminProposalCreateWithoutActionsInput, AdminProposalUncheckedCreateWithoutActionsInput>
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutActionsInput
+    connect?: AdminProposalWhereUniqueInput
+  }
+
+  export type EnumAdminProposalActionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AdminProposalActionStatus
+  }
+
+  export type AdminProposalUpdateOneRequiredWithoutActionsNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutActionsInput, AdminProposalUncheckedCreateWithoutActionsInput>
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutActionsInput
+    upsert?: AdminProposalUpsertWithoutActionsInput
+    connect?: AdminProposalWhereUniqueInput
+    update?: XOR<XOR<AdminProposalUpdateToOneWithWhereWithoutActionsInput, AdminProposalUpdateWithoutActionsInput>, AdminProposalUncheckedUpdateWithoutActionsInput>
+  }
+
+  export type AdminProposalCreateNestedOneWithoutEventsInput = {
+    create?: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutEventsInput
+    connect?: AdminProposalWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAdminProposalEventsInput = {
+    create?: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminProposalEventsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AdminProposalUpdateOneRequiredWithoutEventsNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutEventsInput
+    upsert?: AdminProposalUpsertWithoutEventsInput
+    connect?: AdminProposalWhereUniqueInput
+    update?: XOR<XOR<AdminProposalUpdateToOneWithWhereWithoutEventsInput, AdminProposalUpdateWithoutEventsInput>, AdminProposalUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type UserUpdateOneWithoutAdminProposalEventsNestedInput = {
+    create?: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdminProposalEventsInput
+    upsert?: UserUpsertWithoutAdminProposalEventsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminProposalEventsInput, UserUpdateWithoutAdminProposalEventsInput>, UserUncheckedUpdateWithoutAdminProposalEventsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -85586,6 +91851,101 @@ export namespace Prisma {
     _max?: NestedEnumWarpoolActivityTypeFilter<$PrismaModel>
   }
 
+  export type NestedEnumAdminProposalAreaFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalArea | EnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalAreaFilter<$PrismaModel> | $Enums.AdminProposalArea
+  }
+
+  export type NestedEnumAdminProposalKindFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalKind | EnumAdminProposalKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalKindFilter<$PrismaModel> | $Enums.AdminProposalKind
+  }
+
+  export type NestedBigIntNullableFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
+  }
+
+  export type NestedEnumAdminProposalStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalStatus | EnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalStatusFilter<$PrismaModel> | $Enums.AdminProposalStatus
+  }
+
+  export type NestedEnumAdminProposalAreaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalArea | EnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalArea[] | ListEnumAdminProposalAreaFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalAreaWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalArea
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalAreaFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalAreaFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAdminProposalKindWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalKind | EnumAdminProposalKindFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalKind[] | ListEnumAdminProposalKindFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalKindWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalKind
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalKindFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalKindFilter<$PrismaModel>
+  }
+
+  export type NestedBigIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableWithAggregatesFilter<$PrismaModel> | bigint | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedBigIntNullableFilter<$PrismaModel>
+    _min?: NestedBigIntNullableFilter<$PrismaModel>
+    _max?: NestedBigIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAdminProposalStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalStatus | EnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalStatus[] | ListEnumAdminProposalStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalStatusFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAdminProposalActionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalActionStatus | EnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel> | $Enums.AdminProposalActionStatus
+  }
+
+  export type NestedEnumAdminProposalActionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdminProposalActionStatus | EnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdminProposalActionStatus[] | ListEnumAdminProposalActionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdminProposalActionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AdminProposalActionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel>
+    _max?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel>
+  }
+
   export type CollectionCreateWithoutCreatorInput = {
     id?: string
     name: string
@@ -86116,6 +92476,188 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AdminProposalCreateWithoutCreatedByUserInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
+    lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
+    actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateWithoutCreatedByUserInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    actions?: AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalCreateOrConnectWithoutCreatedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    create: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalCreateManyCreatedByUserInputEnvelope = {
+    data: AdminProposalCreateManyCreatedByUserInput | AdminProposalCreateManyCreatedByUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AdminProposalCreateWithoutLastEditedByUserInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
+    createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
+    actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateWithoutLastEditedByUserInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    actions?: AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalCreateOrConnectWithoutLastEditedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    create: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalCreateManyLastEditedByUserInputEnvelope = {
+    data: AdminProposalCreateManyLastEditedByUserInput | AdminProposalCreateManyLastEditedByUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AdminProposalEventCreateWithoutActorUserInput = {
+    id?: string
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    proposal: AdminProposalCreateNestedOneWithoutEventsInput
+  }
+
+  export type AdminProposalEventUncheckedCreateWithoutActorUserInput = {
+    id?: string
+    proposalId: string
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AdminProposalEventCreateOrConnectWithoutActorUserInput = {
+    where: AdminProposalEventWhereUniqueInput
+    create: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventCreateManyActorUserInputEnvelope = {
+    data: AdminProposalEventCreateManyActorUserInput | AdminProposalEventCreateManyActorUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CollectionUpsertWithWhereUniqueWithoutCreatorInput = {
     where: CollectionWhereUniqueInput
     update: XOR<CollectionUpdateWithoutCreatorInput, CollectionUncheckedUpdateWithoutCreatorInput>
@@ -86514,6 +93056,103 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
   }
 
+  export type AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutCreatedByUserInput, AdminProposalUncheckedUpdateWithoutCreatedByUserInput>
+    create: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutCreatedByUserInput, AdminProposalUncheckedUpdateWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalScalarWhereInput = {
+    AND?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+    OR?: AdminProposalScalarWhereInput[]
+    NOT?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+    id?: StringFilter<"AdminProposal"> | string
+    area?: EnumAdminProposalAreaFilter<"AdminProposal"> | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFilter<"AdminProposal"> | $Enums.AdminProposalKind
+    title?: StringFilter<"AdminProposal"> | string
+    slug?: StringNullableFilter<"AdminProposal"> | string | null
+    summary?: StringNullableFilter<"AdminProposal"> | string | null
+    description?: StringNullableFilter<"AdminProposal"> | string | null
+    safeId?: StringNullableFilter<"AdminProposal"> | string | null
+    safeContract?: StringNullableFilter<"AdminProposal"> | string | null
+    chainId?: IntNullableFilter<"AdminProposal"> | number | null
+    createdByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    createdByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    basedOnConfigVersion?: BigIntNullableFilter<"AdminProposal"> | bigint | number | null
+    runtimeReferenceId?: StringNullableFilter<"AdminProposal"> | string | null
+    status?: EnumAdminProposalStatusFilter<"AdminProposal"> | $Enums.AdminProposalStatus
+    actionCount?: IntFilter<"AdminProposal"> | number
+    submittedMultisigTxId?: StringNullableFilter<"AdminProposal"> | string | null
+    submittedMultisigNonce?: IntNullableFilter<"AdminProposal"> | number | null
+    submittedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    approvedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    snapshotJson?: JsonNullableFilter<"AdminProposal">
+    metadataJson?: JsonNullableFilter<"AdminProposal">
+    createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
+  }
+
+  export type AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutLastEditedByUserInput, AdminProposalUncheckedUpdateWithoutLastEditedByUserInput>
+    create: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutLastEditedByUserInput, AdminProposalUncheckedUpdateWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput = {
+    where: AdminProposalEventWhereUniqueInput
+    update: XOR<AdminProposalEventUpdateWithoutActorUserInput, AdminProposalEventUncheckedUpdateWithoutActorUserInput>
+    create: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput = {
+    where: AdminProposalEventWhereUniqueInput
+    data: XOR<AdminProposalEventUpdateWithoutActorUserInput, AdminProposalEventUncheckedUpdateWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventUpdateManyWithWhereWithoutActorUserInput = {
+    where: AdminProposalEventScalarWhereInput
+    data: XOR<AdminProposalEventUpdateManyMutationInput, AdminProposalEventUncheckedUpdateManyWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventScalarWhereInput = {
+    AND?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+    OR?: AdminProposalEventScalarWhereInput[]
+    NOT?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+    id?: StringFilter<"AdminProposalEvent"> | string
+    proposalId?: StringFilter<"AdminProposalEvent"> | string
+    actorUserId?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    actorAddress?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    type?: StringFilter<"AdminProposalEvent"> | string
+    note?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"AdminProposalEvent">
+    createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
+  }
+
   export type AssetUploadCreateWithoutCollectionInput = {
     id?: string
     uploaderUserId?: string | null
@@ -86576,6 +93215,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutCollectionsInput = {
@@ -86600,6 +93242,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutCollectionsInput = {
@@ -86856,6 +93501,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollectionsInput = {
@@ -86880,6 +93528,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type DeployedContractUpsertWithoutCollectionInput = {
@@ -87272,6 +93923,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedNFTsInput = {
@@ -87296,6 +93950,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedNFTsInput = {
@@ -87893,6 +94550,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedNFTsInput = {
@@ -87917,6 +94577,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type Single1155UpsertWithoutNftsInput = {
@@ -91010,6 +97673,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutSubmissionsInput = {
@@ -91034,6 +97700,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutSubmissionsInput = {
@@ -91074,6 +97743,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubmissionsInput = {
@@ -91098,6 +97770,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type AuctionCreateWithoutCurrencyInput = {
@@ -91920,6 +98595,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutHolderRewardsMultiInput = {
@@ -91944,6 +98622,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutHolderRewardsMultiInput = {
@@ -92031,6 +98712,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutHolderRewardsMultiInput = {
@@ -92055,6 +98739,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type CurrencyCreateWithoutDistributionLogsInput = {
@@ -92208,6 +98895,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutRewardClaimLogsInput = {
@@ -92232,6 +98922,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutRewardClaimLogsInput = {
@@ -92319,6 +99012,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRewardClaimLogsInput = {
@@ -92343,6 +99039,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserCreateWithoutStolenReportsInput = {
@@ -92367,6 +99066,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutStolenReportsInput = {
@@ -92391,6 +99093,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutStolenReportsInput = {
@@ -92431,6 +99136,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStolenReportsInput = {
@@ -92455,6 +99163,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type MultisigOwnerCreateWithoutSafeInput = {
@@ -92494,6 +99205,7 @@ export namespace Prisma {
     createdAt?: Date | string
     executedAt?: Date | string | null
     approvals?: MultisigApprovalCreateNestedManyWithoutTxInput
+    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxUncheckedCreateWithoutSafeInput = {
@@ -92509,6 +99221,7 @@ export namespace Prisma {
     createdAt?: Date | string
     executedAt?: Date | string | null
     approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
+    linkedAdminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxCreateOrConnectWithoutSafeInput = {
@@ -92518,6 +99231,82 @@ export namespace Prisma {
 
   export type MultisigTxCreateManySafeInputEnvelope = {
     data: MultisigTxCreateManySafeInput | MultisigTxCreateManySafeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AdminProposalCreateWithoutSafeInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
+    actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateWithoutSafeInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    actions?: AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalCreateOrConnectWithoutSafeInput = {
+    where: AdminProposalWhereUniqueInput
+    create: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput>
+  }
+
+  export type AdminProposalCreateManySafeInputEnvelope = {
+    data: AdminProposalCreateManySafeInput | AdminProposalCreateManySafeInput[]
     skipDuplicates?: boolean
   }
 
@@ -92582,6 +99371,22 @@ export namespace Prisma {
     executedAt?: DateTimeNullableFilter<"MultisigTx"> | Date | string | null
   }
 
+  export type AdminProposalUpsertWithWhereUniqueWithoutSafeInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutSafeInput, AdminProposalUncheckedUpdateWithoutSafeInput>
+    create: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutSafeInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutSafeInput, AdminProposalUncheckedUpdateWithoutSafeInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutSafeInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutSafeInput>
+  }
+
   export type MultisigSafeCreateWithoutOwnersInput = {
     id?: string
     contract: string
@@ -92590,6 +99395,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     txs?: MultisigTxCreateNestedManyWithoutSafeInput
+    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUncheckedCreateWithoutOwnersInput = {
@@ -92600,6 +99406,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     txs?: MultisigTxUncheckedCreateNestedManyWithoutSafeInput
+    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeCreateOrConnectWithoutOwnersInput = {
@@ -92626,6 +99433,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     txs?: MultisigTxUpdateManyWithoutSafeNestedInput
+    adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeUncheckedUpdateWithoutOwnersInput = {
@@ -92636,6 +99444,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
+    adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigApprovalCreateWithoutTxInput = {
@@ -92670,6 +99479,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     owners?: MultisigOwnerCreateNestedManyWithoutSafeInput
+    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUncheckedCreateWithoutTxsInput = {
@@ -92680,11 +99490,88 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     owners?: MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput
+    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeCreateOrConnectWithoutTxsInput = {
     where: MultisigSafeWhereUniqueInput
     create: XOR<MultisigSafeCreateWithoutTxsInput, MultisigSafeUncheckedCreateWithoutTxsInput>
+  }
+
+  export type AdminProposalCreateWithoutSubmittedMultisigTxInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
+    createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    actions?: AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput
+    events?: AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalWhereUniqueInput
+    create: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput>
+  }
+
+  export type AdminProposalCreateManySubmittedMultisigTxInputEnvelope = {
+    data: AdminProposalCreateManySubmittedMultisigTxInput | AdminProposalCreateManySubmittedMultisigTxInput[]
+    skipDuplicates?: boolean
   }
 
   export type MultisigApprovalUpsertWithWhereUniqueWithoutTxInput = {
@@ -92733,6 +99620,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owners?: MultisigOwnerUpdateManyWithoutSafeNestedInput
+    adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeUncheckedUpdateWithoutTxsInput = {
@@ -92743,6 +99631,23 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
+    adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
+  }
+
+  export type AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput>
+    create: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxInput>
   }
 
   export type MultisigTxCreateWithoutApprovalsInput = {
@@ -92758,6 +99663,7 @@ export namespace Prisma {
     createdAt?: Date | string
     executedAt?: Date | string | null
     safe: MultisigSafeCreateNestedOneWithoutTxsInput
+    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxUncheckedCreateWithoutApprovalsInput = {
@@ -92773,6 +99679,7 @@ export namespace Prisma {
     executedTxHash?: string | null
     createdAt?: Date | string
     executedAt?: Date | string | null
+    linkedAdminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxCreateOrConnectWithoutApprovalsInput = {
@@ -92804,6 +99711,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     safe?: MultisigSafeUpdateOneRequiredWithoutTxsNestedInput
+    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type MultisigTxUncheckedUpdateWithoutApprovalsInput = {
@@ -92819,6 +99727,7 @@ export namespace Prisma {
     executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type WarpoolEntryCreateWithoutPoolInput = {
@@ -93272,6 +100181,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolEntriesInput = {
@@ -93296,6 +100208,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolEntriesInput = {
@@ -93658,6 +100573,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolEntriesInput = {
@@ -93682,6 +100600,9 @@ export namespace Prisma {
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type NFTUpsertWithoutWarpoolEntriesInput = {
@@ -94010,6 +100931,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolReservationsInput = {
@@ -94034,6 +100958,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolReservationsInput = {
@@ -94367,6 +101294,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolReservationsInput = {
@@ -94391,6 +101321,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type NFTUpsertWithoutWarpoolReservationsInput = {
@@ -95099,6 +102032,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolCapturesAsOwnerInput = {
@@ -95123,6 +102059,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolCapturesAsOwnerInput = {
@@ -95350,6 +102289,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolCapturesAsOwnerInput = {
@@ -95374,6 +102316,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type MarketplaceListingUpsertWithoutRelistCapturesInput = {
@@ -95674,6 +102619,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolActivitiesInput = {
@@ -95698,6 +102646,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolActivitiesInput = {
@@ -96054,6 +103005,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolActivitiesInput = {
@@ -96078,6 +103032,9 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type NFTUpsertWithoutWarpoolActivitiesInput = {
@@ -96153,6 +103110,947 @@ export namespace Prisma {
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+  }
+
+  export type MultisigSafeCreateWithoutAdminProposalsInput = {
+    id?: string
+    contract: string
+    name?: string | null
+    threshold: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owners?: MultisigOwnerCreateNestedManyWithoutSafeInput
+    txs?: MultisigTxCreateNestedManyWithoutSafeInput
+  }
+
+  export type MultisigSafeUncheckedCreateWithoutAdminProposalsInput = {
+    id?: string
+    contract: string
+    name?: string | null
+    threshold: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owners?: MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput
+    txs?: MultisigTxUncheckedCreateNestedManyWithoutSafeInput
+  }
+
+  export type MultisigSafeCreateOrConnectWithoutAdminProposalsInput = {
+    where: MultisigSafeWhereUniqueInput
+    create: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
+  }
+
+  export type UserCreateWithoutAdminProposalsCreatedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminProposalsCreatedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminProposalsCreatedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
+  }
+
+  export type UserCreateWithoutAdminProposalsEditedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminProposalsEditedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminProposalsEditedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
+  }
+
+  export type MultisigTxCreateWithoutLinkedAdminProposalsInput = {
+    id?: string
+    nonce: number
+    to: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    dataHex?: string | null
+    operation?: number | null
+    submittedBy?: string | null
+    status?: $Enums.MultisigTxStatus
+    executedTxHash?: string | null
+    createdAt?: Date | string
+    executedAt?: Date | string | null
+    approvals?: MultisigApprovalCreateNestedManyWithoutTxInput
+    safe: MultisigSafeCreateNestedOneWithoutTxsInput
+  }
+
+  export type MultisigTxUncheckedCreateWithoutLinkedAdminProposalsInput = {
+    id?: string
+    safeId: string
+    nonce: number
+    to: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    dataHex?: string | null
+    operation?: number | null
+    submittedBy?: string | null
+    status?: $Enums.MultisigTxStatus
+    executedTxHash?: string | null
+    createdAt?: Date | string
+    executedAt?: Date | string | null
+    approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
+  }
+
+  export type MultisigTxCreateOrConnectWithoutLinkedAdminProposalsInput = {
+    where: MultisigTxWhereUniqueInput
+    create: XOR<MultisigTxCreateWithoutLinkedAdminProposalsInput, MultisigTxUncheckedCreateWithoutLinkedAdminProposalsInput>
+  }
+
+  export type AdminProposalActionCreateWithoutProposalInput = {
+    id?: string
+    orderIndex: number
+    label?: string | null
+    summary?: string | null
+    target: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    tokenAddress?: string | null
+    dataHex: string
+    functionName?: string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.AdminProposalActionStatus
+    submittedAt?: Date | string | null
+    executedAt?: Date | string | null
+    failedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalActionUncheckedCreateWithoutProposalInput = {
+    id?: string
+    orderIndex: number
+    label?: string | null
+    summary?: string | null
+    target: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    tokenAddress?: string | null
+    dataHex: string
+    functionName?: string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.AdminProposalActionStatus
+    submittedAt?: Date | string | null
+    executedAt?: Date | string | null
+    failedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalActionCreateOrConnectWithoutProposalInput = {
+    where: AdminProposalActionWhereUniqueInput
+    create: XOR<AdminProposalActionCreateWithoutProposalInput, AdminProposalActionUncheckedCreateWithoutProposalInput>
+  }
+
+  export type AdminProposalActionCreateManyProposalInputEnvelope = {
+    data: AdminProposalActionCreateManyProposalInput | AdminProposalActionCreateManyProposalInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AdminProposalEventCreateWithoutProposalInput = {
+    id?: string
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    actorUser?: UserCreateNestedOneWithoutAdminProposalEventsInput
+  }
+
+  export type AdminProposalEventUncheckedCreateWithoutProposalInput = {
+    id?: string
+    actorUserId?: string | null
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AdminProposalEventCreateOrConnectWithoutProposalInput = {
+    where: AdminProposalEventWhereUniqueInput
+    create: XOR<AdminProposalEventCreateWithoutProposalInput, AdminProposalEventUncheckedCreateWithoutProposalInput>
+  }
+
+  export type AdminProposalEventCreateManyProposalInputEnvelope = {
+    data: AdminProposalEventCreateManyProposalInput | AdminProposalEventCreateManyProposalInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MultisigSafeUpsertWithoutAdminProposalsInput = {
+    update: XOR<MultisigSafeUpdateWithoutAdminProposalsInput, MultisigSafeUncheckedUpdateWithoutAdminProposalsInput>
+    create: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
+    where?: MultisigSafeWhereInput
+  }
+
+  export type MultisigSafeUpdateToOneWithWhereWithoutAdminProposalsInput = {
+    where?: MultisigSafeWhereInput
+    data: XOR<MultisigSafeUpdateWithoutAdminProposalsInput, MultisigSafeUncheckedUpdateWithoutAdminProposalsInput>
+  }
+
+  export type MultisigSafeUpdateWithoutAdminProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contract?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    threshold?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owners?: MultisigOwnerUpdateManyWithoutSafeNestedInput
+    txs?: MultisigTxUpdateManyWithoutSafeNestedInput
+  }
+
+  export type MultisigSafeUncheckedUpdateWithoutAdminProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contract?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    threshold?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
+    txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
+  }
+
+  export type UserUpsertWithoutAdminProposalsCreatedInput = {
+    update: XOR<UserUpdateWithoutAdminProposalsCreatedInput, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
+    create: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminProposalsCreatedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminProposalsCreatedInput, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
+  }
+
+  export type UserUpdateWithoutAdminProposalsCreatedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminProposalsCreatedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+  }
+
+  export type UserUpsertWithoutAdminProposalsEditedInput = {
+    update: XOR<UserUpdateWithoutAdminProposalsEditedInput, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
+    create: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminProposalsEditedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminProposalsEditedInput, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
+  }
+
+  export type UserUpdateWithoutAdminProposalsEditedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminProposalsEditedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+  }
+
+  export type MultisigTxUpsertWithoutLinkedAdminProposalsInput = {
+    update: XOR<MultisigTxUpdateWithoutLinkedAdminProposalsInput, MultisigTxUncheckedUpdateWithoutLinkedAdminProposalsInput>
+    create: XOR<MultisigTxCreateWithoutLinkedAdminProposalsInput, MultisigTxUncheckedCreateWithoutLinkedAdminProposalsInput>
+    where?: MultisigTxWhereInput
+  }
+
+  export type MultisigTxUpdateToOneWithWhereWithoutLinkedAdminProposalsInput = {
+    where?: MultisigTxWhereInput
+    data: XOR<MultisigTxUpdateWithoutLinkedAdminProposalsInput, MultisigTxUncheckedUpdateWithoutLinkedAdminProposalsInput>
+  }
+
+  export type MultisigTxUpdateWithoutLinkedAdminProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nonce?: IntFieldUpdateOperationsInput | number
+    to?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
+    operation?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
+    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvals?: MultisigApprovalUpdateManyWithoutTxNestedInput
+    safe?: MultisigSafeUpdateOneRequiredWithoutTxsNestedInput
+  }
+
+  export type MultisigTxUncheckedUpdateWithoutLinkedAdminProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    safeId?: StringFieldUpdateOperationsInput | string
+    nonce?: IntFieldUpdateOperationsInput | number
+    to?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
+    operation?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
+    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
+  }
+
+  export type AdminProposalActionUpsertWithWhereUniqueWithoutProposalInput = {
+    where: AdminProposalActionWhereUniqueInput
+    update: XOR<AdminProposalActionUpdateWithoutProposalInput, AdminProposalActionUncheckedUpdateWithoutProposalInput>
+    create: XOR<AdminProposalActionCreateWithoutProposalInput, AdminProposalActionUncheckedCreateWithoutProposalInput>
+  }
+
+  export type AdminProposalActionUpdateWithWhereUniqueWithoutProposalInput = {
+    where: AdminProposalActionWhereUniqueInput
+    data: XOR<AdminProposalActionUpdateWithoutProposalInput, AdminProposalActionUncheckedUpdateWithoutProposalInput>
+  }
+
+  export type AdminProposalActionUpdateManyWithWhereWithoutProposalInput = {
+    where: AdminProposalActionScalarWhereInput
+    data: XOR<AdminProposalActionUpdateManyMutationInput, AdminProposalActionUncheckedUpdateManyWithoutProposalInput>
+  }
+
+  export type AdminProposalActionScalarWhereInput = {
+    AND?: AdminProposalActionScalarWhereInput | AdminProposalActionScalarWhereInput[]
+    OR?: AdminProposalActionScalarWhereInput[]
+    NOT?: AdminProposalActionScalarWhereInput | AdminProposalActionScalarWhereInput[]
+    id?: StringFilter<"AdminProposalAction"> | string
+    proposalId?: StringFilter<"AdminProposalAction"> | string
+    orderIndex?: IntFilter<"AdminProposalAction"> | number
+    label?: StringNullableFilter<"AdminProposalAction"> | string | null
+    summary?: StringNullableFilter<"AdminProposalAction"> | string | null
+    target?: StringFilter<"AdminProposalAction"> | string
+    valueWei?: DecimalFilter<"AdminProposalAction"> | Decimal | DecimalJsLike | number | string
+    tokenAddress?: StringNullableFilter<"AdminProposalAction"> | string | null
+    dataHex?: StringFilter<"AdminProposalAction"> | string
+    functionName?: StringNullableFilter<"AdminProposalAction"> | string | null
+    argsJson?: JsonNullableFilter<"AdminProposalAction">
+    status?: EnumAdminProposalActionStatusFilter<"AdminProposalAction"> | $Enums.AdminProposalActionStatus
+    submittedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposalAction"> | Date | string | null
+    createdAt?: DateTimeFilter<"AdminProposalAction"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposalAction"> | Date | string
+  }
+
+  export type AdminProposalEventUpsertWithWhereUniqueWithoutProposalInput = {
+    where: AdminProposalEventWhereUniqueInput
+    update: XOR<AdminProposalEventUpdateWithoutProposalInput, AdminProposalEventUncheckedUpdateWithoutProposalInput>
+    create: XOR<AdminProposalEventCreateWithoutProposalInput, AdminProposalEventUncheckedCreateWithoutProposalInput>
+  }
+
+  export type AdminProposalEventUpdateWithWhereUniqueWithoutProposalInput = {
+    where: AdminProposalEventWhereUniqueInput
+    data: XOR<AdminProposalEventUpdateWithoutProposalInput, AdminProposalEventUncheckedUpdateWithoutProposalInput>
+  }
+
+  export type AdminProposalEventUpdateManyWithWhereWithoutProposalInput = {
+    where: AdminProposalEventScalarWhereInput
+    data: XOR<AdminProposalEventUpdateManyMutationInput, AdminProposalEventUncheckedUpdateManyWithoutProposalInput>
+  }
+
+  export type AdminProposalCreateWithoutActionsInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
+    createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
+    events?: AdminProposalEventCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateWithoutActionsInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    events?: AdminProposalEventUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalCreateOrConnectWithoutActionsInput = {
+    where: AdminProposalWhereUniqueInput
+    create: XOR<AdminProposalCreateWithoutActionsInput, AdminProposalUncheckedCreateWithoutActionsInput>
+  }
+
+  export type AdminProposalUpsertWithoutActionsInput = {
+    update: XOR<AdminProposalUpdateWithoutActionsInput, AdminProposalUncheckedUpdateWithoutActionsInput>
+    create: XOR<AdminProposalCreateWithoutActionsInput, AdminProposalUncheckedCreateWithoutActionsInput>
+    where?: AdminProposalWhereInput
+  }
+
+  export type AdminProposalUpdateToOneWithWhereWithoutActionsInput = {
+    where?: AdminProposalWhereInput
+    data: XOR<AdminProposalUpdateWithoutActionsInput, AdminProposalUncheckedUpdateWithoutActionsInput>
+  }
+
+  export type AdminProposalUpdateWithoutActionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutActionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalCreateWithoutEventsInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
+    createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
+    actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalUncheckedCreateWithoutEventsInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    actions?: AdminProposalActionUncheckedCreateNestedManyWithoutProposalInput
+  }
+
+  export type AdminProposalCreateOrConnectWithoutEventsInput = {
+    where: AdminProposalWhereUniqueInput
+    create: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
+  }
+
+  export type UserCreateWithoutAdminProposalEventsInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminProposalEventsInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminProposalEventsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
+  }
+
+  export type AdminProposalUpsertWithoutEventsInput = {
+    update: XOR<AdminProposalUpdateWithoutEventsInput, AdminProposalUncheckedUpdateWithoutEventsInput>
+    create: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
+    where?: AdminProposalWhereInput
+  }
+
+  export type AdminProposalUpdateToOneWithWhereWithoutEventsInput = {
+    where?: AdminProposalWhereInput
+    data: XOR<AdminProposalUpdateWithoutEventsInput, AdminProposalUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type AdminProposalUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type UserUpsertWithoutAdminProposalEventsInput = {
+    update: XOR<UserUpdateWithoutAdminProposalEventsInput, UserUncheckedUpdateWithoutAdminProposalEventsInput>
+    create: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminProposalEventsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminProposalEventsInput, UserUncheckedUpdateWithoutAdminProposalEventsInput>
+  }
+
+  export type UserUpdateWithoutAdminProposalEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminProposalEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
   }
 
   export type CollectionCreateManyCreatorInput = {
@@ -96351,6 +104249,78 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type AdminProposalCreateManyCreatedByUserInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalCreateManyLastEditedByUserInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalEventCreateManyActorUserInput = {
+    id?: string
+    proposalId: string
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
   }
 
   export type CollectionUpdateWithoutCreatorInput = {
@@ -96979,6 +104949,230 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalUpdateWithoutCreatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutCreatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutCreatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalUpdateWithoutLastEditedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutLastEditedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutLastEditedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUpdateWithoutActorUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    proposal?: AdminProposalUpdateOneRequiredWithoutEventsNestedInput
+  }
+
+  export type AdminProposalEventUncheckedUpdateWithoutActorUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUncheckedUpdateManyWithoutActorUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AssetUploadCreateManyCollectionInput = {
@@ -98790,6 +106984,37 @@ export namespace Prisma {
     executedAt?: Date | string | null
   }
 
+  export type AdminProposalCreateManySafeInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigTxId?: string | null
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type MultisigOwnerUpdateWithoutSafeInput = {
     id?: StringFieldUpdateOperationsInput | string
     ownerAddress?: StringFieldUpdateOperationsInput | string
@@ -98824,6 +107049,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     approvals?: MultisigApprovalUpdateManyWithoutTxNestedInput
+    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type MultisigTxUncheckedUpdateWithoutSafeInput = {
@@ -98839,6 +107065,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
+    linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type MultisigTxUncheckedUpdateManyWithoutSafeInput = {
@@ -98855,11 +107082,139 @@ export namespace Prisma {
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type AdminProposalUpdateWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MultisigApprovalCreateManyTxInput = {
     id?: string
     ownerAddress: string
     signature?: string | null
     createdAt?: Date | string
+  }
+
+  export type AdminProposalCreateManySubmittedMultisigTxInput = {
+    id?: string
+    area: $Enums.AdminProposalArea
+    kind: $Enums.AdminProposalKind
+    title: string
+    slug?: string | null
+    summary?: string | null
+    description?: string | null
+    safeId?: string | null
+    safeContract?: string | null
+    chainId?: number | null
+    createdByUserId?: string | null
+    createdByAddress?: string | null
+    lastEditedByUserId?: string | null
+    lastEditedByAddress?: string | null
+    basedOnConfigVersion?: bigint | number | null
+    runtimeReferenceId?: string | null
+    status?: $Enums.AdminProposalStatus
+    actionCount?: number
+    submittedMultisigNonce?: number | null
+    submittedAt?: Date | string | null
+    approvedAt?: Date | string | null
+    executedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    failedAt?: Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type MultisigApprovalUpdateWithoutTxInput = {
@@ -98881,6 +107236,103 @@ export namespace Prisma {
     ownerAddress?: StringFieldUpdateOperationsInput | string
     signature?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalUpdateWithoutSubmittedMultisigTxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WarpoolEntryCreateManyPoolInput = {
@@ -99369,6 +107821,122 @@ export namespace Prisma {
     rawResult?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalActionCreateManyProposalInput = {
+    id?: string
+    orderIndex: number
+    label?: string | null
+    summary?: string | null
+    target: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    tokenAddress?: string | null
+    dataHex: string
+    functionName?: string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.AdminProposalActionStatus
+    submittedAt?: Date | string | null
+    executedAt?: Date | string | null
+    failedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalEventCreateManyProposalInput = {
+    id?: string
+    actorUserId?: string | null
+    actorAddress?: string | null
+    type: string
+    note?: string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type AdminProposalActionUpdateWithoutProposalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalActionUncheckedUpdateWithoutProposalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalActionUncheckedUpdateManyWithoutProposalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    label?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    target?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    tokenAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    dataHex?: StringFieldUpdateOperationsInput | string
+    functionName?: NullableStringFieldUpdateOperationsInput | string | null
+    argsJson?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumAdminProposalActionStatusFieldUpdateOperationsInput | $Enums.AdminProposalActionStatus
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUpdateWithoutProposalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actorUser?: UserUpdateOneWithoutAdminProposalEventsNestedInput
+  }
+
+  export type AdminProposalEventUncheckedUpdateWithoutProposalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUncheckedUpdateManyWithoutProposalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

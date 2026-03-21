@@ -38,7 +38,7 @@ export default function WarpoolQueuePage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <LoadingPanel className="h-10 w-24 rounded-full" />
           <div className="mt-6">
-            <LoadingPanel className="h-[520px] rounded-[34px]" />
+            <LoadingPanel className="h-130 rounded-[34px]" />
           </div>
         </div>
       </main>
@@ -110,7 +110,7 @@ export default function WarpoolQueuePage() {
                 </p>
               </div>
 
-              <div className="rounded-[24px] border border-border bg-background/80 px-4 py-3 text-right">
+              <div className="rounded-3xl border border-border bg-background/80 px-4 py-3 text-right">
                 <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                   ETA
                 </div>
@@ -119,21 +119,21 @@ export default function WarpoolQueuePage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-[24px] border border-border bg-background/80 p-4">
+              <div className="rounded-3xl border border-border bg-background/80 p-4">
                 <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                   Format
                 </div>
                 <div className="mt-2 text-lg font-medium">{queue.format}</div>
               </div>
 
-              <div className="rounded-[24px] border border-border bg-background/80 p-4">
+              <div className="rounded-3xl border border-border bg-background/80 p-4">
                 <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                   Entry Stake
                 </div>
                 <div className="mt-2 text-lg font-medium">{queue.stake}</div>
               </div>
 
-              <div className="rounded-[24px] border border-border bg-background/80 p-4">
+              <div className="rounded-3xl border border-border bg-background/80 p-4">
                 <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                   Queue Fee
                 </div>
@@ -161,7 +161,7 @@ export default function WarpoolQueuePage() {
             </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-[24px] border border-border bg-background/80 p-4">
+              <div className="rounded-3xl border border-border bg-background/80 p-4">
                 <Clock3 className="mb-3 h-5 w-5 text-accent" />
                 <div className="text-sm font-medium">Fast queueing</div>
                 <p className="mt-1 text-sm leading-6 text-foreground/55">
@@ -169,7 +169,7 @@ export default function WarpoolQueuePage() {
                 </p>
               </div>
 
-              <div className="rounded-[24px] border border-border bg-background/80 p-4">
+              <div className="rounded-3xl border border-border bg-background/80 p-4">
                 <Shield className="mb-3 h-5 w-5 text-accent" />
                 <div className="text-sm font-medium">Transparent flow</div>
                 <p className="mt-1 text-sm leading-6 text-foreground/55">
@@ -178,7 +178,7 @@ export default function WarpoolQueuePage() {
                 </p>
               </div>
 
-              <div className="rounded-[24px] border border-border bg-background/80 p-4">
+              <div className="rounded-3xl border border-border bg-background/80 p-4">
                 <CheckCircle2 className="mb-3 h-5 w-5 text-accent" />
                 <div className="text-sm font-medium">History-ready</div>
                 <p className="mt-1 text-sm leading-6 text-foreground/55">
