@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useActiveAccount } from "thirdweb/react";
 
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
-import { WalletPill } from "@/src/ui/WalletPill";
+import WalletPill from "@/src/ui/WalletPill";
 
 type AdminSubmissionsClientProps = {
   allowedWallets: string[];

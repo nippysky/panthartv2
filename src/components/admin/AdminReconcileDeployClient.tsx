@@ -5,8 +5,8 @@
 import * as React from "react";
 import { toast } from "sonner";
 
-import { WalletPill } from "@/src/ui/WalletPill";
 import { useConnectedWalletAddress } from "@/src/lib/hooks/useConnectedWalletAddress";
+import WalletPill from "@/src/ui/WalletPill";
 
 type Props = {
   allowedWallets: string[];

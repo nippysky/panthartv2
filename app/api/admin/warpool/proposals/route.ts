@@ -1,4 +1,3 @@
-// app/api/admin/warpool/proposals/route.ts
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -110,6 +109,30 @@ function toPrismaJsonValue(
 ): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined {
   if (value == null) return Prisma.JsonNull;
   return value as Prisma.InputJsonValue;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function buildInitialMetadata(params: {
+  metadataJson: unknown;
+  actionsCount: number;
+  creatorAddress: string;
+}) {
+  const base = isPlainObject(params.metadataJson) ? { ...params.metadataJson } : {};
+
+  return {
+    ...base,
+    creatorAddress: base.creatorAddress ?? params.creatorAddress,
+    multisigLinks: isPlainObject(base.multisigLinks) ? base.multisigLinks : {},
+    progress: {
+      totalActions: params.actionsCount,
+      submittedActions: 0,
+      approvedActions: 0,
+      executedActions: 0,
+    },
+  } as Prisma.InputJsonValue;
 }
 
 async function findSafeByContract(contract: string | null) {
@@ -338,6 +361,13 @@ export async function POST(req: NextRequest) {
         : access.address
     );
 
+    if (!createdByAddress) {
+      return NextResponse.json(
+        { ok: false, error: "Missing creator wallet address for proposal creation." },
+        { status: 400 }
+      );
+    }
+
     const createdByUserId = await findUserIdByAddress(createdByAddress);
 
     const actionsInput = Array.isArray(body.actions) ? body.actions : [];
@@ -378,7 +408,11 @@ export async function POST(req: NextRequest) {
     }
 
     const snapshotJson = toPrismaJsonValue(body.snapshotJson);
-    const metadataJson = toPrismaJsonValue(body.metadataJson);
+    const metadataJson = buildInitialMetadata({
+      metadataJson: body.metadataJson,
+      actionsCount: actions.length,
+      creatorAddress: createdByAddress,
+    });
 
     const proposal = await prisma.adminProposal.create({
       data: {
@@ -431,6 +465,7 @@ export async function POST(req: NextRequest) {
               actionCount: actions.length,
               safeContract: safe?.contract ?? safeContract ?? null,
               chainId: normalizeChainId(body.chainId),
+              creatorAddress: createdByAddress,
             } as Prisma.InputJsonValue,
           },
         },
@@ -470,12 +505,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const safeProposal = toJsonSafe(proposal);
-
     return NextResponse.json({
       ok: true,
       proposal: { id: proposal.id },
-      item: safeProposal,
+      item: toJsonSafe(proposal),
     });
   } catch (error) {
     return NextResponse.json(

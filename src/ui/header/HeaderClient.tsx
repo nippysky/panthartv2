@@ -6,12 +6,13 @@ import { Menu, Plus } from "lucide-react";
 
 import { Button } from "@/src/ui/Button";
 import { IconButton } from "@/src/ui/IconButton";
-import { WalletPill } from "@/src/ui/WalletPill";
+
 import { MobileMenuDrawer } from "./MobileMenuDrawer";
 
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 import { useActiveAccount } from "thirdweb/react";
 import Link from "next/link";
+import WalletPill from "../WalletPill";
 
 function useUnifiedAddress() {
   const dw = useDecentWalletAccount();

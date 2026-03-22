@@ -5,7 +5,7 @@ import * as React from "react";
 import { useActiveAccount } from "thirdweb/react";
 
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
-import { WalletPill } from "@/src/ui/WalletPill";
+import WalletPill from "@/src/ui/WalletPill";
 
 function short(addr?: string | null) {
   if (!addr) return "";

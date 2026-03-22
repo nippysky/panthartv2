@@ -12,97 +12,146 @@ export type BrowserMultisigAction = {
   tokenAddress: string | null;
   dataHex: string;
   functionName: string | null;
+  argsJson: unknown;
   status: "PENDING" | "SUBMITTED" | "EXECUTED" | "FAILED";
 };
 
-export type BrowserMultisigTxSnapshot = {
-  txIndex: number;
-  tokenAddress: string;
-  to: string;
-  value: string;
-  executed: boolean;
-  confirmations: number;
-  data: string;
-};
-
 const MULTISIG_ABI = [
+  "event SubmitTransaction(address indexed owner,uint256 indexed txIndex,address indexed to,uint256 value,address tokenAddress,bytes data)",
+  "event ConfirmTransaction(address indexed owner,uint256 indexed txIndex)",
+  "event ExecuteTransaction(address indexed executor,uint256 indexed txIndex)",
   "function getTransactionCount() view returns (uint256)",
-  "function getTransaction(uint256 txIndex) view returns (address tokenAddress, address to, uint256 value, bool executed, uint256 confirmationsCount, bytes data)",
-  "function isConfirmed(uint256 txIndex, address ownerAddr) view returns (bool)",
-  "function required() view returns (uint256)",
-  "function submitTransaction(address tokenAddress, address to, uint256 value, bytes data) returns (uint256 txIndex)",
-  "function submitAndConfirm(address tokenAddress, address to, uint256 value, bytes data) returns (uint256 txIndex)",
+  "function submitTransaction(address token,address destination,uint256 value,bytes data) returns (uint256)",
+  "function submitAndConfirm(address token,address destination,uint256 value,bytes data) returns (uint256)",
   "function confirmTransaction(uint256 txIndex)",
   "function executeTransaction(uint256 txIndex)",
 ] as const;
 
-type Eip1193Like = {
-  request: (args: { method: string; params?: unknown[] | object }) => Promise<unknown>;
-};
+const MULTISIG_IFACE = new ethers.Interface(MULTISIG_ABI);
 
-function getInjectedProvider(): Eip1193Like {
+declare global {
+  interface Window {
+    ethereum?: ethers.Eip1193Provider;
+  }
+}
+
+function getInjectedProvider(): ethers.Eip1193Provider {
   if (typeof window === "undefined" || !window.ethereum) {
     throw new Error("No injected wallet provider found.");
   }
-
-  return window.ethereum as unknown as Eip1193Like;
+  return window.ethereum;
 }
 
-export async function getBrowserProvider() {
-  const injected = getInjectedProvider();
-  const provider = new ethers.BrowserProvider(injected as ethers.Eip1193Provider);
-
+async function getBrowserSigner() {
+  const provider = new ethers.BrowserProvider(getInjectedProvider());
   await provider.send("eth_requestAccounts", []);
-  return provider;
-}
-
-export async function getBrowserSigner() {
-  const provider = await getBrowserProvider();
   return provider.getSigner();
 }
 
-export async function getConnectedAddress() {
-  const signer = await getBrowserSigner();
-  return signer.getAddress();
+function normalizeAddress(value: string, label: string) {
+  if (!ethers.isAddress(value)) {
+    throw new Error(`Invalid ${label}.`);
+  }
+  return ethers.getAddress(value);
 }
 
-export async function getMultisigContract(multisigAddress: string) {
-  if (!ethers.isAddress(multisigAddress)) {
-    throw new Error("Invalid multisig address.");
+function normalizeTokenAddress(value: string | null | undefined) {
+  if (!value) return ethers.ZeroAddress;
+  if (!ethers.isAddress(value)) {
+    throw new Error("Invalid token address.");
+  }
+  return ethers.getAddress(value);
+}
+
+function normalizeValueWei(value: string | null | undefined) {
+  const raw = String(value ?? "0").trim();
+  if (!/^\d+$/.test(raw)) {
+    throw new Error("Invalid valueWei. Expected a base-10 integer string.");
+  }
+  return BigInt(raw);
+}
+
+function normalizeDataHex(value: string | null | undefined) {
+  const raw = String(value ?? "0x").trim();
+  if (!raw) return "0x";
+  if (!ethers.isHexString(raw)) {
+    throw new Error("Invalid calldata hex.");
+  }
+  return raw;
+}
+
+function normalizeTxIndex(value: number) {
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error("Invalid multisig transaction index.");
+  }
+  return value;
+}
+
+function labelForAction(action: BrowserMultisigAction) {
+  return action.label || action.functionName || `action #${action.orderIndex + 1}`;
+}
+
+function parseSubmitLifecycleFromReceipt(params: {
+  receipt: ethers.TransactionReceipt;
+  multisigAddress: string;
+  submitter: string;
+}) {
+  const walletAddress = ethers.getAddress(params.multisigAddress);
+  const submitter = ethers.getAddress(params.submitter);
+
+  let txIndex: number | null = null;
+  let confirmedInSameTx = false;
+  let executedInSameTx = false;
+
+  for (const log of params.receipt.logs) {
+    if (ethers.getAddress(log.address) !== walletAddress) continue;
+
+    let parsed: ethers.LogDescription | null = null;
+    try {
+      parsed = MULTISIG_IFACE.parseLog({
+        topics: [...log.topics],
+        data: log.data,
+      });
+    } catch {
+      continue;
+    }
+
+    if (!parsed) continue;
+
+    if (parsed.name === "SubmitTransaction") {
+      const owner = ethers.getAddress(String(parsed.args.owner));
+      if (owner === submitter) {
+        txIndex = Number(parsed.args.txIndex);
+      }
+    }
+
+    if (parsed.name === "ConfirmTransaction") {
+      const owner = ethers.getAddress(String(parsed.args.owner));
+      const confirmedTxIndex = Number(parsed.args.txIndex);
+      if (owner === submitter && txIndex !== null && confirmedTxIndex === txIndex) {
+        confirmedInSameTx = true;
+      }
+    }
+
+    if (parsed.name === "ExecuteTransaction") {
+      const executor = ethers.getAddress(String(parsed.args.executor));
+      if (executor === submitter && txIndex !== null) {
+        executedInSameTx = true;
+      }
+    }
   }
 
-  const signer = await getBrowserSigner();
-  return new ethers.Contract(multisigAddress, MULTISIG_ABI, signer);
-}
-
-export async function getMultisigRequired(multisigAddress: string) {
-  const contract = await getMultisigContract(multisigAddress);
-  const required = await contract.required();
-  return Number(required);
-}
-
-export async function getMultisigTx(multisigAddress: string, txIndex: number) {
-  const contract = await getMultisigContract(multisigAddress);
-  const tx = await contract.getTransaction(BigInt(txIndex));
+  if (txIndex === null) {
+    throw new Error(
+      "Could not resolve submitted multisig tx index from receipt logs."
+    );
+  }
 
   return {
     txIndex,
-    tokenAddress: String(tx.tokenAddress),
-    to: String(tx.to),
-    value: tx.value.toString(),
-    executed: Boolean(tx.executed),
-    confirmations: Number(tx.confirmationsCount),
-    data: String(tx.data),
-  } satisfies BrowserMultisigTxSnapshot;
-}
-
-export async function isMultisigTxConfirmedBy(
-  multisigAddress: string,
-  txIndex: number,
-  ownerAddress: string
-) {
-  const contract = await getMultisigContract(multisigAddress);
-  return Boolean(await contract.isConfirmed(BigInt(txIndex), ownerAddress));
+    confirmedInSameTx,
+    executedInSameTx,
+  };
 }
 
 export async function submitMultisigAction(params: {
@@ -112,35 +161,45 @@ export async function submitMultisigAction(params: {
 }) {
   const { multisigAddress, action, autoConfirm = true } = params;
 
-  if (!ethers.isAddress(action.target)) {
-    throw new Error(`Invalid target address for action #${action.orderIndex + 1}.`);
-  }
+  const safeAddress = normalizeAddress(multisigAddress, "multisig address");
+  const target = normalizeAddress(
+    action.target,
+    `target address for ${labelForAction(action)}`
+  );
+  const tokenAddress = normalizeTokenAddress(action.tokenAddress);
+  const value = normalizeValueWei(action.valueWei);
+  const dataHex = normalizeDataHex(action.dataHex);
 
   const signer = await getBrowserSigner();
   const submitter = await signer.getAddress();
-  const contract = new ethers.Contract(multisigAddress, MULTISIG_ABI, signer);
-
-  const countBefore = await contract.getTransactionCount();
-
-  const tokenAddress =
-    action.tokenAddress && ethers.isAddress(action.tokenAddress)
-      ? action.tokenAddress
-      : ethers.ZeroAddress;
-
-  const value = BigInt(action.valueWei || "0");
-  const dataHex = action.dataHex || "0x";
+  const contract = new ethers.Contract(safeAddress, MULTISIG_ABI, signer);
 
   const txResponse = autoConfirm
-    ? await contract.submitAndConfirm(tokenAddress, action.target, value, dataHex)
-    : await contract.submitTransaction(tokenAddress, action.target, value, dataHex);
+    ? await contract.submitAndConfirm(tokenAddress, target, value, dataHex)
+    : await contract.submitTransaction(tokenAddress, target, value, dataHex);
 
   const receipt = await txResponse.wait();
-  const txIndex = Number(countBefore);
+  if (!receipt) {
+    throw new Error("Submission transaction did not produce a receipt.");
+  }
+
+  const txHash = receipt.hash || txResponse.hash;
+  if (!txHash) {
+    throw new Error("Submission transaction hash is missing.");
+  }
+
+  const parsed = parseSubmitLifecycleFromReceipt({
+    receipt,
+    multisigAddress: safeAddress,
+    submitter,
+  });
 
   return {
-    txHash: receipt?.hash || txResponse.hash,
-    txIndex,
+    txHash,
+    txIndex: parsed.txIndex,
     submitter,
+    confirmedInSameTx: parsed.confirmedInSameTx,
+    executedInSameTx: parsed.executedInSameTx,
   };
 }
 
@@ -148,11 +207,12 @@ export async function confirmMultisigAction(params: {
   multisigAddress: string;
   txIndex: number;
 }) {
-  const { multisigAddress, txIndex } = params;
+  const safeAddress = normalizeAddress(params.multisigAddress, "multisig address");
+  const txIndex = normalizeTxIndex(params.txIndex);
 
   const signer = await getBrowserSigner();
   const ownerAddress = await signer.getAddress();
-  const contract = new ethers.Contract(multisigAddress, MULTISIG_ABI, signer);
+  const contract = new ethers.Contract(safeAddress, MULTISIG_ABI, signer);
 
   const txResponse = await contract.confirmTransaction(BigInt(txIndex));
   const receipt = await txResponse.wait();
@@ -167,11 +227,12 @@ export async function executeMultisigAction(params: {
   multisigAddress: string;
   txIndex: number;
 }) {
-  const { multisigAddress, txIndex } = params;
+  const safeAddress = normalizeAddress(params.multisigAddress, "multisig address");
+  const txIndex = normalizeTxIndex(params.txIndex);
 
   const signer = await getBrowserSigner();
   const executor = await signer.getAddress();
-  const contract = new ethers.Contract(multisigAddress, MULTISIG_ABI, signer);
+  const contract = new ethers.Contract(safeAddress, MULTISIG_ABI, signer);
 
   const txResponse = await contract.executeTransaction(BigInt(txIndex));
   const receipt = await txResponse.wait();
@@ -182,39 +243,26 @@ export async function executeMultisigAction(params: {
   };
 }
 
+/**
+ * Compatibility wrappers retained so other code paths do not break.
+ * The detail page now uses the action-level helpers above.
+ */
 export async function submitStoredMultisigProposal(params: {
   proposalId: string;
   safeAddress: string;
   actions: BrowserMultisigAction[];
 }) {
-  const { actions } = params;
-
-  if (!actions.length) {
-    throw new Error("This proposal has no stored actions to submit.");
-  }
-
   const results = [];
-
-  for (const action of [...actions].sort((a, b) => a.orderIndex - b.orderIndex)) {
-    const result = await submitMultisigAction({
-      multisigAddress: params.safeAddress,
-      action,
-      autoConfirm: true,
-    });
-
-    results.push({
-      actionId: action.id,
-      txHash: result.txHash,
-      txIndex: result.txIndex,
-      submitter: result.submitter,
-    });
+  for (const action of params.actions) {
+    results.push(
+      await submitMultisigAction({
+        multisigAddress: params.safeAddress,
+        action,
+        autoConfirm: true,
+      })
+    );
   }
-
-  return {
-    proposalId: params.proposalId,
-    safeAddress: params.safeAddress,
-    results,
-  };
+  return results;
 }
 
 export async function confirmStoredMultisigProposal(params: {
@@ -222,16 +270,10 @@ export async function confirmStoredMultisigProposal(params: {
   safeAddress: string;
   nonce: number;
 }) {
-  const result = await confirmMultisigAction({
+  return confirmMultisigAction({
     multisigAddress: params.safeAddress,
     txIndex: params.nonce,
   });
-
-  return {
-    proposalId: params.proposalId,
-    nonce: params.nonce,
-    ...result,
-  };
 }
 
 export async function executeStoredMultisigProposal(params: {
@@ -239,14 +281,8 @@ export async function executeStoredMultisigProposal(params: {
   safeAddress: string;
   nonce: number;
 }) {
-  const result = await executeMultisigAction({
+  return executeMultisigAction({
     multisigAddress: params.safeAddress,
     txIndex: params.nonce,
   });
-
-  return {
-    proposalId: params.proposalId,
-    nonce: params.nonce,
-    ...result,
-  };
 }

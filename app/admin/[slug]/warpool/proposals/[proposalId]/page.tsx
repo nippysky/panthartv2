@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  getWarpoolAdminProposalForDetailPage,
-} from "@/src/features/admin/warpool/proposal-queries";
+import { getWarpoolAdminProposalForDetailPage } from "@/src/features/admin/warpool/proposal-queries";
 import WarpoolProposalWorkflowPanel from "@/src/features/admin/warpool/WarpoolProposalWorkflowPanel";
 import WarpoolProposalMultisigPanel from "@/src/features/admin/warpool/WarpoolProposalMultisigPanel";
 
@@ -16,10 +14,21 @@ type Props = {
 
 function toJsonSafe<T>(value: T): T {
   return JSON.parse(
-    JSON.stringify(value, (_key, currentValue) =>
-      typeof currentValue === "bigint" ? currentValue.toString() : currentValue
-    )
+    JSON.stringify(value, (_key, currentValue) => {
+      if (typeof currentValue === "bigint") return currentValue.toString();
+      return currentValue;
+    })
   ) as T;
+}
+
+function formatDateTime(value: Date | string | null | undefined) {
+  if (!value) return "—";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 function Kvp({
@@ -58,7 +67,8 @@ export default async function WarpoolProposalDetailPage({ params }: Props) {
               {proposal.title}
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted md:text-base">
-              {proposal.summary || "Review, track, and execute this stored Warpool governance proposal."}
+              {proposal.summary ||
+                "Review, track, and execute this stored Warpool governance proposal."}
             </p>
           </div>
 
@@ -94,18 +104,16 @@ export default async function WarpoolProposalDetailPage({ params }: Props) {
               <Kvp label="Status" value={proposal.status} />
               <Kvp label="Safe" value={proposal.safeContract ?? "—"} />
               <Kvp label="Chain" value={proposal.chainId ?? "—"} />
-              <Kvp
-                label="Based on config"
-                value={proposal.basedOnConfigVersion?.toString() ?? "—"}
-              />
+              <Kvp label="Based on config" value={proposal.basedOnConfigVersion ?? "—"} />
               <Kvp label="Created by" value={proposal.createdByAddress ?? "—"} />
               <Kvp label="Last edited by" value={proposal.lastEditedByAddress ?? "—"} />
-              <Kvp label="Created" value={proposal.createdAt.toLocaleString()} />
-              <Kvp label="Updated" value={proposal.updatedAt.toLocaleString()} />
+              <Kvp label="Created" value={formatDateTime(proposal.createdAt)} />
+              <Kvp label="Updated" value={formatDateTime(proposal.updatedAt)} />
             </div>
           </section>
 
           <WarpoolProposalWorkflowPanel
+            adminSlug={slug}
             proposalId={proposal.id}
             proposalStatus={proposal.status}
             submittedMultisigTxId={proposal.submittedMultisigTxId}
@@ -113,14 +121,19 @@ export default async function WarpoolProposalDetailPage({ params }: Props) {
             submittedActionCount={proposal.submittedActionCount}
             approvedActionCount={proposal.approvedActionCount}
             executedActionCount={proposal.executedActionCount}
+            createdByAddress={proposal.createdByAddress}
           />
 
           <WarpoolProposalMultisigPanel
+            adminSlug={slug}
             proposalId={proposal.id}
             proposalStatus={proposal.status}
             safeAddress={proposal.safeContract}
             submittedMultisigTxId={proposal.submittedMultisigTxId}
             submittedMultisigNonce={proposal.submittedMultisigNonce}
+            metadataJson={proposal.metadataJson}
+            safeThreshold={proposal.safe?.threshold ?? null}
+            safeOwnerAddresses={proposal.safe?.ownerAddresses ?? []}
             actions={proposal.actions.map((action) => ({
               id: action.id,
               orderIndex: action.orderIndex,
@@ -133,6 +146,8 @@ export default async function WarpoolProposalDetailPage({ params }: Props) {
               functionName: action.functionName,
               argsJson: action.argsJson,
               status: action.status,
+              submittedAt: action.submittedAt,
+              executedAt: action.executedAt,
             }))}
           />
         </div>
@@ -174,14 +189,8 @@ export default async function WarpoolProposalDetailPage({ params }: Props) {
                     <Kvp label="Target" value={action.target} />
                     <Kvp label="Value" value={action.valueWei} />
                     <Kvp label="Method" value={action.functionName ?? "—"} />
-                    <Kvp
-                      label="Submitted"
-                      value={action.submittedAt ? action.submittedAt.toLocaleString() : "—"}
-                    />
-                    <Kvp
-                      label="Executed"
-                      value={action.executedAt ? action.executedAt.toLocaleString() : "—"}
-                    />
+                    <Kvp label="Submitted" value={formatDateTime(action.submittedAt)} />
+                    <Kvp label="Executed" value={formatDateTime(action.executedAt)} />
                   </div>
                 </div>
               ))}

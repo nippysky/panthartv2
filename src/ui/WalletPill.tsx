@@ -56,7 +56,7 @@ function Modal({
   if (!open) return null;
 
   return (
-    <div style={{ zIndex: 100}} className="fixed inset-0">
+    <div style={{ zIndex: 100 }} className="fixed inset-0">
       <button
         aria-label="Close"
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -83,7 +83,7 @@ function ToastPortal({
 
   return createPortal(
     <div
-    style={{ zIndex: 9999 }}
+      style={{ zIndex: 9999 }}
       className={[
         "pointer-events-none fixed left-1/2 bottom-6",
         "-translate-x-1/2 transition duration-200",
@@ -106,14 +106,12 @@ function ToastPortal({
   );
 }
 
-export function WalletPill() {
+export default function WalletPill() {
   const dw = useDecentWalletAccount();
 
-  // ✅ Hydration guard hooks (must be declared unconditionally)
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
-  // Toast hooks (also unconditional)
   const [toast, setToast] = React.useState<{ show: boolean; msg: string }>({
     show: false,
     msg: "",
@@ -134,10 +132,8 @@ export function WalletPill() {
     };
   }, []);
 
-  // Modal state (unconditional)
   const [open, setOpen] = React.useState(false);
 
-  // ✅ On SSR/first paint render a stable placeholder (prevents Thirdweb hydration mismatch)
   if (!mounted) {
     return (
       <>
@@ -147,17 +143,6 @@ export function WalletPill() {
     );
   }
 
-  // ✅ If NOT inside Decent Wallet, render Thirdweb’s connect UI (client-only now)
-  if (!dw.isDecentWallet) {
-    return (
-      <>
-        <ConnectWallet />
-        <ToastPortal show={toast.show} message={toast.msg} />
-      </>
-    );
-  }
-
-  // ✅ Inside Decent Wallet
   if (!dw.ready) {
     return (
       <>
@@ -167,15 +152,19 @@ export function WalletPill() {
     );
   }
 
-  if (!dw.isConnected || !dw.address) {
+  if (!dw.address) {
     return (
       <>
-        <button
-          onClick={() => dw.connect()}
-          className="h-10 rounded-full bg-accent px-4 text-sm font-semibold text-black hover:opacity-95 active:opacity-90"
-        >
-          Connect
-        </button>
+        {dw.isDecentWallet ? (
+          <button
+            onClick={() => dw.connect()}
+            className="h-10 rounded-full bg-accent px-4 text-sm font-semibold text-black hover:opacity-95 active:opacity-90"
+          >
+            Connect
+          </button>
+        ) : (
+          <ConnectWallet />
+        )}
         <ToastPortal show={toast.show} message={toast.msg} />
       </>
     );
@@ -202,7 +191,9 @@ export function WalletPill() {
             <div>
               <div className="text-sm font-semibold">Wallet</div>
               <div className="mt-1 text-xs text-muted">
-                Connected via Decent Wallet (in-app browser)
+                {dw.isDecentWallet
+                  ? "Connected via Decent Wallet (in-app browser)"
+                  : "Connected wallet session"}
               </div>
             </div>
             <button

@@ -53,19 +53,16 @@ function Kvp({
   );
 }
 
-function toneClass(status: WarpoolAdminMultisigTxItem["status"]) {
-  switch (status) {
-    case "EXECUTED":
-      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
-    case "FAILED":
-    case "CANCELLED":
-    case "EXPIRED":
-      return "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400";
-    case "APPROVED":
-      return "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400";
-    default:
-      return "border-border bg-background text-muted";
-  }
+function EmptyState({
+  text,
+}: {
+  text: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-card p-5 text-center text-sm text-muted">
+      {text}
+    </div>
+  );
 }
 
 function sourceLabel(source: WarpoolMultisigResolutionSource | null | undefined) {
@@ -89,12 +86,31 @@ function shortenAddress(value: string | null | undefined) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
 }
 
-function formatDate(value: Date | null) {
+function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
-  return new Date(value).toLocaleString("en-US", {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return date.toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function toneClass(status: WarpoolAdminMultisigTxItem["status"]) {
+  switch (status) {
+    case "EXECUTED":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+    case "FAILED":
+    case "CANCELLED":
+    case "EXPIRED":
+      return "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400";
+    case "APPROVED":
+      return "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400";
+    case "SUBMITTED":
+    default:
+      return "border-border bg-background text-muted";
+  }
 }
 
 function statusLabel(status: WarpoolAdminMultisigTxItem["status"]) {
@@ -116,27 +132,129 @@ function statusLabel(status: WarpoolAdminMultisigTxItem["status"]) {
   }
 }
 
+function getApprovalHint(
+  approvalsCount: number,
+  threshold: number | null | undefined
+) {
+  if (!threshold || threshold <= 0) return `${approvalsCount} confirmations`;
+  return `${approvalsCount}/${threshold}`;
+}
+
+function sortPending(
+  a: WarpoolAdminMultisigTxItem,
+  b: WarpoolAdminMultisigTxItem
+) {
+  const weight = (status: WarpoolAdminMultisigTxItem["status"]) =>
+    status === "APPROVED" ? 0 : 1;
+
+  const byStatus = weight(a.status) - weight(b.status);
+  if (byStatus !== 0) return byStatus;
+
+  return Number(a.nonce) - Number(b.nonce);
+}
+
+function sortHistory(
+  a: WarpoolAdminMultisigTxItem,
+  b: WarpoolAdminMultisigTxItem
+) {
+  const aTime = new Date(a.executedAt ?? a.createdAt).getTime();
+  const bTime = new Date(b.executedAt ?? b.createdAt).getTime();
+  return bTime - aTime;
+}
+
+type TxCardProps = {
+  tx: WarpoolAdminMultisigTxItem;
+  threshold: number | null | undefined;
+  mode: "pending" | "history";
+};
+
+function TxCard({ tx, threshold, mode }: TxCardProps) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-foreground">
+              Nonce #{tx.nonce}
+            </div>
+            <div className="mt-1 text-xs text-muted">
+              To {shortenAddress(tx.to)} · Submitted {formatDate(tx.createdAt)}
+            </div>
+          </div>
+
+          <div
+            className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${toneClass(
+              tx.status
+            )}`}
+          >
+            {statusLabel(tx.status)}
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Kvp
+            label="Approvals"
+            value={getApprovalHint(tx.approvalsCount, threshold)}
+          />
+          <Kvp label="Submitted by" value={shortenAddress(tx.submittedBy)} />
+          <Kvp label="Value" value={tx.valueWei} />
+
+          {mode === "pending" ? (
+            <Kvp
+              label="Next step"
+              value={
+                tx.status === "APPROVED"
+                  ? "Execution can proceed"
+                  : "More confirmations needed"
+              }
+            />
+          ) : (
+            <>
+              <Kvp label="Executed" value={formatDate(tx.executedAt)} />
+              <Kvp label="Exec Tx" value={shortenAddress(tx.executedTxHash)} />
+            </>
+          )}
+
+          <Kvp
+            label="Data"
+            value={tx.dataHex ? `${tx.dataHex.slice(0, 14)}…` : "—"}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WarpoolMultisigActivity({
   multisigSummary,
   multisigResolutionSource,
   recentTxs,
 }: Props) {
-  const pendingTxs = recentTxs.filter(
-    (tx) => tx.status === "SUBMITTED" || tx.status === "APPROVED"
-  );
-  const historyTxs = recentTxs.filter(
-    (tx) => tx.status !== "SUBMITTED" && tx.status !== "APPROVED"
-  );
+  const threshold = multisigSummary?.threshold ?? null;
+
+  const pendingTxs = recentTxs
+    .filter((tx) => tx.status === "SUBMITTED" || tx.status === "APPROVED")
+    .sort(sortPending);
+
+  const historyTxs = recentTxs
+    .filter((tx) => tx.status !== "SUBMITTED" && tx.status !== "APPROVED")
+    .sort(sortHistory);
+
+  const readyToExecuteCount = pendingTxs.filter(
+    (tx) => tx.status === "APPROVED"
+  ).length;
 
   return (
     <SectionCard
       title="Multisig Approvals"
       description="The resolved Warpool multisig, what still needs attention, and the latest tracked transaction history."
     >
-      <div className="grid gap-6 xl:grid-cols-[0.75fr_1.25fr]">
+      <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
         <div className="space-y-4">
           <div className="rounded-3xl border border-border bg-background/60 p-4">
-            <div className="text-sm font-semibold text-foreground">Resolved multisig</div>
+            <div className="text-sm font-semibold text-foreground">
+              Resolved multisig
+            </div>
 
             <div className="mt-4 space-y-1">
               <Kvp label="Source" value={sourceLabel(multisigResolutionSource)} />
@@ -146,16 +264,29 @@ export default function WarpoolMultisigActivity({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
             <div className="rounded-3xl border border-border bg-background/60 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">Pending approvals</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Pending approvals
+              </div>
               <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                 {pendingTxs.length}
               </div>
             </div>
 
             <div className="rounded-3xl border border-border bg-background/60 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">Recent history</div>
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Ready to execute
+              </div>
+              <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+                {readyToExecuteCount}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Recent history
+              </div>
               <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                 {historyTxs.length}
               </div>
@@ -163,93 +294,49 @@ export default function WarpoolMultisigActivity({
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-3xl border border-border bg-background/60 p-4">
-            <div className="text-sm font-semibold text-foreground">Pending approvals</div>
+            <div className="text-sm font-semibold text-foreground">
+              Pending approvals
+            </div>
 
             {pendingTxs.length > 0 ? (
               <div className="mt-4 space-y-3">
                 {pendingTxs.map((tx) => (
-                  <div
+                  <TxCard
                     key={tx.id}
-                    className="rounded-2xl border border-border bg-card p-4"
-                  >
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">
-                          Nonce #{tx.nonce}
-                        </div>
-                        <div className="mt-1 text-xs text-muted">
-                          To {shortenAddress(tx.to)} · Submitted {formatDate(tx.createdAt)}
-                        </div>
-                      </div>
-
-                      <div
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${toneClass(
-                          tx.status
-                        )}`}
-                      >
-                        {statusLabel(tx.status)}
-                      </div>
-                    </div>
-
-                    <div className="mt-3 grid gap-2 md:grid-cols-2">
-                      <Kvp label="Approvals" value={tx.approvalsCount} />
-                      <Kvp label="Submitted by" value={shortenAddress(tx.submittedBy)} />
-                      <Kvp label="Value" value={tx.valueWei} />
-                      <Kvp label="Data" value={tx.dataHex ? `${tx.dataHex.slice(0, 14)}…` : "—"} />
-                    </div>
-                  </div>
+                    tx={tx}
+                    threshold={threshold}
+                    mode="pending"
+                  />
                 ))}
               </div>
             ) : (
-              <div className="mt-4 rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted">
-                There are no pending multisig approvals right now.
+              <div className="mt-4">
+                <EmptyState text="There are no pending multisig approvals right now." />
               </div>
             )}
           </div>
 
           <div className="rounded-3xl border border-border bg-background/60 p-4">
-            <div className="text-sm font-semibold text-foreground">Recent history</div>
+            <div className="text-sm font-semibold text-foreground">
+              Recent history
+            </div>
 
             {historyTxs.length > 0 ? (
               <div className="mt-4 space-y-3">
                 {historyTxs.map((tx) => (
-                  <div
+                  <TxCard
                     key={tx.id}
-                    className="rounded-2xl border border-border bg-card p-4"
-                  >
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">
-                          Nonce #{tx.nonce}
-                        </div>
-                        <div className="mt-1 text-xs text-muted">
-                          To {shortenAddress(tx.to)} · Submitted {formatDate(tx.createdAt)}
-                        </div>
-                      </div>
-
-                      <div
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${toneClass(
-                          tx.status
-                        )}`}
-                      >
-                        {statusLabel(tx.status)}
-                      </div>
-                    </div>
-
-                    <div className="mt-3 grid gap-2 md:grid-cols-2">
-                      <Kvp label="Approvals" value={tx.approvalsCount} />
-                      <Kvp label="Executed" value={formatDate(tx.executedAt)} />
-                      <Kvp label="Exec Tx" value={shortenAddress(tx.executedTxHash)} />
-                      <Kvp label="Submitted by" value={shortenAddress(tx.submittedBy)} />
-                    </div>
-                  </div>
+                    tx={tx}
+                    threshold={threshold}
+                    mode="history"
+                  />
                 ))}
               </div>
             ) : (
-              <div className="mt-4 rounded-2xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted">
-                No executed or failed multisig history has been tracked yet.
+              <div className="mt-4">
+                <EmptyState text="No executed or failed multisig history has been tracked yet." />
               </div>
             )}
           </div>

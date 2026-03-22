@@ -1,12 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  getWarpoolProposalList,
-  getWarpoolProposalStats,
-} from "@/src/features/admin/warpool/proposal-queries";
+import { listWarpoolAdminProposals } from "@/src/features/admin/warpool/proposal-queries";
 import { shortenAddress } from "@/src/features/admin/warpool/constants";
-import type { AdminProposalListItem } from "@/src/features/admin/warpool/types";
 
 type Props = {
   params: Promise<{
@@ -75,10 +71,17 @@ export default async function WarpoolProposalsPage({ params }: Props) {
   const { slug } = await params;
   if (!slug) notFound();
 
-  const [stats, proposals] = await Promise.all([
-    getWarpoolProposalStats(),
-    getWarpoolProposalList(),
-  ]);
+  const proposals = await listWarpoolAdminProposals();
+
+  const stats = {
+    total: proposals.length,
+    draft: proposals.filter((proposal) => proposal.status === "DRAFT").length,
+    ready: proposals.filter((proposal) => proposal.status === "READY").length,
+    submitted: proposals.filter(
+      (proposal) =>
+        proposal.status === "SUBMITTED" || proposal.status === "APPROVED"
+    ).length,
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
@@ -115,7 +118,7 @@ export default async function WarpoolProposalsPage({ params }: Props) {
 
       {proposals.length > 0 ? (
         <div className="grid gap-4">
-          {proposals.map((proposal: AdminProposalListItem) => (
+          {proposals.map((proposal) => (
             <Link
               key={proposal.id}
               href={`/admin/${slug}/warpool/proposals/${proposal.id}`}
@@ -131,7 +134,7 @@ export default async function WarpoolProposalsPage({ params }: Props) {
 
                     {proposal.submittedMultisigNonce !== null ? (
                       <span className="inline-flex rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-                        Nonce {proposal.submittedMultisigNonce}
+                        Nonce {String(proposal.submittedMultisigNonce)}
                       </span>
                     ) : null}
                   </div>
@@ -147,15 +150,18 @@ export default async function WarpoolProposalsPage({ params }: Props) {
                   ) : null}
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <StatCard label="Actions" value={proposal._count.actions} />
-                    <StatCard label="Events" value={proposal._count.events} />
+                    <StatCard label="Actions" value={proposal.actionCount} />
+                    <StatCard
+                      label="Submitted"
+                      value={proposal.submittedActionCount}
+                    />
                     <StatCard
                       label="Approved"
-                      value={proposal.status === "APPROVED" || proposal.status === "EXECUTED" ? 1 : 0}
+                      value={proposal.approvedActionCount}
                     />
                     <StatCard
                       label="Executed"
-                      value={proposal.status === "EXECUTED" ? 1 : 0}
+                      value={proposal.executedActionCount}
                     />
                   </div>
                 </div>

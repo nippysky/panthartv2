@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@/src/lib/generated/prisma/client";
 import prisma, { prismaReady } from "@/src/lib/db";
+import { normalizeAdminAddress } from "@/src/features/admin/warpool/admin-access";
 
 type RouteContext = {
   params: Promise<{
@@ -8,48 +9,23 @@ type RouteContext = {
   }>;
 };
 
-type PatchBody =
-  | {
-      status?:
-        | "DRAFT"
-        | "READY"
-        | "SUBMITTED"
-        | "APPROVED"
-        | "EXECUTED"
-        | "CANCELLED"
-        | "FAILED";
-      note?: string;
-      summary?: string | null;
-      description?: string | null;
-      title?: string;
-      metadataJson?: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | null;
-      snapshotJson?: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | null;
-    }
-  | {
-      type: "record_submission";
-      actionId: string;
-      txIndex: number;
-      txHash: string;
-      submitter?: string | null;
-    }
-  | {
-      type: "record_confirmation";
-      actionId: string;
-      txIndex: number;
-      txHash: string;
-      ownerAddress?: string | null;
-    }
-  | {
-      type: "record_execution";
-      actionId: string;
-      txIndex: number;
-      txHash: string;
-      executor?: string | null;
-    };
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
+type PatchBody = {
+  status?:
+    | "DRAFT"
+    | "READY"
+    | "SUBMITTED"
+    | "APPROVED"
+    | "EXECUTED"
+    | "CANCELLED"
+    | "FAILED";
+  note?: string;
+  summary?: string | null;
+  description?: string | null;
+  title?: string;
+  metadataJson?: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | null;
+  snapshotJson?: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | null;
+  actorAddress?: string | null;
+};
 
 function toJsonSafe<T>(value: T): T {
   return JSON.parse(
@@ -71,116 +47,20 @@ function now() {
   return new Date();
 }
 
-function buildProposalStatusFromActions(
-  actionStatuses: Array<"PENDING" | "SUBMITTED" | "EXECUTED" | "FAILED">,
-  currentStatus:
-    | "DRAFT"
-    | "READY"
-    | "SUBMITTED"
-    | "APPROVED"
-    | "EXECUTED"
-    | "CANCELLED"
-    | "FAILED"
-) {
-  if (currentStatus === "DRAFT" || currentStatus === "READY" || currentStatus === "CANCELLED") {
-    return currentStatus;
-  }
+async function findUserIdByAddress(address: string | null) {
+  if (!address) return null;
 
-  if (actionStatuses.length === 0) {
-    return currentStatus;
-  }
-
-  if (actionStatuses.some((status) => status === "FAILED")) {
-    return "FAILED" as const;
-  }
-
-  if (actionStatuses.every((status) => status === "EXECUTED")) {
-    return "EXECUTED" as const;
-  }
-
-  if (actionStatuses.every((status) => status === "SUBMITTED" || status === "EXECUTED")) {
-    return "APPROVED" as const;
-  }
-
-  if (actionStatuses.some((status) => status === "SUBMITTED" || status === "EXECUTED")) {
-    return "SUBMITTED" as const;
-  }
-
-  return currentStatus;
-}
-
-async function recalculateProposalProgress(proposalId: string) {
-  const proposal = await prisma.adminProposal.findUnique({
-    where: { id: proposalId },
-    include: {
-      actions: {
-        orderBy: [{ orderIndex: "asc" }],
-      },
-      submittedMultisigTx: {
-        include: {
-          approvals: true,
-        },
-      },
-    },
+  const user = await prisma.user.findUnique({
+    where: { walletAddress: address },
+    select: { id: true },
   });
 
-  if (!proposal) return null;
-
-  const nextStatus = buildProposalStatusFromActions(
-    proposal.actions.map((action) => action.status),
-    proposal.status
-  );
-
-  const submittedCount = proposal.actions.filter(
-    (action) => action.status === "SUBMITTED" || action.status === "EXECUTED"
-  ).length;
-
-  const executedCount = proposal.actions.filter((action) => action.status === "EXECUTED").length;
-
-  const patch: Prisma.AdminProposalUpdateInput = {};
-
-  if (nextStatus !== proposal.status) {
-    patch.status = nextStatus;
-  }
-
-  if (
-    (nextStatus === "SUBMITTED" || nextStatus === "APPROVED" || nextStatus === "EXECUTED") &&
-    !proposal.submittedAt
-  ) {
-    patch.submittedAt = now();
-  }
-
-  if (nextStatus === "APPROVED" && !proposal.approvedAt) {
-    patch.approvedAt = now();
-  }
-
-  if (nextStatus === "EXECUTED" && !proposal.executedAt) {
-    patch.executedAt = now();
-  }
-
-  const currentMetadata = isPlainObject(proposal.metadataJson) ? proposal.metadataJson : {};
-  patch.metadataJson = {
-    ...currentMetadata,
-    progress: {
-      submittedActions: submittedCount,
-      approvedActions: submittedCount,
-      executedActions: executedCount,
-      totalActions: proposal.actions.length,
-    },
-  } as Prisma.InputJsonValue;
-
-  if (Object.keys(patch).length > 0) {
-    await prisma.adminProposal.update({
-      where: { id: proposalId },
-      data: patch,
-    });
-  }
-
-  return true;
+  return user?.id ?? null;
 }
 
-export async function GET(_: NextRequest, context: RouteContext) {
+export async function GET(_req: NextRequest, context: RouteContext) {
   await prismaReady;
+
   const { proposalId } = await context.params;
 
   const proposal = await prisma.adminProposal.findUnique({
@@ -239,18 +119,26 @@ export async function GET(_: NextRequest, context: RouteContext) {
 
 export async function PATCH(req: NextRequest, context: RouteContext) {
   await prismaReady;
+
   const { proposalId } = await context.params;
   const body = (await req.json()) as PatchBody;
 
   const proposal = await prisma.adminProposal.findUnique({
     where: { id: proposalId },
-    include: {
-      actions: {
-        orderBy: [{ orderIndex: "asc" }],
-      },
-      submittedMultisigTx: {
-        include: {
-          approvals: true,
+    select: {
+      id: true,
+      status: true,
+      cancelledAt: true,
+      failedAt: true,
+      submittedAt: true,
+      approvedAt: true,
+      executedAt: true,
+      createdByAddress: true,
+      createdByUserId: true,
+      lastEditedByAddress: true,
+      _count: {
+        select: {
+          actions: true,
         },
       },
     },
@@ -264,278 +152,51 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
   }
 
   try {
-    if ("type" in body && body.type === "record_submission") {
-      const action = proposal.actions.find((item) => item.id === body.actionId);
-      if (!action) {
+    const actorAddress = normalizeAdminAddress(body.actorAddress);
+    const actorUserId = await findUserIdByAddress(actorAddress);
+
+    const creatorAddress = normalizeAdminAddress(proposal.createdByAddress);
+    const creatorMissing = !creatorAddress;
+    const actorIsCreator =
+      !!actorAddress &&
+      (!!creatorMissing || actorAddress === creatorAddress);
+
+    if (
+      body.status === "DRAFT" ||
+      body.status === "READY" ||
+      body.status === "CANCELLED"
+    ) {
+      if (!actorAddress) {
         return NextResponse.json(
-          { ok: false, error: "Proposal action not found." },
-          { status: 404 }
+          { ok: false, error: "Missing admin wallet address." },
+          { status: 401 }
         );
       }
 
-      await prisma.$transaction(async (tx) => {
-        let multisigTxId = proposal.submittedMultisigTxId;
-
-        if (!multisigTxId) {
-          const safe = proposal.safeId
-            ? await tx.multisigSafe.findUnique({
-                where: { id: proposal.safeId },
-                select: { id: true },
-              })
-            : null;
-
-          const createdTx = await tx.multisigTx.create({
-            data: {
-              safeId: safe?.id ?? proposal.safeId ?? "",
-              nonce: body.txIndex,
-              to: action.target,
-              valueWei: action.valueWei,
-              dataHex: action.dataHex,
-              submittedBy: body.submitter ?? proposal.createdByAddress ?? null,
-              status: "SUBMITTED",
-            },
-          });
-
-          multisigTxId = createdTx.id;
-
-          await tx.adminProposal.update({
-            where: { id: proposalId },
-            data: {
-              submittedMultisigTxId: createdTx.id,
-              submittedMultisigNonce: body.txIndex,
-              status: "SUBMITTED",
-              submittedAt: proposal.submittedAt ?? now(),
-            },
-          });
-        } else {
-          await tx.multisigTx.update({
-            where: { id: multisigTxId },
-            data: {
-              nonce: body.txIndex,
-              to: action.target,
-              valueWei: action.valueWei,
-              dataHex: action.dataHex,
-              submittedBy: body.submitter ?? proposal.createdByAddress ?? null,
-              status: "SUBMITTED",
-            },
-          });
-        }
-
-        await tx.adminProposalAction.update({
-          where: { id: body.actionId },
-          data: {
-            status: "SUBMITTED",
-            submittedAt: now(),
+      if (!actorIsCreator) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Only the proposal creator wallet can change draft/ready workflow state.",
           },
-        });
-
-        const currentMetadata = isPlainObject(proposal.metadataJson) ? proposal.metadataJson : {};
-        const currentLinks = isPlainObject(currentMetadata.multisigLinks)
-          ? currentMetadata.multisigLinks
-          : {};
-
-        await tx.adminProposal.update({
-          where: { id: proposalId },
-          data: {
-            metadataJson: {
-              ...currentMetadata,
-              multisigLinks: {
-                ...currentLinks,
-                [body.actionId]: {
-                  txIndex: body.txIndex,
-                  txHash: body.txHash,
-                  submittedBy: body.submitter ?? null,
-                  submittedAt: new Date().toISOString(),
-                },
-              },
-            } as Prisma.InputJsonValue,
-          },
-        });
-
-        await tx.adminProposalEvent.create({
-          data: {
-            proposalId,
-            actorAddress: body.submitter ?? null,
-            type: "MULTISIG_SUBMITTED",
-            note: `Stored action submitted to multisig at tx #${body.txIndex}.`,
-            payloadJson: {
-              actionId: body.actionId,
-              txIndex: body.txIndex,
-              txHash: body.txHash,
-              submitter: body.submitter ?? null,
-            } as Prisma.InputJsonValue,
-          },
-        });
-      });
-
-      await recalculateProposalProgress(proposalId);
-
-      return NextResponse.json({ ok: true });
+          { status: 403 }
+        );
+      }
     }
 
-    if ("type" in body && body.type === "record_confirmation") {
-      const action = proposal.actions.find((item) => item.id === body.actionId);
-      if (!action) {
-        return NextResponse.json(
-          { ok: false, error: "Proposal action not found." },
-          { status: 404 }
-        );
-      }
-
-      if (!proposal.submittedMultisigTxId) {
-        return NextResponse.json(
-          { ok: false, error: "Proposal has no linked multisig transaction yet." },
-          { status: 400 }
-        );
-      }
-
-      await prisma.$transaction(async (tx) => {
-        const ownerAddress = String(body.ownerAddress || "").trim();
-        if (ownerAddress) {
-          const existingApproval = await tx.multisigApproval.findFirst({
-            where: {
-              txId: proposal.submittedMultisigTxId!,
-              ownerAddress,
-            },
-            select: { id: true },
-          });
-
-          if (!existingApproval) {
-            await tx.multisigApproval.create({
-              data: {
-                txId: proposal.submittedMultisigTxId!,
-                ownerAddress,
-              },
-            });
-          }
-        }
-
-        await tx.adminProposalAction.update({
-          where: { id: action.id },
-          data: {
-            status: "SUBMITTED",
-          },
-        });
-
-        await tx.multisigTx.update({
-          where: { id: proposal.submittedMultisigTxId! },
-          data: {
-            status: "APPROVED",
-          },
-        });
-
-        await tx.adminProposalEvent.create({
-          data: {
-            proposalId,
-            actorAddress: body.ownerAddress ?? null,
-            type: "MULTISIG_CONFIRMED",
-            note: `Stored multisig transaction confirmed.`,
-            payloadJson: {
-              actionId: body.actionId,
-              txIndex: body.txIndex,
-              txHash: body.txHash,
-              ownerAddress: body.ownerAddress ?? null,
-            } as Prisma.InputJsonValue,
-          },
-        });
-      });
-
-      await recalculateProposalProgress(proposalId);
-
-      return NextResponse.json({ ok: true });
-    }
-
-    if ("type" in body && body.type === "record_execution") {
-      const action = proposal.actions.find((item) => item.id === body.actionId);
-      if (!action) {
-        return NextResponse.json(
-          { ok: false, error: "Proposal action not found." },
-          { status: 404 }
-        );
-      }
-
-      if (!proposal.submittedMultisigTxId) {
-        return NextResponse.json(
-          { ok: false, error: "Proposal has no linked multisig transaction yet." },
-          { status: 400 }
-        );
-      }
-
-      await prisma.$transaction(async (tx) => {
-        await tx.adminProposalAction.update({
-          where: { id: action.id },
-          data: {
-            status: "EXECUTED",
-            executedAt: now(),
-          },
-        });
-
-        await tx.multisigTx.update({
-          where: { id: proposal.submittedMultisigTxId! },
-          data: {
-            status: "EXECUTED",
-            executedTxHash: body.txHash,
-            executedAt: now(),
-          },
-        });
-
-        const currentMetadata: Record<string, unknown> = isPlainObject(proposal.metadataJson)
-          ? { ...proposal.metadataJson }
-          : {};
-
-        const rawLinks = currentMetadata["multisigLinks"];
-        const currentLinks: Record<string, unknown> = isPlainObject(rawLinks)
-          ? { ...rawLinks }
-          : {};
-
-        const rawCurrentLink = currentLinks[body.actionId];
-        const currentLink: Record<string, unknown> = isPlainObject(rawCurrentLink)
-          ? { ...rawCurrentLink }
-          : {};
-
-        await tx.adminProposal.update({
-          where: { id: proposalId },
-          data: {
-            metadataJson: {
-              ...currentMetadata,
-              multisigLinks: {
-                ...currentLinks,
-                [body.actionId]: {
-                  ...currentLink,
-                  txIndex: body.txIndex,
-                  executedTxHash: body.txHash,
-                  executedBy: body.executor ?? null,
-                  executedAt: new Date().toISOString(),
-                },
-              },
-            } as Prisma.InputJsonValue,
-          },
-        });
-
-        await tx.adminProposalEvent.create({
-          data: {
-            proposalId,
-            actorAddress: body.executor ?? null,
-            type: "MULTISIG_EXECUTED",
-            note: `Stored multisig transaction executed.`,
-            payloadJson: {
-              actionId: body.actionId,
-              txIndex: body.txIndex,
-              txHash: body.txHash,
-              executor: body.executor ?? null,
-            } as Prisma.InputJsonValue,
-          },
-        });
-      });
-
-      await recalculateProposalProgress(proposalId);
-
-      return NextResponse.json({ ok: true });
+    if (body.status === "READY" && proposal._count.actions === 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "At least one proposal action is required before marking ready.",
+        },
+        { status: 400 }
+      );
     }
 
     const updateData: Prisma.AdminProposalUpdateInput = {};
 
-    if ("title" in body && typeof body.title === "string" && body.title.trim()) {
+    if (typeof body.title === "string" && body.title.trim()) {
       updateData.title = body.title.trim();
     }
 
@@ -555,7 +216,21 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       updateData.snapshotJson = toNullableJsonInput(body.snapshotJson);
     }
 
-    if ("status" in body && body.status) {
+    if (actorAddress) {
+      updateData.lastEditedByAddress = actorAddress;
+      updateData.lastEditedByUser = actorUserId
+        ? { connect: { id: actorUserId } }
+        : { disconnect: true };
+
+      if (creatorMissing) {
+        updateData.createdByAddress = actorAddress;
+        if (actorUserId) {
+          updateData.createdByUser = { connect: { id: actorUserId } };
+        }
+      }
+    }
+
+    if (body.status) {
       updateData.status = body.status;
 
       if (body.status === "READY") {
@@ -589,6 +264,8 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       await prisma.adminProposalEvent.create({
         data: {
           proposalId,
+          actorUserId,
+          actorAddress,
           type: "WORKFLOW_UPDATED",
           note: body.note,
         },

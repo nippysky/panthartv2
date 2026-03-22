@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { normalizeAdminAddress } from "@/src/features/admin/warpool/admin-access";
-import { WalletPill } from "@/src/ui/WalletPill";
+import WalletPill from "@/src/ui/WalletPill";
 
 type Props = {
   allowedWallets: string[];

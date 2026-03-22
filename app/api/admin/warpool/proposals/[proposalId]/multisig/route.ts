@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@/src/lib/generated/prisma";
+import { Prisma } from "@/src/lib/generated/prisma/client";
 import prisma, { prismaReady } from "@/src/lib/db";
 
 type Context = {
@@ -15,6 +15,8 @@ type RouteBody =
       txIndex: number;
       txHash: string;
       submitter?: string | null;
+      confirmedInSameTx?: boolean;
+      executedInSameTx?: boolean;
     }
   | {
       type: "record_confirmation";
@@ -31,38 +33,212 @@ type RouteBody =
       executor?: string | null;
     };
 
-type ActionLink = {
-  txIndex: number;
+type StoredMultisigLink = {
+  txId?: string | null;
+  txIndex?: number | null;
   txHash?: string | null;
-  submittedBy?: string | null;
-  confirmedBy?: string[];
   executedTxHash?: string | null;
+  submittedBy?: string | null;
+  confirmedBy?: string | null;
+  executedBy?: string | null;
+  submittedAt?: string | null;
+  confirmedAt?: string | null;
+  executedAt?: string | null;
+  status?: "SUBMITTED" | "APPROVED" | "EXECUTED" | "FAILED";
 };
 
-type ProposalMetadata = {
-  actionLinks?: Record<string, ActionLink>;
-  [key: string]: Prisma.InputJsonValue | undefined;
-};
+type ProposalStatus =
+  | "DRAFT"
+  | "READY"
+  | "SUBMITTED"
+  | "APPROVED"
+  | "EXECUTED"
+  | "CANCELLED"
+  | "FAILED";
 
-function isObject(value: unknown): value is Record<string, unknown> {
+function isPlainObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
-function asJsonObject(
-  value: unknown
-): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined {
-  if (value === undefined) return undefined;
-  if (value === null) return Prisma.JsonNull;
-  return value as Prisma.InputJsonValue;
-}
-
 function normalizeAddress(value: string | null | undefined) {
-  return String(value || "").trim().toLowerCase();
+  const next = String(value ?? "").trim().toLowerCase();
+  return next || null;
 }
 
-function readMetadata(value: unknown): ProposalMetadata {
-  if (!isObject(value)) return {};
-  return value as ProposalMetadata;
+function getStoredLinks(metadataJson: unknown) {
+  if (!isPlainObject(metadataJson)) return {} as Record<string, StoredMultisigLink>;
+  const raw = metadataJson.multisigLinks;
+  if (!isPlainObject(raw)) return {} as Record<string, StoredMultisigLink>;
+  return raw as Record<string, StoredMultisigLink>;
+}
+
+function mergeMetadataWithLinks(
+  metadataJson: unknown,
+  nextLinks: Record<string, StoredMultisigLink>,
+  progress?: {
+    totalActions: number;
+    submittedActions: number;
+    approvedActions: number;
+    executedActions: number;
+  }
+): Prisma.InputJsonValue {
+  const base = isPlainObject(metadataJson) ? { ...metadataJson } : {};
+  return {
+    ...base,
+    multisigLinks: nextLinks,
+    ...(progress ? { progress } : {}),
+  } as Prisma.InputJsonValue;
+}
+
+function now() {
+  return new Date();
+}
+
+function normalizeProposalStatusFromCounts(params: {
+  currentStatus: ProposalStatus;
+  total: number;
+  submitted: number;
+  approved: number;
+  executed: number;
+  failed: number;
+}) {
+  if (params.currentStatus === "CANCELLED") return "CANCELLED" as const;
+  if (params.failed > 0) return "FAILED" as const;
+  if (params.total > 0 && params.executed === params.total) return "EXECUTED" as const;
+  if (params.total > 0 && params.approved === params.total) return "APPROVED" as const;
+  if (params.submitted > 0) return "SUBMITTED" as const;
+  return params.currentStatus;
+}
+
+async function recalculateProposalProgress(proposalId: string) {
+  const proposal = await prisma.adminProposal.findUnique({
+    where: { id: proposalId },
+    include: {
+      safe: {
+        select: {
+          threshold: true,
+        },
+      },
+      actions: {
+        orderBy: [{ orderIndex: "asc" }],
+      },
+    },
+  });
+
+  if (!proposal) return null;
+
+  const links = getStoredLinks(proposal.metadataJson);
+  const txIds = Object.values(links)
+    .map((item) => item.txId)
+    .filter((value): value is string => !!value);
+
+  const txs =
+    txIds.length > 0
+      ? await prisma.multisigTx.findMany({
+          where: { id: { in: txIds } },
+          include: {
+            approvals: {
+              select: {
+                id: true,
+                ownerAddress: true,
+              },
+            },
+          },
+        })
+      : [];
+
+  const txMap = new Map(txs.map((tx) => [tx.id, tx]));
+
+  let submittedCount = 0;
+  let approvedCount = 0;
+  let executedCount = 0;
+  let failedCount = 0;
+
+  for (const action of proposal.actions) {
+    const link = links[action.id];
+    const tx = link?.txId ? txMap.get(link.txId) : null;
+    const threshold = proposal.safe?.threshold ?? 0;
+    const approvalsCount = tx?.approvals.length ?? 0;
+
+    const effectiveSubmitted =
+      !!link?.txId ||
+      (link?.txIndex !== null && link?.txIndex !== undefined) ||
+      !!link?.txHash ||
+      !!link?.submittedAt ||
+      action.status === "SUBMITTED" ||
+      action.status === "EXECUTED" ||
+      tx?.status === "SUBMITTED" ||
+      tx?.status === "APPROVED" ||
+      tx?.status === "EXECUTED";
+
+    const effectiveApproved =
+      tx?.status === "APPROVED" ||
+      tx?.status === "EXECUTED" ||
+      link?.status === "APPROVED" ||
+      link?.status === "EXECUTED" ||
+      !!link?.confirmedAt ||
+      (threshold > 0 && approvalsCount >= threshold);
+
+    const effectiveExecuted =
+      action.status === "EXECUTED" ||
+      tx?.status === "EXECUTED" ||
+      link?.status === "EXECUTED" ||
+      !!link?.executedAt ||
+      !!link?.executedTxHash;
+
+    const effectiveFailed =
+      action.status === "FAILED" ||
+      tx?.status === "FAILED" ||
+      tx?.status === "CANCELLED" ||
+      tx?.status === "EXPIRED" ||
+      link?.status === "FAILED";
+
+    if (effectiveSubmitted) submittedCount += 1;
+    if (effectiveApproved) approvedCount += 1;
+    if (effectiveExecuted) executedCount += 1;
+    if (effectiveFailed) failedCount += 1;
+  }
+
+  const nextStatus = normalizeProposalStatusFromCounts({
+    currentStatus: proposal.status as ProposalStatus,
+    total: proposal.actions.length,
+    submitted: submittedCount,
+    approved: approvedCount,
+    executed: executedCount,
+    failed: failedCount,
+  });
+
+  const nextMetadata = mergeMetadataWithLinks(proposal.metadataJson, links, {
+    totalActions: proposal.actions.length,
+    submittedActions: submittedCount,
+    approvedActions: approvedCount,
+    executedActions: executedCount,
+  });
+
+  const updateData: Prisma.AdminProposalUpdateInput = {
+    metadataJson: nextMetadata,
+    status: nextStatus,
+  };
+
+  if (nextStatus === "SUBMITTED" && !proposal.submittedAt) {
+    updateData.submittedAt = now();
+  }
+  if (nextStatus === "APPROVED" && !proposal.approvedAt) {
+    updateData.approvedAt = now();
+  }
+  if (nextStatus === "EXECUTED" && !proposal.executedAt) {
+    updateData.executedAt = now();
+  }
+  if (nextStatus !== "FAILED") {
+    updateData.failedAt = null;
+  }
+
+  await prisma.adminProposal.update({
+    where: { id: proposalId },
+    data: updateData,
+  });
+
+  return true;
 }
 
 export async function POST(req: NextRequest, context: Context) {
@@ -82,9 +258,18 @@ export async function POST(req: NextRequest, context: Context) {
     const proposal = await prisma.adminProposal.findUnique({
       where: { id: proposalId },
       include: {
-        safe: true,
+        safe: {
+          include: {
+            owners: {
+              where: { removedAt: null },
+              select: {
+                ownerAddress: true,
+              },
+            },
+          },
+        },
         actions: {
-          orderBy: { orderIndex: "asc" },
+          orderBy: [{ orderIndex: "asc" }],
         },
       },
     });
@@ -104,209 +289,299 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    const metadata = readMetadata(proposal.metadataJson);
-    const actionLinks = isObject(metadata.actionLinks)
-      ? { ...(metadata.actionLinks as Record<string, ActionLink>) }
-      : {};
+    if (!proposal.safeId || !proposal.safe) {
+      return NextResponse.json(
+        { ok: false, error: "Proposal has no linked multisig safe." },
+        { status: 400 }
+      );
+    }
 
-    const existingLink = actionLinks[action.id] ?? {
-      txIndex: body.txIndex,
-      confirmedBy: [],
-    };
+    const allowedOwners = new Set(
+      proposal.safe.owners.map((owner) => owner.ownerAddress.toLowerCase())
+    );
 
     if (body.type === "record_submission") {
-      const nextLink: ActionLink = {
-        ...existingLink,
-        txIndex: body.txIndex,
-        txHash: body.txHash,
-        submittedBy: normalizeAddress(body.submitter),
-        confirmedBy: Array.from(
-          new Set([
-            ...(existingLink.confirmedBy ?? []),
-            normalizeAddress(body.submitter),
-          ].filter(Boolean))
-        ),
-      };
+      const submitter = normalizeAddress(body.submitter);
+      const confirmedInSameTx = Boolean(body.confirmedInSameTx || body.executedInSameTx);
+      const executedInSameTx = Boolean(body.executedInSameTx);
 
-      actionLinks[action.id] = nextLink;
+      if (submitter && !allowedOwners.has(submitter)) {
+        return NextResponse.json(
+          { ok: false, error: "Submitting wallet is not an active multisig owner." },
+          { status: 403 }
+        );
+      }
 
       await prisma.$transaction(async (tx) => {
-        await tx.adminProposalAction.update({
-          where: { id: action.id },
-          data: {
-            status: "SUBMITTED",
-            submittedAt: new Date(),
+        const eventTime = now();
+        const eventIso = eventTime.toISOString();
+
+        let multisigTx = await tx.multisigTx.findUnique({
+          where: {
+            safeId_nonce: {
+              safeId: proposal.safeId!,
+              nonce: body.txIndex,
+            },
+          },
+          include: {
+            approvals: {
+              select: {
+                id: true,
+                ownerAddress: true,
+              },
+            },
           },
         });
 
-        const safe = proposal.safe;
-        let multisigTxId: string | null = null;
-
-        if (safe) {
-          const existingMultisigTx = await tx.multisigTx.findFirst({
-            where: {
-              safeId: safe.id,
+        if (!multisigTx) {
+          multisigTx = await tx.multisigTx.create({
+            data: {
+              safeId: proposal.safeId!,
               nonce: body.txIndex,
+              to: action.target,
+              valueWei: action.valueWei,
+              dataHex: action.dataHex,
+              submittedBy: submitter ?? proposal.createdByAddress ?? undefined,
+              status: "SUBMITTED",
             },
-            select: { id: true },
-          });
-
-          if (existingMultisigTx) {
-            multisigTxId = existingMultisigTx.id;
-          } else {
-            const created = await tx.multisigTx.create({
-              data: {
-                safeId: safe.id,
-                nonce: body.txIndex,
-                to: action.target,
-                valueWei: action.valueWei,
-                dataHex: action.dataHex,
-                submittedBy: normalizeAddress(body.submitter) || null,
-                status: "SUBMITTED",
-              },
-              select: { id: true },
-            });
-
-            multisigTxId = created.id;
-          }
-
-          const ownerAddress = normalizeAddress(body.submitter);
-          if (ownerAddress) {
-            await tx.multisigApproval.upsert({
-              where: {
-                txId_ownerAddress: {
-                  txId: multisigTxId,
-                  ownerAddress,
+            include: {
+              approvals: {
+                select: {
+                  id: true,
+                  ownerAddress: true,
                 },
               },
-              update: {},
-              create: {
-                txId: multisigTxId,
-                ownerAddress,
-              },
-            });
-          }
+            },
+          });
         }
 
-        const nextMetadata: ProposalMetadata = {
-          ...metadata,
-          actionLinks,
-        };
+        if (submitter) {
+          await tx.multisigApproval.upsert({
+            where: {
+              txId_ownerAddress: {
+                txId: multisigTx.id,
+                ownerAddress: submitter,
+              },
+            },
+            update: {},
+            create: {
+              txId: multisigTx.id,
+              ownerAddress: submitter,
+            },
+          });
+        }
 
-        const actionStatuses = await tx.adminProposalAction.findMany({
-          where: { proposalId: proposal.id },
-          select: { id: true, status: true },
+        const approvalsCount = await tx.multisigApproval.count({
+          where: { txId: multisigTx.id },
         });
 
-        const mergedStatuses = actionStatuses.map((item) =>
-          item.id === action.id ? "SUBMITTED" : item.status
-        );
+        const nextTxStatus = executedInSameTx
+          ? "EXECUTED"
+          : approvalsCount >= proposal.safe!.threshold
+            ? "APPROVED"
+            : "SUBMITTED";
 
-        const nextProposalStatus = mergedStatuses.every(
-          (status) => status === "SUBMITTED" || status === "EXECUTED"
-        )
-          ? "SUBMITTED"
-          : proposal.status === "READY"
-            ? "SUBMITTED"
-            : proposal.status;
+        await tx.multisigTx.update({
+          where: { id: multisigTx.id },
+          data: {
+            status: nextTxStatus,
+            ...(executedInSameTx
+              ? {
+                  executedTxHash: body.txHash,
+                  executedAt: eventTime,
+                }
+              : {}),
+          },
+        });
+
+        await tx.adminProposalAction.update({
+          where: { id: action.id },
+          data: {
+            status: executedInSameTx ? "EXECUTED" : "SUBMITTED",
+            submittedAt: action.submittedAt ?? eventTime,
+            ...(executedInSameTx ? { executedAt: action.executedAt ?? eventTime } : {}),
+          },
+        });
+
+        const currentLinks = getStoredLinks(proposal.metadataJson);
+        const nextLinks: Record<string, StoredMultisigLink> = {
+          ...currentLinks,
+          [action.id]: {
+            txId: multisigTx.id,
+            txIndex: body.txIndex,
+            txHash: body.txHash,
+            submittedBy: submitter,
+            submittedAt: currentLinks[action.id]?.submittedAt ?? eventIso,
+            ...(confirmedInSameTx
+              ? {
+                  confirmedBy: submitter,
+                  confirmedAt: currentLinks[action.id]?.confirmedAt ?? eventIso,
+                }
+              : {}),
+            ...(executedInSameTx
+              ? {
+                  executedBy: submitter,
+                  executedAt: currentLinks[action.id]?.executedAt ?? eventIso,
+                  executedTxHash: body.txHash,
+                }
+              : {}),
+            status: nextTxStatus,
+          },
+        };
 
         await tx.adminProposal.update({
           where: { id: proposal.id },
           data: {
-            status: nextProposalStatus,
-            submittedAt: proposal.submittedAt ?? new Date(),
+            submittedMultisigTxId: proposal.submittedMultisigTxId ?? multisigTx.id,
             submittedMultisigNonce:
               proposal.submittedMultisigNonce ?? body.txIndex,
-            submittedMultisigTxId: proposal.submittedMultisigTxId ?? multisigTxId,
-            metadataJson: asJsonObject(nextMetadata),
+            metadataJson: mergeMetadataWithLinks(proposal.metadataJson, nextLinks),
+            status: executedInSameTx ? "EXECUTED" : "SUBMITTED",
+            submittedAt: proposal.submittedAt ?? eventTime,
+            ...(confirmedInSameTx
+              ? { approvedAt: proposal.approvedAt ?? eventTime }
+              : {}),
+            ...(executedInSameTx
+              ? { executedAt: proposal.executedAt ?? eventTime }
+              : {}),
           },
         });
 
         await tx.adminProposalEvent.create({
           data: {
             proposalId: proposal.id,
-            actorAddress: normalizeAddress(body.submitter) || null,
+            actorAddress: submitter,
             type: "MULTISIG_SUBMITTED",
             note: `Submitted action #${action.orderIndex + 1} to multisig nonce ${body.txIndex}.`,
             payloadJson: {
               actionId: action.id,
               txIndex: body.txIndex,
               txHash: body.txHash,
-            },
+              confirmedInSameTx,
+              executedInSameTx,
+            } as Prisma.InputJsonValue,
           },
         });
+
+        if (confirmedInSameTx) {
+          await tx.adminProposalEvent.create({
+            data: {
+              proposalId: proposal.id,
+              actorAddress: submitter,
+              type: "MULTISIG_CONFIRMED",
+              note: `Action #${action.orderIndex + 1} was confirmed in the same submission transaction.`,
+              payloadJson: {
+                actionId: action.id,
+                txIndex: body.txIndex,
+                txHash: body.txHash,
+                ownerAddress: submitter,
+                sameTransaction: true,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        }
+
+        if (executedInSameTx) {
+          await tx.adminProposalEvent.create({
+            data: {
+              proposalId: proposal.id,
+              actorAddress: submitter,
+              type: "MULTISIG_EXECUTED",
+              note: `Action #${action.orderIndex + 1} was executed in the same submission transaction.`,
+              payloadJson: {
+                actionId: action.id,
+                txIndex: body.txIndex,
+                txHash: body.txHash,
+                executor: submitter,
+                sameTransaction: true,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        }
       });
 
+      await recalculateProposalProgress(proposalId);
       return NextResponse.json({ ok: true });
     }
 
     if (body.type === "record_confirmation") {
       const ownerAddress = normalizeAddress(body.ownerAddress);
+      if (!ownerAddress || !allowedOwners.has(ownerAddress)) {
+        return NextResponse.json(
+          { ok: false, error: "Confirming wallet is not an active multisig owner." },
+          { status: 403 }
+        );
+      }
 
-      const nextLink: ActionLink = {
-        ...existingLink,
-        txIndex: body.txIndex,
-        confirmedBy: Array.from(
-          new Set([...(existingLink.confirmedBy ?? []), ownerAddress].filter(Boolean))
-        ),
-      };
+      const currentLinks = getStoredLinks(proposal.metadataJson);
+      const existingLink = currentLinks[action.id];
+      const existingTxId = existingLink?.txId;
 
-      actionLinks[action.id] = nextLink;
+      if (!existingTxId) {
+        return NextResponse.json(
+          { ok: false, error: "This action has no stored multisig tx yet." },
+          { status: 400 }
+        );
+      }
 
       await prisma.$transaction(async (tx) => {
-        const threshold = proposal.safe?.threshold ?? 0;
-        let safeTxId: string | null = null;
+        const eventTime = now();
+        const eventIso = eventTime.toISOString();
 
-        if (proposal.safe) {
-          const existingMultisigTx = await tx.multisigTx.findFirst({
-            where: {
-              safeId: proposal.safe.id,
-              nonce: body.txIndex,
+        await tx.multisigApproval.upsert({
+          where: {
+            txId_ownerAddress: {
+              txId: existingTxId,
+              ownerAddress,
             },
-            select: { id: true },
-          });
+          },
+          update: {},
+          create: {
+            txId: existingTxId,
+            ownerAddress,
+          },
+        });
 
-          if (existingMultisigTx) {
-            safeTxId = existingMultisigTx.id;
-          }
+        const approvalCount = await tx.multisigApproval.count({
+          where: { txId: existingTxId },
+        });
 
-          if (safeTxId && ownerAddress) {
-            await tx.multisigApproval.upsert({
-              where: {
-                txId_ownerAddress: {
-                  txId: safeTxId,
-                  ownerAddress,
-                },
-              },
-              update: {},
-              create: {
-                txId: safeTxId,
-                ownerAddress,
-              },
-            });
+        const nextTxStatus =
+          proposal.safe!.threshold > 0 && approvalCount >= proposal.safe!.threshold
+            ? "APPROVED"
+            : "SUBMITTED";
 
-            const approvalCount = await tx.multisigApproval.count({
-              where: { txId: safeTxId },
-            });
+        await tx.multisigTx.update({
+          where: { id: existingTxId },
+          data: {
+            status: nextTxStatus,
+          },
+        });
 
-            if (approvalCount >= threshold && threshold > 0) {
-              await tx.multisigTx.update({
-                where: { id: safeTxId },
-                data: { status: "APPROVED" },
-              });
-            }
-          }
-        }
-
-        const nextMetadata: ProposalMetadata = {
-          ...metadata,
-          actionLinks,
+        const nextLinks: Record<string, StoredMultisigLink> = {
+          ...currentLinks,
+          [action.id]: {
+            ...existingLink,
+            txId: existingTxId,
+            txIndex: body.txIndex,
+            txHash: body.txHash,
+            confirmedBy: ownerAddress,
+            confirmedAt: existingLink?.confirmedAt ?? eventIso,
+            status: nextTxStatus,
+          },
         };
+
+        await tx.adminProposal.update({
+          where: { id: proposal.id },
+          data: {
+            metadataJson: mergeMetadataWithLinks(proposal.metadataJson, nextLinks),
+          },
+        });
 
         await tx.adminProposalEvent.create({
           data: {
             proposalId: proposal.id,
-            actorAddress: ownerAddress || null,
+            actorAddress: ownerAddress,
             type: "MULTISIG_CONFIRMED",
             note: `Confirmed action #${action.orderIndex + 1} on multisig nonce ${body.txIndex}.`,
             payloadJson: {
@@ -314,116 +589,93 @@ export async function POST(req: NextRequest, context: Context) {
               txIndex: body.txIndex,
               txHash: body.txHash,
               ownerAddress,
-            },
-          },
-        });
-
-        const safeTx = safeTxId
-          ? await tx.multisigTx.findUnique({
-              where: { id: safeTxId },
-              select: { status: true },
-            })
-          : null;
-
-        const nextProposalStatus =
-          safeTx?.status === "APPROVED" &&
-          (proposal.status === "SUBMITTED" || proposal.status === "READY")
-            ? "APPROVED"
-            : proposal.status;
-
-        await tx.adminProposal.update({
-          where: { id: proposal.id },
-          data: {
-            status: nextProposalStatus,
-            approvedAt:
-              nextProposalStatus === "APPROVED" ? new Date() : proposal.approvedAt,
-            metadataJson: asJsonObject(nextMetadata),
+            } as Prisma.InputJsonValue,
           },
         });
       });
 
+      await recalculateProposalProgress(proposalId);
       return NextResponse.json({ ok: true });
     }
 
     if (body.type === "record_execution") {
-      const nextLink: ActionLink = {
-        ...existingLink,
-        txIndex: body.txIndex,
-        executedTxHash: body.txHash,
-      };
+      const executor = normalizeAddress(body.executor);
+      if (!executor || !allowedOwners.has(executor)) {
+        return NextResponse.json(
+          { ok: false, error: "Executing wallet is not an active multisig owner." },
+          { status: 403 }
+        );
+      }
 
-      actionLinks[action.id] = nextLink;
+      const currentLinks = getStoredLinks(proposal.metadataJson);
+      const existingLink = currentLinks[action.id];
+      const existingTxId = existingLink?.txId;
+
+      if (!existingTxId) {
+        return NextResponse.json(
+          { ok: false, error: "This action has no stored multisig tx yet." },
+          { status: 400 }
+        );
+      }
 
       await prisma.$transaction(async (tx) => {
+        const eventTime = now();
+        const eventIso = eventTime.toISOString();
+
         await tx.adminProposalAction.update({
           where: { id: action.id },
           data: {
             status: "EXECUTED",
-            executedAt: new Date(),
+            executedAt: action.executedAt ?? eventTime,
           },
         });
 
-        if (proposal.safe) {
-          const existingMultisigTx = await tx.multisigTx.findFirst({
-            where: {
-              safeId: proposal.safe.id,
-              nonce: body.txIndex,
-            },
-            select: { id: true },
-          });
-
-          if (existingMultisigTx) {
-            await tx.multisigTx.update({
-              where: { id: existingMultisigTx.id },
-              data: {
-                status: "EXECUTED",
-                executedAt: new Date(),
-                executedTxHash: body.txHash,
-              },
-            });
-          }
-        }
-
-        const nextMetadata: ProposalMetadata = {
-          ...metadata,
-          actionLinks,
-        };
-
-        const actionStatuses = await tx.adminProposalAction.findMany({
-          where: { proposalId: proposal.id },
-          select: { id: true, status: true },
+        await tx.multisigTx.update({
+          where: { id: existingTxId },
+          data: {
+            status: "EXECUTED",
+            executedAt: eventTime,
+            executedTxHash: body.txHash,
+          },
         });
 
-        const mergedStatuses = actionStatuses.map((item) =>
-          item.id === action.id ? "EXECUTED" : item.status
-        );
-
-        const allExecuted = mergedStatuses.every((status) => status === "EXECUTED");
+        const nextLinks: Record<string, StoredMultisigLink> = {
+          ...currentLinks,
+          [action.id]: {
+            ...existingLink,
+            txId: existingTxId,
+            txIndex: body.txIndex,
+            executedBy: executor,
+            executedAt: existingLink?.executedAt ?? eventIso,
+            executedTxHash: body.txHash,
+            status: "EXECUTED",
+          },
+        };
 
         await tx.adminProposal.update({
           where: { id: proposal.id },
           data: {
-            status: allExecuted ? "EXECUTED" : proposal.status,
-            executedAt: allExecuted ? new Date() : proposal.executedAt,
-            metadataJson: asJsonObject(nextMetadata),
+            metadataJson: mergeMetadataWithLinks(proposal.metadataJson, nextLinks),
           },
         });
 
         await tx.adminProposalEvent.create({
           data: {
             proposalId: proposal.id,
-            actorAddress: normalizeAddress(body.executor) || null,
+            actorAddress: executor,
             type: "MULTISIG_EXECUTED",
             note: `Executed action #${action.orderIndex + 1} on multisig nonce ${body.txIndex}.`,
             payloadJson: {
               actionId: action.id,
               txIndex: body.txIndex,
               txHash: body.txHash,
-            },
+              executor,
+            } as Prisma.InputJsonValue,
           },
         });
       });
 
+      await recalculateProposalProgress(proposalId);
       return NextResponse.json({ ok: true });
     }
 
