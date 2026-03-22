@@ -135,20 +135,68 @@ function parseSubmitLifecycleFromReceipt(params: {
 
     if (parsed.name === "ExecuteTransaction") {
       const executor = ethers.getAddress(String(parsed.args.executor));
-      if (executor === submitter && txIndex !== null) {
+      const executedTxIndex = Number(parsed.args.txIndex);
+      if (executor === submitter && txIndex !== null && executedTxIndex === txIndex) {
         executedInSameTx = true;
       }
     }
   }
 
   if (txIndex === null) {
-    throw new Error(
-      "Could not resolve submitted multisig tx index from receipt logs."
-    );
+    throw new Error("Could not resolve submitted multisig tx index from receipt logs.");
   }
 
   return {
     txIndex,
+    confirmedInSameTx,
+    executedInSameTx,
+  };
+}
+
+function parseConfirmLifecycleFromReceipt(params: {
+  receipt: ethers.TransactionReceipt;
+  multisigAddress: string;
+  ownerAddress: string;
+  txIndex: number;
+}) {
+  const walletAddress = ethers.getAddress(params.multisigAddress);
+  const ownerAddress = ethers.getAddress(params.ownerAddress);
+
+  let confirmedInSameTx = false;
+  let executedInSameTx = false;
+
+  for (const log of params.receipt.logs) {
+    if (ethers.getAddress(log.address) !== walletAddress) continue;
+
+    let parsed: ethers.LogDescription | null = null;
+    try {
+      parsed = MULTISIG_IFACE.parseLog({
+        topics: [...log.topics],
+        data: log.data,
+      });
+    } catch {
+      continue;
+    }
+
+    if (!parsed) continue;
+
+    if (parsed.name === "ConfirmTransaction") {
+      const owner = ethers.getAddress(String(parsed.args.owner));
+      const confirmedTxIndex = Number(parsed.args.txIndex);
+      if (owner === ownerAddress && confirmedTxIndex === params.txIndex) {
+        confirmedInSameTx = true;
+      }
+    }
+
+    if (parsed.name === "ExecuteTransaction") {
+      const executedTxIndex = Number(parsed.args.txIndex);
+      if (executedTxIndex === params.txIndex) {
+        executedInSameTx = true;
+      }
+    }
+  }
+
+  return {
     confirmedInSameTx,
     executedInSameTx,
   };
@@ -217,9 +265,22 @@ export async function confirmMultisigAction(params: {
   const txResponse = await contract.confirmTransaction(BigInt(txIndex));
   const receipt = await txResponse.wait();
 
-  return {
-    txHash: receipt?.hash || txResponse.hash,
+  if (!receipt) {
+    throw new Error("Confirmation transaction did not produce a receipt.");
+  }
+
+  const parsed = parseConfirmLifecycleFromReceipt({
+    receipt,
+    multisigAddress: safeAddress,
     ownerAddress,
+    txIndex,
+  });
+
+  return {
+    txHash: receipt.hash || txResponse.hash,
+    ownerAddress,
+    confirmedInSameTx: parsed.confirmedInSameTx,
+    executedInSameTx: parsed.executedInSameTx,
   };
 }
 

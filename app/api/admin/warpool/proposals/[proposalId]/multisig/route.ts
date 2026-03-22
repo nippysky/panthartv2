@@ -24,6 +24,7 @@ type RouteBody =
       txIndex: number;
       txHash: string;
       ownerAddress?: string | null;
+      executedInSameTx?: boolean;
     }
   | {
       type: "record_execution";
@@ -176,7 +177,6 @@ async function recalculateProposalProgress(proposalId: string) {
       tx?.status === "EXECUTED" ||
       link?.status === "APPROVED" ||
       link?.status === "EXECUTED" ||
-      !!link?.confirmedAt ||
       (threshold > 0 && approvalsCount >= threshold);
 
     const effectiveExecuted =
@@ -433,17 +433,12 @@ export async function POST(req: NextRequest, context: Context) {
           where: { id: proposal.id },
           data: {
             submittedMultisigTxId: proposal.submittedMultisigTxId ?? multisigTx.id,
-            submittedMultisigNonce:
-              proposal.submittedMultisigNonce ?? body.txIndex,
+            submittedMultisigNonce: proposal.submittedMultisigNonce ?? body.txIndex,
             metadataJson: mergeMetadataWithLinks(proposal.metadataJson, nextLinks),
             status: executedInSameTx ? "EXECUTED" : "SUBMITTED",
             submittedAt: proposal.submittedAt ?? eventTime,
-            ...(confirmedInSameTx
-              ? { approvedAt: proposal.approvedAt ?? eventTime }
-              : {}),
-            ...(executedInSameTx
-              ? { executedAt: proposal.executedAt ?? eventTime }
-              : {}),
+            ...(confirmedInSameTx ? { approvedAt: proposal.approvedAt ?? eventTime } : {}),
+            ...(executedInSameTx ? { executedAt: proposal.executedAt ?? eventTime } : {}),
           },
         });
 
@@ -506,6 +501,8 @@ export async function POST(req: NextRequest, context: Context) {
 
     if (body.type === "record_confirmation") {
       const ownerAddress = normalizeAddress(body.ownerAddress);
+      const executedInSameTx = Boolean(body.executedInSameTx);
+
       if (!ownerAddress || !allowedOwners.has(ownerAddress)) {
         return NextResponse.json(
           { ok: false, error: "Confirming wallet is not an active multisig owner." },
@@ -546,8 +543,9 @@ export async function POST(req: NextRequest, context: Context) {
           where: { txId: existingTxId },
         });
 
-        const nextTxStatus =
-          proposal.safe!.threshold > 0 && approvalCount >= proposal.safe!.threshold
+        const nextTxStatus = executedInSameTx
+          ? "EXECUTED"
+          : proposal.safe!.threshold > 0 && approvalCount >= proposal.safe!.threshold
             ? "APPROVED"
             : "SUBMITTED";
 
@@ -555,8 +553,24 @@ export async function POST(req: NextRequest, context: Context) {
           where: { id: existingTxId },
           data: {
             status: nextTxStatus,
+            ...(executedInSameTx
+              ? {
+                  executedAt: eventTime,
+                  executedTxHash: body.txHash,
+                }
+              : {}),
           },
         });
+
+        if (executedInSameTx) {
+          await tx.adminProposalAction.update({
+            where: { id: action.id },
+            data: {
+              status: "EXECUTED",
+              executedAt: action.executedAt ?? eventTime,
+            },
+          });
+        }
 
         const nextLinks: Record<string, StoredMultisigLink> = {
           ...currentLinks,
@@ -567,6 +581,13 @@ export async function POST(req: NextRequest, context: Context) {
             txHash: body.txHash,
             confirmedBy: ownerAddress,
             confirmedAt: existingLink?.confirmedAt ?? eventIso,
+            ...(executedInSameTx
+              ? {
+                  executedBy: ownerAddress,
+                  executedAt: existingLink?.executedAt ?? eventIso,
+                  executedTxHash: body.txHash,
+                }
+              : {}),
             status: nextTxStatus,
           },
         };
@@ -589,9 +610,28 @@ export async function POST(req: NextRequest, context: Context) {
               txIndex: body.txIndex,
               txHash: body.txHash,
               ownerAddress,
+              executedInSameTx,
             } as Prisma.InputJsonValue,
           },
         });
+
+        if (executedInSameTx) {
+          await tx.adminProposalEvent.create({
+            data: {
+              proposalId: proposal.id,
+              actorAddress: ownerAddress,
+              type: "MULTISIG_EXECUTED",
+              note: `Action #${action.orderIndex + 1} auto-executed during confirmation.`,
+              payloadJson: {
+                actionId: action.id,
+                txIndex: body.txIndex,
+                txHash: body.txHash,
+                executor: ownerAddress,
+                sameTransaction: true,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        }
       });
 
       await recalculateProposalProgress(proposalId);

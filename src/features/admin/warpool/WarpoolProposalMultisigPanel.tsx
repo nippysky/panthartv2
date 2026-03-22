@@ -174,7 +174,6 @@ function deriveLifecycle(
     link?.status === "EXECUTED";
 
   const approved =
-    !!link?.confirmedAt ||
     link?.status === "APPROVED" ||
     link?.status === "EXECUTED";
 
@@ -408,8 +407,12 @@ export default function WarpoolProposalMultisigPanel({
               </div>
 
               <div className="mt-4 grid gap-2 text-sm text-muted">
-                <div>Target: <span className="font-medium text-foreground">{action.target}</span></div>
-                <div>Value: <span className="font-medium text-foreground">{action.valueWei}</span></div>
+                <div>
+                  Target: <span className="font-medium text-foreground">{action.target}</span>
+                </div>
+                <div>
+                  Value: <span className="font-medium text-foreground">{action.valueWei}</span>
+                </div>
                 <div>
                   Submitted:{" "}
                   <span className="font-medium text-foreground">
@@ -504,6 +507,7 @@ export default function WarpoolProposalMultisigPanel({
                           txIndex: link.txIndex,
                           txHash: confirmed.txHash,
                           ownerAddress: address,
+                          executedInSameTx: confirmed.executedInSameTx,
                         });
                       }
                     )
