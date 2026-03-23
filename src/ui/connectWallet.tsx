@@ -2,6 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ConnectButton,
   darkTheme,
@@ -22,67 +23,111 @@ function shorten(addr: string) {
   return addr.length <= 12 ? addr : `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function PillButton({
-  children,
-  onClick,
+// Dropdown Menu for Thirdweb connected state
+function ThirdwebDropdown({
+  address,
+  onClose,
+  onCopy,
+  onDisconnect,
 }: {
-  children: React.ReactNode;
-  onClick?: () => void;
+  address: string;
+  onClose: () => void;
+  onCopy: () => void;
+  onDisconnect: () => void;
 }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="h-10 rounded-full border border-border bg-card px-4 text-sm font-medium hover:bg-card/80 transition inline-flex items-center gap-2"
-    >
-      {children}
-    </button>
-  );
-}
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-function DropdownItem({
-  children,
-  onClick,
-  disabled,
-  destructive,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  destructive?: boolean;
-}) {
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={[
-        "w-full px-4 py-3 text-left text-sm transition",
-        "hover:bg-card/60",
-        disabled ? "opacity-50 cursor-not-allowed" : "",
-        destructive ? "text-red-500" : "",
-      ].join(" ")}
+    <motion.div
+      ref={dropdownRef}
+      initial={{ opacity: 0, scale: 0.95, y: -10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+      transition={{ duration: 0.15 }}
+      className="absolute right-0 top-full mt-2 z-50 min-w-70 overflow-hidden rounded-xl border border-border bg-card shadow-xl"
     >
-      {children}
-    </button>
+      <div className="px-4 pt-4 pb-3 border-b border-border">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+            <div className="h-2 w-2 rounded-full bg-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs text-muted font-medium">Connected Wallet</p>
+            <p className="text-sm font-semibold text-foreground">
+              {shorten(address)}
+            </p>
+          </div>
+        </div>
+        <p className="text-xs text-muted">External wallet connected</p>
+      </div>
+
+      <div className="py-2">
+        <button
+          onClick={onCopy}
+          className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-background/60 transition-colors flex items-center gap-3"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+            />
+          </svg>
+          <span>Copy address</span>
+        </button>
+
+        <button
+          onClick={onDisconnect}
+          className="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-500/10 transition-colors flex items-center gap-3"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          <span>Disconnect</span>
+        </button>
+      </div>
+
+      <div className="px-4 py-3 bg-background/50 border-t border-border">
+        <p className="text-[10px] text-muted uppercase tracking-wider mb-1">Full Address</p>
+        <p className="text-xs text-foreground font-mono break-all">{address}</p>
+      </div>
+    </motion.div>
   );
 }
 
 export default function ConnectWallet() {
   const { theme } = useTheme();
-
-  // Decent Wallet injected (inside Expo WebView)
   const dw = useDecentWalletAccount();
   const inDW = isDecentWalletEnv();
-
-  // Thirdweb (normal browsers)
   const thirdwebAccount = useActiveAccount();
   const activeWallet = useActiveWallet();
   const { disconnect } = useDisconnect();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const [open, setOpen] = useState(false);
-
-  // pick address source
   const address = useMemo(() => {
     if (inDW) return dw.address;
     return thirdwebAccount?.address ?? null;
@@ -96,22 +141,19 @@ export default function ConnectWallet() {
       await navigator.clipboard.writeText(address);
     } catch {
       // ignore
-    } finally {
-      setOpen(false);
     }
+    setIsOpen(false);
   }, [address]);
 
   const doDisconnect = useCallback(() => {
-    // In injected mode: disconnect is controlled by the wallet (your WebView "Disconnect site" menu).
     if (inDW) {
-      setOpen(false);
+      setIsOpen(false);
       return;
     }
-
     if (activeWallet) {
-      disconnect(activeWallet); // ✅ fixes "Expected 1 arguments"
+      disconnect(activeWallet);
     }
-    setOpen(false);
+    setIsOpen(false);
   }, [activeWallet, disconnect, inDW]);
 
   const connectDW = useCallback(async () => {
@@ -124,68 +166,69 @@ export default function ConnectWallet() {
     return shorten(address);
   }, [address]);
 
-  // If connected, show our own wallet pill UI (so you get the dropdown behavior you wanted)
+  // Connected state with dropdown
   if (connected) {
     return (
       <div className="relative">
-        <PillButton onClick={() => setOpen((v) => !v)}>
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setIsOpen(!isOpen)}
+          className={`
+            inline-flex items-center gap-2 h-10 px-3 rounded-full
+            border border-border bg-card
+            text-sm font-semibold text-foreground
+            hover:bg-background/60 transition-all
+            ${isOpen ? "ring-2 ring-emerald-500/50" : ""}
+          `}
+        >
+          <div className="relative">
+            <div className="h-2 w-2 rounded-full bg-emerald-400" />
+            <div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-400 animate-ping opacity-75" />
+          </div>
           <span>{label}</span>
-          <span className="opacity-60">▾</span>
-        </PillButton>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            className={`transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          >
+            <path fill="currentColor" d="M7 10l5 5l5-5z" />
+          </svg>
+        </motion.button>
 
-        {open ? (
-          <>
-            {/* click-away backdrop */}
-            <button
-              aria-label="Close wallet menu"
-              className="fixed inset-0 z-40 cursor-default"
-              onClick={() => setOpen(false)}
+        <AnimatePresence>
+          {isOpen && (
+            <ThirdwebDropdown
+              address={address}
+              onClose={() => setIsOpen(false)}
+              onCopy={copyAddress}
+              onDisconnect={doDisconnect}
             />
-            <div className="absolute right-0 z-50 mt-2 w-65 overflow-hidden rounded-2xl border border-border bg-background shadow-xl">
-              <div className="px-4 py-3">
-                <div className="text-xs text-muted">Connected</div>
-                <div className="mt-1 text-sm font-semibold">{shorten(address!)}</div>
-                <div className="mt-2 text-xs text-muted">
-                  {inDW ? "Decent Wallet (in-app browser)" : "External wallet"}
-                </div>
-              </div>
-
-              <div className="h-px bg-border" />
-
-              <DropdownItem onClick={copyAddress}>Copy address</DropdownItem>
-
-              <DropdownItem
-                onClick={doDisconnect}
-                destructive={!inDW}
-                disabled={inDW}
-              >
-                {inDW ? "Disconnect in wallet menu" : "Disconnect"}
-              </DropdownItem>
-            </div>
-          </>
-        ) : null}
+          )}
+        </AnimatePresence>
       </div>
     );
   }
 
-  // Not connected yet:
-  // - Inside Decent Wallet → one button that calls injected eth_requestAccounts
-  // - Outside → Thirdweb ConnectButton (wallet options)
+  // Not connected - Decent Wallet
   if (inDW) {
     return (
-      <button
-        type="button"
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         onClick={connectDW}
         disabled={!dw.ready}
-        className="h-10 rounded-full bg-foreground text-background px-4 text-sm font-semibold hover:opacity-90 transition disabled:opacity-60"
-        title={!dw.ready ? "Loading wallet…" : "Connect Decent Wallet"}
+        className="h-10 rounded-full bg-linear-to-r from-emerald-500 to-emerald-600 px-5 text-sm font-semibold text-white shadow-lg hover:shadow-emerald-500/25 transition-shadow disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {dw.ready ? "Connect wallet" : "Loading…"}
-      </button>
+        {dw.ready ? "Connect Wallet" : "Loading..."}
+      </motion.button>
     );
   }
 
+  // Not connected - Thirdweb
   return (
     <ConnectButton
       client={client}

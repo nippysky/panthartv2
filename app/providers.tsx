@@ -1,3 +1,4 @@
+// src/app/providers.tsx
 "use client";
 
 import * as React from "react";
@@ -7,6 +8,7 @@ import { ThirdwebProvider } from "thirdweb/react";
 
 import { ConnectedWalletProvider } from "@/src/components/providers/ConnectedWalletProvider";
 import WalletUserSyncProvider from "@/src/components/providers/WalletUserSyncProvider";
+import { UnifiedWalletProvider } from "@/src/providers/UnifiedWalletProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(
@@ -28,7 +30,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ThirdwebProvider>
           <ConnectedWalletProvider>
             <WalletUserSyncProvider />
-            {children}
+            <UnifiedWalletProvider>
+              {children}
+            </UnifiedWalletProvider>
           </ConnectedWalletProvider>
         </ThirdwebProvider>
       </QueryClientProvider>

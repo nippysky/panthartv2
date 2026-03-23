@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  formatBool,
   shortenAddress,
   WARPOOL_QUEUE_META,
 } from "@/src/features/admin/warpool/constants";
@@ -94,7 +93,9 @@ function CheckRow({
           {hint ? <div className="mt-1 text-xs leading-5 text-muted">{hint}</div> : null}
         </div>
 
-        <StatusPill tone={ok ? "good" : "warn"}>{ok ? "Ready" : "Needs attention"}</StatusPill>
+        <StatusPill tone={ok ? "good" : "warn"}>
+          {ok ? "Ready" : "Needs attention"}
+        </StatusPill>
       </div>
 
       {value ? <div className="mt-3 text-sm text-muted">{value}</div> : null}
@@ -121,6 +122,10 @@ function queueStateLabel(state: number | null) {
     default:
       return "Idle";
   }
+}
+
+function pauseLabel(paused: boolean) {
+  return paused ? "Paused" : "Live";
 }
 
 function overallReadiness(params: {
@@ -180,7 +185,7 @@ function overallReadiness(params: {
     return {
       label: "Blocked by pause flags",
       tone: "bad" as const,
-      text: "One or more critical gameplay flows are paused.",
+      text: "One or more critical gameplay flows are paused on the current indexed config snapshot.",
     };
   }
 
@@ -193,7 +198,7 @@ function overallReadiness(params: {
   }
 
   return {
-    label: "Ready for testing",
+    label: "Ready",
     tone: "good" as const,
     text: "Warpool has live queue configuration and at least one open pool.",
   };
@@ -234,7 +239,7 @@ export default function WarpoolGameReadiness({
   return (
     <SectionCard
       title="Game Readiness"
-      description="A straight answer on whether Warpool is ready to be tested, and what still needs attention."
+      description="A straight answer on whether Warpool is ready to be used, and what still needs attention. Config flags use the latest indexed on-chain snapshot as the source of truth."
     >
       <div className="flex flex-col gap-4 rounded-[28px] border border-border bg-background/70 p-5 md:flex-row md:items-start md:justify-between">
         <div>
@@ -305,22 +310,22 @@ export default function WarpoolGameReadiness({
         <CheckRow
           label="Entries flow"
           ok={!latestConfigSnapshot?.entriesPaused}
-          value={latestConfigSnapshot ? formatBool(!latestConfigSnapshot.entriesPaused) : "Unknown"}
-          hint="Players cannot join queues while entries are paused."
+          value={latestConfigSnapshot ? pauseLabel(latestConfigSnapshot.entriesPaused) : "Unknown"}
+          hint="Source of truth: latest indexed config snapshot."
         />
 
         <CheckRow
           label="Reservations flow"
           ok={!latestConfigSnapshot?.reservationsPaused}
-          value={latestConfigSnapshot ? formatBool(!latestConfigSnapshot.reservationsPaused) : "Unknown"}
-          hint="Relic reservation flow is blocked while reservations are paused."
+          value={latestConfigSnapshot ? pauseLabel(latestConfigSnapshot.reservationsPaused) : "Unknown"}
+          hint="Source of truth: latest indexed config snapshot."
         />
 
         <CheckRow
           label="Settlements flow"
           ok={!latestConfigSnapshot?.settlementsPaused}
-          value={latestConfigSnapshot ? formatBool(!latestConfigSnapshot.settlementsPaused) : "Unknown"}
-          hint="Pool finalization is blocked while settlements are paused."
+          value={latestConfigSnapshot ? pauseLabel(latestConfigSnapshot.settlementsPaused) : "Unknown"}
+          hint="Source of truth: latest indexed config snapshot."
         />
       </div>
 

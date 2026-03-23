@@ -283,6 +283,10 @@ function inferProposalTitle(queues: QueueDraft[]) {
   return "Warpool config update";
 }
 
+function boolLabel(value: boolean) {
+  return value ? "Live" : "Paused";
+}
+
 export default function WarpoolMultisigComposer({
   slug,
   configAddress,
@@ -301,15 +305,16 @@ export default function WarpoolMultisigComposer({
     latestConfigSnapshot?.workerOperator ?? ""
   );
 
-  const [entriesPaused, setEntriesPaused] = React.useState(
-    latestConfigSnapshot?.entriesPaused ?? false
+  const [entriesFlowLive, setEntriesFlowLive] = React.useState(
+    !(latestConfigSnapshot?.entriesPaused ?? false)
   );
-  const [reservationsPaused, setReservationsPaused] = React.useState(
-    latestConfigSnapshot?.reservationsPaused ?? false
+  const [reservationsFlowLive, setReservationsFlowLive] = React.useState(
+    !(latestConfigSnapshot?.reservationsPaused ?? false)
   );
-  const [settlementsPaused, setSettlementsPaused] = React.useState(
-    latestConfigSnapshot?.settlementsPaused ?? false
+  const [settlementsFlowLive, setSettlementsFlowLive] = React.useState(
+    !(latestConfigSnapshot?.settlementsPaused ?? false)
   );
+
   const [relicsEnabled, setRelicsEnabled] = React.useState(
     latestConfigSnapshot?.relicsEnabled ?? false
   );
@@ -335,9 +340,9 @@ export default function WarpoolMultisigComposer({
   React.useEffect(() => {
     setTreasury(latestConfigSnapshot?.treasury ?? "");
     setWorkerOperator(latestConfigSnapshot?.workerOperator ?? "");
-    setEntriesPaused(latestConfigSnapshot?.entriesPaused ?? false);
-    setReservationsPaused(latestConfigSnapshot?.reservationsPaused ?? false);
-    setSettlementsPaused(latestConfigSnapshot?.settlementsPaused ?? false);
+    setEntriesFlowLive(!(latestConfigSnapshot?.entriesPaused ?? false));
+    setReservationsFlowLive(!(latestConfigSnapshot?.reservationsPaused ?? false));
+    setSettlementsFlowLive(!(latestConfigSnapshot?.settlementsPaused ?? false));
     setRelicsEnabled(latestConfigSnapshot?.relicsEnabled ?? false);
     setFatigueEnabled(latestConfigSnapshot?.fatigueEnabled ?? false);
     setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
@@ -388,9 +393,9 @@ export default function WarpoolMultisigComposer({
       global: {
         treasury: treasury || null,
         workerOperator: workerOperator || null,
-        entriesPaused,
-        reservationsPaused,
-        settlementsPaused,
+        entriesPaused: !entriesFlowLive,
+        reservationsPaused: !reservationsFlowLive,
+        settlementsPaused: !settlementsFlowLive,
         relicsEnabled,
         fatigueEnabled,
         token11FeeShareEnabled,
@@ -411,13 +416,13 @@ export default function WarpoolMultisigComposer({
       })),
     };
   }, [
-    entriesPaused,
+    entriesFlowLive,
+    reservationsFlowLive,
+    settlementsFlowLive,
     fatigueEnabled,
     latestConfigSnapshot?.configVersion,
     queues,
     relicsEnabled,
-    reservationsPaused,
-    settlementsPaused,
     token11FeeShareBps,
     token11FeeShareEnabled,
     treasury,
@@ -477,9 +482,9 @@ export default function WarpoolMultisigComposer({
   function resetToLiveSnapshot() {
     setTreasury(latestConfigSnapshot?.treasury ?? "");
     setWorkerOperator(latestConfigSnapshot?.workerOperator ?? "");
-    setEntriesPaused(latestConfigSnapshot?.entriesPaused ?? false);
-    setReservationsPaused(latestConfigSnapshot?.reservationsPaused ?? false);
-    setSettlementsPaused(latestConfigSnapshot?.settlementsPaused ?? false);
+    setEntriesFlowLive(!(latestConfigSnapshot?.entriesPaused ?? false));
+    setReservationsFlowLive(!(latestConfigSnapshot?.reservationsPaused ?? false));
+    setSettlementsFlowLive(!(latestConfigSnapshot?.settlementsPaused ?? false));
     setRelicsEnabled(latestConfigSnapshot?.relicsEnabled ?? false);
     setFatigueEnabled(latestConfigSnapshot?.fatigueEnabled ?? false);
     setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
@@ -633,7 +638,7 @@ export default function WarpoolMultisigComposer({
       <div className="space-y-6">
         <SectionCard
           title="Configuration"
-          description="Adjust Warpool rules and queue settings, then save a clean shared proposal for admin review."
+          description="Adjust live-state intent for global flows and queue settings, then save a clean shared proposal for admin review."
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -663,39 +668,45 @@ export default function WarpoolMultisigComposer({
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <Toggle
-              checked={entriesPaused}
-              onChange={setEntriesPaused}
-              label="Entries"
-              description="Pause or allow players to join queues."
+              checked={entriesFlowLive}
+              onChange={setEntriesFlowLive}
+              label="Entries flow live"
+              description={`Current indexed truth: ${boolLabel(
+                !(latestConfigSnapshot?.entriesPaused ?? false)
+              )}. When on, players can join queues.`}
             />
             <Toggle
-              checked={reservationsPaused}
-              onChange={setReservationsPaused}
-              label="Reservations"
-              description="Pause or allow relic reservation flow."
+              checked={reservationsFlowLive}
+              onChange={setReservationsFlowLive}
+              label="Reservations flow live"
+              description={`Current indexed truth: ${boolLabel(
+                !(latestConfigSnapshot?.reservationsPaused ?? false)
+              )}. When on, relic reservation flow is open.`}
             />
             <Toggle
-              checked={settlementsPaused}
-              onChange={setSettlementsPaused}
-              label="Settlements"
-              description="Pause or allow pool settlement actions."
+              checked={settlementsFlowLive}
+              onChange={setSettlementsFlowLive}
+              label="Settlements flow live"
+              description={`Current indexed truth: ${boolLabel(
+                !(latestConfigSnapshot?.settlementsPaused ?? false)
+              )}. When on, pool settlement actions are allowed.`}
             />
             <Toggle
               checked={relicsEnabled}
               onChange={setRelicsEnabled}
-              label="Relics"
+              label="Relics enabled"
               description="Enable or disable relic-based mechanics."
             />
             <Toggle
               checked={fatigueEnabled}
               onChange={setFatigueEnabled}
-              label="Fatigue"
+              label="Fatigue enabled"
               description="Enable or disable fighter fatigue logic."
             />
             <Toggle
               checked={token11FeeShareEnabled}
               onChange={setToken11FeeShareEnabled}
-              label="Token11 fee share"
+              label="Token11 fee share enabled"
               description="Enable or disable Token11 fee sharing."
             />
           </div>

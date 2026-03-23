@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type {
   WarpoolAdminMultisigTxItem,
   WarpoolMultisigResolutionSource,
@@ -7,6 +8,7 @@ import type {
 } from "@/src/features/admin/warpool/types";
 
 type Props = {
+  adminSlug: string;
   multisigSummary: WarpoolMultisigSummary | null;
   multisigResolutionSource: WarpoolMultisigResolutionSource | null;
   recentTxs: WarpoolAdminMultisigTxItem[];
@@ -226,6 +228,7 @@ function TxCard({ tx, threshold, mode }: TxCardProps) {
 }
 
 export default function WarpoolMultisigActivity({
+  adminSlug,
   multisigSummary,
   multisigResolutionSource,
   recentTxs,
@@ -239,6 +242,9 @@ export default function WarpoolMultisigActivity({
   const historyTxs = recentTxs
     .filter((tx) => tx.status !== "SUBMITTED" && tx.status !== "APPROVED")
     .sort(sortHistory);
+
+  const featuredPending = pendingTxs[0] ?? null;
+  const featuredHistory = historyTxs[0] ?? null;
 
   const readyToExecuteCount = pendingTxs.filter(
     (tx) => tx.status === "APPROVED"
@@ -296,20 +302,22 @@ export default function WarpoolMultisigActivity({
 
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-3xl border border-border bg-background/60 p-4">
-            <div className="text-sm font-semibold text-foreground">
-              Pending approvals
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm font-semibold text-foreground">
+                Pending approvals
+              </div>
+
+              <Link
+                href={`/admin/${adminSlug}/warpool/proposals`}
+                className="text-xs font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
+              >
+                View all proposals
+              </Link>
             </div>
 
-            {pendingTxs.length > 0 ? (
-              <div className="mt-4 space-y-3">
-                {pendingTxs.map((tx) => (
-                  <TxCard
-                    key={tx.id}
-                    tx={tx}
-                    threshold={threshold}
-                    mode="pending"
-                  />
-                ))}
+            {featuredPending ? (
+              <div className="mt-4">
+                <TxCard tx={featuredPending} threshold={threshold} mode="pending" />
               </div>
             ) : (
               <div className="mt-4">
@@ -319,20 +327,22 @@ export default function WarpoolMultisigActivity({
           </div>
 
           <div className="rounded-3xl border border-border bg-background/60 p-4">
-            <div className="text-sm font-semibold text-foreground">
-              Recent history
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm font-semibold text-foreground">
+                Recent history
+              </div>
+
+              <Link
+                href={`/admin/${adminSlug}/warpool/proposals`}
+                className="text-xs font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
+              >
+                See all history
+              </Link>
             </div>
 
-            {historyTxs.length > 0 ? (
-              <div className="mt-4 space-y-3">
-                {historyTxs.map((tx) => (
-                  <TxCard
-                    key={tx.id}
-                    tx={tx}
-                    threshold={threshold}
-                    mode="history"
-                  />
-                ))}
+            {featuredHistory ? (
+              <div className="mt-4">
+                <TxCard tx={featuredHistory} threshold={threshold} mode="history" />
               </div>
             ) : (
               <div className="mt-4">

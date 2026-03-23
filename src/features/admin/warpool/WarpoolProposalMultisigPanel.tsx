@@ -188,6 +188,12 @@ function deriveLifecycle(
   return { submitted, approved, executed, failed };
 }
 
+function proposalAllowsMoreSubmission(
+  status: Props["proposalStatus"]
+) {
+  return status === "READY" || status === "SUBMITTED" || status === "APPROVED";
+}
+
 export default function WarpoolProposalMultisigPanel({
   proposalId,
   proposalStatus,
@@ -353,7 +359,7 @@ export default function WarpoolProposalMultisigPanel({
           const canSubmit =
             !!safeAddress &&
             hasWallet &&
-            proposalStatus === "READY" &&
+            proposalAllowsMoreSubmission(proposalStatus) &&
             !lifecycle.submitted &&
             !lifecycle.executed &&
             !lifecycle.failed;

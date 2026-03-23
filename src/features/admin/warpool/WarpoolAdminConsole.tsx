@@ -17,6 +17,7 @@ import type {
 import type { WarpoolRuntimeQueueStatus } from "@/src/features/admin/warpool/runtime-queries";
 
 type Props = {
+  adminSlug: string;
   configAddress: string | null;
   coreAddress: string | null;
   lensAddress: string | null;
@@ -61,6 +62,7 @@ function NotesCard({
 }
 
 export default function WarpoolAdminConsole({
+  adminSlug,
   configAddress,
   coreAddress,
   lensAddress,
@@ -89,6 +91,7 @@ export default function WarpoolAdminConsole({
       />
 
       <WarpoolMultisigActivity
+        adminSlug={adminSlug}
         multisigSummary={multisigSummary}
         multisigResolutionSource={multisigResolutionSource}
         recentTxs={recentMultisigTxs}

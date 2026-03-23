@@ -1,3 +1,4 @@
+
 import { notFound } from "next/navigation";
 
 import { getWarpoolAdminOverviewData } from "@/src/features/admin/warpool/queries";
@@ -7,7 +8,6 @@ import { getWarpoolWorkerReadinessData } from "@/src/features/admin/warpool/work
 import {
   WARPOOL_QUEUE_META,
   formatBps,
-  formatBool,
   formatDurationSeconds,
   formatInteger,
   formatTokenAmount,
@@ -101,6 +101,14 @@ function runtimeStateLabel(state: number | null) {
   }
 }
 
+function statusText(enabled: boolean) {
+  return enabled ? "Enabled" : "Disabled";
+}
+
+function flowTextFromPauseFlag(paused: boolean) {
+  return paused ? "Paused" : "Live";
+}
+
 export default async function WarpoolOverviewPage({ params }: Props) {
   const { slug } = await params;
   if (!slug) notFound();
@@ -158,6 +166,7 @@ export default async function WarpoolOverviewPage({ params }: Props) {
       </div>
 
       <WarpoolAdminConsole
+        adminSlug={slug}
         configAddress={configAddress}
         coreAddress={runtimeData.coreAddress}
         lensAddress={runtimeData.lensAddress}
@@ -315,28 +324,28 @@ export default async function WarpoolOverviewPage({ params }: Props) {
                     value={data.latestConfigSnapshot.configVersion.toString()}
                   />
                   <Kvp
-                    label="Entries"
-                    value={formatBool(data.latestConfigSnapshot.entriesPaused)}
+                    label="Entries Flow"
+                    value={flowTextFromPauseFlag(data.latestConfigSnapshot.entriesPaused)}
                   />
                   <Kvp
-                    label="Reservations"
-                    value={formatBool(data.latestConfigSnapshot.reservationsPaused)}
+                    label="Reservations Flow"
+                    value={flowTextFromPauseFlag(data.latestConfigSnapshot.reservationsPaused)}
                   />
                   <Kvp
-                    label="Settlements"
-                    value={formatBool(data.latestConfigSnapshot.settlementsPaused)}
+                    label="Settlements Flow"
+                    value={flowTextFromPauseFlag(data.latestConfigSnapshot.settlementsPaused)}
                   />
                   <Kvp
                     label="Relics"
-                    value={formatBool(data.latestConfigSnapshot.relicsEnabled)}
+                    value={statusText(data.latestConfigSnapshot.relicsEnabled)}
                   />
                   <Kvp
                     label="Fatigue"
-                    value={formatBool(data.latestConfigSnapshot.fatigueEnabled)}
+                    value={statusText(data.latestConfigSnapshot.fatigueEnabled)}
                   />
                   <Kvp
                     label="Token11 Fee Share"
-                    value={`${formatBool(
+                    value={`${statusText(
                       data.latestConfigSnapshot.token11FeeShareEnabled
                     )} · ${formatBps(data.latestConfigSnapshot.token11FeeShareBps)}`}
                   />
