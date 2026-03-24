@@ -17,6 +17,12 @@ const ERC721_ABI = [
   "function isApprovedForAll(address owner, address operator) view returns (bool)",
 ] as const;
 
+const ERC20_ABI = [
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function decimals() view returns (uint8)",
+] as const;
+
 function getInjectedEthereum() {
   if (typeof window === "undefined") return null;
   return (window as Window & { ethereum?: unknown }).ethereum ?? null;
@@ -58,6 +64,13 @@ export function getWarpoolRelicsCollection() {
   );
 }
 
+export function getWarpoolDcntToken() {
+  return requireAddress(
+    process.env.NEXT_PUBLIC_WARPOOL_DCNT_TOKEN,
+    "NEXT_PUBLIC_WARPOOL_DCNT_TOKEN"
+  );
+}
+
 export async function getBrowserSigner(expectedAddress?: string | null) {
   const injected = getInjectedEthereum();
   if (!injected) {
@@ -88,48 +101,53 @@ export async function ensureErc721Approval(args: {
 }) {
   const contract = new ethers.Contract(args.collection, ERC721_ABI, args.signer);
 
-  args.onStatus?.(`Checking approval for token #${args.tokenId}...`);
+  args.onStatus?.("Checking NFT approval...");
 
-  const approved = await contract.getApproved(BigInt(args.tokenId)).catch(() => null);
-  if (
-    approved &&
-    String(approved).toLowerCase() === args.operator.toLowerCase()
-  ) {
+  const approved = await contract.getApproved(BigInt(args.tokenId));
+  if (String(approved).toLowerCase() === args.operator.toLowerCase()) {
     return;
   }
 
   const approvedForAll = await contract.isApprovedForAll(
     args.ownerAddress,
     args.operator
-  ).catch(() => false);
+  );
 
   if (approvedForAll) {
     return;
   }
 
-  args.onStatus?.(`Approving token #${args.tokenId}...`);
+  args.onStatus?.("Requesting NFT approval...");
   const tx = await contract.approve(args.operator, BigInt(args.tokenId));
   await tx.wait();
+
+  args.onStatus?.("NFT approval confirmed.");
 }
 
-export async function getActiveReservationIdOnChain(args: {
-  provider: ethers.BrowserProvider;
-  poolIdOnChain: string;
-  walletAddress: string;
+export async function ensureErc20Approval(args: {
+  signer: ethers.Signer;
+  ownerAddress: string;
+  token: string;
+  spender: string;
+  requiredAmountRaw: bigint;
+  onStatus?: (label: string) => void;
 }) {
-  const lens = new ethers.Contract(
-    getWarpoolLensAddress(),
-    LENS_READ_ABI,
-    args.provider
-  );
+  if (args.requiredAmountRaw <= BigInt(0)) return;
 
-  const id = await lens.getActiveReservationForUser(
-    BigInt(args.poolIdOnChain),
-    args.walletAddress
-  );
+  const contract = new ethers.Contract(args.token, ERC20_ABI, args.signer);
 
-  const parsed = BigInt(id.toString());
-  return parsed > BigInt(0) ? parsed.toString() : null;
+  args.onStatus?.("Checking DCNT allowance...");
+
+  const allowance = await contract.allowance(args.ownerAddress, args.spender);
+  if (BigInt(allowance.toString()) >= args.requiredAmountRaw) {
+    return;
+  }
+
+  args.onStatus?.("Requesting DCNT approval...");
+  const tx = await contract.approve(args.spender, args.requiredAmountRaw);
+  await tx.wait();
+
+  args.onStatus?.("DCNT approval confirmed.");
 }
 
 export async function reserveRelicBonusTx(args: {
@@ -151,6 +169,7 @@ export async function reserveRelicBonusTx(args: {
   );
 
   const receipt = await tx.wait();
+
   return {
     txHash: receipt?.hash ?? tx.hash,
   };
@@ -172,12 +191,33 @@ export async function enterPoolTx(args: {
   const tx = await core.enterPool(
     BigInt(args.poolIdOnChain),
     BigInt(args.comradeTokenId),
-    args.relicTokenId ? BigInt(args.relicTokenId) : BigInt(0),
-    args.reservationIdOnChain ? BigInt(args.reservationIdOnChain) : BigInt(0)
+    BigInt(args.relicTokenId ?? "0"),
+    BigInt(args.reservationIdOnChain ?? "0")
   );
 
   const receipt = await tx.wait();
+
   return {
     txHash: receipt?.hash ?? tx.hash,
   };
+}
+
+export async function getActiveReservationIdOnChain(args: {
+  provider: ethers.BrowserProvider;
+  poolIdOnChain: string;
+  walletAddress: string;
+}) {
+  const lens = new ethers.Contract(
+    getWarpoolLensAddress(),
+    LENS_READ_ABI,
+    args.provider
+  );
+
+  const result = await lens.getActiveReservationForUser(
+    BigInt(args.poolIdOnChain),
+    args.walletAddress
+  );
+
+  const value = BigInt(result.toString());
+  return value > BigInt(0) ? value.toString() : null;
 }

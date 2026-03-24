@@ -1,98 +1,103 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "server-only";
 
 import { ethers } from "ethers";
 import prisma, { prismaReady } from "@/src/lib/db";
-import { WARPOOL_LENS_ABI } from "@/src/lib/abis/warpoolLensAbi";
-import { getWarpoolQueueBySlug } from "@/src/server/warpool";
 import type {
   WarpoolLensPreviewPayload,
   WarpoolOwnedAsset,
+  WarpoolQueueAssetsPayload,
 } from "@/src/features/warpool/types";
 
-function normalizeAddress(address?: string | null) {
-  return address?.trim().toLowerCase() ?? "";
-}
+const LENS_ABI = [
+  "function canReserveRelic(uint256 poolId, address user, uint256 comradeTokenId, uint256 relicTokenId) view returns (bool ok, string reason)",
+  "function canEnterPool(uint256 poolId, address user, uint256 comradeTokenId, uint256 relicTokenId, uint256 reservationId) view returns (bool ok, string reason)",
+  "function getActiveReservationForUser(uint256 poolId, address user) view returns (uint256)",
+] as const;
 
-function getEnv(name: string, fallback = "") {
-  const value = process.env[name];
-  if (value == null) return fallback;
-  const trimmed = String(value).trim();
-  return trimmed || fallback;
-}
-
-function requireRpcUrl() {
-  const rpc =
-    getEnv("WARPOOL_RPC_URL") ||
-    getEnv("RPC_HTTP_URL") ||
-    getEnv("RPC_URL") ||
-    "https://rpc.ankr.com/electroneum";
-
-  return rpc;
-}
-
-function getLensAddress() {
+function rpcUrl() {
   return (
-    getEnv("WARPOOL_LENS_ADDRESS") ||
-    getEnv("NEXT_PUBLIC_WARPOOL_LENS_ADDRESS")
-  );
+    process.env.WARPOOL_RPC_URL ||
+    process.env.ELECTRONEUM_RPC_URL ||
+    process.env.NEXT_PUBLIC_ELECTRONEUM_RPC_URL ||
+    process.env.NEXT_PUBLIC_CHAIN_RPC_URL ||
+    process.env.NEXT_PUBLIC_RPC_URL ||
+    ""
+  ).trim();
 }
 
-async function resolveCollections() {
-  const comradesFromEnv =
-    getEnv("NEXT_PUBLIC_WARPOOL_COMRADES_COLLECTION") ||
-    getEnv("WARPOOL_COMRADES_COLLECTION");
+function lensAddress() {
+  return (
+    process.env.NEXT_PUBLIC_WARPOOL_LENS_ADDRESS ||
+    process.env.WARPOOL_LENS_ADDRESS ||
+    ""
+  ).trim();
+}
 
-  const relicsFromEnv =
-    getEnv("NEXT_PUBLIC_WARPOOL_RELICS_COLLECTION") ||
-    getEnv("WARPOOL_RELICS_COLLECTION");
+function formatDcnt(raw?: any): string {
+  try {
+    return `${ethers.formatUnits(String(raw ?? 0), 18)} DCNT`;
+  } catch {
+    return "0 DCNT";
+  }
+}
 
-  if (comradesFromEnv) {
+async function getLatestGlobalSnapshot() {
+  return prisma.warpoolGlobalConfigSnapshot.findFirst({
+    orderBy: [{ syncedAt: "desc" }, { createdAt: "desc" }],
+  });
+}
+
+async function getContractsForAssets() {
+  const latest = await getLatestGlobalSnapshot();
+
+  if (latest?.comradesCollection && latest?.relicsCollection) {
     return {
-      comradesCollection: comradesFromEnv.toLowerCase(),
-      relicsCollection: relicsFromEnv ? relicsFromEnv.toLowerCase() : null,
+      comradesCollection: latest.comradesCollection,
+      relicsCollection: latest.relicsCollection,
     };
   }
 
-  const latest = await prisma.warpoolGlobalConfigSnapshot.findFirst({
-    orderBy: [{ syncedAt: "desc" }],
-    select: {
-      comradesCollection: true,
-      relicsCollection: true,
-    },
+  const latestPool = await prisma.warpoolPool.findFirst({
+    orderBy: [{ updatedAt: "desc" }],
   });
 
   return {
-    comradesCollection: latest?.comradesCollection?.toLowerCase() ?? null,
-    relicsCollection: latest?.relicsCollection?.toLowerCase() ?? null,
+    comradesCollection: latestPool?.comradesCollection ?? "",
+    relicsCollection: latestPool?.relicsCollection ?? "",
   };
+}
+
+function normalizeReason(reason: string | null | undefined) {
+  const value = String(reason ?? "").trim();
+  if (!value) return "Unavailable";
+  return value;
 }
 
 export async function listOwnedWarpoolAssets(
   walletAddress: string
-): Promise<{
-  comrades: WarpoolOwnedAsset[];
-  relics: WarpoolOwnedAsset[];
-}> {
+): Promise<WarpoolQueueAssetsPayload> {
   await prismaReady;
 
-  const normalizedWallet = normalizeAddress(walletAddress);
-  const collections = await resolveCollections();
+  const { comradesCollection, relicsCollection } = await getContractsForAssets();
 
-  if (!normalizedWallet || !collections.comradesCollection) {
-    return {
-      comrades: [],
-      relics: [],
-    };
+  const user = await prisma.user.findUnique({
+    where: { walletAddress },
+    select: { id: true },
+  });
+
+  if (!user) {
+    return { comrades: [], relics: [] };
   }
 
-  const comrades = await prisma.nFT.findMany({
+  const nfts = await prisma.nFT.findMany({
     where: {
-      contract: collections.comradesCollection,
-      owner: {
-        walletAddress: normalizedWallet,
+      ownerId: user.id,
+      contract: {
+        in: [comradesCollection, relicsCollection].filter(Boolean),
       },
     },
-    orderBy: [{ updatedAt: "desc" }],
+    orderBy: [{ tokenId: "asc" }],
     select: {
       id: true,
       contract: true,
@@ -103,47 +108,30 @@ export async function listOwnedWarpoolAssets(
     },
   });
 
-  const relics = collections.relicsCollection
-    ? await prisma.nFT.findMany({
-        where: {
-          contract: collections.relicsCollection,
-          owner: {
-            walletAddress: normalizedWallet,
-          },
-        },
-        orderBy: [{ updatedAt: "desc" }],
-        select: {
-          id: true,
-          contract: true,
-          tokenId: true,
-          name: true,
-          imageUrl: true,
-          rarityScore: true,
-        },
-      })
-    : [];
+  const mapAsset = (nft: any): WarpoolOwnedAsset => ({
+    nftId: String(nft.id),
+    contract: String(nft.contract),
+    tokenId: String(nft.tokenId),
+    name: nft.name ?? null,
+    imageUrl: nft.imageUrl ?? null,
+    rarityScore: nft.rarityScore ? String(nft.rarityScore) : null,
+  });
+
+  const comrades = nfts
+    .filter((nft) => nft.contract.toLowerCase() === comradesCollection.toLowerCase())
+    .map(mapAsset);
+
+  const relics = nfts
+    .filter((nft) => nft.contract.toLowerCase() === relicsCollection.toLowerCase())
+    .map(mapAsset);
 
   return {
-    comrades: comrades.map((item) => ({
-      nftId: item.id,
-      contract: item.contract,
-      tokenId: item.tokenId,
-      name: item.name ?? null,
-      imageUrl: item.imageUrl ?? null,
-      rarityScore: item.rarityScore?.toString() ?? null,
-    })),
-    relics: relics.map((item) => ({
-      nftId: item.id,
-      contract: item.contract,
-      tokenId: item.tokenId,
-      name: item.name ?? null,
-      imageUrl: item.imageUrl ?? null,
-      rarityScore: item.rarityScore?.toString() ?? null,
-    })),
+    comrades,
+    relics,
   };
 }
 
-export async function getWarpoolLensPreview(args: {
+export async function getWarpoolLensPreview(params: {
   queueSlug: string;
   walletAddress: string;
   comradeTokenId: string;
@@ -151,76 +139,189 @@ export async function getWarpoolLensPreview(args: {
 }): Promise<WarpoolLensPreviewPayload> {
   await prismaReady;
 
-  const normalizedWallet = normalizeAddress(args.walletAddress);
-  if (!normalizedWallet) {
-    throw new Error("Wallet address is required.");
-  }
+  const slug = params.queueSlug.toUpperCase();
 
-  const queue = await getWarpoolQueueBySlug(args.queueSlug);
-  if (!queue?.poolId) {
-    throw new Error("No live pool is available for this queue.");
-  }
-
-  const pool = await prisma.warpoolPool.findUnique({
-    where: { id: queue.poolId },
-    select: {
-      id: true,
-      poolIdOnChain: true,
+  const pool = await prisma.warpoolPool.findFirst({
+    where: {
+      queueSlug: slug as any,
+      state: { in: ["OPEN", "LOCKED", "BATTLE_READY", "SETTLING"] as any[] },
     },
+    orderBy: [{ updatedAt: "desc" }],
   });
 
   if (!pool) {
-    throw new Error("Live pool record not found.");
+    return {
+      queueSlug: slug,
+      poolId: "",
+      poolIdOnChain: "",
+      activeReservationIdOnChain: null,
+      activeReservationExpiresAt: null,
+      canReserveRelic: false,
+      reserveReason: "No live pool available",
+      canEnter: false,
+      enterReason: "No live pool available",
+      queueAcceptsRelics: false,
+      expectedStake: "0 DCNT",
+      discountBps: null,
+      discountSeatsRemaining: null,
+      token11SeatsRemaining: null,
+    };
   }
 
-  const lensAddress = getLensAddress();
-  if (!lensAddress) {
-    throw new Error("WARPOOL_LENS_ADDRESS is not configured.");
+  const queueAcceptsRelics = Number(pool.tier) === 3 && Number(pool.mode) === 2;
+
+  const reservation = await prisma.warpoolReservation.findFirst({
+    where: {
+      poolId: pool.id,
+      userAddress: params.walletAddress,
+      status: "ACTIVE",
+    },
+    orderBy: [{ createdAt: "desc" }],
+  });
+
+  const discountSeatsRemaining = Math.max(
+    0,
+    Number(pool.discountSeatCap ?? 0) -
+      Number(pool.discountSeatsUsed ?? 0) -
+      Number(pool.discountSeatsReserved ?? 0)
+  );
+
+  const token11SeatsRemaining = Math.max(
+    0,
+    Number(pool.token11SeatCap ?? 0) - Number(pool.token11SeatsUsed ?? 0)
+  );
+
+  const relicTokenId = params.relicTokenId?.trim() || null;
+  const isToken11 = relicTokenId === "11";
+
+  let canReserveRelic = false;
+  let reserveReason = queueAcceptsRelics
+    ? "Select a discount relic to reserve a seat."
+    : "This queue does not use relics.";
+  let canEnter = pool.state === "OPEN";
+  let enterReason = pool.state === "OPEN" ? "Ready" : "Pool is not open";
+  let activeReservationIdOnChain = reservation
+    ? String(reservation.reservationIdOnChain)
+    : null;
+  const activeReservationExpiresAt = reservation?.expiresAtOnChain?.toISOString() ?? null;
+  const discountBps = reservation?.discountBps ?? null;
+
+  const expectedStake = isToken11
+    ? "0 DCNT"
+    : reservation?.discountBps
+    ? formatDcnt(
+        (BigInt(String(pool.stakeAmountRaw)) *
+          BigInt(10_000 - Number(reservation.discountBps))) /
+          BigInt(10_000)
+      )
+    : formatDcnt(pool.stakeAmountRaw);
+
+  const maybeRpc = rpcUrl();
+  const maybeLens = lensAddress();
+
+  if (maybeRpc && maybeLens) {
+    try {
+      const provider = new ethers.JsonRpcProvider(maybeRpc);
+      const lens = new ethers.Contract(maybeLens, LENS_ABI, provider);
+
+      const chainReservationId = await lens.getActiveReservationForUser(
+        BigInt(String(pool.poolIdOnChain)),
+        params.walletAddress
+      );
+
+      const reservationIdBigInt = BigInt(chainReservationId.toString());
+      activeReservationIdOnChain =
+        reservationIdBigInt > BigInt(0) ? reservationIdBigInt.toString() : null;
+
+      if (queueAcceptsRelics && relicTokenId && !isToken11) {
+        const reserve = await lens.canReserveRelic(
+          BigInt(String(pool.poolIdOnChain)),
+          params.walletAddress,
+          BigInt(params.comradeTokenId),
+          BigInt(relicTokenId)
+        );
+
+        canReserveRelic = Boolean(reserve[0]);
+        reserveReason = normalizeReason(reserve[1]);
+      } else {
+        canReserveRelic = false;
+      }
+
+      const enter = await lens.canEnterPool(
+        BigInt(String(pool.poolIdOnChain)),
+        params.walletAddress,
+        BigInt(params.comradeTokenId),
+        relicTokenId ? BigInt(relicTokenId) : BigInt(0),
+        activeReservationIdOnChain ? BigInt(activeReservationIdOnChain) : BigInt(0)
+      );
+
+      canEnter = Boolean(enter[0]);
+      enterReason = normalizeReason(enter[1]);
+    } catch {
+      if (!queueAcceptsRelics && relicTokenId) {
+        canEnter = false;
+        enterReason = "This queue does not use relics";
+      }
+
+      if (pool.state !== "OPEN") {
+        canEnter = false;
+        enterReason = "Pool is not open";
+      }
+
+      if (queueAcceptsRelics && relicTokenId && !isToken11) {
+        canReserveRelic = discountSeatsRemaining > 0 && !reservation;
+        reserveReason = canReserveRelic
+          ? "Discount seat available"
+          : reservation
+          ? "Active reservation already exists"
+          : "Discount seats full";
+      }
+
+      if (queueAcceptsRelics && isToken11) {
+        canEnter = token11SeatsRemaining > 0 && pool.state === "OPEN";
+        enterReason = canEnter ? "Ready" : "Token 11 seat full";
+      }
+    }
+  } else {
+    if (!queueAcceptsRelics && relicTokenId) {
+      canEnter = false;
+      enterReason = "This queue does not use relics";
+    }
+
+    if (pool.state !== "OPEN") {
+      canEnter = false;
+      enterReason = "Pool is not open";
+    }
+
+    if (queueAcceptsRelics && relicTokenId && !isToken11) {
+      canReserveRelic = discountSeatsRemaining > 0 && !reservation;
+      reserveReason = canReserveRelic
+        ? "Discount seat available"
+        : reservation
+        ? "Active reservation already exists"
+        : "Discount seats full";
+    }
+
+    if (queueAcceptsRelics && isToken11) {
+      canEnter = token11SeatsRemaining > 0 && pool.state === "OPEN";
+      enterReason = canEnter ? "Ready" : "Token 11 seat full";
+    }
   }
-
-  const provider = new ethers.JsonRpcProvider(requireRpcUrl());
-  const lens = new ethers.Contract(lensAddress, WARPOOL_LENS_ABI, provider);
-
-  const poolIdOnChain = BigInt(pool.poolIdOnChain.toString());
-  const comradeTokenId = BigInt(args.comradeTokenId);
-  const relicTokenId = args.relicTokenId ? BigInt(args.relicTokenId) : BigInt(0);
-
-  const activeReservationIdOnChainRaw = await lens.getActiveReservationForUser(
-    poolIdOnChain,
-    normalizedWallet
-  );
-
-  const activeReservationIdOnChain =
-    BigInt(activeReservationIdOnChainRaw.toString()) > BigInt(0)
-      ? activeReservationIdOnChainRaw.toString()
-      : null;
-
-  const reserveCheck =
-    relicTokenId > BigInt(0)
-      ? await lens.canReserveRelic(
-          poolIdOnChain,
-          normalizedWallet,
-          comradeTokenId,
-          relicTokenId
-        )
-      : [false, "No relic selected"];
-
-  const enterCheck = await lens.canEnterPool(
-    poolIdOnChain,
-    normalizedWallet,
-    comradeTokenId,
-    relicTokenId,
-    activeReservationIdOnChain ? BigInt(activeReservationIdOnChain) : BigInt(0)
-  );
 
   return {
-    queueSlug: args.queueSlug,
-    poolId: pool.id,
-    poolIdOnChain: pool.poolIdOnChain.toString(),
+    queueSlug: slug,
+    poolId: String(pool.id),
+    poolIdOnChain: String(pool.poolIdOnChain),
     activeReservationIdOnChain,
-    canReserveRelic: Boolean(reserveCheck[0]),
-    reserveReason: String(reserveCheck[1] ?? ""),
-    canEnter: Boolean(enterCheck[0]),
-    enterReason: String(enterCheck[1] ?? ""),
+    activeReservationExpiresAt,
+    canReserveRelic,
+    reserveReason,
+    canEnter,
+    enterReason,
+    queueAcceptsRelics,
+    expectedStake,
+    discountBps,
+    discountSeatsRemaining: queueAcceptsRelics ? discountSeatsRemaining : null,
+    token11SeatsRemaining: queueAcceptsRelics ? token11SeatsRemaining : null,
   };
 }

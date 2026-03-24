@@ -3,29 +3,18 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CalendarRange, Trophy } from "lucide-react";
 import AsyncState from "@/src/features/warpool/components/AsyncState";
-import FilterToolbar from "@/src/features/warpool/components/FilterToolbar";
 import SectionBadge from "@/src/features/warpool/components/SectionBadge";
 import { useWarpoolHistory } from "@/src/features/warpool/hook/useWarpoolHistory";
 
 export default function WarpoolHistoryPage() {
-  const {
-    filteredItems,
-    search,
-    setSearch,
-    filter,
-    setFilter,
-    isLoading,
-    isRefreshing,
-    error,
-    refetch,
-  } = useWarpoolHistory();
+  const { items, isLoading, isRefreshing, error, refetch } = useWarpoolHistory();
 
   if (isLoading) {
     return (
       <main className="min-h-screen bg-background text-foreground page-enter">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 animate-pulse">
           <div className="h-10 w-24 rounded-full bg-foreground/8" />
-          <div className="mt-6 h-[520px] rounded-[36px] bg-foreground/8" />
+          <div className="mt-6 h-130 rounded-[36px] bg-foreground/8" />
         </div>
       </main>
     );
@@ -74,44 +63,27 @@ export default function WarpoolHistoryPage() {
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-7 text-foreground/62 sm:text-base">
-                Explore recently settled Warpool battles, track winners, and
-                follow payout patterns. This UI is ready now and will later bind
-                directly to the event-synced backend history feed.
+                Settled pools, winners, and prize outcomes from the indexed
+                Warpool battle history.
               </p>
             </div>
 
-            <div className="rounded-[24px] border border-border bg-background/80 px-4 py-3 text-right">
+            <div className="rounded-3xl border border-border bg-background/80 px-4 py-3 text-right">
               <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                 Visible records
               </div>
-              <div className="mt-1 text-xl font-semibold">
-                {filteredItems.length}
+              <div className="mt-1 text-xl font-semibold">{items.length}</div>
+              <div className="mt-1 text-xs text-foreground/45">
+                {isRefreshing ? "Refreshing..." : "Live data ready"}
               </div>
             </div>
           </div>
 
-          <FilterToolbar
-            search={search}
-            onSearchChange={setSearch}
-            filter={filter}
-            onFilterChange={(value) => setFilter(value as typeof filter)}
-            searchPlaceholder="Search pools, winners, prizes..."
-            isRefreshing={isRefreshing}
-            filterOptions={[
-              { label: "All statuses", value: "all" },
-              { label: "Settled", value: "Settled" },
-              { label: "Pending", value: "Pending" },
-            ]}
-          />
-
-          {filteredItems.length === 0 ? (
-            <AsyncState
-              title="No matching history"
-              body="Try a different search or filter."
-            />
+          {items.length === 0 ? (
+            <AsyncState title="No history yet" body="No resolved pools found." />
           ) : (
             <div className="grid gap-4">
-              {filteredItems.map((row) => (
+              {items.map((row) => (
                 <Link
                   key={row.id}
                   href={`/comrades-warpool/battle/${row.id}`}

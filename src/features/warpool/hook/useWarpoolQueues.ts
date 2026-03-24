@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchWarpoolQueues } from "@/src/features/warpool/lib/api";
-import { matchesQueueFilter } from "@/src/features/warpool/lib/helpers";
 import type {
-  QueueFilterValue,
   WarpoolQueue,
   WarpoolRecentWinner,
 } from "@/src/features/warpool/types";
@@ -13,8 +11,6 @@ import { usePolling } from "./usePolling";
 export function useWarpoolQueues() {
   const [queues, setQueues] = useState<WarpoolQueue[]>([]);
   const [recentWinners, setRecentWinners] = useState<WarpoolRecentWinner[]>([]);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<QueueFilterValue>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,13 +40,8 @@ export function useWarpoolQueues() {
 
   usePolling(() => load("refresh"), {
     enabled: !isLoading && !error,
-    intervalMs: 15000,
+    intervalMs: 10000,
   });
-
-  const filteredQueues = useMemo(
-    () => queues.filter((queue) => matchesQueueFilter(queue, search, filter)),
-    [queues, search, filter]
-  );
 
   const liveQueueCount = useMemo(
     () =>
@@ -66,13 +57,8 @@ export function useWarpoolQueues() {
 
   return {
     queues,
-    filteredQueues,
     recentWinners,
     liveQueueCount,
-    search,
-    setSearch,
-    filter,
-    setFilter,
     isLoading,
     isRefreshing,
     error,

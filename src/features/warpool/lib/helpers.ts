@@ -33,6 +33,8 @@ export function queueStatusTone(status: QueueStatus) {
       return "border-violet-500/20 bg-violet-500/10 text-violet-700 dark:text-violet-200";
     case "Settled":
       return "border-foreground/15 bg-foreground/5 text-foreground/75";
+    case "Closed":
+      return "border-border bg-background text-foreground/70";
     default:
       return "border-border bg-background text-foreground/75";
   }
@@ -75,4 +77,31 @@ export function matchesHistoryFilter(
   const matchesStatus = filter === "all" ? true : item.status === filter;
 
   return matchesSearch && matchesStatus;
+}
+
+export function formatRemaining(ms: number) {
+  if (ms <= 0) return "0s";
+
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+export function formatDateTime(value?: string | null) {
+  if (!value) return "—";
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) return value;
+
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Africa/Lagos",
+  }).format(parsed);
 }

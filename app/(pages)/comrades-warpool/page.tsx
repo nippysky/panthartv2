@@ -13,7 +13,6 @@ import {
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 
 import AsyncState from "@/src/features/warpool/components/AsyncState";
-import FilterToolbar from "@/src/features/warpool/components/FilterToolbar";
 import HeroStats from "@/src/features/warpool/components/HeroStats";
 import LoadingPanel from "@/src/features/warpool/components/LoadingPanel";
 import QueueCard from "@/src/features/warpool/components/QueueCard";
@@ -25,13 +24,9 @@ export default function ComradesWarpoolPage() {
   const { address, isConnected } = useDecentWalletAccount();
 
   const {
-    filteredQueues,
+    queues,
     recentWinners,
     liveQueueCount,
-    search,
-    setSearch,
-    filter,
-    setFilter,
     isLoading,
     isRefreshing,
     error,
@@ -96,10 +91,9 @@ export default function ComradesWarpoolPage() {
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-foreground/68 sm:text-base">
-                  Comrades Warpool is the competitive layer for DCNT-powered
-                  battles. Join live queues, reserve your position with your
-                  wallet, follow active pools, and track battle history in a
-                  premium fast interface built for serious play.
+                  Browse the real live queues, see exact fill progress, watch the
+                  countdown in motion, and step cleanly through fighter selection,
+                  relic selection, and entry confirmation.
                 </p>
               </div>
 
@@ -108,7 +102,7 @@ export default function ComradesWarpoolPage() {
                   href="#live-queues"
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01]"
                 >
-                  Enter queue
+                  View queues
                   <ArrowRight className="h-4 w-4" />
                 </a>
 
@@ -124,13 +118,13 @@ export default function ComradesWarpoolPage() {
                 <HeroStats
                   icon={<Shield className="h-5 w-5" />}
                   title="On-chain"
-                  body="Battle actions and reward flow designed for transparent play."
+                  body="Queue flow and pool lifecycle are wired to real Warpool state."
                 />
 
                 <HeroStats
                   icon={<Clock3 className="h-5 w-5" />}
                   title={String(liveQueueCount)}
-                  body="Live queues filling right now across battle formats."
+                  body="Queues currently active, filling, locked, or battle ready."
                 />
 
                 <HeroStats
@@ -139,7 +133,7 @@ export default function ComradesWarpoolPage() {
                   body={
                     isConnected
                       ? `Wallet linked: ${shortAddress(address)}`
-                      : "Connect wallet from the global header to join gated battles."
+                      : "Connect wallet from the global header to load your fighters."
                   }
                 />
               </div>
@@ -151,40 +145,48 @@ export default function ComradesWarpoolPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-foreground/45">
                     Live pulse
                   </p>
-                  <h2 className="mt-1 text-xl font-semibold">
-                    Recent winners
-                  </h2>
+                  <h2 className="mt-1 text-xl font-semibold">Recent winners</h2>
                 </div>
                 <Trophy className="h-5 w-5 text-foreground/55" />
               </div>
 
               <div className="space-y-3">
-                {recentWinners.map((battle) => (
-                  <div
-                    key={battle.id}
-                    className="rounded-3xl border border-border bg-background/80 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-foreground/92">
-                          {battle.label}
-                        </p>
-                        <p className="mt-1 text-sm text-foreground/55">
-                          Winner {battle.winner}
-                        </p>
-                      </div>
+                {recentWinners.length === 0 ? (
+                  <div className="rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/60">
+                    No settled pools yet.
+                  </div>
+                ) : (
+                  recentWinners.map((battle) => (
+                    <div
+                      key={battle.id}
+                      className="rounded-3xl border border-border bg-background/80 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-foreground/92">
+                            {battle.label}
+                          </p>
+                          <p className="mt-1 text-sm text-foreground/55">
+                            Winner {battle.winner}
+                          </p>
+                        </div>
 
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-foreground">
-                          {battle.prize}
-                        </p>
-                        <p className="mt-1 text-xs text-foreground/45">
-                          {battle.time}
-                        </p>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-foreground">
+                            {battle.prize}
+                          </p>
+                          <p className="mt-1 text-xs text-foreground/45">
+                            {battle.time}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
+              </div>
+
+              <div className="mt-4 text-xs text-foreground/45">
+                {isRefreshing ? "Refreshing live data..." : "Live data ready"}
               </div>
 
               <Link
@@ -209,8 +211,11 @@ export default function ComradesWarpoolPage() {
               Matchmaking
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-              Live queues
+              All queues
             </h2>
+            <p className="mt-2 text-sm text-foreground/58">
+              Real status, real fill count, real countdown.
+            </p>
           </div>
 
           <Link
@@ -221,35 +226,11 @@ export default function ComradesWarpoolPage() {
           </Link>
         </div>
 
-        <FilterToolbar
-          search={search}
-          onSearchChange={setSearch}
-          filter={filter}
-          onFilterChange={(value) => setFilter(value as typeof filter)}
-          searchPlaceholder="Search queues, stakes, or formats..."
-          isRefreshing={isRefreshing}
-          filterOptions={[
-            { label: "All statuses", value: "all" },
-            { label: "Open", value: "Open" },
-            { label: "Filling", value: "Filling" },
-            { label: "Locked", value: "Locked" },
-            { label: "Battle Ready", value: "Battle Ready" },
-            { label: "Settled", value: "Settled" },
-          ]}
-        />
-
-        {filteredQueues.length === 0 ? (
-          <AsyncState
-            title="No matching queues"
-            body="Try a different search or status filter."
-          />
-        ) : (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {filteredQueues.map((queue) => (
-              <QueueCard key={queue.slug} queue={queue} />
-            ))}
-          </div>
-        )}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {queues.map((queue) => (
+            <QueueCard key={queue.slug} queue={queue} />
+          ))}
+        </div>
       </section>
     </main>
   );

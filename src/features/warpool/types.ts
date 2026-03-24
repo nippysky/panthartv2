@@ -3,9 +3,16 @@ export type QueueStatus =
   | "Filling"
   | "Locked"
   | "Battle Ready"
-  | "Settled";
+  | "Settled"
+  | "Closed";
 
-export type BattleState = "Live" | "Pending" | "Settled" | "Expired";
+export type BattleState =
+  | "Open"
+  | "Locked"
+  | "Battle Ready"
+  | "Settled"
+  | "Closed"
+  | "Expired";
 
 export type WarpoolQueue = {
   id?: string;
@@ -23,10 +30,20 @@ export type WarpoolQueue = {
   rules: string[];
 
   poolId: string | null;
+  poolIdOnChain: string | null;
   queueKey: string | null;
   openedAt: string | null;
   expiresAt: string | null;
+  lockedAt: string | null;
+  battleReadyAt: string | null;
+  settledAt: string | null;
   configVersion: string | null;
+
+  singleEntryPerWallet: boolean;
+  acceptsRelics: boolean;
+  remainingSpots: number;
+  discountSeatsRemaining: number | null;
+  token11SeatsRemaining: number | null;
 };
 
 export type WarpoolHistoryItem = {
@@ -36,6 +53,7 @@ export type WarpoolHistoryItem = {
   prize: string;
   status: "Settled" | "Pending" | "Expired";
   time: string;
+  settledAt: string | null;
 };
 
 export type WarpoolRecentWinner = {
@@ -44,6 +62,7 @@ export type WarpoolRecentWinner = {
   winner: string;
   prize: string;
   time: string;
+  settledAt: string | null;
 };
 
 export type WarpoolBattleEntry = {
@@ -135,10 +154,16 @@ export type WarpoolLensPreviewPayload = {
   poolId: string;
   poolIdOnChain: string;
   activeReservationIdOnChain: string | null;
+  activeReservationExpiresAt: string | null;
   canReserveRelic: boolean;
   reserveReason: string;
   canEnter: boolean;
   enterReason: string;
+  queueAcceptsRelics: boolean;
+  expectedStake: string;
+  discountBps: number | null;
+  discountSeatsRemaining: number | null;
+  token11SeatsRemaining: number | null;
 };
 
 export type ApiSuccess<T> = {

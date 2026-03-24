@@ -34,14 +34,16 @@ function reasonLabel(reason?: string | null) {
       return "Already reserved";
     case "queue_locked":
       return "Queue locked";
+    case "live_pool_unavailable":
+      return "No live pool";
     case "not_participant":
       return "Not a participant";
     case "already_confirmed":
       return "Already confirmed";
     case "not_claimable_yet":
-      return "Claim not ready";
+      return "Settlement pending";
     case "already_claimed":
-      return "Already claimed";
+      return "Already settled";
     case "battle_not_settled":
       return "Battle not settled";
     default:
@@ -84,7 +86,7 @@ export default function EligibilityCard(props: Props) {
               )}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <span>Reserve status</span>
+                <span>Queue status</span>
                 <span className="font-medium">
                   {reasonLabel(eligibility.reason)}
                 </span>
@@ -135,7 +137,7 @@ export default function EligibilityCard(props: Props) {
     <div className="rounded-[30px] border border-border bg-card/85 p-5 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)]">
       <div className="mb-4 flex items-center gap-2 text-sm text-foreground/70">
         <ShieldAlert className="h-4 w-4 text-accent" />
-        Eligibility
+        Viewer status
       </div>
 
       {!eligibility ? (
@@ -150,32 +152,10 @@ export default function EligibilityCard(props: Props) {
             )}`}
           >
             <div className="flex items-center justify-between gap-3">
-              <span>Battle status</span>
+              <span>Pool status</span>
               <span className="font-medium">
                 {reasonLabel(eligibility.reason)}
               </span>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[22px] border border-border bg-background/80 p-4 text-sm">
-              <div className="mb-2 flex items-center gap-2 text-foreground/70">
-                <CheckCircle2 className="h-4 w-4 text-accent" />
-                Can confirm
-              </div>
-              <div className="font-medium">
-                {eligibility.canConfirm ? "Yes" : "No"}
-              </div>
-            </div>
-
-            <div className="rounded-[22px] border border-border bg-background/80 p-4 text-sm">
-              <div className="mb-2 flex items-center gap-2 text-foreground/70">
-                <Trophy className="h-4 w-4 text-accent" />
-                Can claim
-              </div>
-              <div className="font-medium">
-                {eligibility.canClaim ? "Yes" : "No"}
-              </div>
             </div>
           </div>
 
@@ -204,7 +184,7 @@ export default function EligibilityCard(props: Props) {
           <div className="rounded-[22px] border border-border bg-background/80 p-4 text-sm">
             <div className="mb-3 flex items-center gap-2 text-foreground/70">
               <Clock3 className="h-4 w-4 text-accent" />
-              Claimable at
+              Settled at
             </div>
             <CountdownChip value={eligibility.claimableAt} mode="claim" />
           </div>

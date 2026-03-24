@@ -1,17 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "server-only";
 
+import { ethers } from "ethers";
 import prisma, { prismaReady } from "@/src/lib/db";
 import type {
   WarpoolBattle,
   WarpoolBattleEligibility,
-  WarpoolBattleEntry,
   WarpoolHistoryItem,
   WarpoolQueue,
   WarpoolQueueEligibility,
   WarpoolRecentWinner,
   WarpoolTimelineItem,
 } from "@/src/features/warpool/types";
+
+type QueueSlug =
+  | "FORGE_SAFEGUARD"
+  | "LEGION_SAFEGUARD"
+  | "LEGION_VAULTBOUND"
+  | "CROWN_VAULTBOUND";
 
 type QueueMeta = {
   title: string;
@@ -21,221 +27,241 @@ type QueueMeta = {
   rules: string[];
 };
 
-const QUEUE_META: Record<string, QueueMeta> = {
+const QUEUE_ORDER: QueueSlug[] = [
+  "FORGE_SAFEGUARD",
+  "LEGION_SAFEGUARD",
+  "LEGION_VAULTBOUND",
+  "CROWN_VAULTBOUND",
+];
+
+const LIVE_STATES = ["OPEN", "LOCKED", "BATTLE_READY", "SETTLING"] as const;
+
+const QUEUE_META: Record<QueueSlug, QueueMeta> = {
   FORGE_SAFEGUARD: {
     title: "Forge Safeguard",
-    format: "Tier 1 · Safeguard",
-    highlight: "Entry-level live pool with lower pressure and faster visibility.",
+    format: "Forge · Safeguard",
+    highlight: "Entry-level safeguard pool",
     summary:
-      "A live Warpool queue backed by on-chain config and worker-synced pool state.",
+      "Fast entry safeguard queue for Forge-tier play. Losing fighters are returned in safeguard mode.",
     rules: [
-      "Queue data is sourced from live Warpool config and pool records.",
-      "Relic reservation and fighter entry must be executed through wallet-backed on-chain actions.",
-      "Battle, settlement, and capture outcomes are reflected from synced chain events.",
+      "Safeguard mode returns fighters after settlement.",
+      "Queue opens and fills toward the configured target size.",
+      "If the queue expires below minimum size, all paid stake is refunded.",
     ],
   },
   LEGION_SAFEGUARD: {
     title: "Legion Safeguard",
-    format: "Tier 2 · Safeguard",
-    highlight:
-      "Mid-tier queue with stronger competition and deeper entrant pressure.",
+    format: "Legion · Safeguard",
+    highlight: "Mid-tier safeguarded battles",
     summary:
-      "A real queue derived from the current on-chain configuration and active pool state.",
+      "Legion queue with safeguard protection. Good for players who want competitive entry without capture risk.",
     rules: [
-      "Pool size, stake, and prize path are driven by the live config snapshot.",
-      "Entries appear here only after they are indexed from chain events.",
-      "Settled outcomes and captures come from the worker + event sync pipeline.",
+      "Safeguard mode returns fighters after settlement.",
+      "Only eligible fighters from the configured collection may enter.",
+      "If the queue expires below minimum size, all paid stake is refunded.",
     ],
   },
   LEGION_VAULTBOUND: {
     title: "Legion Vaultbound",
-    format: "Tier 2 · Vaultbound",
-    highlight:
-      "Vaultbound queue with live stakes, live entrants, and live pool timing.",
+    format: "Legion · Vaultbound",
+    highlight: "Vaultbound with capture pressure",
     summary:
-      "This queue reflects real synced configuration, real active pools, and real battle state.",
+      "Legion vaultbound queue where non-winning selected fighters can be captured after settlement.",
     rules: [
-      "Queue activity is sourced from worker-synced Warpool tables.",
-      "Captured comrades and relist state are chain-backed, not simulated.",
-      "Open, locked, battle-ready, and settled states come from real pool lifecycle transitions.",
+      "Vaultbound mode captures losing selected fighters after settlement.",
+      "Prize distribution follows the pool snapshot percentages.",
+      "If the queue expires below minimum size, paid stake is refunded and the queue reopens.",
     ],
   },
   CROWN_VAULTBOUND: {
     title: "Crown Vaultbound",
-    format: "Tier 3 · Vaultbound",
-    highlight:
-      "Top-tier queue with the highest pressure and the strongest relist consequences.",
+    format: "Crown · Vaultbound",
+    highlight: "Top-tier queue with relic mechanics",
     summary:
-      "A premium Warpool queue reflecting live config, live pools, live battles, and live settlement outcomes.",
+      "Top-tier vaultbound queue with relic support. Tokens 1–10 use discount seats, while token 11 uses the dedicated god seat.",
     rules: [
-      "Prize distribution follows the actual configured bps recorded on the pool.",
-      "Battle results come from the worker’s seeded computation pipeline.",
-      "History and winner surfaces are built from real settlement records.",
+      "Only Crown Vaultbound supports relic mechanics.",
+      "Discount relics use the 2-seat cap for tokens 1–10.",
+      "Token 11 uses the dedicated 1-seat god slot and enters with zero stake.",
+      "Vaultbound mode captures losing selected fighters after settlement.",
     ],
   },
 };
 
-function metaForSlug(slug: string): QueueMeta {
-  return (
-    QUEUE_META[slug] ?? {
-      title: slug.replaceAll("_", " "),
-      format: "Live queue",
-      highlight: "Live Warpool queue.",
-      summary: "Live queue state sourced from the Warpool backend.",
-      rules: [
-        "This queue is sourced from real Warpool config and pool records.",
-        "Entries, battles, and settlements are chain-backed.",
-        "Availability depends on the currently active live pool.",
-      ],
-    }
-  );
+function pickQueueMeta(slug: string): QueueMeta {
+  return QUEUE_META[(slug as QueueSlug) ?? "FORGE_SAFEGUARD"] ?? {
+    title: slug,
+    format: slug,
+    highlight: "",
+    summary: "",
+    rules: [],
+  };
 }
 
-function shortAddress(address?: string | null) {
-  if (!address) return "";
-  if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+function formatDcnt(raw?: any): string {
+  try {
+    return `${ethers.formatUnits(String(raw ?? 0), 18)} DCNT`;
+  } catch {
+    return "0 DCNT";
+  }
 }
 
-function normalizeAddress(address?: string | null) {
-  return address?.trim().toLowerCase() ?? "";
+function formatBps(bps?: number | null) {
+  const value = Number(bps ?? 0) / 100;
+  return `${value.toFixed(value % 1 === 0 ? 0 : 2)}%`;
 }
 
-function formatWAT(value?: Date | string | null) {
+function formatWhen(value?: Date | null) {
   if (!value) return "—";
-  const date = typeof value === "string" ? new Date(value) : value;
 
-  return new Intl.DateTimeFormat("en-NG", {
-    timeZone: "Africa/Lagos",
+  return new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(date);
+    timeZone: "Africa/Lagos",
+  }).format(value);
 }
 
-function formatAgo(value?: Date | string | null) {
-  if (!value) return "—";
-  const date = typeof value === "string" ? new Date(value) : value;
-  const diffMs = Date.now() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin} min${diffMin === 1 ? "" : "s"} ago`;
-
-  const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `${diffH} hr${diffH === 1 ? "" : "s"} ago`;
-
-  const diffD = Math.floor(diffH / 24);
-  return `${diffD} day${diffD === 1 ? "" : "s"} ago`;
+function isExpiredOpenPool(pool: any) {
+  if (!pool) return false;
+  if (pool.state !== "OPEN") return false;
+  if (!pool.expiresAt) return false;
+  return new Date(pool.expiresAt).getTime() <= Date.now();
 }
 
-function formatDurationToExpiry(expiresAt?: Date | null) {
-  if (!expiresAt) return "—";
+function queueStatusFromPool(pool: any): WarpoolQueue["status"] {
+  if (!pool) return "Closed";
 
-  const diff = expiresAt.getTime() - Date.now();
-  if (diff <= 0) return "Closing now";
+  if (isExpiredOpenPool(pool)) {
+    return "Closed";
+  }
 
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "<1 min";
-  if (mins < 60) return `${mins} min`;
-
-  const hrs = Math.floor(mins / 60);
-  const remMins = mins % 60;
-  if (hrs < 24) return remMins > 0 ? `${hrs}h ${remMins}m` : `${hrs}h`;
-
-  const days = Math.floor(hrs / 24);
-  return `${days}d`;
-}
-
-function toBigIntSafe(value: unknown): bigint {
-  try {
-    if (typeof value === "bigint") return value;
-    if (typeof value === "number") return BigInt(Math.trunc(value));
-    if (typeof value === "string") return BigInt(value);
-    if (
-      value &&
-      typeof value === "object" &&
-      "toString" in value &&
-      typeof value.toString === "function"
-    ) {
-      return BigInt(value.toString());
-    }
-    return BigInt(0);
-  } catch {
-    return BigInt(0);
+  switch (pool.state) {
+    case "OPEN":
+      return pool.entrantCount > 0 ? "Filling" : "Open";
+    case "LOCKED":
+      return "Locked";
+    case "BATTLE_READY":
+    case "SETTLING":
+      return "Battle Ready";
+    case "SETTLED":
+    case "CLOSED":
+      return "Settled";
+    case "EXPIRED_REFUNDED":
+    default:
+      return "Closed";
   }
 }
 
-function formatTokenAmount(
-  raw?: string | number | bigint | { toString(): string } | null,
-  decimals = 18
-) {
-  const value = toBigIntSafe(raw);
-  const base = BigInt(10) ** BigInt(decimals);
-  const whole = value / base;
-  const frac = value % base;
-
-  const fracStr = frac
-    .toString()
-    .padStart(decimals, "0")
-    .slice(0, 2)
-    .replace(/0+$/, "");
-
-  return fracStr ? `${whole.toString()}.${fracStr}` : whole.toString();
+function battleStateFromPool(pool: any, battle: any): WarpoolBattle["state"] {
+  if (battle?.status === "SETTLED" || pool?.state === "CLOSED") return "Settled";
+  if (pool?.state === "BATTLE_READY" || pool?.state === "SETTLING") {
+    return "Battle Ready";
+  }
+  if (pool?.state === "LOCKED") return "Locked";
+  if (pool?.state === "OPEN") return isExpiredOpenPool(pool) ? "Expired" : "Open";
+  if (pool?.state === "EXPIRED_REFUNDED") return "Expired";
+  return "Closed";
 }
 
-function deriveQueueStatus(
-  state: string | null | undefined,
-  entrants: number,
-  maxEntrants: number
-) {
-  if (state === "LOCKED") return "Locked" as const;
-  if (state === "BATTLE_READY" || state === "SETTLING") {
-    return "Battle Ready" as const;
-  }
-  if (
-    state === "SETTLED" ||
-    state === "CLOSED" ||
-    state === "EXPIRED_REFUNDED"
-  ) {
-    return "Settled" as const;
-  }
+function makeQueuePayload(config: any, pool: any): WarpoolQueue {
+  const slug = String(pool?.queueSlug ?? config?.slug ?? "");
+  const meta = pickQueueMeta(slug);
+  const status = queueStatusFromPool(pool);
 
-  if (maxEntrants > 0) {
-    const pct = entrants / maxEntrants;
-    if (pct >= 0.7) return "Filling" as const;
-  }
+  const targetSize = Number(pool?.targetSize ?? config?.targetSize ?? 0);
+  const entrants = Number(pool?.entrantCount ?? 0);
 
-  return "Open" as const;
-}
+  const isStaleExpired = isExpiredOpenPool(pool);
 
-async function getDcntDecimals(tokenAddress?: string | null) {
-  if (!tokenAddress) return 18;
+  const remainingSpots = isStaleExpired ? 0 : Math.max(0, targetSize - entrants);
+  const acceptsRelics =
+    Number(pool?.tier ?? config?.tier ?? 0) === 3 &&
+    Number(pool?.mode ?? config?.mode ?? 0) === 2;
 
-  const currency = await prisma.currency.findUnique({
-    where: { tokenAddress },
-    select: { decimals: true },
-  });
+  const discountRemaining = pool
+    ? Math.max(
+        0,
+        Number(pool.discountSeatCap ?? 0) -
+          Number(pool.discountSeatsUsed ?? 0) -
+          Number(pool.discountSeatsReserved ?? 0)
+      )
+    : acceptsRelics
+      ? 2
+      : null;
 
-  return currency?.decimals ?? 18;
+  const token11Remaining = pool
+    ? Math.max(
+        0,
+        Number(pool.token11SeatCap ?? 0) - Number(pool.token11SeatsUsed ?? 0)
+      )
+    : acceptsRelics
+      ? 1
+      : null;
+
+  return {
+    id: String(pool?.id ?? config?.id ?? slug),
+    slug,
+    title: meta.title,
+    format: meta.format,
+    stake: formatDcnt(pool?.stakeAmountRaw ?? config?.stakeAmountRaw),
+    fee: formatBps(pool?.platformFeeBps ?? config?.platformFeeBps),
+    entrants,
+    maxEntrants: targetSize,
+    eta: isStaleExpired
+      ? "Processing expiry"
+      : pool?.expiresAt
+        ? formatWhen(pool.expiresAt)
+        : "No live pool",
+    status,
+    highlight: meta.highlight,
+    summary: meta.summary,
+    rules: meta.rules,
+
+    poolId: isStaleExpired ? null : pool?.id ? String(pool.id) : null,
+    poolIdOnChain: isStaleExpired
+      ? null
+      : pool?.poolIdOnChain
+        ? String(pool.poolIdOnChain)
+        : null,
+    queueKey: String(pool?.queueKey ?? config?.queueKey ?? ""),
+    openedAt: pool?.openedAt ? pool.openedAt.toISOString() : null,
+    expiresAt: isStaleExpired
+      ? null
+      : pool?.expiresAt
+        ? pool.expiresAt.toISOString()
+        : null,
+    lockedAt: pool?.lockedAt ? pool.lockedAt.toISOString() : null,
+    battleReadyAt: pool?.battleReadyAt ? pool.battleReadyAt.toISOString() : null,
+    settledAt: pool?.settledAt ? pool.settledAt.toISOString() : null,
+    configVersion: String(pool?.configVersion ?? config?.configVersion ?? ""),
+
+    singleEntryPerWallet: Boolean(
+      pool?.singleEntryPerWallet ?? config?.singleEntryPerWallet ?? true
+    ),
+    acceptsRelics,
+    remainingSpots,
+    discountSeatsRemaining: acceptsRelics ? discountRemaining : null,
+    token11SeatsRemaining: acceptsRelics ? token11Remaining : null,
+  };
 }
 
 async function getLatestQueueConfigs() {
   await prismaReady;
 
   const rows = await prisma.warpoolQueueConfig.findMany({
-    orderBy: [{ syncedAt: "desc" }],
+    orderBy: [{ slug: "asc" }, { configVersion: "desc" }, { syncedAt: "desc" }],
   });
 
-  const seen = new Set<string>();
-  const latest: typeof rows = [];
+  const map = new Map<string, any>();
 
   for (const row of rows) {
-    if (seen.has(row.slug)) continue;
-    seen.add(row.slug);
-    latest.push(row);
+    const slug = String(row.slug);
+    if (!map.has(slug)) {
+      map.set(slug, row);
+    }
   }
 
-  return latest;
+  return map;
 }
 
 async function getActivePoolsBySlug() {
@@ -243,169 +269,63 @@ async function getActivePoolsBySlug() {
 
   const rows = await prisma.warpoolPool.findMany({
     where: {
-      state: {
-        in: ["OPEN", "LOCKED", "BATTLE_READY", "SETTLING"],
-      },
+      state: { in: [...LIVE_STATES] as any[] },
     },
-    orderBy: [{ openedAt: "desc" }],
+    orderBy: [{ updatedAt: "desc" }],
   });
 
-  const map = new Map<string, (typeof rows)[number]>();
+  const map = new Map<string, any>();
+
   for (const row of rows) {
-    if (!row.queueSlug) continue;
-    if (!map.has(row.queueSlug)) {
-      map.set(row.queueSlug, row);
+    const slug = row.queueSlug ? String(row.queueSlug) : "";
+    if (slug && !map.has(slug)) {
+      map.set(slug, row);
     }
   }
 
   return map;
 }
 
-function buildQueueFromConfigAndPool(args: {
-  config: Awaited<ReturnType<typeof getLatestQueueConfigs>>[number];
-  pool: Awaited<ReturnType<typeof getActivePoolsBySlug>> extends Map<any, infer V>
-    ? V | null
-    : never;
-  dcntDecimals: number;
-}): WarpoolQueue {
-  const { config, pool, dcntDecimals } = args;
-  const meta = metaForSlug(config.slug);
-
-  const entrants = pool?.entrantCount ?? 0;
-  const maxEntrants = pool?.targetSize ?? config.targetSize;
-
-  return {
-    id: pool?.id ?? config.id,
-    slug: config.slug,
-    title: meta.title,
-    format: meta.format,
-    stake: `${formatTokenAmount(
-      pool?.stakeAmountRaw ?? config.stakeAmountRaw,
-      dcntDecimals
-    )} DCNT`,
-    fee: `${(config.platformFeeBps / 100).toFixed(2)}%`,
-    entrants,
-    maxEntrants,
-    eta: pool?.expiresAt ? formatDurationToExpiry(pool.expiresAt) : "Waiting",
-    status: deriveQueueStatus(pool?.state, entrants, maxEntrants),
-    highlight: meta.highlight,
-    summary: meta.summary,
-    rules: meta.rules,
-    poolId: pool?.id ?? null,
-    queueKey: pool?.queueKey ?? config.queueKey,
-    openedAt: pool?.openedAt?.toISOString() ?? null,
-    expiresAt: pool?.expiresAt?.toISOString() ?? null,
-    configVersion: String(pool?.configVersion ?? config.configVersion),
-  };
-}
-
 export async function listWarpoolQueues(): Promise<WarpoolQueue[]> {
-  const [configs, activePools, latestGlobal] = await Promise.all([
+  const [configs, activePools] = await Promise.all([
     getLatestQueueConfigs(),
     getActivePoolsBySlug(),
-    prisma.warpoolGlobalConfigSnapshot.findFirst({
-      orderBy: [{ syncedAt: "desc" }],
-      select: { dcntToken: true },
-    }),
   ]);
 
-  const dcntDecimals = await getDcntDecimals(latestGlobal?.dcntToken ?? null);
+  const result: WarpoolQueue[] = [];
 
-  return configs.map((config) =>
-    buildQueueFromConfigAndPool({
-      config,
-      pool: activePools.get(config.slug) ?? null,
-      dcntDecimals,
-    })
-  );
-}
+  for (const slug of QUEUE_ORDER) {
+    const config = configs.get(slug) ?? null;
+    const pool = activePools.get(slug) ?? null;
 
-export async function listWarpoolRecentWinners(): Promise<WarpoolRecentWinner[]> {
-  await prismaReady;
+    if (!config && !pool) continue;
+    result.push(makeQueuePayload(config, pool));
+  }
 
-  const rows = await prisma.warpoolBattle.findMany({
-    where: {
-      status: "SETTLED",
-    },
-    orderBy: [{ settledAt: "desc" }, { updatedAt: "desc" }],
-    take: 3,
-    select: {
-      poolId: true,
-      settledAt: true,
-      updatedAt: true,
-      prizePoolRaw: true,
-      firstEntryId: true,
-    },
-  });
-
-  const poolIds = rows.map((row) => row.poolId);
-  const firstEntryIds = rows
-    .map((row) => row.firstEntryId)
-    .filter((value): value is string => !!value);
-
-  const [pools, firstEntries] = await Promise.all([
-    prisma.warpoolPool.findMany({
-      where: {
-        id: { in: poolIds },
-      },
-      select: {
-        id: true,
-        queueSlug: true,
-        firstPlaceBps: true,
-        entrantCount: true,
-        stakeAmountRaw: true,
-      },
-    }),
-    firstEntryIds.length
-      ? prisma.warpoolEntry.findMany({
-          where: {
-            id: { in: firstEntryIds },
-          },
-          select: {
-            id: true,
-            userAddress: true,
-          },
-        })
-      : Promise.resolve([]),
-  ]);
-
-  const poolMap = new Map(pools.map((pool) => [pool.id, pool]));
-  const entryMap = new Map(firstEntries.map((entry) => [entry.id, entry]));
-
-  return rows.map((row) => {
-    const pool = poolMap.get(row.poolId);
-    const firstEntry = row.firstEntryId
-      ? entryMap.get(row.firstEntryId) ?? null
-      : null;
-
-    const queueLabel = metaForSlug(pool?.queueSlug ?? "UNKNOWN").title;
-
-    let prize = "—";
-    if (row.prizePoolRaw) {
-      prize = `${formatTokenAmount(row.prizePoolRaw)} DCNT`;
-    } else if (pool?.stakeAmountRaw && pool?.firstPlaceBps != null) {
-      const totalStake =
-        toBigIntSafe(pool.stakeAmountRaw) * BigInt(pool.entrantCount || 0);
-      const firstPrize =
-        (totalStake * BigInt(pool.firstPlaceBps)) / BigInt(10000);
-      prize = `${formatTokenAmount(firstPrize)} DCNT`;
-    }
-
-    return {
-      id: row.poolId,
-      label: `${queueLabel} · Pool`,
-      winner: shortAddress(firstEntry?.userAddress ?? null),
-      prize,
-      time: formatAgo(row.settledAt ?? row.updatedAt),
-    };
-  });
+  return result;
 }
 
 export async function getWarpoolQueueBySlug(
   slug: string
 ): Promise<WarpoolQueue | null> {
-  const queues = await listWarpoolQueues();
-  return queues.find((q) => q.slug === slug) ?? null;
+  const normalized = String(slug).toUpperCase();
+
+  const [config, pool] = await Promise.all([
+    prisma.warpoolQueueConfig.findFirst({
+      where: { slug: normalized as any },
+      orderBy: [{ configVersion: "desc" }, { syncedAt: "desc" }],
+    }),
+    prisma.warpoolPool.findFirst({
+      where: {
+        queueSlug: normalized as any,
+        state: { in: [...LIVE_STATES] as any[] },
+      },
+      orderBy: [{ updatedAt: "desc" }],
+    }),
+  ]);
+
+  if (!config && !pool) return null;
+  return makeQueuePayload(config, pool);
 }
 
 export async function getWarpoolQueueEligibility(
@@ -413,11 +333,12 @@ export async function getWarpoolQueueEligibility(
   walletAddress?: string | null
 ): Promise<WarpoolQueueEligibility | null> {
   const queue = await getWarpoolQueueBySlug(slug);
-  if (!queue) return null;
 
-  const normalizedWallet = normalizeAddress(walletAddress);
+  if (!queue) {
+    return null;
+  }
 
-  if (!normalizedWallet) {
+  if (!walletAddress) {
     return {
       walletRequired: true,
       canReserve: false,
@@ -427,9 +348,9 @@ export async function getWarpoolQueueEligibility(
     };
   }
 
-  if (!queue.poolId) {
+  if (!queue.poolId || !queue.poolIdOnChain || queue.status === "Closed") {
     return {
-      walletRequired: true,
+      walletRequired: false,
       canReserve: false,
       isReservedByViewer: false,
       reservationExpiresAt: null,
@@ -437,185 +358,152 @@ export async function getWarpoolQueueEligibility(
     };
   }
 
-  if (queue.entrants >= queue.maxEntrants) {
-    return {
-      walletRequired: true,
-      canReserve: false,
-      isReservedByViewer: false,
-      reservationExpiresAt: null,
-      reason: "queue_full",
-    };
-  }
+  const activeReservation = await prisma.warpoolReservation.findFirst({
+    where: {
+      poolId: queue.poolId,
+      userAddress: walletAddress,
+      status: "ACTIVE",
+    },
+    orderBy: [{ createdAt: "desc" }],
+  });
 
-  if (
-    queue.status === "Locked" ||
-    queue.status === "Battle Ready" ||
-    queue.status === "Settled"
-  ) {
+  if (queue.status === "Locked" || queue.status === "Battle Ready") {
     return {
-      walletRequired: true,
+      walletRequired: false,
       canReserve: false,
-      isReservedByViewer: false,
-      reservationExpiresAt: null,
+      isReservedByViewer: !!activeReservation,
+      reservationExpiresAt: activeReservation?.expiresAtOnChain?.toISOString() ?? null,
       reason: "queue_locked",
     };
   }
 
-  const existing = await prisma.warpoolReservation.findFirst({
-    where: {
-      pool: {
-        queueSlug: slug as never,
-        state: "OPEN",
-      },
-      userAddress: normalizedWallet,
-      status: "ACTIVE",
-    },
-    orderBy: [{ createdAt: "desc" }],
-    select: {
-      expiresAtOnChain: true,
-    },
-  });
-
-  if (existing) {
+  if (queue.remainingSpots <= 0) {
     return {
-      walletRequired: true,
+      walletRequired: false,
+      canReserve: false,
+      isReservedByViewer: !!activeReservation,
+      reservationExpiresAt: activeReservation?.expiresAtOnChain?.toISOString() ?? null,
+      reason: "queue_full",
+    };
+  }
+
+  if (activeReservation) {
+    return {
+      walletRequired: false,
       canReserve: false,
       isReservedByViewer: true,
-      reservationExpiresAt: existing.expiresAtOnChain.toISOString(),
+      reservationExpiresAt: activeReservation.expiresAtOnChain?.toISOString() ?? null,
       reason: "already_reserved",
     };
   }
 
   return {
-    walletRequired: true,
-    canReserve: true,
+    walletRequired: false,
+    canReserve: queue.acceptsRelics,
     isReservedByViewer: false,
     reservationExpiresAt: null,
     reason: "ok",
   };
 }
 
-export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
+export async function listWarpoolRecentWinners(): Promise<WarpoolRecentWinner[]> {
   await prismaReady;
 
-  const rows = await prisma.warpoolPool.findMany({
-    where: {
-      state: {
-        in: ["CLOSED", "SETTLED", "EXPIRED_REFUNDED"],
-      },
-    },
-    orderBy: [{ closedAt: "desc" }, { settledAt: "desc" }, { updatedAt: "desc" }],
-    take: 50,
-    select: {
-      id: true,
-      state: true,
-      queueSlug: true,
-      closedAt: true,
-      settledAt: true,
-      updatedAt: true,
-      stakeAmountRaw: true,
-      entrantCount: true,
-      firstPlaceBps: true,
-      battle: {
-        select: {
-          status: true,
-          firstEntryId: true,
+  const battles = await prisma.warpoolBattle.findMany({
+    where: { status: "SETTLED" },
+    orderBy: [{ settledAt: "desc" }, { updatedAt: "desc" }],
+    take: 4,
+    include: {
+      pool: {
+        include: {
+          entries: true,
         },
       },
     },
   });
 
-  const firstEntryIds = rows
-    .map((row) => row.battle?.firstEntryId)
-    .filter((value): value is string => !!value);
-
-  const winnerEntries = firstEntryIds.length
-    ? await prisma.warpoolEntry.findMany({
-        where: {
-          id: { in: firstEntryIds },
-        },
-        select: {
-          id: true,
-          userAddress: true,
-        },
-      })
-    : [];
-
-  const winnerEntryMap = new Map(
-    winnerEntries.map((entry) => [entry.id, entry])
-  );
-
-  return rows.map((row) => {
-    const queueTitle = metaForSlug(row.queueSlug ?? "UNKNOWN").title;
-    const winnerEntry = row.battle?.firstEntryId
-      ? winnerEntryMap.get(row.battle.firstEntryId) ?? null
-      : null;
-
-    const winnerPrize =
-      row.state === "EXPIRED_REFUNDED"
-        ? "Refunded"
-        : `${formatTokenAmount(
-            (toBigIntSafe(row.stakeAmountRaw) *
-              BigInt(row.firstPlaceBps) *
-              BigInt(row.entrantCount || 0)) /
-              BigInt(10000)
-          )} DCNT`;
+  return battles.map((battle) => {
+    const winner = battle.pool.entries.find((entry) => entry.placement === 1);
+    const queueMeta = pickQueueMeta(String(battle.pool.queueSlug ?? ""));
 
     return {
-      id: row.id,
-      queue: queueTitle,
-      winner:
-        row.state === "EXPIRED_REFUNDED"
-          ? "No winner"
-          : shortAddress(winnerEntry?.userAddress ?? null),
-      prize: winnerPrize,
-      status:
-        row.state === "EXPIRED_REFUNDED"
-          ? "Expired"
-          : row.battle?.status === "SETTLED"
-          ? "Settled"
-          : "Pending",
-      time: formatWAT(row.closedAt ?? row.settledAt ?? row.updatedAt),
+      id: String(battle.pool.id),
+      label: queueMeta.title,
+      winner: winner?.userAddress
+        ? `${winner.userAddress.slice(0, 6)}…${winner.userAddress.slice(-4)}`
+        : "Unknown",
+      prize: formatDcnt(winner?.prizeAmountRaw ?? battle.prizePoolRaw ?? 0),
+      time: formatWhen(battle.settledAt ?? battle.pool.settledAt ?? battle.updatedAt),
+      settledAt:
+        battle.settledAt?.toISOString() ??
+        battle.pool.settledAt?.toISOString() ??
+        null,
     };
   });
 }
 
-function activityLabel(type: string) {
-  switch (type) {
+export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
+  await prismaReady;
+
+  const battles = await prisma.warpoolBattle.findMany({
+    where: { status: "SETTLED" },
+    orderBy: [{ settledAt: "desc" }, { updatedAt: "desc" }],
+    include: {
+      pool: {
+        include: {
+          entries: true,
+        },
+      },
+    },
+  });
+
+  return battles.map((battle) => {
+    const winner = battle.pool.entries.find((entry) => entry.placement === 1);
+    const queueMeta = pickQueueMeta(String(battle.pool.queueSlug ?? ""));
+
+    return {
+      id: String(battle.pool.id),
+      queue: queueMeta.title,
+      winner: winner?.userAddress
+        ? `${winner.userAddress.slice(0, 6)}…${winner.userAddress.slice(-4)}`
+        : "Unknown",
+      prize: formatDcnt(winner?.prizeAmountRaw ?? battle.prizePoolRaw ?? 0),
+      status: "Settled",
+      time: formatWhen(battle.settledAt ?? battle.pool.settledAt ?? battle.updatedAt),
+      settledAt:
+        battle.settledAt?.toISOString() ??
+        battle.pool.settledAt?.toISOString() ??
+        null,
+    };
+  });
+}
+
+function timelineLabel(activity: any) {
+  switch (activity.type) {
     case "POOL_OPENED":
       return "Pool opened";
     case "POOL_LOCKED":
-      return "Pool locked";
+      return "Pool locked for battle";
     case "POOL_BATTLE_READY":
       return "Battle ready";
     case "POOL_SETTLED":
       return "Pool settled";
     case "POOL_REOPENED":
-      return "Pool reopened";
+      return "Queue reopened";
     case "POOL_EXPIRED_REFUNDED":
       return "Pool expired and refunded";
-    case "RESERVATION_CREATED":
-      return "Relic reservation created";
-    case "RESERVATION_CONSUMED":
-      return "Reservation consumed";
-    case "RESERVATION_EXPIRED":
-      return "Reservation expired";
     case "ENTRY_JOINED":
-      return "Entry joined";
+      return "A fighter joined the pool";
     case "ENTRY_SELECTED":
       return "Entry selected for battle";
     case "ENTRY_REFUNDED":
       return "Entry refunded";
     case "ENTRY_CAPTURED":
-      return "Captured comrade transferred to worker";
-    case "ENTRY_RETURNED":
-      return "Captured comrade returned";
+      return "Captured fighter transferred";
     case "PRIZE_PAID":
-      return "Prize paid";
-    case "RELIC_RETURNED":
-      return "Relic returned";
+      return "Prize distributed";
     default:
-      return type;
+      return String(activity.type).replaceAll("_", " ");
   }
 }
 
@@ -624,150 +512,78 @@ export async function getWarpoolBattleByPoolId(
 ): Promise<WarpoolBattle | null> {
   await prismaReady;
 
-  const pool = await prisma.warpoolPool.findUnique({
+  const pool = await prisma.warpoolPool.findFirst({
     where: { id: poolId },
-    select: {
-      id: true,
-      state: true,
-      queueSlug: true,
-      lockedAt: true,
-      openedAt: true,
-      stakeAmountRaw: true,
+    include: {
       battle: {
-        select: {
-          id: true,
-          prizePoolRaw: true,
-          firstEntryId: true,
-          secondEntryId: true,
-          thirdEntryId: true,
-          matches: {
-            orderBy: [{ roundNumber: "asc" }, { matchNumber: "asc" }],
-            select: {
-              roundNumber: true,
-              matchNumber: true,
-            },
-          },
+        include: {
+          matches: true,
         },
       },
       entries: {
-        orderBy: [{ joinedAt: "asc" }],
-        select: {
-          id: true,
-          entryIdOnChain: true,
-          userAddress: true,
-          comradeTokenId: true,
-          relicTokenId: true,
-          relicType: true,
-          selectedForBattle: true,
-          placement: true,
-          status: true,
-          paidStakeAmountRaw: true,
-          nft: {
-            select: {
-              imageUrl: true,
-              name: true,
-            },
-          },
+        include: {
+          nft: true,
         },
+        orderBy: [{ placement: "asc" }, { joinedAt: "asc" }],
       },
       activities: {
-        orderBy: [{ timestamp: "asc" }],
-        select: {
-          id: true,
-          type: true,
-          timestamp: true,
-        },
+        orderBy: [{ timestamp: "desc" }],
+        take: 12,
       },
     },
   });
 
   if (!pool) return null;
 
-  const entries: WarpoolBattleEntry[] = pool.entries.map((entry) => ({
-    id: entry.id,
-    entryIdOnChain: entry.entryIdOnChain.toString(),
+  const battle = pool.battle;
+  const queueMeta = pickQueueMeta(String(pool.queueSlug ?? ""));
+
+  const entries = pool.entries.map((entry) => ({
+    id: String(entry.id),
+    entryIdOnChain: String(entry.entryIdOnChain),
     wallet: entry.userAddress,
-    comradeTokenId: entry.comradeTokenId,
+    comradeTokenId: String(entry.comradeTokenId),
     comradeImageUrl: entry.nft?.imageUrl ?? null,
     comradeName: entry.nft?.name ?? `Comrade #${entry.comradeTokenId}`,
-    relicTokenId: entry.relicTokenId ?? null,
-    relicType: entry.relicType,
+    relicTokenId: entry.relicTokenId ? String(entry.relicTokenId) : null,
+    relicType: String(entry.relicType),
     selectedForBattle: entry.selectedForBattle,
     placement: entry.placement ?? null,
-    status: entry.status,
-    paidStake: `${formatTokenAmount(entry.paidStakeAmountRaw)} DCNT`,
+    status: String(entry.status),
+    paidStake: formatDcnt(entry.paidStakeAmountRaw),
   }));
 
-  const timeline: WarpoolTimelineItem[] = pool.activities.map((item) => ({
-    id: item.id,
-    label: activityLabel(item.type),
-    time: formatWAT(item.timestamp),
+  const timeline: WarpoolTimelineItem[] = pool.activities.map((activity) => ({
+    id: String(activity.id),
+    label: timelineLabel(activity),
+    time: formatWhen(activity.timestamp),
   }));
 
-  const battleState: WarpoolBattle["state"] =
-    pool.state === "OPEN" || pool.state === "LOCKED"
-      ? "Pending"
-      : pool.state === "BATTLE_READY" || pool.state === "SETTLING"
-      ? "Live"
-      : pool.state === "EXPIRED_REFUNDED"
-      ? "Expired"
-      : "Settled";
+  const first = pool.entries.find((entry) => entry.placement === 1);
+  const second = pool.entries.find((entry) => entry.placement === 2);
+  const third = pool.entries.find((entry) => entry.placement === 3);
 
   const round =
-    pool.battle?.matches && pool.battle.matches.length > 0
-      ? `Resolved rounds: ${new Set(
-          pool.battle.matches.map((m) => m.roundNumber)
-        ).size}`
-      : battleState === "Pending"
-      ? "Awaiting bracket"
-      : battleState === "Live"
-      ? "Battle in progress"
-      : "Complete";
-
-  const podiumEntryIds = [
-    pool.battle?.firstEntryId,
-    pool.battle?.secondEntryId,
-    pool.battle?.thirdEntryId,
-  ].filter((value): value is string => !!value);
-
-  const podiumEntries = podiumEntryIds.length
-    ? await prisma.warpoolEntry.findMany({
-        where: {
-          id: { in: podiumEntryIds },
-        },
-        select: {
-          id: true,
-          userAddress: true,
-        },
-      })
-    : [];
-
-  const podiumEntryMap = new Map(
-    podiumEntries.map((entry) => [entry.id, entry])
-  );
+    pool.runnableSize > 0
+      ? `${pool.runnableSize}-fighter bracket`
+      : battle?.matches?.length
+        ? `${battle.matches.length} matches`
+        : "Battle flow";
 
   return {
-    poolId: pool.id,
-    queue: metaForSlug(pool.queueSlug ?? "UNKNOWN").title,
-    state: battleState,
-    stake: `${formatTokenAmount(pool.stakeAmountRaw)} DCNT`,
-    prizePool: pool.battle?.prizePoolRaw
-      ? `${formatTokenAmount(pool.battle.prizePoolRaw)} DCNT`
-      : "—",
-    startedAt: formatWAT(pool.lockedAt ?? pool.openedAt),
+    poolId: String(pool.id),
+    queue: queueMeta.title,
+    state: battleStateFromPool(pool, battle),
+    stake: formatDcnt(pool.stakeAmountRaw),
+    prizePool: formatDcnt(battle?.prizePoolRaw ?? 0),
+    startedAt: formatWhen(pool.openedAt),
     round,
-    arena: `${metaForSlug(pool.queueSlug ?? "UNKNOWN").title} Arena`,
+    arena: `${pool.entrantCount}/${pool.targetSize} fighters entered`,
     entries,
     timeline,
-    firstPlaceWallet: pool.battle?.firstEntryId
-      ? (podiumEntryMap.get(pool.battle.firstEntryId)?.userAddress ?? null)
-      : null,
-    secondPlaceWallet: pool.battle?.secondEntryId
-      ? (podiumEntryMap.get(pool.battle.secondEntryId)?.userAddress ?? null)
-      : null,
-    thirdPlaceWallet: pool.battle?.thirdEntryId
-      ? (podiumEntryMap.get(pool.battle.thirdEntryId)?.userAddress ?? null)
-      : null,
+    firstPlaceWallet: first?.userAddress ?? null,
+    secondPlaceWallet: second?.userAddress ?? null,
+    thirdPlaceWallet: third?.userAddress ?? null,
   };
 }
 
@@ -775,12 +591,19 @@ export async function getWarpoolBattleEligibility(
   poolId: string,
   walletAddress?: string | null
 ): Promise<WarpoolBattleEligibility | null> {
-  const battle = await getWarpoolBattleByPoolId(poolId);
-  if (!battle) return null;
+  await prismaReady;
 
-  const normalizedWallet = normalizeAddress(walletAddress);
+  const pool = await prisma.warpoolPool.findFirst({
+    where: { id: poolId },
+    include: {
+      battle: true,
+      entries: true,
+    },
+  });
 
-  if (!normalizedWallet) {
+  if (!pool) return null;
+
+  if (!walletAddress) {
     return {
       walletRequired: true,
       isParticipant: false,
@@ -792,20 +615,39 @@ export async function getWarpoolBattleEligibility(
     };
   }
 
-  const isParticipant = battle.entries.some(
-    (entry) => normalizeAddress(entry.wallet) === normalizedWallet
+  const participant = pool.entries.find(
+    (entry) => entry.userAddress.toLowerCase() === walletAddress.toLowerCase()
   );
 
+  if (!participant) {
+    return {
+      walletRequired: false,
+      isParticipant: false,
+      isWinner: false,
+      canConfirm: false,
+      canClaim: false,
+      claimableAt: null,
+      reason: "not_participant",
+    };
+  }
+
+  const settled =
+    pool.battle?.status === "SETTLED" ||
+    pool.state === "CLOSED" ||
+    pool.state === "SETTLED";
+
   const isWinner =
-    normalizeAddress(battle.firstPlaceWallet) === normalizedWallet;
+    participant.placement === 1 ||
+    participant.placement === 2 ||
+    participant.placement === 3;
 
   return {
-    walletRequired: true,
-    isParticipant,
+    walletRequired: false,
+    isParticipant: true,
     isWinner,
     canConfirm: false,
     canClaim: false,
-    claimableAt: null,
-    reason: isParticipant ? "ok" : "not_participant",
+    claimableAt: pool.settledAt?.toISOString() ?? null,
+    reason: settled ? "already_claimed" : "battle_not_settled",
   };
 }

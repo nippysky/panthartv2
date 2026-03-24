@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock3, Sparkles, Users2 } from "lucide-react";
 import type { WarpoolQueue } from "@/src/features/warpool/types";
 import {
   clampPercent,
   queueStatusTone,
 } from "@/src/features/warpool/lib/helpers";
+import LiveCountdown from "@/src/features/warpool/components/LiveCountdown";
 
 type Props = {
   queue: WarpoolQueue;
@@ -12,6 +13,9 @@ type Props = {
 
 export default function QueueCard({ queue }: Props) {
   const pct = clampPercent(queue.entrants, queue.maxEntrants);
+
+  const hasLivePool = !!queue.poolId && !!queue.poolIdOnChain;
+  const isClosed = queue.status === "Closed";
 
   return (
     <Link
@@ -35,14 +39,62 @@ export default function QueueCard({ queue }: Props) {
         </span>
       </div>
 
-      <p className="text-sm leading-6 text-foreground/62">{queue.highlight}</p>
+      <p className="text-sm leading-6 text-foreground/62">{queue.summary}</p>
 
-      <div className="mt-5 space-y-2">
-        <div className="flex items-center justify-between text-sm text-foreground/60">
-          <span>
-            {queue.entrants}/{queue.maxEntrants} filled
-          </span>
-          <span>ETA {queue.eta}</span>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-[22px] border border-border bg-background/80 p-4">
+          <div className="mb-2 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-foreground/42">
+            <Users2 className="h-3.5 w-3.5 text-accent" />
+            Pool fill
+          </div>
+          <div className="text-lg font-semibold">
+            {queue.entrants}/{queue.maxEntrants}
+          </div>
+          <div className="mt-1 text-xs text-foreground/50">
+            {hasLivePool && !isClosed
+              ? queue.remainingSpots > 0
+                ? `${queue.remainingSpots} spot${queue.remainingSpots === 1 ? "" : "s"} left`
+                : "Pool filled"
+              : "Waiting for next live pool"}
+          </div>
+        </div>
+
+        <div className="rounded-[22px] border border-border bg-background/80 p-4">
+          <div className="mb-2 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-foreground/42">
+            <Clock3 className="h-3.5 w-3.5 text-accent" />
+            Countdown
+          </div>
+
+          {hasLivePool && queue.expiresAt ? (
+            <LiveCountdown
+              target={queue.expiresAt}
+              label="Closes in"
+              expiredLabel="Processing expiry"
+            />
+          ) : (
+            <div className="text-sm text-foreground/55">Waiting for next pool</div>
+          )}
+        </div>
+
+        <div className="rounded-[22px] border border-border bg-background/80 p-4">
+          <div className="mb-2 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-foreground/42">
+            <Sparkles className="h-3.5 w-3.5 text-accent" />
+            Relics
+          </div>
+          <div className="text-sm text-foreground/75">
+            {queue.acceptsRelics
+              ? `Discount seats ${
+                  queue.discountSeatsRemaining ?? 0
+                } · Token 11 seats ${queue.token11SeatsRemaining ?? 0}`
+              : "Not used in this queue"}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <div className="mb-2 flex items-center justify-between text-sm text-foreground/60">
+          <span>Queue progress</span>
+          <span>{Math.round(pct)}%</span>
         </div>
 
         <div className="h-2 rounded-full bg-foreground/8">
@@ -54,7 +106,7 @@ export default function QueueCard({ queue }: Props) {
       </div>
 
       <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-foreground/78 transition group-hover:text-foreground">
-        Open queue
+        View queue
         <ArrowRight className="h-4 w-4" />
       </div>
     </Link>
