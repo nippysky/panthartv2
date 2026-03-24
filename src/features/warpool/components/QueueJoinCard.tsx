@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ethers } from "ethers";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
   Clock3,
   Lock,
+  Search,
   Shield,
   Sparkles,
   Swords,
@@ -56,6 +58,13 @@ type Props = {
 };
 
 type StepId = 0 | 1 | 2 | 3;
+
+type LockableAsset = WarpoolOwnedAsset & {
+  isLockedInWarpool?: boolean;
+  lockReason?: string | null;
+  lockPoolId?: string | null;
+  lockQueueTitle?: string | null;
+};
 
 const STEPS = [
   { id: 0, label: "Overview" },
@@ -140,21 +149,27 @@ function AssetCard({
   selected,
   onClick,
   accent,
+  disabled = false,
+  disabledLabel,
 }: {
-  asset: WarpoolOwnedAsset;
+  asset: LockableAsset;
   selected: boolean;
   onClick: () => void;
   accent?: "comrade" | "relic";
+  disabled?: boolean;
+  disabledLabel?: string;
 }) {
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
       className={[
         "group rounded-3xl border p-3 text-left transition",
         selected
           ? "border-accent bg-accent/8"
           : "border-border bg-card/80 hover:bg-card",
+        disabled ? "cursor-not-allowed opacity-55 hover:bg-card/80" : "",
       ].join(" ")}
     >
       <div className="relative mb-3 aspect-square overflow-hidden rounded-[22px] border border-border bg-background">
@@ -174,6 +189,12 @@ function AssetCard({
             )}
           </div>
         )}
+
+        {disabledLabel ? (
+          <div className="absolute left-2 top-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-medium text-amber-700 dark:text-amber-200">
+            {disabledLabel}
+          </div>
+        ) : null}
       </div>
 
       <div className="truncate text-sm font-medium text-foreground">
@@ -188,6 +209,10 @@ function AssetCard({
           Rarity {asset.rarityScore}
         </div>
       ) : null}
+
+      {disabledLabel ? (
+        <div className="mt-2 text-xs text-foreground/55">{disabledLabel}</div>
+      ) : null}
     </button>
   );
 }
@@ -197,6 +222,7 @@ export default function QueueJoinCard({
   eligibility,
   onRefresh,
 }: Props) {
+  const router = useRouter();
   const { isConnected, address } = useDecentWalletAccount();
 
   const [step, setStep] = useState<StepId>(0);
@@ -208,9 +234,9 @@ export default function QueueJoinCard({
   const [assetsLoading, setAssetsLoading] = useState(false);
 
   const [selectedComrade, setSelectedComrade] =
-    useState<WarpoolOwnedAsset | null>(null);
+    useState<LockableAsset | null>(null);
   const [selectedRelic, setSelectedRelic] =
-    useState<WarpoolOwnedAsset | null>(null);
+    useState<LockableAsset | null>(null);
 
   const [preview, setPreview] = useState<WarpoolLensPreviewPayload | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -222,8 +248,41 @@ export default function QueueJoinCard({
   const [modalStatus, setModalStatus] = useState("Starting...");
   const [modalTxHash, setModalTxHash] = useState<string | null>(null);
 
+  const [fighterSearch, setFighterSearch] = useState("");
+
+  const stepTopRef = useRef<HTMLDivElement | null>(null);
+  const redirectTimerRef = useRef<number | null>(null);
+
   const progress = clampPercent(queue.entrants, queue.maxEntrants);
   const hasLivePool = !!queue.poolId && !!queue.poolIdOnChain;
+
+  const scrollToStepTop = useCallback(() => {
+    const el = stepTopRef.current;
+    if (!el) return;
+
+    const top = el.getBoundingClientRect().top + window.scrollY - 104;
+
+    window.scrollTo({
+      top,
+      behavior: "smooth",
+    });
+  }, []);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      scrollToStepTop();
+    }, 40);
+
+    return () => window.clearTimeout(id);
+  }, [step, scrollToStepTop]);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
 
   const loadAssets = useCallback(async () => {
     if (!address) return;
@@ -235,19 +294,24 @@ export default function QueueJoinCard({
       setAssets(data);
 
       setSelectedComrade((current) => {
-        if (
-          current &&
-          data.comrades.some((item) => item.nftId === current.nftId)
-        ) {
-          return current;
-        }
-        return current ?? null;
+        if (!current) return null;
+        const next = data.comrades.find((item) => item.nftId === current.nftId) as
+          | LockableAsset
+          | undefined;
+
+        if (!next) return null;
+        if (next.isLockedInWarpool) return null;
+
+        return next;
       });
 
       setSelectedRelic((current) => {
         if (!current) return null;
-        const stillExists = data.relics.some((item) => item.nftId === current.nftId);
-        return stillExists ? current : null;
+        const next = data.relics.find((item) => item.nftId === current.nftId) as
+          | LockableAsset
+          | undefined;
+
+        return next ?? null;
       });
     } catch (err) {
       toast.error(
@@ -305,6 +369,19 @@ export default function QueueJoinCard({
 
     return () => window.clearTimeout(id);
   }, [address, selectedComrade, selectedRelic, queue.slug, hasLivePool]);
+
+  const filteredComrades = useMemo(() => {
+    const q = fighterSearch.trim().toLowerCase();
+    const comrades = assets.comrades as LockableAsset[];
+
+    if (!q) return comrades;
+
+    return comrades.filter((asset) => {
+      const name = (asset.name ?? "").toLowerCase();
+      const tokenId = asset.tokenId.toLowerCase();
+      return name.includes(q) || tokenId.includes(q);
+    });
+  }, [assets.comrades, fighterSearch]);
 
   const requiresReservation =
     !!selectedRelic &&
@@ -497,14 +574,16 @@ export default function QueueJoinCard({
       });
 
       setModalTxHash(enterResult.txHash);
-      setModalStatus("Entry confirmed on-chain. Refreshing queue state...");
+      setModalStatus("Entry confirmed on-chain. Returning to Warpool...");
 
       await refreshAfterWrite();
       await loadAssets();
-      await refreshPreview(
-        selectedComrade.tokenId,
-        selectedRelic?.tokenId ?? null
-      );
+
+      redirectTimerRef.current = window.setTimeout(() => {
+        setModalOpen(false);
+        router.push("/comrades-warpool");
+        router.refresh();
+      }, 1000);
 
       toast.success("Pool entry submitted successfully.");
     } catch (err) {
@@ -553,7 +632,10 @@ export default function QueueJoinCard({
 
   return (
     <>
-      <div className="rounded-[34px] border border-border bg-card/85 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)] sm:p-7">
+      <div
+        ref={stepTopRef}
+        className="rounded-[34px] border border-border bg-card/85 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)] sm:p-7"
+      >
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
@@ -745,10 +827,10 @@ export default function QueueJoinCard({
                         {eligibility?.isReservedByViewer
                           ? "Reserved"
                           : eligibility?.reason === "wallet_required"
-                            ? "Wallet required"
-                            : hasLivePool
-                              ? "Ready"
-                              : "No live pool"}
+                          ? "Wallet required"
+                          : hasLivePool
+                          ? "Ready"
+                          : "No live pool"}
                       </span>
                     </div>
                   </div>
@@ -784,6 +866,18 @@ export default function QueueJoinCard({
               ) : null}
             </div>
 
+            <div className="rounded-3xl border border-border bg-background/80 p-3">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
+                <input
+                  value={fighterSearch}
+                  onChange={(e) => setFighterSearch(e.target.value)}
+                  placeholder="Search fighters by name or token id..."
+                  className="h-11 w-full rounded-full border border-border bg-card pl-10 pr-4 text-sm text-foreground outline-none transition placeholder:text-foreground/35 focus:border-foreground/20"
+                />
+              </div>
+            </div>
+
             {!isConnected ? (
               <EmptyState
                 icon={<Wallet className="h-5 w-5" />}
@@ -800,17 +894,34 @@ export default function QueueJoinCard({
                 title="No fighters found"
                 body="This wallet does not currently own any indexed Comrades from the configured Warpool collection."
               />
+            ) : filteredComrades.length === 0 ? (
+              <EmptyState
+                icon={<Search className="h-5 w-5" />}
+                title="No fighters match your search"
+                body="Try a fighter name or token id."
+              />
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {assets.comrades.map((asset) => (
-                  <AssetCard
-                    key={asset.nftId}
-                    asset={asset}
-                    selected={selectedComrade?.nftId === asset.nftId}
-                    onClick={() => setSelectedComrade(asset)}
-                    accent="comrade"
-                  />
-                ))}
+                {filteredComrades.map((asset) => {
+                  const disabled = !!asset.isLockedInWarpool;
+                  const disabledLabel = disabled
+                    ? asset.lockQueueTitle
+                      ? `Already in pool · ${asset.lockQueueTitle}`
+                      : asset.lockReason || "Fighter already in pool"
+                    : undefined;
+
+                  return (
+                    <AssetCard
+                      key={asset.nftId}
+                      asset={asset}
+                      selected={selectedComrade?.nftId === asset.nftId}
+                      onClick={() => setSelectedComrade(asset)}
+                      accent="comrade"
+                      disabled={disabled}
+                      disabledLabel={disabledLabel}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
@@ -877,7 +988,7 @@ export default function QueueJoinCard({
                   />
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    {assets.relics.map((asset) => (
+                    {(assets.relics as LockableAsset[]).map((asset) => (
                       <AssetCard
                         key={asset.nftId}
                         asset={asset}
@@ -931,8 +1042,8 @@ export default function QueueJoinCard({
                         {selectedRelic
                           ? selectedRelic.name ?? `Relic #${selectedRelic.tokenId}`
                           : queue.acceptsRelics
-                            ? "No relic"
-                            : "Not used in this queue"}
+                          ? "No relic"
+                          : "Not used in this queue"}
                       </div>
                     </div>
                   </div>
@@ -978,8 +1089,8 @@ export default function QueueJoinCard({
                                   ? "Allowed"
                                   : preview.reserveReason || "Unavailable"
                                 : selectedRelic?.tokenId === "11"
-                                  ? "Not required"
-                                  : "No relic selected"}
+                                ? "Not required"
+                                : "No relic selected"}
                             </span>
                           </div>
 
@@ -1065,8 +1176,8 @@ export default function QueueJoinCard({
                       {requiresReservation
                         ? actionSummary.reserveText
                         : selectedRelic?.tokenId === "11"
-                          ? "Token 11 uses the dedicated god seat and enters without the discount reservation flow."
-                          : "No relic reservation needed for this entry path."}
+                        ? "Token 11 uses the dedicated god seat and enters without the discount reservation flow."
+                        : "No relic reservation needed for this entry path."}
                     </div>
                   </div>
 
@@ -1124,8 +1235,8 @@ export default function QueueJoinCard({
               {step === 0
                 ? "Next: select fighter"
                 : step === 1
-                  ? "Next: select relic"
-                  : "Next: review and enter"}
+                ? "Next: select relic"
+                : "Next: review and enter"}
               <ArrowRight className="h-4 w-4" />
             </button>
           ) : (

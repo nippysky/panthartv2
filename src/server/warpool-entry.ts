@@ -74,6 +74,15 @@ function normalizeReason(reason: string | null | undefined) {
   return value;
 }
 
+function queueTitleFromSlug(slug?: string | null) {
+  if (!slug) return "Warpool";
+  return slug
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export async function listOwnedWarpoolAssets(
   walletAddress: string
 ): Promise<WarpoolQueueAssetsPayload> {
@@ -108,14 +117,75 @@ export async function listOwnedWarpoolAssets(
     },
   });
 
-  const mapAsset = (nft: any): WarpoolOwnedAsset => ({
-    nftId: String(nft.id),
-    contract: String(nft.contract),
-    tokenId: String(nft.tokenId),
-    name: nft.name ?? null,
-    imageUrl: nft.imageUrl ?? null,
-    rarityScore: nft.rarityScore ? String(nft.rarityScore) : null,
-  });
+  const comradeNftIds = nfts
+    .filter((nft) => nft.contract.toLowerCase() === comradesCollection.toLowerCase())
+    .map((nft) => nft.id);
+
+  const activeLocks = comradeNftIds.length
+    ? await prisma.warpoolEntry.findMany({
+        where: {
+          nftId: { in: comradeNftIds },
+          status: { in: ["JOINED", "SELECTED"] as any[] },
+          pool: {
+            state: { in: ["OPEN", "LOCKED", "BATTLE_READY", "SETTLING"] as any[] },
+          },
+        },
+        select: {
+          nftId: true,
+          poolId: true,
+          pool: {
+            select: {
+              id: true,
+              queueSlug: true,
+              state: true,
+            },
+          },
+        },
+      })
+    : [];
+
+  const lockMap = new Map<
+    string,
+    {
+      isLockedInWarpool: boolean;
+      lockReason: string;
+      lockPoolId: string | null;
+      lockQueueTitle: string | null;
+    }
+  >();
+
+  for (const lock of activeLocks) {
+    if (!lock.nftId) continue;
+
+    lockMap.set(lock.nftId, {
+      isLockedInWarpool: true,
+      lockReason: "Fighter already in pool",
+      lockPoolId: lock.pool?.id ? String(lock.pool.id) : null,
+      lockQueueTitle: queueTitleFromSlug(lock.pool?.queueSlug),
+    });
+  }
+
+  const mapAsset = (nft: any): WarpoolOwnedAsset & {
+    isLockedInWarpool?: boolean;
+    lockReason?: string | null;
+    lockPoolId?: string | null;
+    lockQueueTitle?: string | null;
+  } => {
+    const lock = lockMap.get(String(nft.id));
+
+    return {
+      nftId: String(nft.id),
+      contract: String(nft.contract),
+      tokenId: String(nft.tokenId),
+      name: nft.name ?? null,
+      imageUrl: nft.imageUrl ?? null,
+      rarityScore: nft.rarityScore ? String(nft.rarityScore) : null,
+      isLockedInWarpool: lock?.isLockedInWarpool ?? false,
+      lockReason: lock?.lockReason ?? null,
+      lockPoolId: lock?.lockPoolId ?? null,
+      lockQueueTitle: lock?.lockQueueTitle ?? null,
+    };
+  };
 
   const comrades = nfts
     .filter((nft) => nft.contract.toLowerCase() === comradesCollection.toLowerCase())
