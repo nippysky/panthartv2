@@ -121,6 +121,10 @@ function formatWhen(value?: Date | null) {
   }).format(value);
 }
 
+function toIso(value?: Date | null) {
+  return value ? value.toISOString() : null;
+}
+
 function isExpiredOpenPool(pool: any) {
   if (!pool) return false;
   if (pool.state !== "OPEN") return false;
@@ -412,11 +416,19 @@ export async function listWarpoolRecentWinners(): Promise<WarpoolRecentWinner[]>
   const battles = await prisma.warpoolBattle.findMany({
     where: { status: "SETTLED" },
     orderBy: [{ settledAt: "desc" }, { updatedAt: "desc" }],
-    take: 4,
+    take: 12,
     include: {
       pool: {
         include: {
-          entries: true,
+          entries: {
+            include: {
+              user: {
+                select: {
+                  username: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -426,12 +438,16 @@ export async function listWarpoolRecentWinners(): Promise<WarpoolRecentWinner[]>
     const winner = battle.pool.entries.find((entry) => entry.placement === 1);
     const queueMeta = pickQueueMeta(String(battle.pool.queueSlug ?? ""));
 
+    const winnerLabel = winner?.user?.username
+      ? `${winner.user.username}`
+      : winner?.userAddress
+        ? `${winner.userAddress.slice(0, 6)}…${winner.userAddress.slice(-4)}`
+        : "Unknown";
+
     return {
       id: String(battle.pool.id),
       label: queueMeta.title,
-      winner: winner?.userAddress
-        ? `${winner.userAddress.slice(0, 6)}…${winner.userAddress.slice(-4)}`
-        : "Unknown",
+      winner: winnerLabel,
       prize: formatDcnt(winner?.prizeAmountRaw ?? battle.prizePoolRaw ?? 0),
       time: formatWhen(battle.settledAt ?? battle.pool.settledAt ?? battle.updatedAt),
       settledAt:
@@ -451,7 +467,15 @@ export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
     include: {
       pool: {
         include: {
-          entries: true,
+          entries: {
+            include: {
+              user: {
+                select: {
+                  username: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -461,12 +485,16 @@ export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
     const winner = battle.pool.entries.find((entry) => entry.placement === 1);
     const queueMeta = pickQueueMeta(String(battle.pool.queueSlug ?? ""));
 
+    const winnerLabel = winner?.user?.username
+      ? `${winner.user.username}`
+      : winner?.userAddress
+        ? `${winner.userAddress.slice(0, 6)}…${winner.userAddress.slice(-4)}`
+        : "Unknown";
+
     return {
       id: String(battle.pool.id),
       queue: queueMeta.title,
-      winner: winner?.userAddress
-        ? `${winner.userAddress.slice(0, 6)}…${winner.userAddress.slice(-4)}`
-        : "Unknown",
+      winner: winnerLabel,
       prize: formatDcnt(winner?.prizeAmountRaw ?? battle.prizePoolRaw ?? 0),
       status: "Settled",
       time: formatWhen(battle.settledAt ?? battle.pool.settledAt ?? battle.updatedAt),
@@ -477,6 +505,7 @@ export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
     };
   });
 }
+
 
 function timelineLabel(activity: any) {
   switch (activity.type) {
@@ -507,6 +536,14 @@ function timelineLabel(activity: any) {
   }
 }
 
+function stageLabel(value: unknown) {
+  const stage = String(value ?? "bracket");
+  if (stage === "final") return "Final";
+  if (stage === "semifinal") return "Semifinal";
+  if (stage === "third_place") return "Third Place";
+  return "Bracket";
+}
+
 export async function getWarpoolBattleByPoolId(
   poolId: string
 ): Promise<WarpoolBattle | null> {
@@ -517,12 +554,19 @@ export async function getWarpoolBattleByPoolId(
     include: {
       battle: {
         include: {
-          matches: true,
+          matches: {
+            orderBy: [{ roundNumber: "asc" }, { matchNumber: "asc" }],
+          },
         },
       },
       entries: {
         include: {
           nft: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
         },
         orderBy: [{ placement: "asc" }, { joinedAt: "asc" }],
       },
@@ -542,6 +586,7 @@ export async function getWarpoolBattleByPoolId(
     id: String(entry.id),
     entryIdOnChain: String(entry.entryIdOnChain),
     wallet: entry.userAddress,
+    username: entry.user?.username ?? null,
     comradeTokenId: String(entry.comradeTokenId),
     comradeImageUrl: entry.nft?.imageUrl ?? null,
     comradeName: entry.nft?.name ?? `Comrade #${entry.comradeTokenId}`,
@@ -570,6 +615,52 @@ export async function getWarpoolBattleByPoolId(
         ? `${battle.matches.length} matches`
         : "Battle flow";
 
+  const matches =
+    battle?.matches.map((match) => {
+      const raw =
+        match.rawResult && typeof match.rawResult === "object"
+          ? (match.rawResult as Record<string, any>)
+          : {};
+
+      return {
+        id: String(match.id),
+        roundNumber: match.roundNumber,
+        matchNumber: match.matchNumber,
+        status: String(match.status),
+        stage: stageLabel(raw.stage),
+        slotAEntryId: match.slotAEntryId ? String(match.slotAEntryId) : null,
+        slotBEntryId: match.slotBEntryId ? String(match.slotBEntryId) : null,
+        winnerEntryId: match.winnerEntryId ? String(match.winnerEntryId) : null,
+        loserEntryId: match.loserEntryId ? String(match.loserEntryId) : null,
+        rounds: Array.isArray(raw.rounds)
+          ? raw.rounds.map((roundItem: any) => ({
+              round: Number(roundItem.round ?? 0),
+              aScore: Number(roundItem.aScore ?? 0),
+              bScore: Number(roundItem.bScore ?? 0),
+              winner: String(roundItem.winner ?? ""),
+              suddenDeath: Boolean(roundItem.suddenDeath ?? false),
+            }))
+          : [],
+        summary:
+          raw.summary && typeof raw.summary === "object"
+            ? {
+                aWins:
+                  raw.summary.aWins != null ? Number(raw.summary.aWins) : undefined,
+                bWins:
+                  raw.summary.bWins != null ? Number(raw.summary.bWins) : undefined,
+                winnerId:
+                  raw.summary.winnerId != null
+                    ? String(raw.summary.winnerId)
+                    : undefined,
+                loserId:
+                  raw.summary.loserId != null
+                    ? String(raw.summary.loserId)
+                    : undefined,
+              }
+            : null,
+      };
+    }) ?? [];
+
   return {
     poolId: String(pool.id),
     queue: queueMeta.title,
@@ -581,9 +672,20 @@ export async function getWarpoolBattleByPoolId(
     arena: `${pool.entrantCount}/${pool.targetSize} fighters entered`,
     entries,
     timeline,
-    firstPlaceWallet: first?.userAddress ?? null,
-    secondPlaceWallet: second?.userAddress ?? null,
-    thirdPlaceWallet: third?.userAddress ?? null,
+    matches,
+    placements: {
+      firstEntryId: first?.id ? String(first.id) : null,
+      secondEntryId: second?.id ? String(second.id) : null,
+      thirdEntryId: third?.id ? String(third.id) : null,
+      firstPlaceWallet: first?.userAddress ?? null,
+      secondPlaceWallet: second?.userAddress ?? null,
+      thirdPlaceWallet: third?.userAddress ?? null,
+      firstPlaceUsername: first?.user?.username ?? null,
+      secondPlaceUsername: second?.user?.username ?? null,
+      thirdPlaceUsername: third?.user?.username ?? null,
+    },
+    computedAt: toIso(battle?.computedAt),
+    settledAt: toIso(battle?.settledAt ?? pool.settledAt),
   };
 }
 

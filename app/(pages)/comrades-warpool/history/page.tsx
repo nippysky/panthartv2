@@ -1,13 +1,25 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CalendarRange, Trophy } from "lucide-react";
 import AsyncState from "@/src/features/warpool/components/AsyncState";
 import SectionBadge from "@/src/features/warpool/components/SectionBadge";
 import { useWarpoolHistory } from "@/src/features/warpool/hook/useWarpoolHistory";
 
+const INITIAL_VISIBLE = 12;
+const LOAD_MORE_STEP = 12;
+
 export default function WarpoolHistoryPage() {
   const { items, isLoading, isRefreshing, error, refetch } = useWarpoolHistory();
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+
+  const visibleItems = useMemo(
+    () => items.slice(0, visibleCount),
+    [items, visibleCount]
+  );
+
+  const hasMore = visibleCount < items.length;
 
   if (isLoading) {
     return (
@@ -72,9 +84,9 @@ export default function WarpoolHistoryPage() {
               <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
                 Visible records
               </div>
-              <div className="mt-1 text-xl font-semibold">{items.length}</div>
+              <div className="mt-1 text-xl font-semibold">{visibleItems.length}</div>
               <div className="mt-1 text-xs text-foreground/45">
-                {isRefreshing ? "Refreshing..." : "Live data ready"}
+                {isRefreshing ? "Refreshing..." : `${items.length} total indexed`}
               </div>
             </div>
           </div>
@@ -82,60 +94,87 @@ export default function WarpoolHistoryPage() {
           {items.length === 0 ? (
             <AsyncState title="No history yet" body="No resolved pools found." />
           ) : (
-            <div className="grid gap-4">
-              {items.map((row) => (
-                <Link
-                  key={row.id}
-                  href={`/comrades-warpool/battle/${row.id}`}
-                  className="group rounded-[28px] border border-border bg-background/80 p-5 transition hover:bg-card"
-                >
-                  <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_auto] lg:items-center">
-                    <div>
-                      <div className="text-lg font-medium">Pool #{row.id}</div>
-                      <div className="mt-1 text-sm text-foreground/55">
-                        {row.queue}
+            <>
+              <div className="grid gap-4">
+                {visibleItems.map((row) => (
+                  <Link
+                    key={row.id}
+                    href={`/comrades-warpool/battle/${row.id}`}
+                    className="group rounded-[28px] border border-border bg-background/80 p-5 transition hover:bg-card"
+                  >
+                    <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_auto] lg:items-center">
+                      <div className="min-w-0">
+                        <div className="truncate text-lg font-medium">Pool #{row.id}</div>
+                        <div className="mt-1 truncate text-sm text-foreground/55">
+                          {row.queue}
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                        Winner
-                      </div>
-                      <div className="mt-2 text-sm text-foreground">
-                        {row.winner}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-card text-accent">
-                        <Trophy className="h-4.5 w-4.5" />
-                      </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                          Prize
+                          Winner
                         </div>
-                        <div className="mt-2 text-sm text-foreground">
-                          {row.prize}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4 lg:justify-end">
-                      <div className="text-right">
-                        <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-700 dark:text-emerald-200">
-                          {row.status}
-                        </div>
-                        <div className="mt-2 text-xs text-foreground/45">
-                          {row.time}
+                        <div className="mt-2 truncate text-sm text-foreground">
+                          {row.winner}
                         </div>
                       </div>
 
-                      <ArrowRight className="h-4 w-4 text-foreground/45 transition group-hover:text-foreground" />
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-card text-accent">
+                          <Trophy className="h-4.5 w-4.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
+                            Prize
+                          </div>
+                          <div className="mt-2 truncate text-sm text-foreground">
+                            {row.prize}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-4 lg:justify-end">
+                        <div className="text-right">
+                          <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-700 dark:text-emerald-200">
+                            {row.status}
+                          </div>
+                          <div className="mt-2 text-xs text-foreground/45">
+                            {row.time}
+                          </div>
+                        </div>
+
+                        <ArrowRight className="h-4 w-4 text-foreground/45 transition group-hover:text-foreground" />
+                      </div>
                     </div>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+                <div className="text-sm text-foreground/52">
+                  Showing {visibleItems.length} of {items.length} battles
+                </div>
+
+                {hasMore ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibleCount((current) =>
+                        Math.min(current + LOAD_MORE_STEP, items.length)
+                      )
+                    }
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-background"
+                  >
+                    Load more
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <div className="inline-flex items-center rounded-full border border-border bg-background px-4 py-2 text-xs text-foreground/50">
+                    All battles loaded
                   </div>
-                </Link>
-              ))}
-            </div>
+                )}
+              </div>
+            </>
           )}
         </section>
       </div>

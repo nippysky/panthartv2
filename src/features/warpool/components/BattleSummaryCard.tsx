@@ -1,4 +1,6 @@
-import { Crown, Shield } from "lucide-react";
+"use client";
+
+import { Crown, Trophy } from "lucide-react";
 import type { WarpoolBattle } from "@/src/features/warpool/types";
 import { shortAddress } from "@/src/features/warpool/lib/helpers";
 
@@ -6,41 +8,75 @@ type Props = {
   battle: WarpoolBattle;
 };
 
+function displayName(username: string | null, wallet: string | null) {
+  if (username) return username;
+  if (wallet) return shortAddress(wallet);
+  return "—";
+}
+
 export default function BattleSummaryCard({ battle }: Props) {
+  const first = displayName(
+    battle.placements.firstPlaceUsername,
+    battle.placements.firstPlaceWallet
+  );
+
+  const second = displayName(
+    battle.placements.secondPlaceUsername,
+    battle.placements.secondPlaceWallet
+  );
+
+  const third = displayName(
+    battle.placements.thirdPlaceUsername,
+    battle.placements.thirdPlaceWallet
+  );
+
   return (
-    <div className="rounded-[30px] border border-border bg-background/80 p-5">
-      <div className="mb-4 flex items-center gap-2 text-sm text-foreground/70">
-        <Shield className="h-4 w-4 text-accent" />
+    <div className="rounded-[28px] border border-border bg-background/80 p-5">
+      <div className="mb-4 flex items-center gap-2 text-sm font-medium text-foreground">
+        <Crown className="h-4 w-4 text-accent" />
         Pool facts
       </div>
 
-      <div className="space-y-3 text-sm text-foreground/60">
-        <div className="flex items-center justify-between">
+      <div className="space-y-3 text-sm text-foreground/62">
+        <div className="flex items-center justify-between gap-4">
           <span>Queue</span>
-          <span className="text-foreground">{battle.queue}</span>
+          <span className="text-right font-medium text-foreground">{battle.queue}</span>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <span>Status</span>
-          <span className="text-foreground">{battle.state}</span>
+          <span className="text-right font-medium text-foreground">{battle.state}</span>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <span>Prize pool</span>
-          <span className="text-foreground">{battle.prizePool}</span>
+          <span className="text-right font-medium text-foreground">
+            {battle.prizePool}
+          </span>
         </div>
       </div>
 
-      <div className="mt-4 rounded-[22px] border border-border bg-card p-4 text-xs leading-6 text-foreground/55">
-        <div className="mb-2 inline-flex items-center gap-2 text-foreground/70">
-          <Crown className="h-3.5 w-3.5 text-accent" />
+      <div className="mt-5 rounded-3xl border border-border bg-card p-4">
+        <div className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-foreground">
+          <Trophy className="h-4 w-4 text-accent" />
           Podium
         </div>
 
-        <div className="space-y-2">
-          <div>1st: {battle.firstPlaceWallet ? shortAddress(battle.firstPlaceWallet) : "—"}</div>
-          <div>2nd: {battle.secondPlaceWallet ? shortAddress(battle.secondPlaceWallet) : "—"}</div>
-          <div>3rd: {battle.thirdPlaceWallet ? shortAddress(battle.thirdPlaceWallet) : "—"}</div>
+        <div className="space-y-3 text-sm">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-foreground/55">1st</span>
+            <span className="truncate font-medium text-foreground">{first}</span>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-foreground/55">2nd</span>
+            <span className="truncate font-medium text-foreground">{second}</span>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-foreground/55">3rd</span>
+            <span className="truncate font-medium text-foreground">{third}</span>
+          </div>
         </div>
       </div>
     </div>

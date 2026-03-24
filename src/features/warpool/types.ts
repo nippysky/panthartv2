@@ -69,6 +69,7 @@ export type WarpoolBattleEntry = {
   id: string;
   entryIdOnChain: string;
   wallet: string;
+  username: string | null;
   comradeTokenId: string;
   comradeImageUrl: string | null;
   comradeName: string | null;
@@ -86,6 +87,45 @@ export type WarpoolTimelineItem = {
   time: string;
 };
 
+export type WarpoolBattleRoundResult = {
+  round: number;
+  aScore: number;
+  bScore: number;
+  winner: string;
+  suddenDeath?: boolean;
+};
+
+export type WarpoolBattleMatch = {
+  id: string;
+  roundNumber: number;
+  matchNumber: number;
+  status: string;
+  stage: string;
+  slotAEntryId: string | null;
+  slotBEntryId: string | null;
+  winnerEntryId: string | null;
+  loserEntryId: string | null;
+  rounds: WarpoolBattleRoundResult[];
+  summary: {
+    aWins?: number;
+    bWins?: number;
+    winnerId?: string;
+    loserId?: string;
+  } | null;
+};
+
+export type WarpoolBattlePlacements = {
+  firstEntryId: string | null;
+  secondEntryId: string | null;
+  thirdEntryId: string | null;
+  firstPlaceWallet: string | null;
+  secondPlaceWallet: string | null;
+  thirdPlaceWallet: string | null;
+  firstPlaceUsername: string | null;
+  secondPlaceUsername: string | null;
+  thirdPlaceUsername: string | null;
+};
+
 export type WarpoolBattle = {
   poolId: string;
   queue: string;
@@ -97,9 +137,10 @@ export type WarpoolBattle = {
   arena: string;
   entries: WarpoolBattleEntry[];
   timeline: WarpoolTimelineItem[];
-  firstPlaceWallet: string | null;
-  secondPlaceWallet: string | null;
-  thirdPlaceWallet: string | null;
+  matches: WarpoolBattleMatch[];
+  placements: WarpoolBattlePlacements;
+  computedAt: string | null;
+  settledAt: string | null;
 };
 
 export type WarpoolQueueEligibility = {

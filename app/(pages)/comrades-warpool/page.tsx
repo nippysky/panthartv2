@@ -20,6 +20,8 @@ import SectionBadge from "@/src/features/warpool/components/SectionBadge";
 import { shortAddress } from "@/src/features/warpool/lib/helpers";
 import { useWarpoolQueues } from "@/src/features/warpool/hook/useWarpoolQueues";
 
+const RECENT_WINNERS_LIMIT = 5;
+
 export default function ComradesWarpoolPage() {
   const { address, isConnected } = useDecentWalletAccount();
 
@@ -32,6 +34,9 @@ export default function ComradesWarpoolPage() {
     error,
     refetch,
   } = useWarpoolQueues();
+
+  const visibleRecentWinners = recentWinners.slice(0, RECENT_WINNERS_LIMIT);
+  const hasMoreHistory = recentWinners.length > RECENT_WINNERS_LIMIT;
 
   if (isLoading) {
     return (
@@ -151,27 +156,27 @@ export default function ComradesWarpoolPage() {
               </div>
 
               <div className="space-y-3">
-                {recentWinners.length === 0 ? (
+                {visibleRecentWinners.length === 0 ? (
                   <div className="rounded-3xl border border-border bg-background/80 p-4 text-sm text-foreground/60">
                     No settled pools yet.
                   </div>
                 ) : (
-                  recentWinners.map((battle) => (
+                  visibleRecentWinners.map((battle) => (
                     <div
                       key={battle.id}
                       className="rounded-3xl border border-border bg-background/80 p-4"
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-foreground/92">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-foreground/92">
                             {battle.label}
                           </p>
-                          <p className="mt-1 text-sm text-foreground/55">
+                          <p className="mt-1 truncate text-sm text-foreground/55">
                             Winner {battle.winner}
                           </p>
                         </div>
 
-                        <div className="text-right">
+                        <div className="shrink-0 text-right">
                           <p className="text-sm font-semibold text-foreground">
                             {battle.prize}
                           </p>
@@ -189,13 +194,21 @@ export default function ComradesWarpoolPage() {
                 {isRefreshing ? "Refreshing live data..." : "Live data ready"}
               </div>
 
-              <Link
-                href="/comrades-warpool/history"
-                className="mt-4 inline-flex items-center gap-2 text-sm text-foreground/70 transition hover:text-foreground"
-              >
-                Full history
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link
+                  href="/comrades-warpool/history"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground/76 transition hover:bg-card"
+                >
+                  View all history
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+
+                {hasMoreHistory ? (
+                  <div className="inline-flex items-center rounded-full border border-border bg-card px-3 py-2 text-xs text-foreground/50">
+                    Showing {visibleRecentWinners.length} of {recentWinners.length}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>

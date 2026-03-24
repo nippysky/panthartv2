@@ -492,7 +492,7 @@ export default function QueueJoinCard({
     try {
       setBusy(true);
       setModalOpen(true);
-      setModalTitle("Entering live pool");
+      setModalTitle("Entering Battlefield");
       setModalTxHash(null);
       setModalStatus("Connecting wallet...");
 
@@ -901,7 +901,7 @@ export default function QueueJoinCard({
                 body="Try a fighter name or token id."
               />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
                 {filteredComrades.map((asset) => {
                   const disabled = !!asset.isLockedInWarpool;
                   const disabledLabel = disabled
