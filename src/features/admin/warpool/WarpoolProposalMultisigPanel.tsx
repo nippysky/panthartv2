@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Gem, Swords, TimerReset } from "lucide-react";
 
 import {
   confirmMultisigAction,
@@ -77,7 +78,7 @@ function StatusPill({
   tone = "default",
 }: {
   label: string;
-  tone?: "default" | "good" | "warn" | "info";
+  tone?: "default" | "good" | "warn" | "info" | "battle" | "relic" | "fatigue";
 }) {
   const className =
     tone === "good"
@@ -86,13 +87,19 @@ function StatusPill({
         ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
         : tone === "info"
           ? "border-sky-500/20 bg-sky-500/10 text-sky-600 dark:text-sky-400"
-          : "border-border bg-card text-muted";
+          : tone === "battle"
+            ? "border-accent/20 bg-accent/10 text-accent"
+            : tone === "relic"
+              ? "border-fuchsia-500/20 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400"
+              : tone === "fatigue"
+                ? "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                : "border-border bg-card text-muted";
 
   return (
     <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${className}`}
+      className={`inline-flex max-w-full rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${className}`}
     >
-      {label}
+      <span className="truncate">{label}</span>
     </span>
   );
 }
@@ -124,6 +131,25 @@ function ActionButton({
     >
       {loading ? "Working..." : label}
     </button>
+  );
+}
+
+function PreviewMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="min-w-23 flex-1 rounded-2xl border border-border bg-background px-3 py-3 sm:min-w-25 sm:flex-none">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+        {label}
+      </div>
+      <div className="mt-2 wrap-break-word text-sm font-semibold text-foreground">
+        {value}
+      </div>
+    </div>
   );
 }
 
@@ -192,6 +218,102 @@ function proposalAllowsMoreSubmission(
   status: Props["proposalStatus"]
 ) {
   return status === "READY" || status === "SUBMITTED" || status === "APPROVED";
+}
+
+function actionTone(functionName: string | null | undefined) {
+  if (functionName === "setBattleConfig") return "battle";
+  if (functionName === "setRelicConfig") return "relic";
+  if (functionName === "setFatigueConfig") return "fatigue";
+  if (
+    functionName === "setQueueConfig" ||
+    functionName === "setGlobalFlags" ||
+    functionName === "setPauseFlags" ||
+    functionName === "setTreasury" ||
+    functionName === "setWorkerOperator"
+  ) {
+    return "info";
+  }
+  return "default";
+}
+
+function actionLabel(functionName: string | null | undefined) {
+  if (functionName === "setBattleConfig") return "Battle Config";
+  if (functionName === "setRelicConfig") return "Relic Config";
+  if (functionName === "setFatigueConfig") return "Fatigue Config";
+  if (functionName === "setQueueConfig") return "Queue Config";
+  if (
+    functionName === "setGlobalFlags" ||
+    functionName === "setPauseFlags" ||
+    functionName === "setTreasury" ||
+    functionName === "setWorkerOperator"
+  ) {
+    return "Config";
+  }
+  return null;
+}
+
+function battleArgsPreview(argsJson: unknown) {
+  if (!argsJson) return null;
+
+  if (Array.isArray(argsJson) && argsJson.length > 0 && isPlainObject(argsJson[0])) {
+    const first = argsJson[0];
+    return {
+      roundsPerMatch:
+        typeof first.roundsPerMatch === "number" ? first.roundsPerMatch : null,
+      traitPowerMin:
+        typeof first.traitPowerMin === "number" ? first.traitPowerMin : null,
+      traitPowerMax:
+        typeof first.traitPowerMax === "number" ? first.traitPowerMax : null,
+      roundVarianceMax:
+        typeof first.roundVarianceMax === "number" ? first.roundVarianceMax : null,
+      microMomentumMax:
+        typeof first.microMomentumMax === "number" ? first.microMomentumMax : null,
+    };
+  }
+
+  return null;
+}
+
+function relicArgsPreview(argsJson: unknown) {
+  if (!argsJson) return null;
+
+  if (Array.isArray(argsJson) && argsJson.length > 0 && isPlainObject(argsJson[0])) {
+    const first = argsJson[0];
+    return {
+      minDiscountBps:
+        typeof first.minDiscountBps === "number" ? first.minDiscountBps : null,
+      maxDiscountBps:
+        typeof first.maxDiscountBps === "number" ? first.maxDiscountBps : null,
+      discountSeatCap:
+        typeof first.discountSeatCap === "number" ? first.discountSeatCap : null,
+      token11SeatCap:
+        typeof first.token11SeatCap === "number" ? first.token11SeatCap : null,
+      reservationTtlSeconds:
+        typeof first.reservationTtlSeconds === "number"
+          ? first.reservationTtlSeconds
+          : null,
+    };
+  }
+
+  return null;
+}
+
+function fatigueArgsPreview(argsJson: unknown) {
+  if (!argsJson) return null;
+
+  if (Array.isArray(argsJson) && argsJson.length > 0 && isPlainObject(argsJson[0])) {
+    const first = argsJson[0];
+    return {
+      maxConsecutiveEntries:
+        typeof first.maxConsecutiveEntries === "number"
+          ? first.maxConsecutiveEntries
+          : null,
+      cooldownSeconds:
+        typeof first.cooldownSeconds === "number" ? first.cooldownSeconds : null,
+    };
+  }
+
+  return null;
 }
 
 export default function WarpoolProposalMultisigPanel({
@@ -306,10 +428,12 @@ export default function WarpoolProposalMultisigPanel({
               <span className="font-medium text-foreground">{shortenAddress(address)}</span>
             </div>
             <div className="text-sm text-muted">
-              Safe: <span className="font-medium text-foreground">{safeAddress}</span>
+              Safe:{" "}
+              <span className="break-all font-medium text-foreground">{safeAddress}</span>
             </div>
             <div className="text-sm text-muted">
-              Threshold: <span className="font-medium text-foreground">{safeThreshold ?? "—"}</span>
+              Threshold:{" "}
+              <span className="font-medium text-foreground">{safeThreshold ?? "—"}</span>
             </div>
             <div className="text-sm text-muted">
               Wallet access:{" "}
@@ -323,7 +447,9 @@ export default function WarpoolProposalMultisigPanel({
             </div>
             <div className="text-sm text-muted">
               First linked tx id:{" "}
-              <span className="font-medium text-foreground">{submittedMultisigTxId ?? "—"}</span>
+              <span className="break-all font-medium text-foreground">
+                {submittedMultisigTxId ?? "—"}
+              </span>
             </div>
             <div className="text-sm text-muted">
               First linked nonce:{" "}
@@ -344,7 +470,9 @@ export default function WarpoolProposalMultisigPanel({
                 : "border-border bg-background/70 text-foreground",
           ].join(" ")}
         >
-          {state.message}
+          <div className="whitespace-pre-wrap break-all leading-6">
+            {state.message}
+          </div>
         </div>
       ) : null}
 
@@ -355,6 +483,20 @@ export default function WarpoolProposalMultisigPanel({
 
           const lifecycle = deriveLifecycle(action, link);
           const txIndexPresent = hasTxIndex(link);
+          const tag = actionLabel(action.functionName);
+          const tone = actionTone(action.functionName);
+          const battlePreview =
+            action.functionName === "setBattleConfig"
+              ? battleArgsPreview(action.argsJson)
+              : null;
+          const relicPreview =
+            action.functionName === "setRelicConfig"
+              ? relicArgsPreview(action.argsJson)
+              : null;
+          const fatiguePreview =
+            action.functionName === "setFatigueConfig"
+              ? fatigueArgsPreview(action.argsJson)
+              : null;
 
           const canSubmit =
             !!safeAddress &&
@@ -384,10 +526,19 @@ export default function WarpoolProposalMultisigPanel({
           return (
             <div key={action.id} className="rounded-3xl border border-border bg-background/60 p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-foreground">
-                    #{action.orderIndex + 1} {action.label || action.functionName || "Stored action"}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="text-sm font-semibold text-foreground">
+                      #{action.orderIndex + 1} {action.label || action.functionName || "Stored action"}
+                    </div>
+                    {tag ? (
+                      <StatusPill
+                        label={tag}
+                        tone={tone as "default" | "good" | "warn" | "info" | "battle" | "relic" | "fatigue"}
+                      />
+                    ) : null}
                   </div>
+
                   {action.summary ? (
                     <p className="mt-1 text-sm leading-6 text-muted">{action.summary}</p>
                   ) : null}
@@ -412,9 +563,67 @@ export default function WarpoolProposalMultisigPanel({
                 </div>
               </div>
 
+              {battlePreview ? (
+                <div className="mt-4 rounded-3xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Swords className="h-4 w-4 text-accent" />
+                    Battle config payload
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <PreviewMetric label="Rounds" value={battlePreview.roundsPerMatch ?? "—"} />
+                    <PreviewMetric label="Trait Min" value={battlePreview.traitPowerMin ?? "—"} />
+                    <PreviewMetric label="Trait Max" value={battlePreview.traitPowerMax ?? "—"} />
+                    <PreviewMetric label="Variance" value={battlePreview.roundVarianceMax ?? "—"} />
+                    <PreviewMetric label="Momentum" value={battlePreview.microMomentumMax ?? "—"} />
+                  </div>
+                </div>
+              ) : null}
+
+              {relicPreview ? (
+                <div className="mt-4 rounded-3xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Gem className="h-4 w-4 text-fuchsia-500" />
+                    Relic config payload
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <PreviewMetric label="Min BPS" value={relicPreview.minDiscountBps ?? "—"} />
+                    <PreviewMetric label="Max BPS" value={relicPreview.maxDiscountBps ?? "—"} />
+                    <PreviewMetric label="Discount Seats" value={relicPreview.discountSeatCap ?? "—"} />
+                    <PreviewMetric label="Token11 Seats" value={relicPreview.token11SeatCap ?? "—"} />
+                    <PreviewMetric
+                      label="TTL"
+                      value={`${relicPreview.reservationTtlSeconds ?? "—"}s`}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {fatiguePreview ? (
+                <div className="mt-4 rounded-3xl border border-border bg-card p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <TimerReset className="h-4 w-4 text-amber-500" />
+                    Fatigue config payload
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <PreviewMetric
+                      label="Max Consecutive"
+                      value={fatiguePreview.maxConsecutiveEntries ?? "—"}
+                    />
+                    <PreviewMetric
+                      label="Cooldown"
+                      value={`${fatiguePreview.cooldownSeconds ?? "—"}s`}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
               <div className="mt-4 grid gap-2 text-sm text-muted">
                 <div>
-                  Target: <span className="font-medium text-foreground">{action.target}</span>
+                  Target:{" "}
+                  <span className="break-all font-medium text-foreground">{action.target}</span>
                 </div>
                 <div>
                   Value: <span className="font-medium text-foreground">{action.valueWei}</span>
@@ -470,7 +679,7 @@ export default function WarpoolProposalMultisigPanel({
                         const submitted = await submitMultisigAction({
                           multisigAddress: safeAddress,
                           action,
-                          autoConfirm: true,
+                          autoConfirm: false,
                         });
 
                         await postMultisigSync({
@@ -479,8 +688,8 @@ export default function WarpoolProposalMultisigPanel({
                           txIndex: submitted.txIndex,
                           txHash: submitted.txHash,
                           submitter: address,
-                          confirmedInSameTx: submitted.confirmedInSameTx,
-                          executedInSameTx: submitted.executedInSameTx,
+                          confirmedInSameTx: false,
+                          executedInSameTx: false,
                         });
                       }
                     )

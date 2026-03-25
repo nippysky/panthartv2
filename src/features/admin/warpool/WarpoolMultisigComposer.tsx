@@ -1,3 +1,4 @@
+// src/features/admin/warpool/WarpoolMultisigComposer.tsx
 "use client";
 
 import * as React from "react";
@@ -208,14 +209,16 @@ function Pill({
   tone = "default",
 }: {
   children: React.ReactNode;
-  tone?: "default" | "good" | "warn";
+  tone?: "default" | "good" | "warn" | "danger";
 }) {
   const className =
     tone === "good"
       ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       : tone === "warn"
         ? "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-        : "border-border bg-background text-muted";
+        : tone === "danger"
+          ? "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+          : "border-border bg-background text-muted";
 
   return (
     <span
@@ -223,6 +226,34 @@ function Pill({
     >
       {children}
     </span>
+  );
+}
+
+function Button({
+  children,
+  tone = "default",
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "primary";
+  disabled?: boolean;
+  onClick?: () => void | Promise<void>;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={[
+        "inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition",
+        tone === "primary"
+          ? "bg-foreground text-background hover:opacity-90 disabled:opacity-50"
+          : "border border-border bg-background text-foreground hover:bg-card disabled:opacity-50",
+      ].join(" ")}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -275,16 +306,25 @@ function slugToTitle(value: string) {
     .join(" ");
 }
 
-function inferProposalTitle(queues: QueueDraft[]) {
-  const changedEnabledQueues = queues.filter((queue) => queue.enabled);
-  if (changedEnabledQueues.length === 1) {
-    return `Warpool config · ${slugToTitle(changedEnabledQueues[0].slug)}`;
+function inferProposalTitle(proposal: WarpoolConfigProposalDraft) {
+  const enabledQueues = proposal.queues.filter((queue) => queue.enabled);
+  if (enabledQueues.length === 1) {
+    return `Warpool config · ${slugToTitle(enabledQueues[0].slug)}`;
   }
   return "Warpool config update";
 }
 
-function boolLabel(value: boolean) {
-  return value ? "Live" : "Paused";
+function formatResolutionSource(value: WarpoolMultisigResolutionSource | null | undefined) {
+  switch (value) {
+    case "CONFIG_OWNER_MATCH":
+      return "Resolved from config owner";
+    case "CONFIG_OWNER_UNREGISTERED":
+      return "Config owner not registered locally";
+    case "LATEST_REGISTERED_FALLBACK":
+      return "Latest registered safe fallback";
+    default:
+      return "Unavailable";
+  }
 }
 
 export default function WarpoolMultisigComposer({
@@ -328,6 +368,45 @@ export default function WarpoolMultisigComposer({
     String(latestConfigSnapshot?.token11FeeShareBps ?? 0)
   );
 
+  const [relicMinDiscountBps, setRelicMinDiscountBps] = React.useState(
+    String(latestConfigSnapshot?.relicMinDiscountBps ?? 1000)
+  );
+  const [relicMaxDiscountBps, setRelicMaxDiscountBps] = React.useState(
+    String(latestConfigSnapshot?.relicMaxDiscountBps ?? 4000)
+  );
+  const [discountSeatCap, setDiscountSeatCap] = React.useState(
+    String(latestConfigSnapshot?.discountSeatCap ?? 2)
+  );
+  const [token11SeatCap, setToken11SeatCap] = React.useState(
+    String(latestConfigSnapshot?.token11SeatCap ?? 1)
+  );
+  const [reservationTtlSeconds, setReservationTtlSeconds] = React.useState(
+    String(latestConfigSnapshot?.reservationTtlSeconds ?? 300)
+  );
+
+  const [fatigueMaxConsecutive, setFatigueMaxConsecutive] = React.useState(
+    String(latestConfigSnapshot?.fatigueMaxConsecutive ?? 1)
+  );
+  const [fatigueCooldownSeconds, setFatigueCooldownSeconds] = React.useState(
+    String(latestConfigSnapshot?.fatigueCooldownSeconds ?? 0)
+  );
+
+  const [roundsPerMatch, setRoundsPerMatch] = React.useState(
+    String(latestConfigSnapshot?.roundsPerMatch ?? 3)
+  );
+  const [traitPowerMin, setTraitPowerMin] = React.useState(
+    String(latestConfigSnapshot?.traitPowerMin ?? 48)
+  );
+  const [traitPowerMax, setTraitPowerMax] = React.useState(
+    String(latestConfigSnapshot?.traitPowerMax ?? 68)
+  );
+  const [roundVarianceMax, setRoundVarianceMax] = React.useState(
+    String(latestConfigSnapshot?.roundVarianceMax ?? 12)
+  );
+  const [microMomentumMax, setMicroMomentumMax] = React.useState(
+    String(latestConfigSnapshot?.microMomentumMax ?? 8)
+  );
+
   const [queues, setQueues] = React.useState<QueueDraft[]>(() =>
     normalizeQueueCards(queueCards)
   );
@@ -347,6 +426,18 @@ export default function WarpoolMultisigComposer({
     setFatigueEnabled(latestConfigSnapshot?.fatigueEnabled ?? false);
     setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
     setToken11FeeShareBps(String(latestConfigSnapshot?.token11FeeShareBps ?? 0));
+    setRelicMinDiscountBps(String(latestConfigSnapshot?.relicMinDiscountBps ?? 1000));
+    setRelicMaxDiscountBps(String(latestConfigSnapshot?.relicMaxDiscountBps ?? 4000));
+    setDiscountSeatCap(String(latestConfigSnapshot?.discountSeatCap ?? 2));
+    setToken11SeatCap(String(latestConfigSnapshot?.token11SeatCap ?? 1));
+    setReservationTtlSeconds(String(latestConfigSnapshot?.reservationTtlSeconds ?? 300));
+    setFatigueMaxConsecutive(String(latestConfigSnapshot?.fatigueMaxConsecutive ?? 1));
+    setFatigueCooldownSeconds(String(latestConfigSnapshot?.fatigueCooldownSeconds ?? 0));
+    setRoundsPerMatch(String(latestConfigSnapshot?.roundsPerMatch ?? 3));
+    setTraitPowerMin(String(latestConfigSnapshot?.traitPowerMin ?? 48));
+    setTraitPowerMax(String(latestConfigSnapshot?.traitPowerMax ?? 68));
+    setRoundVarianceMax(String(latestConfigSnapshot?.roundVarianceMax ?? 12));
+    setMicroMomentumMax(String(latestConfigSnapshot?.microMomentumMax ?? 8));
   }, [latestConfigSnapshot]);
 
   React.useEffect(() => {
@@ -369,6 +460,24 @@ export default function WarpoolMultisigComposer({
         fatigueEnabled: latestConfigSnapshot.fatigueEnabled,
         token11FeeShareEnabled: latestConfigSnapshot.token11FeeShareEnabled,
         token11FeeShareBps: latestConfigSnapshot.token11FeeShareBps,
+        relic: {
+          minDiscountBps: latestConfigSnapshot.relicMinDiscountBps ?? 1000,
+          maxDiscountBps: latestConfigSnapshot.relicMaxDiscountBps ?? 4000,
+          discountSeatCap: latestConfigSnapshot.discountSeatCap ?? 2,
+          token11SeatCap: latestConfigSnapshot.token11SeatCap ?? 1,
+          reservationTtlSeconds: latestConfigSnapshot.reservationTtlSeconds ?? 300,
+        },
+        fatigue: {
+          maxConsecutiveEntries: latestConfigSnapshot.fatigueMaxConsecutive ?? 1,
+          cooldownSeconds: latestConfigSnapshot.fatigueCooldownSeconds ?? 0,
+        },
+        battle: {
+          roundsPerMatch: latestConfigSnapshot.roundsPerMatch ?? 3,
+          traitPowerMin: latestConfigSnapshot.traitPowerMin ?? 48,
+          traitPowerMax: latestConfigSnapshot.traitPowerMax ?? 68,
+          roundVarianceMax: latestConfigSnapshot.roundVarianceMax ?? 12,
+          microMomentumMax: latestConfigSnapshot.microMomentumMax ?? 8,
+        },
       },
       queues: queueCards.map((queue) => ({
         slug: queue.slug,
@@ -400,6 +509,24 @@ export default function WarpoolMultisigComposer({
         fatigueEnabled,
         token11FeeShareEnabled,
         token11FeeShareBps: Number(token11FeeShareBps || 0),
+        relic: {
+          minDiscountBps: Number(relicMinDiscountBps || 0),
+          maxDiscountBps: Number(relicMaxDiscountBps || 0),
+          discountSeatCap: Number(discountSeatCap || 0),
+          token11SeatCap: Number(token11SeatCap || 0),
+          reservationTtlSeconds: Number(reservationTtlSeconds || 0),
+        },
+        fatigue: {
+          maxConsecutiveEntries: Number(fatigueMaxConsecutive || 0),
+          cooldownSeconds: Number(fatigueCooldownSeconds || 0),
+        },
+        battle: {
+          roundsPerMatch: Number(roundsPerMatch || 0),
+          traitPowerMin: Number(traitPowerMin || 0),
+          traitPowerMax: Number(traitPowerMax || 0),
+          roundVarianceMax: Number(roundVarianceMax || 0),
+          microMomentumMax: Number(microMomentumMax || 0),
+        },
       },
       queues: queues.map((queue) => ({
         slug: queue.slug,
@@ -416,17 +543,29 @@ export default function WarpoolMultisigComposer({
       })),
     };
   }, [
+    treasury,
+    workerOperator,
     entriesFlowLive,
     reservationsFlowLive,
     settlementsFlowLive,
-    fatigueEnabled,
-    latestConfigSnapshot?.configVersion,
-    queues,
     relicsEnabled,
-    token11FeeShareBps,
+    fatigueEnabled,
     token11FeeShareEnabled,
-    treasury,
-    workerOperator,
+    token11FeeShareBps,
+    relicMinDiscountBps,
+    relicMaxDiscountBps,
+    discountSeatCap,
+    token11SeatCap,
+    reservationTtlSeconds,
+    fatigueMaxConsecutive,
+    fatigueCooldownSeconds,
+    roundsPerMatch,
+    traitPowerMin,
+    traitPowerMax,
+    roundVarianceMax,
+    microMomentumMax,
+    queues,
+    latestConfigSnapshot?.configVersion,
   ]);
 
   const encodedPlan = React.useMemo(() => {
@@ -447,338 +586,472 @@ export default function WarpoolMultisigComposer({
       });
     } catch (error) {
       return {
-        target: null,
+        target: ethers.isAddress(configAddress) ? ethers.getAddress(configAddress) : null,
         actions: [],
-        warnings: [
-          error instanceof Error ? error.message : "Failed to prepare config actions.",
-        ],
+        warnings: [error instanceof Error ? error.message : "Failed to encode proposal."],
         summaryLines: [] as string[],
       };
     }
   }, [configAddress, currentDraft, proposal]);
 
-  const reviewLines = React.useMemo(
+  const summaryLines = React.useMemo(
     () =>
       diffSummaryLines({
         current: currentDraft,
         proposal,
         encodedSummaryLines: encodedPlan.summaryLines,
       }),
-    [currentDraft, encodedPlan.summaryLines, proposal]
+    [currentDraft, proposal, encodedPlan.summaryLines]
   );
 
-  function updateQueue<K extends keyof QueueDraft>(
-    queueSlug: QueueDraft["slug"],
-    key: K,
-    value: QueueDraft[K]
+  function updateQueue(
+    slug: QueueDraft["slug"],
+    patch: Partial<QueueDraft>
   ) {
-    setQueues((prev) =>
-      prev.map((queue) =>
-        queue.slug === queueSlug ? { ...queue, [key]: value } : queue
-      )
+    setQueues((current) =>
+      current.map((item) => (item.slug === slug ? { ...item, ...patch } : item))
     );
   }
 
-  function resetToLiveSnapshot() {
-    setTreasury(latestConfigSnapshot?.treasury ?? "");
-    setWorkerOperator(latestConfigSnapshot?.workerOperator ?? "");
-    setEntriesFlowLive(!(latestConfigSnapshot?.entriesPaused ?? false));
-    setReservationsFlowLive(!(latestConfigSnapshot?.reservationsPaused ?? false));
-    setSettlementsFlowLive(!(latestConfigSnapshot?.settlementsPaused ?? false));
-    setRelicsEnabled(latestConfigSnapshot?.relicsEnabled ?? false);
-    setFatigueEnabled(latestConfigSnapshot?.fatigueEnabled ?? false);
-    setToken11FeeShareEnabled(latestConfigSnapshot?.token11FeeShareEnabled ?? false);
-    setToken11FeeShareBps(String(latestConfigSnapshot?.token11FeeShareBps ?? 0));
-    setQueues(normalizeQueueCards(queueCards));
-    setSaveState({ kind: "idle", message: null });
-  }
-
-  async function resolveConnectedWalletAddress() {
-    const hookAddress =
-      typeof address === "string" && address.trim().length > 0
-        ? address.trim()
-        : null;
-
-    if (hookAddress) return hookAddress;
-
-    try {
-      const accounts = await dwGetAccounts();
-      const providerAddress =
-        Array.isArray(accounts) && typeof accounts[0] === "string"
-          ? accounts[0].trim()
-          : null;
-
-      if (providerAddress) return providerAddress;
-    } catch {}
-
+async function resolveCreatorAddress() {
+  if (address) return address;
+  try {
+    const accounts = await dwGetAccounts();
+    return accounts?.[0] ?? null;
+  } catch {
     return null;
   }
+}
 
-  async function saveProposal(nextStatus: "DRAFT" | "READY") {
-    const isReadyFlow = nextStatus === "READY";
-    const connectedWalletAddress = await resolveConnectedWalletAddress();
-
-    if (!connectedWalletAddress) {
-      setSaveState({
-        kind: "error",
-        message: "Connect an allowed admin wallet before saving this proposal.",
-      });
-      return;
-    }
-
-    if (isReadyFlow && encodedPlan.warnings.length > 0) {
-      setSaveState({
-        kind: "error",
-        message: "Fix the current config warnings before marking this proposal ready.",
-      });
-      return;
-    }
-
-    if (!configAddress || !ethers.isAddress(configAddress)) {
-      setSaveState({
-        kind: "error",
-        message: "Config contract address is missing or invalid.",
-      });
-      return;
-    }
-
+  async function saveProposal(status: "DRAFT" | "READY") {
     try {
       setSaveState({
         kind: "saving",
         message:
-          nextStatus === "READY"
+          status === "READY"
             ? "Saving proposal and marking it ready..."
             : "Saving draft proposal...",
       });
 
-      const title = inferProposalTitle(queues);
+      const creatorAddress = await resolveCreatorAddress();
+      if (!creatorAddress) {
+        throw new Error("Connect admin wallet before saving a proposal.");
+      }
 
-      const requestBody = toJsonSafe({
-        area: "WARPOOL",
-        kind: "CONFIG",
-        title,
-        summary:
-          nextStatus === "READY"
-            ? "Saved from Warpool config page and marked ready for multisig submission."
-            : "Saved from Warpool config page as a draft proposal.",
-        description:
-          reviewLines.length > 0 ? reviewLines.join("\n") : "Warpool config update.",
-        status: nextStatus,
-        safeContract: multisigSummary?.contract ?? defaultMultisigAddress ?? null,
-        chainId: latestConfigSnapshot?.chainId ?? queueCards[0]?.chainId ?? null,
-        basedOnConfigVersion: proposal.basedOnConfigVersion,
-        createdByAddress: connectedWalletAddress,
-        snapshotJson: proposal,
-        metadataJson: {
-          source: "warpool-config-page",
-          configAddress,
-          multisigResolutionSource,
-          multisigSummary,
-          reviewLines,
-          warnings: encodedPlan.warnings,
-        },
-        actions: encodedPlan.actions.map((action, index) => ({
-          orderIndex: index,
-          label: action.functionName ?? `Action ${index + 1}`,
-          summary: action.summary ?? null,
-          target: action.target,
-          valueWei: String(action.value ?? "0"),
-          tokenAddress: null,
-          dataHex: action.data,
-          functionName: action.functionName ?? null,
-          argsJson: action.args ?? {},
-        })),
-      });
+      if (status === "READY" && encodedPlan.actions.length === 0) {
+        throw new Error("No proposal actions detected yet.");
+      }
 
-      const res = await fetch("/api/admin/warpool/proposals", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-wallet": connectedWalletAddress,
-          "x-admin-slug": slug,
-        },
-        body: JSON.stringify(requestBody),
-      });
+      if (encodedPlan.warnings.length > 0) {
+        throw new Error(encodedPlan.warnings[0]);
+      }
+const res = await fetch(
+  `/api/admin/warpool/proposals?adminSlug=${encodeURIComponent(slug)}`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-slug": slug,
+      "x-admin-wallet": creatorAddress,
+    },
+    body: JSON.stringify({
+      area: "WARPOOL",
+      kind: "CONFIG",
+      title: inferProposalTitle(proposal),
+      summary:
+        summaryLines.length > 0
+          ? summaryLines.slice(0, 3).join(" • ")
+          : "Warpool config proposal",
+      description:
+        summaryLines.length > 0 ? summaryLines.join("\n") : null,
+      status,
+      safeContract: defaultMultisigAddress,
+      chainId: latestConfigSnapshot?.chainId ?? null,
+      basedOnConfigVersion: proposal.basedOnConfigVersion,
+      snapshotJson: toJsonSafe(proposal),
+      createdByAddress: creatorAddress,
+      actions: encodedPlan.actions.map((action, index) => ({
+        orderIndex: index,
+        label: action.functionName,
+        summary: action.summary,
+        target: action.target,
+        valueWei: action.value,
+        dataHex: action.data,
+        functionName: action.functionName,
+        argsJson: toJsonSafe(action.args),
+      })),
+    }),
+  }
+);
 
       const json = (await res.json()) as {
         ok?: boolean;
         error?: string;
-        item?: { id: string };
-        proposal?: { id: string };
+        proposal?: { id?: string };
       };
 
-      const proposalId = json.item?.id ?? json.proposal?.id;
-
-      if (!res.ok || !json.ok || !proposalId) {
+      if (!res.ok || !json.ok || !json.proposal?.id) {
         throw new Error(json.error || "Failed to save proposal.");
       }
 
       setSaveState({
         kind: "success",
         message:
-          nextStatus === "READY"
+          status === "READY"
             ? "Proposal saved and marked ready."
-            : encodedPlan.warnings.length > 0
-              ? "Draft proposal saved with warnings."
-              : "Draft proposal saved.",
+            : "Draft proposal saved.",
       });
 
-      router.push(`/admin/${slug}/warpool/proposals/${proposalId}`);
+      router.push(`/admin/${slug}/warpool/proposals/${json.proposal.id}`);
       router.refresh();
     } catch (error) {
       setSaveState({
         kind: "error",
-        message: error instanceof Error ? error.message : "Failed to save proposal.",
+        message:
+          error instanceof Error ? error.message : "Failed to save proposal.",
       });
     }
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="space-y-6">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid gap-6">
         <SectionCard
-          title="Configuration"
-          description="Adjust live-state intent for global flows and queue settings, then save a clean shared proposal for admin review."
+          title="Execution context"
+          description="This page composes config-only multisig actions against the live Warpool config contract."
         >
           <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-3xl border border-border bg-background/70 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Config contract
+              </div>
+              <div className="mt-2 break-all text-sm font-medium text-foreground">
+                {configAddress ?? "—"}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-background/70 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Multisig resolution
+              </div>
+              <div className="mt-2 text-sm font-medium text-foreground">
+                {formatResolutionSource(multisigResolutionSource)}
+              </div>
+              <div className="mt-2 text-sm text-muted">
+                {multisigSummary
+                  ? `${multisigSummary.contract} · threshold ${multisigSummary.threshold} · ${multisigSummary.ownersCount} owners`
+                  : defaultMultisigAddress ?? "No multisig found yet"}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-background/70 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Based on config version
+              </div>
+              <div className="mt-2 text-sm font-medium text-foreground">
+                {proposal.basedOnConfigVersion ?? "—"}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-background/70 p-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                Connected wallet
+              </div>
+              <div className="mt-2 text-sm font-medium text-foreground break-all">
+                {address ?? "Not connected"}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Core addresses"
+          description="Address-level config changes for future pools."
+        >
+          <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <Label hint="Global payout receiver">Treasury address</Label>
+              <Label hint="Required on-chain">Treasury</Label>
               <TextInput
                 value={treasury}
                 onChange={(e) => setTreasury(e.target.value)}
                 placeholder="0x..."
-                spellCheck={false}
-                autoCapitalize="off"
-                autoCorrect="off"
+                autoComplete="off"
               />
             </div>
 
             <div>
-              <Label hint="Automation / worker operator">Worker operator</Label>
+              <Label hint="Required on-chain">Worker operator</Label>
               <TextInput
                 value={workerOperator}
                 onChange={(e) => setWorkerOperator(e.target.value)}
                 placeholder="0x..."
-                spellCheck={false}
-                autoCapitalize="off"
-                autoCorrect="off"
+                autoComplete="off"
               />
             </div>
           </div>
+        </SectionCard>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <SectionCard
+          title="Pause & feature flags"
+          description="These flags affect eligibility and operational behavior for future actions."
+        >
+          <div className="grid gap-4 md:grid-cols-2">
             <Toggle
               checked={entriesFlowLive}
               onChange={setEntriesFlowLive}
               label="Entries flow live"
-              description={`Current indexed truth: ${boolLabel(
-                !(latestConfigSnapshot?.entriesPaused ?? false)
-              )}. When on, players can join queues.`}
+              description="When off, config submits entriesPaused=true."
             />
             <Toggle
               checked={reservationsFlowLive}
               onChange={setReservationsFlowLive}
               label="Reservations flow live"
-              description={`Current indexed truth: ${boolLabel(
-                !(latestConfigSnapshot?.reservationsPaused ?? false)
-              )}. When on, relic reservation flow is open.`}
+              description="When off, config submits reservationsPaused=true."
             />
             <Toggle
               checked={settlementsFlowLive}
               onChange={setSettlementsFlowLive}
               label="Settlements flow live"
-              description={`Current indexed truth: ${boolLabel(
-                !(latestConfigSnapshot?.settlementsPaused ?? false)
-              )}. When on, pool settlement actions are allowed.`}
+              description="When off, config submits settlementsPaused=true."
             />
             <Toggle
               checked={relicsEnabled}
               onChange={setRelicsEnabled}
               label="Relics enabled"
-              description="Enable or disable relic-based mechanics."
+              description="Controls whether relic entry paths remain available."
             />
             <Toggle
               checked={fatigueEnabled}
               onChange={setFatigueEnabled}
               label="Fatigue enabled"
-              description="Enable or disable fighter fatigue logic."
+              description="Controls whether fighter cooldown / fatigue gating is enforced."
             />
             <Toggle
               checked={token11FeeShareEnabled}
               onChange={setToken11FeeShareEnabled}
-              label="Token11 fee share enabled"
-              description="Enable or disable Token11 fee sharing."
+              label="Token 11 fee share enabled"
+              description="Controls the special fee-share path for relic token 11."
             />
           </div>
 
-          <div className="mt-4 max-w-sm">
-            <Label hint="Basis points">Token11 fee share BPS</Label>
-            <TextInput
-              inputMode="numeric"
-              value={token11FeeShareBps}
-              onChange={(e) => setToken11FeeShareBps(e.target.value)}
-              placeholder="0"
-            />
+          <div className="mt-5 grid gap-5 md:max-w-sm">
+            <div>
+              <Label hint={formatBps(Number(token11FeeShareBps || 0))}>
+                Token 11 fee share BPS
+              </Label>
+              <TextInput
+                inputMode="numeric"
+                value={token11FeeShareBps}
+                onChange={(e) => setToken11FeeShareBps(e.target.value)}
+                placeholder="5000"
+              />
+            </div>
           </div>
         </SectionCard>
 
         <SectionCard
-          title="Queue settings"
-          description="Each queue has enough room here so operators can review and save changes clearly before multisig submission."
+          title="Relic config"
+          description="Configures relic discount range, relic seat caps, and reservation TTL used by the Crown Vaultbound relic flow."
+        >
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div>
+              <Label hint={formatBps(Number(relicMinDiscountBps || 0))}>
+                Min discount BPS
+              </Label>
+              <TextInput
+                inputMode="numeric"
+                value={relicMinDiscountBps}
+                onChange={(e) => setRelicMinDiscountBps(e.target.value)}
+                placeholder="1000"
+              />
+            </div>
+
+            <div>
+              <Label hint={formatBps(Number(relicMaxDiscountBps || 0))}>
+                Max discount BPS
+              </Label>
+              <TextInput
+                inputMode="numeric"
+                value={relicMaxDiscountBps}
+                onChange={(e) => setRelicMaxDiscountBps(e.target.value)}
+                placeholder="4000"
+              />
+            </div>
+
+            <div>
+              <Label>Discount seat cap</Label>
+              <TextInput
+                inputMode="numeric"
+                value={discountSeatCap}
+                onChange={(e) => setDiscountSeatCap(e.target.value)}
+                placeholder="2"
+              />
+            </div>
+
+            <div>
+              <Label>Token 11 seat cap</Label>
+              <TextInput
+                inputMode="numeric"
+                value={token11SeatCap}
+                onChange={(e) => setToken11SeatCap(e.target.value)}
+                placeholder="1"
+              />
+            </div>
+
+            <div>
+              <Label hint={formatDurationSeconds(Number(reservationTtlSeconds || 0))}>
+                Reservation TTL seconds
+              </Label>
+              <TextInput
+                inputMode="numeric"
+                value={reservationTtlSeconds}
+                onChange={(e) => setReservationTtlSeconds(e.target.value)}
+                placeholder="300"
+              />
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Fatigue config"
+          description="Controls consecutive-entry tolerance and cooldown applied when fatigue is enabled."
+        >
+          <div className="grid gap-5 md:grid-cols-2 xl:max-w-3xl">
+            <div>
+              <Label>Max consecutive entries</Label>
+              <TextInput
+                inputMode="numeric"
+                value={fatigueMaxConsecutive}
+                onChange={(e) => setFatigueMaxConsecutive(e.target.value)}
+                placeholder="1"
+              />
+            </div>
+
+            <div>
+              <Label hint={formatDurationSeconds(Number(fatigueCooldownSeconds || 0))}>
+                Cooldown seconds
+              </Label>
+              <TextInput
+                inputMode="numeric"
+                value={fatigueCooldownSeconds}
+                onChange={(e) => setFatigueCooldownSeconds(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Battle config"
+          description="These values shape battle simulation and outcome variability for future pools."
+        >
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div>
+              <Label>Rounds per match</Label>
+              <TextInput
+                inputMode="numeric"
+                value={roundsPerMatch}
+                onChange={(e) => setRoundsPerMatch(e.target.value)}
+                placeholder="3"
+              />
+            </div>
+            <div>
+              <Label>Trait power min</Label>
+              <TextInput
+                inputMode="numeric"
+                value={traitPowerMin}
+                onChange={(e) => setTraitPowerMin(e.target.value)}
+                placeholder="48"
+              />
+            </div>
+            <div>
+              <Label>Trait power max</Label>
+              <TextInput
+                inputMode="numeric"
+                value={traitPowerMax}
+                onChange={(e) => setTraitPowerMax(e.target.value)}
+                placeholder="68"
+              />
+            </div>
+            <div>
+              <Label>Round variance max</Label>
+              <TextInput
+                inputMode="numeric"
+                value={roundVarianceMax}
+                onChange={(e) => setRoundVarianceMax(e.target.value)}
+                placeholder="12"
+              />
+            </div>
+            <div>
+              <Label>Micro momentum max</Label>
+              <TextInput
+                inputMode="numeric"
+                value={microMomentumMax}
+                onChange={(e) => setMicroMomentumMax(e.target.value)}
+                placeholder="8"
+              />
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Queue config"
+          description="These values affect new pools opened under each queue."
         >
           <div className="grid gap-4">
             {queues.map((queue) => {
               const meta = WARPOOL_QUEUE_META[queue.slug];
-              const runtimeText = queueRuntimeStateText(runtimeQueues, queue.slug);
-
               return (
                 <div
                   key={queue.slug}
-                  className="rounded-[28px] border border-border bg-background/60 p-4 md:p-5"
+                  className="rounded-[28px] border border-border bg-background/70 p-4 md:p-5"
                 >
-                  <div className="mb-4 flex flex-col gap-3">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <div className="text-base font-semibold tracking-tight text-foreground">
-                          {meta.title}
-                        </div>
-                        <p className="mt-1 text-sm leading-6 text-muted">{meta.description}</p>
-                      </div>
+              <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+  <div>
+    <div className="text-base font-semibold text-foreground">
+      {meta.title}
+    </div>
+    <div className="mt-1 text-sm leading-6 text-muted">
+      {meta.description}
+    </div>
+  </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <Pill>{meta.badge}</Pill>
-                        <Pill tone={queue.enabled ? "good" : "warn"}>
-                          {queue.enabled ? "Enabled" : "Disabled"}
-                        </Pill>
-                      </div>
-                    </div>
+  <div className="flex flex-wrap gap-2">
+    <Pill tone={queue.enabled ? "good" : "warn"}>
+      {queue.enabled ? "Enabled" : "Disabled"}
+    </Pill>
+    <Pill>{queueRuntimeStateText(runtimeQueues, queue.slug)}</Pill>
+  </div>
+</div>
 
-                    <div className="rounded-2xl border border-border bg-card/70 px-4 py-3 text-sm text-muted">
-                      Live status: <span className="font-medium text-foreground">{runtimeText}</span>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+                  <div className="mb-4">
                     <Toggle
                       checked={queue.enabled}
-                      onChange={(value) => updateQueue(queue.slug, "enabled", value)}
+                      onChange={(value) => updateQueue(queue.slug, { enabled: value })}
                       label="Queue enabled"
+                      description="Controls whether new pools can be opened for this queue."
                     />
+                  </div>
+
+                  <div className="mb-4">
                     <Toggle
                       checked={queue.singleEntryPerWallet}
                       onChange={(value) =>
-                        updateQueue(queue.slug, "singleEntryPerWallet", value)
+                        updateQueue(queue.slug, { singleEntryPerWallet: value })
                       }
                       label="Single entry per wallet"
+                      description="Controls whether one wallet can enter the same pool more than once."
                     />
+                  </div>
 
+                  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                     <div>
                       <Label>Target size</Label>
                       <TextInput
                         inputMode="numeric"
                         value={queue.targetSize}
                         onChange={(e) =>
-                          updateQueue(queue.slug, "targetSize", e.target.value)
+                          updateQueue(queue.slug, { targetSize: e.target.value })
                         }
                       />
                     </div>
@@ -789,94 +1062,103 @@ export default function WarpoolMultisigComposer({
                         inputMode="numeric"
                         value={queue.minStartSize}
                         onChange={(e) =>
-                          updateQueue(queue.slug, "minStartSize", e.target.value)
+                          updateQueue(queue.slug, { minStartSize: e.target.value })
                         }
                       />
                     </div>
 
                     <div>
-                      <Label hint="Seconds">Open duration</Label>
+                      <Label hint={formatDurationSeconds(Number(queue.openDurationSeconds || 0))}>
+                        Open duration
+                      </Label>
                       <TextInput
                         inputMode="numeric"
                         value={queue.openDurationSeconds}
                         onChange={(e) =>
-                          updateQueue(queue.slug, "openDurationSeconds", e.target.value)
+                          updateQueue(queue.slug, {
+                            openDurationSeconds: e.target.value,
+                          })
                         }
                       />
                     </div>
 
                     <div>
-                      <Label hint="DCNT">Stake amount</Label>
+                      <Label
+                        hint={formatTokenAmount(
+                          parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18)
+                        )}
+                      >
+                        Stake amount
+                      </Label>
                       <TextInput
-                        inputMode="decimal"
                         value={queue.stakeAmountDecimal}
                         onChange={(e) =>
-                          updateQueue(queue.slug, "stakeAmountDecimal", e.target.value)
+                          updateQueue(queue.slug, {
+                            stakeAmountDecimal: e.target.value,
+                          })
                         }
                       />
                     </div>
 
                     <div>
-                      <Label hint="Basis points">Platform fee</Label>
+                      <Label hint={formatBps(Number(queue.platformFeeBps || 0))}>
+                        Platform fee BPS
+                      </Label>
                       <TextInput
                         inputMode="numeric"
                         value={queue.platformFeeBps}
                         onChange={(e) =>
-                          updateQueue(queue.slug, "platformFeeBps", e.target.value)
+                          updateQueue(queue.slug, {
+                            platformFeeBps: e.target.value,
+                          })
                         }
                       />
                     </div>
 
-                    <div className="lg:col-span-2 xl:col-span-2">
-                      <Label hint="Basis points">1st / 2nd / 3rd payout</Label>
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        <TextInput
-                          inputMode="numeric"
-                          value={queue.firstPlaceBps}
-                          onChange={(e) =>
-                            updateQueue(queue.slug, "firstPlaceBps", e.target.value)
-                          }
-                          placeholder="1st place"
-                        />
-                        <TextInput
-                          inputMode="numeric"
-                          value={queue.secondPlaceBps}
-                          onChange={(e) =>
-                            updateQueue(queue.slug, "secondPlaceBps", e.target.value)
-                          }
-                          placeholder="2nd place"
-                        />
-                        <TextInput
-                          inputMode="numeric"
-                          value={queue.thirdPlaceBps}
-                          onChange={(e) =>
-                            updateQueue(queue.slug, "thirdPlaceBps", e.target.value)
-                          }
-                          placeholder="3rd place"
-                        />
-                      </div>
+                    <div>
+                      <Label hint={formatBps(Number(queue.firstPlaceBps || 0))}>
+                        First place BPS
+                      </Label>
+                      <TextInput
+                        inputMode="numeric"
+                        value={queue.firstPlaceBps}
+                        onChange={(e) =>
+                          updateQueue(queue.slug, {
+                            firstPlaceBps: e.target.value,
+                          })
+                        }
+                      />
                     </div>
-                  </div>
 
-                  <div className="mt-4 rounded-2xl border border-border bg-card/70 p-4 text-sm text-muted">
-                    Stake preview:{" "}
-                    <span className="font-medium text-foreground">
-                      {formatTokenAmount(
-                        parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18)
-                      )}
-                    </span>
-                    {" · "}
-                    Window:{" "}
-                    <span className="font-medium text-foreground">
-                      {formatDurationSeconds(Number(queue.openDurationSeconds || 0))}
-                    </span>
-                    {" · "}
-                    Payout:{" "}
-                    <span className="font-medium text-foreground">
-                      {formatBps(Number(queue.firstPlaceBps || 0))} /{" "}
-                      {formatBps(Number(queue.secondPlaceBps || 0))} /{" "}
-                      {formatBps(Number(queue.thirdPlaceBps || 0))}
-                    </span>
+                    <div>
+                      <Label hint={formatBps(Number(queue.secondPlaceBps || 0))}>
+                        Second place BPS
+                      </Label>
+                      <TextInput
+                        inputMode="numeric"
+                        value={queue.secondPlaceBps}
+                        onChange={(e) =>
+                          updateQueue(queue.slug, {
+                            secondPlaceBps: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label hint={formatBps(Number(queue.thirdPlaceBps || 0))}>
+                        Third place BPS
+                      </Label>
+                      <TextInput
+                        inputMode="numeric"
+                        value={queue.thirdPlaceBps}
+                        onChange={(e) =>
+                          updateQueue(queue.slug, {
+                            thirdPlaceBps: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               );
@@ -885,141 +1167,100 @@ export default function WarpoolMultisigComposer({
         </SectionCard>
       </div>
 
-      <div className="space-y-6">
+      <div className="grid h-max gap-6 xl:sticky xl:top-6">
         <SectionCard
-          title="Review and save"
-          description="Review only the actual config changes, then save them as a shared draft or ready proposal."
+          title="Encoded proposal plan"
+          description="Review what will actually be saved as multisig actions."
         >
-          <div className="rounded-3xl border border-border bg-background/70 p-4">
-            {reviewLines.length > 0 ? (
-              <div className="space-y-2">
-                {reviewLines.map((line) => (
-                  <div key={line} className="text-sm leading-6 text-foreground">
-                    • {line}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">No changes detected yet.</div>
-            )}
+          <div className="flex flex-wrap gap-2">
+            <Pill tone={encodedPlan.actions.length > 0 ? "good" : "warn"}>
+              {encodedPlan.actions.length} action{encodedPlan.actions.length === 1 ? "" : "s"}
+            </Pill>
+            <Pill>Target {encodedPlan.target ?? "—"}</Pill>
           </div>
 
           {encodedPlan.warnings.length > 0 ? (
-            <div className="mt-4 rounded-3xl border border-dashed border-border bg-background/70 p-4">
-              <div className="text-sm font-semibold text-foreground">
-                These warnings do not block draft save, but must be fixed before marking ready
+            <div className="mt-4 rounded-3xl border border-amber-500/20 bg-amber-500/10 p-4">
+              <div className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                Review warnings
               </div>
-              <div className="mt-2 space-y-1 text-sm leading-6 text-muted">
+              <ul className="mt-2 space-y-2 text-sm leading-6 text-amber-700 dark:text-amber-300">
                 {encodedPlan.warnings.map((warning) => (
-                  <div key={warning}>• {warning}</div>
+                  <li key={warning}>• {warning}</li>
                 ))}
-              </div>
+              </ul>
             </div>
           ) : null}
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-3xl border border-border bg-background/60 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
-                Config version
+          <div className="mt-4 space-y-3">
+            {summaryLines.map((line) => (
+              <div
+                key={line}
+                className="rounded-2xl border border-border bg-background/70 px-4 py-3 text-sm text-foreground"
+              >
+                {line}
               </div>
-              <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-                {proposal.basedOnConfigVersion ?? "—"}
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-border bg-background/60 p-4">
-              <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
-                Actions prepared
-              </div>
-              <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-                {encodedPlan.actions.length}
-              </div>
-            </div>
+            ))}
           </div>
 
-          {saveState.message ? (
-            <div
-              className={[
-                "mt-4 rounded-3xl border p-4 text-sm",
-                saveState.kind === "error"
-                  ? "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                  : saveState.kind === "success"
-                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                    : "border-border bg-background/70 text-foreground",
-              ].join(" ")}
-            >
-              {saveState.message}
-            </div>
-          ) : null}
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => void saveProposal("DRAFT")}
-              disabled={saveState.kind === "saving"}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Save draft
-            </button>
-
-            <button
-              type="button"
-              onClick={() => void saveProposal("READY")}
-              disabled={saveState.kind === "saving"}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-foreground px-4 text-sm font-medium text-background transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Save and mark ready
-            </button>
-
-            <button
-              type="button"
-              onClick={resetToLiveSnapshot}
-              disabled={saveState.kind === "saving"}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Reset to live values
-            </button>
+          <div className="mt-4 space-y-3">
+            {encodedPlan.actions.map((action, index) => (
+              <div
+                key={action.id}
+                className="rounded-3xl border border-border bg-background/70 p-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-sm font-semibold text-foreground">
+                    {index + 1}. {action.functionName}
+                  </div>
+                  <Pill>{action.value === "0" ? "0 value" : action.value}</Pill>
+                </div>
+                <div className="mt-2 text-sm leading-6 text-muted">{action.summary}</div>
+              </div>
+            ))}
           </div>
         </SectionCard>
 
-        <details className="rounded-[28px] border border-border bg-card p-5 md:p-6">
-          <summary className="cursor-pointer list-none text-[15px] font-semibold tracking-tight text-foreground">
-            Advanced technical details
-          </summary>
-
-          <div className="mt-5 space-y-6">
-            <div>
-              <div className="mb-2 text-sm font-semibold text-foreground">Proposal JSON</div>
-              <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
-                {JSON.stringify(
-                  toJsonSafe(proposal),
-                  null,
-                  2
-                )}
-              </pre>
-            </div>
-
-            <div>
-              <div className="mb-2 text-sm font-semibold text-foreground">Encoded actions</div>
-              <pre className="max-h-120 overflow-auto whitespace-pre-wrap break-all rounded-3xl border border-border bg-background/70 p-4 text-xs leading-6 text-foreground">
-                {JSON.stringify(
-                  toJsonSafe(
-                    encodedPlan.actions.map((action) => ({
-                      to: action.target,
-                      value: action.value,
-                      data: action.data,
-                      contractMethod: action.functionName,
-                      args: action.args,
-                      summary: action.summary,
-                    }))
-                  ),
-                  null,
-                  2
-                )}
-              </pre>
-            </div>
+        <SectionCard
+          title="Save proposal"
+          description="Persist this config plan into the shared admin workflow."
+        >
+          <div className="flex flex-wrap gap-3">
+            <Button
+              disabled={saveState.kind === "saving"}
+              onClick={() => saveProposal("DRAFT")}
+            >
+              Save draft
+            </Button>
+            <Button
+              tone="primary"
+              disabled={
+                saveState.kind === "saving" ||
+                encodedPlan.actions.length === 0 ||
+                encodedPlan.warnings.length > 0
+              }
+              onClick={() => saveProposal("READY")}
+            >
+              Save as ready
+            </Button>
           </div>
-        </details>
+
+          {saveState.message ? (
+            <div className="mt-4">
+              <Pill
+                tone={
+                  saveState.kind === "success"
+                    ? "good"
+                    : saveState.kind === "error"
+                      ? "danger"
+                      : "default"
+                }
+              >
+                {saveState.message}
+              </Pill>
+            </div>
+          ) : null}
+        </SectionCard>
       </div>
     </div>
   );

@@ -32,6 +32,32 @@ function formatScore(value: number) {
   return value.toFixed(1).replace(/\.0$/, "");
 }
 
+function getEarlyFinishNote(match: WarpoolBattleMatch) {
+  if (!Array.isArray(match.rounds) || match.rounds.length === 0) return null;
+
+  const hasSuddenDeath = match.rounds.some((round) => round.suddenDeath);
+  if (hasSuddenDeath) return null;
+
+  if (match.rounds.length === 1) {
+    return "Only one round is stored for this match.";
+  }
+
+  if (match.rounds.length === 2) {
+    const aWins = match.rounds.filter(
+      (round) => round.winner === match.slotAEntryId
+    ).length;
+    const bWins = match.rounds.filter(
+      (round) => round.winner === match.slotBEntryId
+    ).length;
+
+    if (aWins === 2 || bWins === 2) {
+      return "No Round 3 needed — match ended 2-0.";
+    }
+  }
+
+  return null;
+}
+
 function MatchCard({
   battle,
   match,
@@ -41,6 +67,7 @@ function MatchCard({
 }) {
   const aWon = match.winnerEntryId === match.slotAEntryId;
   const bWon = match.winnerEntryId === match.slotBEntryId;
+  const earlyFinishNote = getEarlyFinishNote(match);
 
   return (
     <div className="min-w-0 rounded-3xl border border-border bg-card p-4">
@@ -117,11 +144,9 @@ function MatchCard({
             ))}
           </div>
 
-          {match.rounds.length === 1 ? (
+          {earlyFinishNote ? (
             <div className="mt-3 text-[11px] text-foreground/45">
-              Only one round result is currently stored for this match. If you want
-              full best-of-3 visibility, the worker/config needs to persist multiple
-              rounds for each match.
+              {earlyFinishNote}
             </div>
           ) : null}
         </div>

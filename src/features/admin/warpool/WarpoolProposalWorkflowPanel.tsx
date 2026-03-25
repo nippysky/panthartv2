@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Gem, Swords, TimerReset } from "lucide-react";
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
 
 type ProposalStatus =
@@ -23,6 +24,10 @@ type Props = {
   approvedActionCount: number;
   executedActionCount: number;
   createdByAddress: string | null;
+  snapshotJson?: unknown;
+  actions?: Array<{
+    functionName?: string | null;
+  }>;
 };
 
 type UiState =
@@ -36,6 +41,130 @@ const STEPS: ProposalStatus[] = ["DRAFT", "READY", "SUBMITTED", "APPROVED", "EXE
 function normalizeAddress(value: string | null | undefined) {
   const next = String(value ?? "").trim().toLowerCase();
   return next || null;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function getFunctionNames(
+  actions: Array<{ functionName?: string | null }> | undefined,
+  snapshotJson: unknown
+) {
+  if (actions && actions.length > 0) {
+    return actions
+      .map((action) => action.functionName ?? null)
+      .filter((value): value is string => !!value);
+  }
+
+  if (!isPlainObject(snapshotJson)) return [];
+  const rawActions = snapshotJson.actions;
+  if (!Array.isArray(rawActions)) return [];
+
+  return rawActions
+    .map((action) =>
+      isPlainObject(action) && typeof action.functionName === "string"
+        ? action.functionName
+        : null
+    )
+    .filter((value): value is string => !!value);
+}
+
+function getBattlePreview(snapshotJson: unknown) {
+  if (!isPlainObject(snapshotJson)) return null;
+  const global = isPlainObject(snapshotJson.global) ? snapshotJson.global : null;
+  const battle = global && isPlainObject(global.battle) ? global.battle : null;
+  if (!battle) return null;
+
+  const rounds =
+    typeof battle.roundsPerMatch === "number" ? battle.roundsPerMatch : null;
+  const traitMin =
+    typeof battle.traitPowerMin === "number" ? battle.traitPowerMin : null;
+  const traitMax =
+    typeof battle.traitPowerMax === "number" ? battle.traitPowerMax : null;
+  const variance =
+    typeof battle.roundVarianceMax === "number" ? battle.roundVarianceMax : null;
+  const momentum =
+    typeof battle.microMomentumMax === "number" ? battle.microMomentumMax : null;
+
+  if (
+    rounds == null &&
+    traitMin == null &&
+    traitMax == null &&
+    variance == null &&
+    momentum == null
+  ) {
+    return null;
+  }
+
+  return {
+    rounds,
+    traitMin,
+    traitMax,
+    variance,
+    momentum,
+  };
+}
+
+function getRelicPreview(snapshotJson: unknown) {
+  if (!isPlainObject(snapshotJson)) return null;
+  const global = isPlainObject(snapshotJson.global) ? snapshotJson.global : null;
+  const relic = global && isPlainObject(global.relic) ? global.relic : null;
+  if (!relic) return null;
+
+  const minDiscountBps =
+    typeof relic.minDiscountBps === "number" ? relic.minDiscountBps : null;
+  const maxDiscountBps =
+    typeof relic.maxDiscountBps === "number" ? relic.maxDiscountBps : null;
+  const discountSeatCap =
+    typeof relic.discountSeatCap === "number" ? relic.discountSeatCap : null;
+  const token11SeatCap =
+    typeof relic.token11SeatCap === "number" ? relic.token11SeatCap : null;
+  const reservationTtlSeconds =
+    typeof relic.reservationTtlSeconds === "number"
+      ? relic.reservationTtlSeconds
+      : null;
+
+  if (
+    minDiscountBps == null &&
+    maxDiscountBps == null &&
+    discountSeatCap == null &&
+    token11SeatCap == null &&
+    reservationTtlSeconds == null
+  ) {
+    return null;
+  }
+
+  return {
+    minDiscountBps,
+    maxDiscountBps,
+    discountSeatCap,
+    token11SeatCap,
+    reservationTtlSeconds,
+  };
+}
+
+function getFatiguePreview(snapshotJson: unknown) {
+  if (!isPlainObject(snapshotJson)) return null;
+  const global = isPlainObject(snapshotJson.global) ? snapshotJson.global : null;
+  const fatigue = global && isPlainObject(global.fatigue) ? global.fatigue : null;
+  if (!fatigue) return null;
+
+  const maxConsecutiveEntries =
+    typeof fatigue.maxConsecutiveEntries === "number"
+      ? fatigue.maxConsecutiveEntries
+      : null;
+  const cooldownSeconds =
+    typeof fatigue.cooldownSeconds === "number" ? fatigue.cooldownSeconds : null;
+
+  if (maxConsecutiveEntries == null && cooldownSeconds == null) {
+    return null;
+  }
+
+  return {
+    maxConsecutiveEntries,
+    cooldownSeconds,
+  };
 }
 
 function StepPill({
@@ -63,6 +192,33 @@ function StepPill({
   );
 }
 
+function SmallPill({
+  children,
+  tone = "default",
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "battle" | "config" | "relic" | "fatigue";
+}) {
+  const className =
+    tone === "battle"
+      ? "border-accent/20 bg-accent/10 text-accent"
+      : tone === "config"
+        ? "border-sky-500/20 bg-sky-500/10 text-sky-600 dark:text-sky-400"
+        : tone === "relic"
+          ? "border-fuchsia-500/20 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400"
+          : tone === "fatigue"
+            ? "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+            : "border-border bg-background text-muted";
+
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
 function StatCard({
   label,
   value,
@@ -83,6 +239,25 @@ function StatCard({
   );
 }
 
+function PreviewMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="min-w-23 flex-1 rounded-2xl border border-border bg-card px-3 py-3 sm:min-w-25 sm:flex-none">
+      <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+        {label}
+      </div>
+      <div className="mt-2 wrap-break-word text-sm font-semibold text-foreground">
+        {value}
+      </div>
+    </div>
+  );
+}
+
 function getProgressHeadline(params: {
   proposalStatus: ProposalStatus;
   actionCount: number;
@@ -90,8 +265,13 @@ function getProgressHeadline(params: {
   approvedActionCount: number;
   executedActionCount: number;
 }) {
-  const { proposalStatus, actionCount, submittedActionCount, approvedActionCount, executedActionCount } =
-    params;
+  const {
+    proposalStatus,
+    actionCount,
+    submittedActionCount,
+    approvedActionCount,
+    executedActionCount,
+  } = params;
 
   if (proposalStatus === "FAILED") return "This proposal hit a failure state and needs review.";
   if (proposalStatus === "CANCELLED") return "This proposal has been cancelled and will not continue.";
@@ -132,6 +312,8 @@ export default function WarpoolProposalWorkflowPanel({
   approvedActionCount,
   executedActionCount,
   createdByAddress,
+  snapshotJson,
+  actions,
 }: Props) {
   const router = useRouter();
   const { address } = useDecentWalletAccount();
@@ -146,6 +328,36 @@ export default function WarpoolProposalWorkflowPanel({
   const hasWallet = !!normalizedWallet;
   const looksLikeCreator =
     !!normalizedWallet && !!normalizedCreator && normalizedWallet === normalizedCreator;
+
+  const functionNames = React.useMemo(
+    () => getFunctionNames(actions, snapshotJson),
+    [actions, snapshotJson]
+  );
+
+  const hasBattleAction = functionNames.includes("setBattleConfig");
+  const hasQueueAction = functionNames.includes("setQueueConfig");
+  const hasRelicAction = functionNames.includes("setRelicConfig");
+  const hasFatigueAction = functionNames.includes("setFatigueConfig");
+  const hasGlobalAction =
+    functionNames.includes("setGlobalFlags") ||
+    functionNames.includes("setPauseFlags") ||
+    functionNames.includes("setTreasury") ||
+    functionNames.includes("setWorkerOperator");
+
+  const battlePreview = React.useMemo(
+    () => getBattlePreview(snapshotJson),
+    [snapshotJson]
+  );
+
+  const relicPreview = React.useMemo(
+    () => getRelicPreview(snapshotJson),
+    [snapshotJson]
+  );
+
+  const fatiguePreview = React.useMemo(
+    () => getFatiguePreview(snapshotJson),
+    [snapshotJson]
+  );
 
   async function patchProposal(body: Record<string, unknown>, successMessage: string) {
     try {
@@ -224,22 +436,111 @@ export default function WarpoolProposalWorkflowPanel({
         {proposalStatus === "CANCELLED" ? <StepPill label="CANCELLED" tone="danger" /> : null}
       </div>
 
+      {(hasBattleAction ||
+        hasQueueAction ||
+        hasRelicAction ||
+        hasFatigueAction ||
+        hasGlobalAction) && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {hasBattleAction ? <SmallPill tone="battle">Battle Config</SmallPill> : null}
+          {hasQueueAction ? <SmallPill tone="config">Queue Config</SmallPill> : null}
+          {hasRelicAction ? <SmallPill tone="relic">Relic Config</SmallPill> : null}
+          {hasFatigueAction ? <SmallPill tone="fatigue">Fatigue Config</SmallPill> : null}
+          {hasGlobalAction ? <SmallPill tone="config">Global Config</SmallPill> : null}
+        </div>
+      )}
+
       <div className="mt-5 rounded-3xl border border-border bg-background/60 p-4 text-sm text-muted">
         <span className="font-medium text-foreground">{progressHeadline}</span>
         {submittedMultisigTxId ? (
           <>
             {" "}
             Linked tx record:{" "}
-            <span className="font-medium text-foreground">{submittedMultisigTxId}</span>
+            <span className="break-all font-medium text-foreground">{submittedMultisigTxId}</span>
           </>
         ) : null}
       </div>
 
+      {(hasBattleAction && battlePreview) ||
+      (hasRelicAction && relicPreview) ||
+      (hasFatigueAction && fatiguePreview) ? (
+        <div className="mt-5 grid gap-4">
+          {hasBattleAction && battlePreview ? (
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Swords className="h-4 w-4 text-accent" />
+                Battle simulation preview
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <PreviewMetric label="Rounds" value={battlePreview.rounds ?? "—"} />
+                <PreviewMetric label="Trait Min" value={battlePreview.traitMin ?? "—"} />
+                <PreviewMetric label="Trait Max" value={battlePreview.traitMax ?? "—"} />
+                <PreviewMetric label="Variance" value={battlePreview.variance ?? "—"} />
+                <PreviewMetric label="Momentum" value={battlePreview.momentum ?? "—"} />
+              </div>
+            </div>
+          ) : null}
+
+          {hasRelicAction && relicPreview ? (
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Gem className="h-4 w-4 text-fuchsia-500" />
+                Relic config preview
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <PreviewMetric label="Min BPS" value={relicPreview.minDiscountBps ?? "—"} />
+                <PreviewMetric label="Max BPS" value={relicPreview.maxDiscountBps ?? "—"} />
+                <PreviewMetric label="Discount Seats" value={relicPreview.discountSeatCap ?? "—"} />
+                <PreviewMetric label="Token11 Seats" value={relicPreview.token11SeatCap ?? "—"} />
+                <PreviewMetric
+                  label="TTL"
+                  value={`${relicPreview.reservationTtlSeconds ?? "—"}s`}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          {hasFatigueAction && fatiguePreview ? (
+            <div className="rounded-3xl border border-border bg-background/60 p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <TimerReset className="h-4 w-4 text-amber-500" />
+                Fatigue config preview
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <PreviewMetric
+                  label="Max Consecutive"
+                  value={fatiguePreview.maxConsecutiveEntries ?? "—"}
+                />
+                <PreviewMetric
+                  label="Cooldown"
+                  value={`${fatiguePreview.cooldownSeconds ?? "—"}s`}
+                />
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total actions" value={actionCount} />
-        <StatCard label="Submitted actions" value={submittedActionCount} hint={actionCount > 0 ? `${submittedActionCount}/${actionCount}` : undefined} />
-        <StatCard label="Approved actions" value={approvedActionCount} hint={actionCount > 0 ? `${approvedActionCount}/${actionCount}` : undefined} />
-        <StatCard label="Executed actions" value={executedActionCount} hint={actionCount > 0 ? `${executedActionCount}/${actionCount}` : undefined} />
+        <StatCard
+          label="Submitted actions"
+          value={submittedActionCount}
+          hint={actionCount > 0 ? `${submittedActionCount}/${actionCount}` : undefined}
+        />
+        <StatCard
+          label="Approved actions"
+          value={approvedActionCount}
+          hint={actionCount > 0 ? `${approvedActionCount}/${actionCount}` : undefined}
+        />
+        <StatCard
+          label="Executed actions"
+          value={executedActionCount}
+          hint={actionCount > 0 ? `${executedActionCount}/${actionCount}` : undefined}
+        />
       </div>
 
       {state.message ? (
@@ -299,13 +600,13 @@ export default function WarpoolProposalWorkflowPanel({
           disabled={!canCancel || state.kind === "loading"}
           onClick={() =>
             void patchProposal(
-              { status: "CANCELLED", note: "Proposal cancelled by admin." },
+              { status: "CANCELLED", note: "Proposal cancelled." },
               "Proposal cancelled."
             )
           }
           className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Cancel
+          Cancel proposal
         </button>
       </div>
     </section>

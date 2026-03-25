@@ -28,6 +28,22 @@ export type WarpoolAdminConfigSnapshot = {
   fatigueEnabled: boolean;
   token11FeeShareEnabled: boolean;
   token11FeeShareBps: number;
+
+  relicMinDiscountBps: number | null;
+  relicMaxDiscountBps: number | null;
+  discountSeatCap: number | null;
+  token11SeatCap: number | null;
+  reservationTtlSeconds: number | null;
+
+  fatigueMaxConsecutive: number | null;
+  fatigueCooldownSeconds: number | null;
+
+  roundsPerMatch: number | null;
+  traitPowerMin: number | null;
+  traitPowerMax: number | null;
+  roundVarianceMax: number | null;
+  microMomentumMax: number | null;
+
   syncedAt: Date;
   createdAt: Date;
 };

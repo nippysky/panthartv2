@@ -68,7 +68,7 @@ function deriveProgressCounts(params: {
 
     const isSubmitted =
       !!link?.txId ||
-      link?.txIndex !== null && link?.txIndex !== undefined ||
+      (link?.txIndex !== null && link?.txIndex !== undefined) ||
       !!link?.txHash ||
       !!link?.submittedAt ||
       action.status === "SUBMITTED" ||
@@ -104,17 +104,29 @@ function deriveProgressCounts(params: {
     if (isFailed) failedActionCount += 1;
   }
 
-  if (params.proposalStatus === "APPROVED" && approvedActionCount === 0 && params.actions.length > 0) {
+  if (
+    params.proposalStatus === "APPROVED" &&
+    approvedActionCount === 0 &&
+    params.actions.length > 0
+  ) {
     approvedActionCount = submittedActionCount;
   }
 
-  if (params.proposalStatus === "EXECUTED" && executedActionCount === 0 && params.actions.length > 0) {
+  if (
+    params.proposalStatus === "EXECUTED" &&
+    executedActionCount === 0 &&
+    params.actions.length > 0
+  ) {
     executedActionCount = params.actions.length;
     approvedActionCount = Math.max(approvedActionCount, params.actions.length);
     submittedActionCount = Math.max(submittedActionCount, params.actions.length);
   }
 
-  if (params.proposalStatus === "SUBMITTED" && submittedActionCount === 0 && params.actions.length > 0) {
+  if (
+    params.proposalStatus === "SUBMITTED" &&
+    submittedActionCount === 0 &&
+    params.actions.length > 0
+  ) {
     submittedActionCount = 1;
   }
 
@@ -227,6 +239,9 @@ export async function listWarpoolAdminProposals() {
           id: true,
           status: true,
           orderIndex: true,
+          functionName: true,
+          label: true,
+          summary: true,
         },
       },
       events: {
@@ -316,6 +331,14 @@ export async function listWarpoolAdminProposals() {
               approvalsCount: proposal.submittedMultisigTx.approvals.length,
             }
           : null,
+        actions: proposal.actions.map((action) => ({
+          id: action.id,
+          status: action.status,
+          orderIndex: action.orderIndex,
+          functionName: action.functionName,
+          label: action.label,
+          summary: action.summary,
+        })),
         latestEvent: proposal.events[0] ?? null,
         submittedActionCount: progress.submittedActionCount,
         approvedActionCount: progress.approvedActionCount,

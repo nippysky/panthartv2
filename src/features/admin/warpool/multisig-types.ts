@@ -20,6 +20,27 @@ export type WarpoolComposerQueueDraft = {
   thirdPlaceBps: number;
 };
 
+export type WarpoolComposerBattleDraft = {
+  roundsPerMatch: number;
+  traitPowerMin: number;
+  traitPowerMax: number;
+  roundVarianceMax: number;
+  microMomentumMax: number;
+};
+
+export type WarpoolComposerRelicDraft = {
+  minDiscountBps: number;
+  maxDiscountBps: number;
+  discountSeatCap: number;
+  token11SeatCap: number;
+  reservationTtlSeconds: number;
+};
+
+export type WarpoolComposerFatigueDraft = {
+  maxConsecutiveEntries: number;
+  cooldownSeconds: number;
+};
+
 export type WarpoolComposerGlobalDraft = {
   treasury: string | null;
   workerOperator: string | null;
@@ -30,6 +51,9 @@ export type WarpoolComposerGlobalDraft = {
   fatigueEnabled: boolean;
   token11FeeShareEnabled: boolean;
   token11FeeShareBps: number;
+  relic: WarpoolComposerRelicDraft;
+  fatigue: WarpoolComposerFatigueDraft;
+  battle: WarpoolComposerBattleDraft;
 };
 
 export type WarpoolConfigProposalDraft = {
@@ -48,6 +72,9 @@ export type EncodedConfigAction = {
     | "setWorkerOperator"
     | "setPauseFlags"
     | "setGlobalFlags"
+    | "setRelicConfig"
+    | "setFatigueConfig"
+    | "setBattleConfig"
     | "setQueueConfig";
   args: unknown[];
   data: string;
