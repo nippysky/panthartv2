@@ -104,22 +104,29 @@ export default function ComradesWarpoolPage() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href="#live-queues"
-                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01]"
-                >
-                  Enter battlefield
-                  <ArrowRight className="h-4 w-4" />
-                </a>
+           <div className="flex flex-wrap gap-3">
+  <a
+    href="#live-queues"
+    className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01]"
+  >
+    Enter battlefield
+    <ArrowRight className="h-4 w-4" />
+  </a>
 
-                <Link
-                  href="/comrades-warpool/history"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground/86 transition hover:bg-background"
-                >
-                  Battle history
-                </Link>
-              </div>
+  <Link
+    href="/comrades-warpool/rules"
+    className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-3 text-sm font-medium text-foreground transition hover:bg-card"
+  >
+    How it works
+  </Link>
+
+  <Link
+    href="/comrades-warpool/history"
+    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground/86 transition hover:bg-background"
+  >
+    Battle history
+  </Link>
+</div>
             </div>
 
             <div className="rounded-4xl border border-border bg-card/85 p-5 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)]">

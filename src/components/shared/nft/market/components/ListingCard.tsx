@@ -115,16 +115,6 @@ export function ListingCard(props: {
                   Connect wallet
                 </Button>
               )}
-
-              {!canCancel ? (
-                <ButtonLink
-                  href={`/collections/${contract}/${tokenId}/listings`}
-                  disabled={loading}
-                  title="View listing details"
-                >
-                  View listing
-                </ButtonLink>
-              ) : null}
             </>
           )}
         </div>
