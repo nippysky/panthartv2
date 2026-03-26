@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import Image from "next/image";
@@ -15,7 +16,6 @@ import {
   Sparkles,
   Swords,
   Wallet,
-  Volume2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -397,7 +397,7 @@ function playBattleFeedback(kind: "tick" | "confirm") {
 
 export default function QueueJoinCard({
   queue,
-  eligibility,
+  eligibility: _eligibility,
   onRefresh,
 }: Props) {
   const router = useRouter();
@@ -431,7 +431,6 @@ export default function QueueJoinCard({
     useState<OptimisticReservationState | null>(null);
   const [displayedEntrants, setDisplayedEntrants] = useState(queue.entrants);
   const [introFlash, setIntroFlash] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(true);
   const [now, setNow] = useState(() => Date.now());
 
   const stepTopRef = useRef<HTMLDivElement | null>(null);
@@ -809,7 +808,7 @@ export default function QueueJoinCard({
         "Summoning your relic power...\nChecking relic custody and battle seat availability."
       );
 
-      if (audioEnabled) playBattleFeedback("tick");
+      playBattleFeedback("tick");
 
       const { signer, signerAddress } = await getBrowserSigner(address);
       const coreAddress = getWarpoolCoreAddress();
@@ -881,7 +880,7 @@ export default function QueueJoinCard({
         "Calling your fighter to the arena...\nPreparing weapons, relic flow, and stake path."
       );
 
-      if (audioEnabled) playBattleFeedback("confirm");
+      playBattleFeedback("confirm");
 
       const { provider, signer, signerAddress } = await getBrowserSigner(address);
       const coreAddress = getWarpoolCoreAddress();
@@ -990,7 +989,7 @@ export default function QueueJoinCard({
 
       setModalTxHash(result.txHash);
       setModalStatus(
-        "Entry confirmed.\nRouting you back into the live arena state..."
+        "Entry confirmed.\nRouting you back to Warpool..."
       );
 
       await refreshAfterWrite();
@@ -1004,10 +1003,8 @@ export default function QueueJoinCard({
       }
 
       redirectTimerRef.current = window.setTimeout(() => {
-        if (queue.poolId) {
-          router.push(`/comrades-warpool/queue/${encodeURIComponent(queue.slug)}`);
-          router.refresh();
-        }
+        router.push("/comrades-warpool");
+        router.refresh();
         setModalOpen(false);
         setIntroFlash(false);
       }, 1400);
@@ -1117,15 +1114,6 @@ export default function QueueJoinCard({
             ) : optimisticReservation ? (
               <InfoPill tone="warn">Reservation syncing…</InfoPill>
             ) : null}
-
-            <button
-              type="button"
-              onClick={() => setAudioEnabled((value) => !value)}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/70 transition hover:bg-background"
-            >
-              <Volume2 className="h-3.5 w-3.5" />
-              {audioEnabled ? "Feedback on" : "Feedback off"}
-            </button>
           </div>
         </div>
 
@@ -1149,7 +1137,7 @@ export default function QueueJoinCard({
           <StepperHeader
             step={step}
             onChange={(nextStep) => {
-              if (audioEnabled && nextStep !== step) playBattleFeedback("tick");
+              if (nextStep !== step) playBattleFeedback("tick");
               setStep(nextStep);
             }}
           />
@@ -1187,40 +1175,6 @@ export default function QueueJoinCard({
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.18),transparent)] animate-pulse" />
                     </div>
-                  </div>
-
-                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                    <div className="text-sm font-semibold text-foreground">
-                      Entry readiness
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <InfoPill tone={hasLivePool ? "good" : "warn"}>
-                        {hasLivePool ? "Live pool ready" : "Waiting for next pool"}
-                      </InfoPill>
-
-                      <InfoPill tone={queue.acceptsRelics ? "accent" : "default"}>
-                        {queue.acceptsRelics ? "Relics enabled" : "Relics disabled"}
-                      </InfoPill>
-
-                      {preview?.discountSeatsRemaining !== undefined ? (
-                        <InfoPill>
-                          Discount seats left: {preview.discountSeatsRemaining}
-                        </InfoPill>
-                      ) : null}
-
-                      {preview?.token11SeatsRemaining !== undefined ? (
-                        <InfoPill>
-                          Token 11 seats left: {preview.token11SeatsRemaining}
-                        </InfoPill>
-                      ) : null}
-                    </div>
-
-                    {eligibility?.reason ? (
-                      <div className="mt-4 text-sm leading-6 text-foreground/58">
-                        {eligibility.reason}
-                      </div>
-                    ) : null}
                   </div>
 
                   {entrantsPreview.length > 0 ? (
@@ -1295,11 +1249,7 @@ export default function QueueJoinCard({
                       title="Connect wallet to enter"
                       body="Connect your wallet to load owned fighters and relics for this queue."
                     />
-                  ) : (
-                    <div className="rounded-[28px] border border-border bg-background/80 p-5 text-sm leading-6 text-foreground/58">
-                      This queue animates live fill and combat state in real time. Wallet feedback and vibration hooks are ready for Decent Wallet sessions.
-                    </div>
-                  )}
+                  ) : null}
                 </aside>
               </div>
             </div>
@@ -1357,7 +1307,7 @@ export default function QueueJoinCard({
                         accent="comrade"
                         selected={selectedComrade?.nftId === asset.nftId}
                         onClick={() => {
-                          if (audioEnabled) playBattleFeedback("tick");
+                          playBattleFeedback("tick");
                           setSelectedComrade(asset);
                           setSelectedRelic(null);
                           setOptimisticReservation(null);
@@ -1418,7 +1368,7 @@ export default function QueueJoinCard({
                   <button
                     type="button"
                     onClick={() => {
-                      if (audioEnabled) playBattleFeedback("tick");
+                      playBattleFeedback("tick");
                       setSelectedRelic(null);
                       setOptimisticReservation(null);
                     }}
@@ -1487,7 +1437,7 @@ export default function QueueJoinCard({
                           accent="relic"
                           selected={selectedRelic?.nftId === asset.nftId}
                           onClick={() => {
-                            if (audioEnabled) playBattleFeedback("tick");
+                            playBattleFeedback("tick");
                             setSelectedRelic(asset);
                           }}
                           disabled={disabled}
@@ -1690,7 +1640,7 @@ export default function QueueJoinCard({
             <button
               type="button"
               onClick={() => {
-                if (audioEnabled && step > 0) playBattleFeedback("tick");
+                if (step > 0) playBattleFeedback("tick");
                 setStep((prev) => Math.max(0, prev - 1) as StepId);
               }}
               disabled={step === 0}
@@ -1704,7 +1654,7 @@ export default function QueueJoinCard({
               <button
                 type="button"
                 onClick={() => {
-                  if (audioEnabled && canGoNextFromStep) playBattleFeedback("tick");
+                  if (canGoNextFromStep) playBattleFeedback("tick");
                   setStep((prev) => Math.min(3, prev + 1) as StepId);
                 }}
                 disabled={!canGoNextFromStep}
