@@ -15,6 +15,7 @@ import {
   Sparkles,
   Swords,
   Wallet,
+  Volume2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -45,6 +46,7 @@ import type {
 import {
   clampPercent,
   formatDateTime,
+  formatRemaining,
   shortAddress,
 } from "@/src/features/warpool/lib/helpers";
 import CountdownChip from "@/src/features/warpool/components/CountdownChip";
@@ -64,6 +66,26 @@ type LockableAsset = WarpoolOwnedAsset & {
   lockReason?: string | null;
   lockPoolId?: string | null;
   lockQueueTitle?: string | null;
+  fatigueUntil?: string | null;
+  isFatigued?: boolean;
+};
+
+type QueueEntrantPreview = {
+  id: string;
+  wallet: string;
+  username: string | null;
+  comradeTokenId: string;
+  comradeImageUrl: string | null;
+};
+
+type QueueWithPreview = WarpoolQueue & {
+  entrantsPreview?: QueueEntrantPreview[];
+};
+
+type OptimisticReservationState = {
+  relicTokenId: string;
+  reservedAt: number;
+  mode: "discount" | "god";
 };
 
 const STEPS = [
@@ -72,6 +94,66 @@ const STEPS = [
   { id: 2, label: "Select relic" },
   { id: 3, label: "Review & enter" },
 ] as const;
+
+function formatRarity(value: unknown): string | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value.toFixed(1);
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed.toFixed(1);
+    }
+  }
+
+  return null;
+}
+
+function decodeWarpoolError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "Unable to complete the Warpool action.";
+
+  const lower = message.toLowerCase();
+
+  if (lower.includes("token 11") && lower.includes("seat")) {
+    return "The God Relic seat is no longer open for this live pool.";
+  }
+
+  if (lower.includes("seat full")) {
+    return "That relic seat is already full in this pool.";
+  }
+
+  if (lower.includes("wallet already entered")) {
+    return "This wallet already has a live entry in this pool.";
+  }
+
+  if (lower.includes("reservation")) {
+    return "Your relic reservation is missing or expired. Refresh and try again.";
+  }
+
+  if (lower.includes("not open") || lower.includes("pool locked")) {
+    return "This pool is no longer open for entry.";
+  }
+
+  if (lower.includes("insufficient allowance")) {
+    return "Approval did not complete. Please approve and try again.";
+  }
+
+  if (lower.includes("owner query for nonexistent token")) {
+    return "That token is no longer available to this wallet.";
+  }
+
+  if (lower.includes("call_exception") || lower.includes("execution reverted")) {
+    return "The arena rejected this move. Refresh the live queue and try again.";
+  }
+
+  return message;
+}
 
 function StepperHeader({
   step,
@@ -151,6 +233,7 @@ function AssetCard({
   accent,
   disabled = false,
   disabledLabel,
+  footerLabel,
 }: {
   asset: LockableAsset;
   selected: boolean;
@@ -158,7 +241,10 @@ function AssetCard({
   accent?: "comrade" | "relic";
   disabled?: boolean;
   disabledLabel?: string;
+  footerLabel?: string | null;
 }) {
+  const rarity = formatRarity(asset.rarityScore);
+
   return (
     <button
       type="button"
@@ -204,17 +290,109 @@ function AssetCard({
 
       <div className="mt-1 text-xs text-foreground/50">Token #{asset.tokenId}</div>
 
-      {asset.rarityScore ? (
+      {rarity ? (
         <div className="mt-1 text-xs text-foreground/42">
-          Rarity {asset.rarityScore}
+          Rarity {rarity}
         </div>
       ) : null}
 
-      {disabledLabel ? (
-        <div className="mt-2 text-xs text-foreground/55">{disabledLabel}</div>
+      {footerLabel ? (
+        <div className="mt-2 text-xs text-foreground/55">{footerLabel}</div>
       ) : null}
     </button>
   );
+}
+
+function InfoPill({
+  children,
+  tone = "default",
+}: {
+  children: React.ReactNode;
+  tone?: "default" | "good" | "warn" | "accent";
+}) {
+  const className =
+    tone === "good"
+      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      : tone === "warn"
+        ? "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+        : tone === "accent"
+          ? "border-accent/20 bg-accent/10 text-foreground"
+          : "border-border bg-card text-foreground/72";
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+function OverviewStat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div className="rounded-[26px] border border-border bg-background/80 p-4">
+      <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
+        {label}
+      </div>
+      <div className="mt-2 text-lg font-semibold">{value}</div>
+      {hint ? (
+        <div className="mt-1 text-xs text-foreground/52">{hint}</div>
+      ) : null}
+    </div>
+  );
+}
+
+function parseStakeNumeric(label: string | null | undefined) {
+  if (!label) return null;
+  const cleaned = label.replace(/\s*DCNT$/i, "").replace(/,/g, "").trim();
+  const value = Number(cleaned);
+  return Number.isFinite(value) ? value : null;
+}
+
+function formatDcntAmount(value: number) {
+  return `${value.toFixed(value % 1 === 0 ? 0 : 2)} DCNT`;
+}
+
+function isPoolLockedStatus(status: string | null | undefined) {
+  const normalized = (status ?? "").toLowerCase();
+  return (
+    normalized.includes("locked") ||
+    normalized.includes("battle ready") ||
+    normalized.includes("settling") ||
+    normalized.includes("settled") ||
+    normalized.includes("closed") ||
+    normalized.includes("expired")
+  );
+}
+
+function getFatigueLabel(asset: LockableAsset, now: number) {
+  const fatigueUntil = asset.fatigueUntil;
+  if (!fatigueUntil) return null;
+
+  const diff = new Date(fatigueUntil).getTime() - now;
+  if (diff <= 0) return null;
+
+  return `Fatigued · ${formatRemaining(diff)}`;
+}
+
+function playBattleFeedback(kind: "tick" | "confirm") {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (navigator?.vibrate) {
+      navigator.vibrate(kind === "confirm" ? [24, 14, 24] : 18);
+    }
+  } catch {
+    // noop
+  }
 }
 
 export default function QueueJoinCard({
@@ -244,17 +422,27 @@ export default function QueueJoinCard({
 
   const [busy, setBusy] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState("Preparing action");
-  const [modalStatus, setModalStatus] = useState("Starting...");
+  const [modalTitle, setModalTitle] = useState("Preparing battle");
+  const [modalStatus, setModalStatus] = useState("Sharpening blades...");
   const [modalTxHash, setModalTxHash] = useState<string | null>(null);
 
   const [fighterSearch, setFighterSearch] = useState("");
+  const [optimisticReservation, setOptimisticReservation] =
+    useState<OptimisticReservationState | null>(null);
+  const [displayedEntrants, setDisplayedEntrants] = useState(queue.entrants);
+  const [introFlash, setIntroFlash] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [now, setNow] = useState(() => Date.now());
 
   const stepTopRef = useRef<HTMLDivElement | null>(null);
   const redirectTimerRef = useRef<number | null>(null);
 
-  const progress = clampPercent(queue.entrants, queue.maxEntrants);
+  const queueWithPreview = queue as QueueWithPreview;
+  const entrantsPreview = queueWithPreview.entrantsPreview ?? [];
+
+  const animatedProgress = clampPercent(displayedEntrants, queue.maxEntrants);
   const hasLivePool = !!queue.poolId && !!queue.poolIdOnChain;
+  const poolHardLocked = isPoolLockedStatus(queue.status) || !hasLivePool;
 
   const scrollToStepTop = useCallback(() => {
     const el = stepTopRef.current;
@@ -283,6 +471,27 @@ export default function QueueJoinCard({
       }
     };
   }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (displayedEntrants === queue.entrants) return;
+
+    const interval = window.setInterval(() => {
+      setDisplayedEntrants((current) => {
+        if (current === queue.entrants) return current;
+        return current < queue.entrants ? current + 1 : current - 1;
+      });
+    }, 90);
+
+    return () => window.clearInterval(interval);
+  }, [displayedEntrants, queue.entrants]);
 
   const loadAssets = useCallback(async () => {
     if (!address) return;
@@ -328,6 +537,7 @@ export default function QueueJoinCard({
       setSelectedComrade(null);
       setSelectedRelic(null);
       setPreview(null);
+      setOptimisticReservation(null);
       return;
     }
 
@@ -355,6 +565,10 @@ export default function QueueJoinCard({
 
         if (previewRequestId.current === requestId) {
           setPreview(data);
+
+          if (data.activeReservationIdOnChain || data.activeReservationExpiresAt) {
+            setOptimisticReservation(null);
+          }
         }
       } catch {
         if (previewRequestId.current === requestId) {
@@ -383,17 +597,32 @@ export default function QueueJoinCard({
     });
   }, [assets.comrades, fighterSearch]);
 
+  const filteredRelics = useMemo(() => {
+    return (assets.relics as LockableAsset[]).slice().sort((a, b) => {
+      const aId = Number(a.tokenId);
+      const bId = Number(b.tokenId);
+      return aId - bId;
+    });
+  }, [assets.relics]);
+
   const requiresReservation =
     !!selectedRelic &&
     selectedRelic.tokenId !== "11" &&
     queue.acceptsRelics;
 
+  const hasActiveReservation =
+    !!preview?.activeReservationIdOnChain ||
+    !!preview?.activeReservationExpiresAt ||
+    (!!optimisticReservation &&
+      selectedRelic?.tokenId === optimisticReservation.relicTokenId);
+
   const canGoNextFromStep = useMemo(() => {
+    if (poolHardLocked) return false;
     if (step === 0) return true;
     if (step === 1) return !!selectedComrade;
     if (step === 2) return true;
     return false;
-  }, [selectedComrade, step]);
+  }, [selectedComrade, step, poolHardLocked]);
 
   const canReserveRelic = useMemo(() => {
     return (
@@ -402,15 +631,23 @@ export default function QueueJoinCard({
       selectedRelic.tokenId !== "11" &&
       !!preview?.canReserveRelic &&
       !busy &&
-      hasLivePool
+      hasLivePool &&
+      !poolHardLocked
     );
-  }, [selectedComrade, selectedRelic, preview?.canReserveRelic, busy, hasLivePool]);
+  }, [
+    selectedComrade,
+    selectedRelic,
+    preview?.canReserveRelic,
+    busy,
+    hasLivePool,
+    poolHardLocked,
+  ]);
 
   const canEnter = useMemo(() => {
-    if (!selectedComrade || !hasLivePool || busy) return false;
+    if (!selectedComrade || !hasLivePool || busy || poolHardLocked) return false;
     if (!preview) return false;
     return !!preview.canEnter;
-  }, [selectedComrade, hasLivePool, busy, preview]);
+  }, [selectedComrade, hasLivePool, busy, preview, poolHardLocked]);
 
   async function refreshAfterWrite() {
     await onRefresh?.();
@@ -433,7 +670,130 @@ export default function QueueJoinCard({
     });
 
     setPreview(refreshed);
+
+    if (refreshed.activeReservationIdOnChain || refreshed.activeReservationExpiresAt) {
+      setOptimisticReservation(null);
+    }
   }
+
+  const selectedRelicIsGod = selectedRelic?.tokenId === "11";
+  const baseStakeNumber = parseStakeNumeric(queue.stake);
+  const previewStakeNumber = parseStakeNumeric(preview?.expectedStake ?? null);
+
+  const displayedStakeLabel = useMemo(() => {
+    if (selectedRelicIsGod) return "0 DCNT";
+
+    if (preview?.expectedStake && previewStakeNumber !== null) {
+      return preview.expectedStake;
+    }
+
+    if (
+      optimisticReservation &&
+      optimisticReservation.mode === "discount" &&
+      selectedRelic?.tokenId === optimisticReservation.relicTokenId
+    ) {
+      return "Syncing discounted stake...";
+    }
+
+    return queue.stake;
+  }, [
+    selectedRelicIsGod,
+    preview?.expectedStake,
+    previewStakeNumber,
+    optimisticReservation,
+    selectedRelic?.tokenId,
+    queue.stake,
+  ]);
+
+  const pricingSummary = useMemo(() => {
+    const rows: Array<{
+      label: string;
+      value: string;
+      tone?: "default" | "good" | "warn";
+    }> = [];
+
+    if (queue.stake) {
+      rows.push({
+        label: "Base stake",
+        value: queue.stake,
+      });
+    }
+
+    if (selectedRelicIsGod) {
+      rows.push({
+        label: "God Relic bonus",
+        value: "-100% · free stake",
+        tone: "good",
+      });
+
+      rows.push({
+        label: "Due now",
+        value: "0 DCNT",
+        tone: "good",
+      });
+
+      return rows;
+    }
+
+    if (selectedRelic && selectedRelic.tokenId !== "11") {
+      rows.push({
+        label: "Relic path",
+        value: "Random 10%–40% discount",
+        tone: "good",
+      });
+
+      if (previewStakeNumber !== null && baseStakeNumber !== null) {
+        const saved = Math.max(0, baseStakeNumber - previewStakeNumber);
+        rows.push({
+          label: "Discount applied",
+          value: `-${formatDcntAmount(saved)}`,
+          tone: "good",
+        });
+        rows.push({
+          label: "Due now",
+          value: formatDcntAmount(previewStakeNumber),
+          tone: "good",
+        });
+      } else if (
+        optimisticReservation &&
+        optimisticReservation.mode === "discount" &&
+        selectedRelic?.tokenId === optimisticReservation.relicTokenId
+      ) {
+        rows.push({
+          label: "Reservation active",
+          value: "Discount locked on-chain · syncing exact amount",
+          tone: "warn",
+        });
+        rows.push({
+          label: "Due now",
+          value: "Syncing discounted stake...",
+          tone: "warn",
+        });
+      } else {
+        rows.push({
+          label: "Due now",
+          value: displayedStakeLabel,
+        });
+      }
+
+      return rows;
+    }
+
+    rows.push({
+      label: "Due now",
+      value: displayedStakeLabel,
+    });
+
+    return rows;
+  }, [
+    queue.stake,
+    selectedRelicIsGod,
+    selectedRelic,
+    previewStakeNumber,
+    baseStakeNumber,
+    optimisticReservation,
+    displayedStakeLabel,
+  ]);
 
   async function handleReserveOnly() {
     if (!address || !selectedComrade || !selectedRelic || !queue.poolIdOnChain) {
@@ -443,9 +803,13 @@ export default function QueueJoinCard({
     try {
       setBusy(true);
       setModalOpen(true);
-      setModalTitle("Reserving relic bonus");
+      setModalTitle("Claiming relic advantage");
       setModalTxHash(null);
-      setModalStatus("Connecting wallet...");
+      setModalStatus(
+        "Summoning your relic power...\nChecking relic custody and battle seat availability."
+      );
+
+      if (audioEnabled) playBattleFeedback("tick");
 
       const { signer, signerAddress } = await getBrowserSigner(address);
       const coreAddress = getWarpoolCoreAddress();
@@ -457,10 +821,15 @@ export default function QueueJoinCard({
         collection: relicCollection,
         tokenId: selectedRelic.tokenId,
         operator: coreAddress,
-        onStatus: setModalStatus,
+        onStatus: (next) =>
+          setModalStatus(
+            `${next || "Granting the arena custody over your relic..."}\nRelic channel stabilizing.`
+          ),
       });
 
-      setModalStatus("Submitting reserve transaction...");
+      setModalStatus(
+        "Locking your relic bonus seat in the arena...\nHolding the discount seat before entry."
+      );
       const result = await reserveRelicBonusTx({
         signer,
         poolIdOnChain: queue.poolIdOnChain,
@@ -469,16 +838,29 @@ export default function QueueJoinCard({
       });
 
       setModalTxHash(result.txHash);
-      setModalStatus("Reservation confirmed on-chain. Refreshing live state...");
+      setModalStatus(
+        "Relic bonus secured.\nSyncing your battle cart with the live arena state..."
+      );
+
+      setOptimisticReservation({
+        relicTokenId: selectedRelic.tokenId,
+        reservedAt: Date.now(),
+        mode: "discount",
+      });
 
       await refreshAfterWrite();
       await loadAssets();
       await refreshPreview(selectedComrade.tokenId, selectedRelic.tokenId);
 
-      toast.success("Relic reservation submitted successfully.");
+      toast.success("Relic reservation secured.");
+
+      window.setTimeout(() => {
+        setBusy(false);
+        setModalOpen(false);
+      }, 500);
+      return;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unable to reserve relic bonus.";
+      const message = decodeWarpoolError(err);
       setModalStatus(message);
       toast.error(message);
     } finally {
@@ -491,10 +873,15 @@ export default function QueueJoinCard({
 
     try {
       setBusy(true);
+      setIntroFlash(true);
       setModalOpen(true);
-      setModalTitle("Entering Battlefield");
+      setModalTitle("Entering battlefield");
       setModalTxHash(null);
-      setModalStatus("Connecting wallet...");
+      setModalStatus(
+        "Calling your fighter to the arena...\nPreparing weapons, relic flow, and stake path."
+      );
+
+      if (audioEnabled) playBattleFeedback("confirm");
 
       const { provider, signer, signerAddress } = await getBrowserSigner(address);
       const coreAddress = getWarpoolCoreAddress();
@@ -507,16 +894,15 @@ export default function QueueJoinCard({
         collection: comradesCollection,
         tokenId: selectedComrade.tokenId,
         operator: coreAddress,
-        onStatus: setModalStatus,
+        onStatus: (next) =>
+          setModalStatus(
+            `${next || "Granting arena custody over your fighter..."}\nYour comrade is stepping into the arena.`
+          ),
       });
 
       let reservationIdOnChain = preview?.activeReservationIdOnChain ?? null;
 
-      if (
-        selectedRelic &&
-        selectedRelic.tokenId !== "11" &&
-        !reservationIdOnChain
-      ) {
+      if (selectedRelic) {
         const relicCollection = getWarpoolRelicsCollection();
 
         await ensureErc721Approval({
@@ -525,10 +911,21 @@ export default function QueueJoinCard({
           collection: relicCollection,
           tokenId: selectedRelic.tokenId,
           operator: coreAddress,
-          onStatus: setModalStatus,
+          onStatus: (next) =>
+            setModalStatus(
+              `${next || "Granting arena custody over your relic..."}\nRelic path synchronizing with battlefield entry.`
+            ),
         });
+      }
 
-        setModalStatus("Creating relic reservation...");
+      if (
+        selectedRelic &&
+        selectedRelic.tokenId !== "11" &&
+        !reservationIdOnChain
+      ) {
+        setModalStatus(
+          "Locking your relic bonus before the fight...\nReserving the discount lane ahead of entry."
+        );
         const reserveResult = await reserveRelicBonusTx({
           signer,
           poolIdOnChain: queue.poolIdOnChain,
@@ -537,8 +934,15 @@ export default function QueueJoinCard({
         });
 
         setModalTxHash(reserveResult.txHash);
-        setModalStatus("Reading active reservation from chain...");
+        setOptimisticReservation({
+          relicTokenId: selectedRelic.tokenId,
+          reservedAt: Date.now(),
+          mode: "discount",
+        });
 
+        setModalStatus(
+          "Reading your active reservation from the chain...\nConfirming the locked discount seat."
+        );
         reservationIdOnChain = await getActiveReservationIdOnChain({
           provider,
           poolIdOnChain: queue.poolIdOnChain,
@@ -546,12 +950,15 @@ export default function QueueJoinCard({
         });
       }
 
-      const expectedStakeRaw = preview?.expectedStake
-        ? ethers.parseUnits(
-            preview.expectedStake.replace(/\s*DCNT$/i, "").trim(),
-            18
-          )
-        : BigInt(0);
+      const expectedStakeRaw =
+        selectedRelic?.tokenId === "11"
+          ? BigInt(0)
+          : preview?.expectedStake
+            ? ethers.parseUnits(
+                preview.expectedStake.replace(/\s*DCNT$/i, "").trim(),
+                18
+              )
+            : BigInt(0);
 
       if (expectedStakeRaw > BigInt(0)) {
         await ensureErc20Approval({
@@ -560,12 +967,20 @@ export default function QueueJoinCard({
           token: dcntToken,
           spender: coreAddress,
           requiredAmountRaw: expectedStakeRaw,
-          onStatus: setModalStatus,
+          onStatus: (next) =>
+            setModalStatus(
+              `${next || "Arming your DCNT stake for the fight..."}\nFunding the live arena entry.`
+            ),
         });
       }
 
-      setModalStatus("Submitting enterPool transaction...");
-      const enterResult = await enterPoolTx({
+      setModalStatus(
+        selectedRelic?.tokenId === "11"
+          ? "Unleashing the God Relic into battle...\nThe special seat is now being claimed."
+          : "Submitting your entry to the live arena...\nFinal battle write in progress."
+      );
+
+      const result = await enterPoolTx({
         signer,
         poolIdOnChain: queue.poolIdOnChain,
         comradeTokenId: selectedComrade.tokenId,
@@ -573,70 +988,101 @@ export default function QueueJoinCard({
         reservationIdOnChain,
       });
 
-      setModalTxHash(enterResult.txHash);
-      setModalStatus("Entry confirmed on-chain. Returning to Warpool...");
+      setModalTxHash(result.txHash);
+      setModalStatus(
+        "Entry confirmed.\nRouting you back into the live arena state..."
+      );
 
       await refreshAfterWrite();
       await loadAssets();
+      await refreshPreview(selectedComrade.tokenId, selectedRelic?.tokenId ?? null);
+
+      toast.success("You entered the pool successfully.");
+
+      if (redirectTimerRef.current) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
 
       redirectTimerRef.current = window.setTimeout(() => {
+        if (queue.poolId) {
+          router.push(`/comrades-warpool/queue/${encodeURIComponent(queue.slug)}`);
+          router.refresh();
+        }
         setModalOpen(false);
-        router.push("/comrades-warpool");
-        router.refresh();
-      }, 1000);
-
-      toast.success("Pool entry submitted successfully.");
+        setIntroFlash(false);
+      }, 1400);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unable to enter live pool.";
+      const message = decodeWarpoolError(err);
       setModalStatus(message);
+      setIntroFlash(false);
       toast.error(message);
     } finally {
       setBusy(false);
     }
   }
 
-  const actionSummary = useMemo(() => {
-    if (!preview) {
-      return {
-        dueNow: queue.stake,
-        reserveText: "Select assets to preview the exact live entry state.",
-      };
+  const reserveActionLabel = useMemo(() => {
+    if (!selectedRelic) return "Reserve bonus seat";
+    if (selectedRelic.tokenId === "11") return "God Relic enters directly";
+    return "Reserve bonus seat only";
+  }, [selectedRelic]);
+
+  const reserveActionHint = useMemo(() => {
+    if (!selectedRelic) return null;
+    if (selectedRelic.tokenId === "11") {
+      return "Token 11 skips reservation and enters with 0 DCNT stake after relic approval.";
     }
+    return "Discount relics 1–10 reserve one of the limited bonus seats before entry.";
+  }, [selectedRelic]);
 
-    return {
-      dueNow: preview.expectedStake,
-      reserveText: preview.canReserveRelic
-        ? "Discount seat available."
-        : preview.reserveReason || "No reservation available.",
-    };
-  }, [preview, queue.stake]);
+  const reviewReason = useMemo(() => {
+    const reason = (preview?.enterReason || "").toLowerCase();
 
-  const primaryActionLabel = useMemo(() => {
-    if (!hasLivePool) return "Waiting for next pool";
-    if (!selectedComrade) return "Select fighter first";
-    if (previewLoading) return "Checking live state...";
-    if (!preview) return "Checking live state...";
-    if (preview.canEnter) return "Stake and enter pool";
-
-    const reason = (preview.enterReason || "").toLowerCase();
-
+    if (poolHardLocked) return "Pool locked";
+    if (previewLoading) return "Refreshing live conditions...";
     if (reason.includes("expired")) return "Refreshing live pool...";
     if (reason.includes("not open")) return "Pool processing";
     if (reason.includes("wallet already entered")) return "Already entered";
     if (reason.includes("token 11 seat full")) return "Token 11 seat full";
     if (reason.includes("reservation")) return "Reservation required";
 
-    return preview.enterReason || "Unavailable";
-  }, [hasLivePool, selectedComrade, previewLoading, preview]);
+    return preview?.enterReason || "Unavailable";
+  }, [poolHardLocked, previewLoading, preview?.enterReason]);
+
+  const selectedRelicDisabledReason = useMemo(() => {
+    if (!selectedRelic) return null;
+    if (selectedRelic.tokenId === "11") {
+      if ((preview?.token11SeatsRemaining ?? 1) <= 0) return "God seat full";
+      return null;
+    }
+
+    if ((preview?.discountSeatsRemaining ?? 1) <= 0 && !hasActiveReservation) {
+      return "Discount seats full";
+    }
+
+    return null;
+  }, [
+    selectedRelic,
+    preview?.token11SeatsRemaining,
+    preview?.discountSeatsRemaining,
+    hasActiveReservation,
+  ]);
 
   return (
     <>
       <div
         ref={stepTopRef}
-        className="rounded-[34px] border border-border bg-card/85 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)] sm:p-7"
+        className="relative rounded-[34px] border border-border bg-card/85 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] backdrop-blur dark:shadow-[0_20px_80px_rgba(0,0,0,0.30)] sm:p-7"
       >
-        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        {poolHardLocked ? (
+          <div className="pointer-events-none absolute inset-0 z-20 rounded-[34px] bg-background/78 backdrop-blur-[2px]" />
+        ) : null}
+
+        {introFlash ? (
+          <div className="pointer-events-none absolute inset-0 z-30 rounded-[34px] bg-linear-to-br from-accent/18 via-transparent to-accent/8 animate-pulse" />
+        ) : null}
+
+        <div className="relative z-10 mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
               Live queue entry
@@ -668,582 +1114,615 @@ export default function QueueJoinCard({
                 value={preview.activeReservationExpiresAt}
                 mode="reservation"
               />
+            ) : optimisticReservation ? (
+              <InfoPill tone="warn">Reservation syncing…</InfoPill>
             ) : null}
+
+            <button
+              type="button"
+              onClick={() => setAudioEnabled((value) => !value)}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground/70 transition hover:bg-background"
+            >
+              <Volume2 className="h-3.5 w-3.5" />
+              {audioEnabled ? "Feedback on" : "Feedback off"}
+            </button>
           </div>
         </div>
 
-        <StepperHeader step={step} onChange={setStep} />
-
-        {step === 0 ? (
-          <div className="space-y-5">
-            <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-[26px] border border-border bg-background/80 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                      Status
-                    </div>
-                    <div className="mt-2 text-lg font-semibold">{queue.status}</div>
-                  </div>
-
-                  <div className="rounded-[26px] border border-border bg-background/80 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                      Stake
-                    </div>
-                    <div className="mt-2 text-lg font-semibold">{queue.stake}</div>
-                  </div>
-
-                  <div className="rounded-[26px] border border-border bg-background/80 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                      Fee
-                    </div>
-                    <div className="mt-2 text-lg font-semibold">{queue.fee}</div>
-                  </div>
-
-                  <div className="rounded-[26px] border border-border bg-background/80 p-4">
-                    <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                      Format
-                    </div>
-                    <div className="mt-2 text-lg font-semibold">{queue.format}</div>
-                  </div>
+        {poolHardLocked ? (
+          <div className="relative z-10 mb-6 rounded-[28px] border border-amber-500/20 bg-amber-500/10 p-4">
+            <div className="flex items-start gap-3">
+              <Lock className="mt-0.5 h-4 w-4 text-amber-600 dark:text-amber-300" />
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  Pool locked or closed
                 </div>
-
-                <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                  <div className="mb-3 flex items-center justify-between text-sm text-foreground/65">
-                    <span className="inline-flex items-center gap-2">
-                      <Swords className="h-4 w-4 text-accent" />
-                      Queue fill
-                    </span>
-                    <span>
-                      {queue.entrants}/{queue.maxEntrants}
-                    </span>
-                  </div>
-
-                  <div className="h-2.5 rounded-full bg-foreground/8">
-                    <div
-                      className="h-2.5 rounded-full bg-accent transition-all"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-foreground/55">
-                    <span>
-                      {hasLivePool
-                        ? queue.remainingSpots > 0
-                          ? `${queue.remainingSpots} spot${
-                              queue.remainingSpots === 1 ? "" : "s"
-                            } left`
-                          : "Pool is filled"
-                        : "Waiting for the next automatic pool open"}
-                    </span>
-
-                    <span>
-                      {queue.openedAt
-                        ? `Opened ${formatDateTime(queue.openedAt)}`
-                        : "No active live pool yet"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                    <div className="mb-3 inline-flex items-center gap-2 text-sm text-foreground/70">
-                      <Sparkles className="h-4 w-4 text-accent" />
-                      Relic seats
-                    </div>
-                    <div className="space-y-2 text-sm text-foreground/62">
-                      <div className="flex items-center justify-between">
-                        <span>Queue accepts relics</span>
-                        <span className="font-medium text-foreground">
-                          {queue.acceptsRelics ? "Yes" : "No"}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Discount relic seats</span>
-                        <span className="font-medium text-foreground">
-                          {queue.acceptsRelics
-                            ? queue.discountSeatsRemaining ?? 0
-                            : "—"}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Token 11 seats</span>
-                        <span className="font-medium text-foreground">
-                          {queue.acceptsRelics
-                            ? queue.token11SeatsRemaining ?? 0
-                            : "—"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                    <div className="mb-3 inline-flex items-center gap-2 text-sm text-foreground/70">
-                      <Lock className="h-4 w-4 text-accent" />
-                      Queue rules
-                    </div>
-                    <div className="space-y-2 text-sm leading-6 text-foreground/62">
-                      {queue.rules.map((rule) => (
-                        <div key={rule} className="rounded-2xl bg-card px-3 py-2">
-                          {rule}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <div className="mt-1 text-sm leading-6 text-foreground/68">
+                  This arena is no longer accepting new actions. All entry controls are paused until a new live pool opens.
                 </div>
               </div>
-
-              <aside className="space-y-4">
-                <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                  <div className="mb-3 inline-flex items-center gap-2 text-sm text-foreground/70">
-                    <Wallet className="h-4 w-4 text-accent" />
-                    Wallet status
-                  </div>
-
-                  {isConnected ? (
-                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-3 text-sm text-emerald-700 dark:text-emerald-200">
-                      Connected as{" "}
-                      <span className="font-medium">{shortAddress(address)}</span>
-                    </div>
-                  ) : (
-                    <div className="rounded-2xl border border-border bg-card px-3 py-3 text-sm text-foreground/65">
-                      Connect your wallet from the global header before joining.
-                    </div>
-                  )}
-
-                  <div className="mt-4 space-y-3 text-sm text-foreground/62">
-                    <div className="flex items-center justify-between">
-                      <span>Entry mode</span>
-                      <span className="font-medium text-foreground">
-                        {queue.singleEntryPerWallet
-                          ? "One per wallet"
-                          : "Multi-entry"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span>Reserve status</span>
-                      <span className="font-medium text-foreground">
-                        {eligibility?.isReservedByViewer
-                          ? "Reserved"
-                          : eligibility?.reason === "wallet_required"
-                          ? "Wallet required"
-                          : hasLivePool
-                          ? "Ready"
-                          : "No live pool"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {!hasLivePool ? (
-                  <EmptyState
-                    icon={<Clock3 className="h-5 w-5" />}
-                    title="This queue is not open right now"
-                    body="The config is live, but there is no active open pool at the moment. Once the worker opens the next pool, the countdown and entry flow will become available automatically."
-                  />
-                ) : null}
-              </aside>
             </div>
           </div>
         ) : null}
 
-        {step === 1 ? (
-          <div className="space-y-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-semibold">Select your fighter</h3>
-                <p className="mt-2 text-sm leading-7 text-foreground/60">
-                  Choose one Comrade from the connected wallet to stake into this
-                  queue.
-                </p>
-              </div>
+        <div className="relative z-10">
+          <StepperHeader
+            step={step}
+            onChange={(nextStep) => {
+              if (audioEnabled && nextStep !== step) playBattleFeedback("tick");
+              setStep(nextStep);
+            }}
+          />
 
-              {selectedComrade ? (
-                <div className="rounded-full border border-accent/30 bg-accent/8 px-4 py-2 text-sm text-foreground">
-                  Selected: {selectedComrade.name ?? `Comrade #${selectedComrade.tokenId}`}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="rounded-3xl border border-border bg-background/80 p-3">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
-                <input
-                  value={fighterSearch}
-                  onChange={(e) => setFighterSearch(e.target.value)}
-                  placeholder="Search fighters by name or token id..."
-                  className="h-11 w-full rounded-full border border-border bg-card pl-10 pr-4 text-sm text-foreground outline-none transition placeholder:text-foreground/35 focus:border-foreground/20"
-                />
-              </div>
-            </div>
-
-            {!isConnected ? (
-              <EmptyState
-                icon={<Wallet className="h-5 w-5" />}
-                title="Connect your wallet first"
-                body="Your owned Comrades are loaded directly from the indexed collection data for the connected wallet."
-              />
-            ) : assetsLoading ? (
-              <div className="rounded-[28px] border border-border bg-background/80 p-8 text-sm text-foreground/60">
-                Loading owned fighters...
-              </div>
-            ) : assets.comrades.length === 0 ? (
-              <EmptyState
-                icon={<Shield className="h-5 w-5" />}
-                title="No fighters found"
-                body="This wallet does not currently own any indexed Comrades from the configured Warpool collection."
-              />
-            ) : filteredComrades.length === 0 ? (
-              <EmptyState
-                icon={<Search className="h-5 w-5" />}
-                title="No fighters match your search"
-                body="Try a fighter name or token id."
-              />
-            ) : (
-              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-                {filteredComrades.map((asset) => {
-                  const disabled = !!asset.isLockedInWarpool;
-                  const disabledLabel = disabled
-                    ? asset.lockQueueTitle
-                      ? `Already in pool · ${asset.lockQueueTitle}`
-                      : asset.lockReason || "Fighter already in pool"
-                    : undefined;
-
-                  return (
-                    <AssetCard
-                      key={asset.nftId}
-                      asset={asset}
-                      selected={selectedComrade?.nftId === asset.nftId}
-                      onClick={() => setSelectedComrade(asset)}
-                      accent="comrade"
-                      disabled={disabled}
-                      disabledLabel={disabledLabel}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {step === 2 ? (
-          <div className="space-y-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-semibold">Select relic</h3>
-                <p className="mt-2 text-sm leading-7 text-foreground/60">
-                  Relics only apply in Crown Vaultbound. Discount relics use the
-                  2-seat bonus system for tokens 1–10, while token 11 uses the
-                  separate 1-seat god slot.
-                </p>
-              </div>
-
-              {queue.acceptsRelics ? (
-                <div className="rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground/70">
-                  Seats left: discount {queue.discountSeatsRemaining ?? 0} · token 11{" "}
-                  {queue.token11SeatsRemaining ?? 0}
-                </div>
-              ) : null}
-            </div>
-
-            {!queue.acceptsRelics ? (
-              <EmptyState
-                icon={<Sparkles className="h-5 w-5" />}
-                title="No relic needed for this queue"
-                body="This queue does not use relic mechanics. You can continue directly to the review step."
-              />
-            ) : !isConnected ? (
-              <EmptyState
-                icon={<Wallet className="h-5 w-5" />}
-                title="Connect your wallet first"
-                body="Relics are loaded directly from your connected wallet inventory."
-              />
-            ) : assetsLoading ? (
-              <div className="rounded-[28px] border border-border bg-background/80 p-8 text-sm text-foreground/60">
-                Loading owned relics...
-              </div>
-            ) : (
-              <>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRelic(null)}
-                    className={[
-                      "rounded-full border px-4 py-2 text-sm transition",
-                      !selectedRelic
-                        ? "border-accent bg-accent/8 text-foreground"
-                        : "border-border bg-background text-foreground/70",
-                    ].join(" ")}
-                  >
-                    Continue without relic
-                  </button>
-                </div>
-
-                {assets.relics.length === 0 ? (
-                  <EmptyState
-                    icon={<Sparkles className="h-5 w-5" />}
-                    title="No relics found"
-                    body="This wallet does not currently own any indexed relics from the configured collection."
-                  />
-                ) : (
+          {step === 0 ? (
+            <div className="space-y-5">
+              <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    {(assets.relics as LockableAsset[]).map((asset) => (
-                      <AssetCard
-                        key={asset.nftId}
-                        asset={asset}
-                        selected={selectedRelic?.nftId === asset.nftId}
-                        onClick={() => setSelectedRelic(asset)}
-                        accent="relic"
+                    <OverviewStat label="Status" value={queue.status} />
+                    <OverviewStat label="Stake" value={queue.stake} />
+                    <OverviewStat
+                      label="Entrants"
+                      value={`${displayedEntrants}/${queue.maxEntrants}`}
+                    />
+                    <OverviewStat
+                      label="Progress"
+                      value={`${Math.round(animatedProgress)}%`}
+                    />
+                  </div>
+
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                    <div className="mb-3 flex items-center justify-between gap-4">
+                      <div className="text-sm font-semibold text-foreground">
+                        Live fill progress
+                      </div>
+                      <div className="text-xs text-foreground/50">
+                        {displayedEntrants}/{queue.maxEntrants}
+                      </div>
+                    </div>
+                    <div className="relative h-3 overflow-hidden rounded-full bg-card">
+                      <div
+                        className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-300"
+                        style={{ width: `${animatedProgress}%` }}
                       />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        ) : null}
-
-        {step === 3 ? (
-          <div className="space-y-5">
-            <div>
-              <h3 className="text-xl font-semibold">Review and enter</h3>
-              <p className="mt-2 text-sm leading-7 text-foreground/60">
-                Final live check before the on-chain transaction. This reflects
-                the current active pool state, entry rules, and reservation status.
-              </p>
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-              <div className="space-y-4">
-                <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                  <div className="mb-4 text-sm font-medium text-foreground">
-                    Loadout summary
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-[22px] border border-border bg-card p-4">
-                      <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                        Fighter
-                      </div>
-                      <div className="mt-2 text-sm font-medium text-foreground">
-                        {selectedComrade
-                          ? selectedComrade.name ??
-                            `Comrade #${selectedComrade.tokenId}`
-                          : "Not selected"}
-                      </div>
-                    </div>
-
-                    <div className="rounded-[22px] border border-border bg-card p-4">
-                      <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
-                        Relic
-                      </div>
-                      <div className="mt-2 text-sm font-medium text-foreground">
-                        {selectedRelic
-                          ? selectedRelic.name ?? `Relic #${selectedRelic.tokenId}`
-                          : queue.acceptsRelics
-                          ? "No relic"
-                          : "Not used in this queue"}
-                      </div>
+                      <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.18),transparent)] animate-pulse" />
                     </div>
                   </div>
+
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                    <div className="text-sm font-semibold text-foreground">
+                      Entry readiness
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <InfoPill tone={hasLivePool ? "good" : "warn"}>
+                        {hasLivePool ? "Live pool ready" : "Waiting for next pool"}
+                      </InfoPill>
+
+                      <InfoPill tone={queue.acceptsRelics ? "accent" : "default"}>
+                        {queue.acceptsRelics ? "Relics enabled" : "Relics disabled"}
+                      </InfoPill>
+
+                      {preview?.discountSeatsRemaining !== undefined ? (
+                        <InfoPill>
+                          Discount seats left: {preview.discountSeatsRemaining}
+                        </InfoPill>
+                      ) : null}
+
+                      {preview?.token11SeatsRemaining !== undefined ? (
+                        <InfoPill>
+                          Token 11 seats left: {preview.token11SeatsRemaining}
+                        </InfoPill>
+                      ) : null}
+                    </div>
+
+                    {eligibility?.reason ? (
+                      <div className="mt-4 text-sm leading-6 text-foreground/58">
+                        {eligibility.reason}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {entrantsPreview.length > 0 ? (
+                    <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-foreground">
+                          Fighters already in the arena
+                        </div>
+                        <div className="text-xs text-foreground/48">
+                          {entrantsPreview.length} visible
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        {entrantsPreview.map((entrant) => (
+                          <div
+                            key={entrant.id}
+                            className="rounded-2xl border border-border bg-card p-3"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-border bg-background">
+                                {entrant.comradeImageUrl ? (
+                                  <Image
+                                    src={entrant.comradeImageUrl}
+                                    alt={entrant.username ?? entrant.wallet}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center text-foreground/30">
+                                    <Shield className="h-4 w-4" />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="truncate text-sm font-medium text-foreground">
+                                  {entrant.username ?? shortAddress(entrant.wallet)}
+                                </div>
+                                <div className="mt-1 text-xs text-foreground/52">
+                                  Fighter #{entrant.comradeTokenId}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
 
-                <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                  <div className="mb-4 text-sm font-medium text-foreground">
-                    Live queue check
+                <aside className="space-y-4">
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                    <div className="text-sm font-semibold text-foreground">
+                      How relics work
+                    </div>
+
+                    <div className="mt-4 space-y-3 text-sm leading-6 text-foreground/60">
+                      <div className="rounded-2xl border border-border bg-card px-4 py-3">
+                        Relics <span className="font-medium text-foreground">1–10</span> can reserve one of the limited discount seats and apply a random 10%–40% cut to stake.
+                      </div>
+
+                      <div className="rounded-2xl border border-border bg-card px-4 py-3">
+                        <span className="font-medium text-foreground">God Relic #11</span> skips reservation and enters with a free stake when the special seat is open.
+                      </div>
+                    </div>
                   </div>
 
                   {!isConnected ? (
-                    <div className="rounded-[22px] border border-border bg-card p-4 text-sm text-foreground/60">
-                      Connect wallet to run the live entry preview.
-                    </div>
-                  ) : !selectedComrade ? (
-                    <div className="rounded-[22px] border border-border bg-card p-4 text-sm text-foreground/60">
-                      Select a fighter first.
-                    </div>
-                  ) : previewLoading ? (
-                    <div className="rounded-[22px] border border-border bg-card p-4 text-sm text-foreground/60">
-                      Checking live lens state...
-                    </div>
-                  ) : preview ? (
-                    <div className="space-y-3">
-                      <div className="rounded-[22px] border border-border bg-card p-4">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-foreground/60">Enter pool</span>
-                            <span className="font-medium text-foreground">
-                              {preview.canEnter
-                                ? "Allowed"
-                                : preview.enterReason || "Unavailable"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-foreground/60">
-                              Reserve relic bonus
-                            </span>
-                            <span className="font-medium text-foreground">
-                              {selectedRelic && selectedRelic.tokenId !== "11"
-                                ? preview.canReserveRelic
-                                  ? "Allowed"
-                                  : preview.reserveReason || "Unavailable"
-                                : selectedRelic?.tokenId === "11"
-                                ? "Not required"
-                                : "No relic selected"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-foreground/60">Due now</span>
-                            <span className="font-medium text-foreground">
-                              {preview.expectedStake}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-foreground/60">Discount</span>
-                            <span className="font-medium text-foreground">
-                              {preview.discountBps
-                                ? `${(preview.discountBps / 100).toFixed(2)}%`
-                                : "None"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-foreground/60">
-                              Active reservation
-                            </span>
-                            <span className="font-medium text-foreground">
-                              {preview.activeReservationIdOnChain ?? "None"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between gap-4 text-sm">
-                            <span className="text-foreground/60">Seats left</span>
-                            <span className="font-medium text-foreground">
-                              Discount {preview.discountSeatsRemaining ?? 0} · Token 11{" "}
-                              {preview.token11SeatsRemaining ?? 0}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {preview.activeReservationExpiresAt ? (
-                        <div className="flex flex-wrap gap-2">
-                          <CountdownChip
-                            value={preview.activeReservationExpiresAt}
-                            mode="reservation"
-                          />
-                        </div>
-                      ) : null}
-                    </div>
+                    <EmptyState
+                      icon={<Wallet className="h-5 w-5" />}
+                      title="Connect wallet to enter"
+                      body="Connect your wallet to load owned fighters and relics for this queue."
+                    />
                   ) : (
-                    <div className="rounded-[22px] border border-border bg-card p-4 text-sm text-foreground/60">
-                      Live preview not available yet.
+                    <div className="rounded-[28px] border border-border bg-background/80 p-5 text-sm leading-6 text-foreground/58">
+                      This queue animates live fill and combat state in real time. Wallet feedback and vibration hooks are ready for Decent Wallet sessions.
                     </div>
                   )}
+                </aside>
+              </div>
+            </div>
+          ) : null}
+
+          {step === 1 ? (
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-lg font-semibold text-foreground">
+                    Select your fighter
+                  </div>
+                  <div className="mt-1 text-sm text-foreground/58">
+                    Fighters already active in Warpool or currently fatigued stay disabled here.
+                  </div>
+                </div>
+
+                <div className="relative w-full max-w-sm">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/34" />
+                  <input
+                    value={fighterSearch}
+                    onChange={(e) => setFighterSearch(e.target.value)}
+                    placeholder="Search fighter name or token"
+                    className="h-11 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm outline-none transition focus:border-foreground/15 focus:ring-2 focus:ring-foreground/5"
+                  />
                 </div>
               </div>
 
-              <aside className="space-y-4">
-                <div className="rounded-[28px] border border-border bg-background/80 p-5">
-                  <div className="mb-4 text-sm font-medium text-foreground">
-                    Action summary
+              {assetsLoading ? (
+                <EmptyState
+                  icon={<Clock3 className="h-5 w-5" />}
+                  title="Loading your fighters"
+                  body="Checking your indexed inventory and current battle readiness."
+                />
+              ) : filteredComrades.length === 0 ? (
+                <EmptyState
+                  icon={<Shield className="h-5 w-5" />}
+                  title="No eligible fighters found"
+                  body="We could not find any fighter matching this queue and wallet state."
+                />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {filteredComrades.map((asset) => {
+                    const fatigueLabel = getFatigueLabel(asset, now);
+                    const disabled =
+                      !!asset.isLockedInWarpool || !!fatigueLabel || poolHardLocked;
+                    const disabledLabel = poolHardLocked
+                      ? "Pool locked"
+                      : asset.lockReason || fatigueLabel || undefined;
+
+                    return (
+                      <AssetCard
+                        key={asset.nftId}
+                        asset={asset}
+                        accent="comrade"
+                        selected={selectedComrade?.nftId === asset.nftId}
+                        onClick={() => {
+                          if (audioEnabled) playBattleFeedback("tick");
+                          setSelectedComrade(asset);
+                          setSelectedRelic(null);
+                          setOptimisticReservation(null);
+                        }}
+                        disabled={disabled}
+                        disabledLabel={disabledLabel}
+                        footerLabel={fatigueLabel}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {step === 2 ? (
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-lg font-semibold text-foreground">
+                    Select a relic
                   </div>
-
-                  <div className="space-y-3 text-sm text-foreground/62">
-                    <div className="flex items-center justify-between">
-                      <span>Base stake</span>
-                      <span className="font-medium text-foreground">{queue.stake}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span>Due now</span>
-                      <span className="font-medium text-foreground">
-                        {actionSummary.dueNow}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span>Queue status</span>
-                      <span className="font-medium text-foreground">
-                        {queue.status}
-                      </span>
-                    </div>
-
-                    <div className="rounded-[22px] border border-border bg-card p-4 text-xs leading-6 text-foreground/55">
-                      {requiresReservation
-                        ? actionSummary.reserveText
-                        : selectedRelic?.tokenId === "11"
-                        ? "Token 11 uses the dedicated god seat and enters without the discount reservation flow."
-                        : "No relic reservation needed for this entry path."}
-                    </div>
+                  <div className="mt-1 text-sm text-foreground/58">
+                    Relics are optional. Discount relics use limited reserved seats. Token 11 enters directly.
                   </div>
+                </div>
 
-                  <div className="mt-5 grid gap-3">
-                    <button
-                      type="button"
-                      disabled={!canEnter}
-                      onClick={() => void handleEnterPool()}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:bg-foreground/15 disabled:text-foreground/40"
-                    >
-                      {busy ? "Processing..." : primaryActionLabel}
-                    </button>
+                <div className="flex flex-wrap gap-2">
+                  <InfoPill>
+                    Discount seats: {preview?.discountSeatsRemaining ?? "—"}
+                  </InfoPill>
+                  <InfoPill>
+                    Token 11 seats: {preview?.token11SeatsRemaining ?? "—"}
+                  </InfoPill>
+                </div>
+              </div>
+
+              {!queue.acceptsRelics ? (
+                <EmptyState
+                  icon={<Sparkles className="h-5 w-5" />}
+                  title="Relics are disabled for this queue"
+                  body="This queue currently uses a fighter-only entry flow."
+                />
+              ) : assetsLoading ? (
+                <EmptyState
+                  icon={<Clock3 className="h-5 w-5" />}
+                  title="Loading your relics"
+                  body="Checking your relic inventory and battle availability."
+                />
+              ) : filteredRelics.length === 0 ? (
+                <EmptyState
+                  icon={<Sparkles className="h-5 w-5" />}
+                  title="No relics found"
+                  body="Your connected wallet does not currently show any relics for use in this queue."
+                />
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (audioEnabled) playBattleFeedback("tick");
+                      setSelectedRelic(null);
+                      setOptimisticReservation(null);
+                    }}
+                    className={[
+                      "rounded-3xl border p-4 text-left transition",
+                      selectedRelic === null
+                        ? "border-accent bg-accent/8"
+                        : "border-border bg-card/80 hover:bg-card",
+                    ].join(" ")}
+                  >
+                    <div className="text-sm font-semibold text-foreground">
+                      Enter without relic
+                    </div>
+                    <div className="mt-1 text-sm leading-6 text-foreground/58">
+                      Standard queue entry using your selected fighter only.
+                    </div>
+                  </button>
+
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredRelics.map((asset) => {
+                      const isGod = asset.tokenId === "11";
+                      const discountSeatsRemaining = preview?.discountSeatsRemaining ?? 0;
+                      const token11SeatsRemaining = preview?.token11SeatsRemaining ?? 0;
+
+                      let disabled = poolHardLocked;
+                      let disabledLabel: string | undefined = poolHardLocked
+                        ? "Pool locked"
+                        : undefined;
+
+                      if (!disabled && asset.isLockedInWarpool) {
+                        disabled = true;
+                        disabledLabel = asset.lockReason || "Already in use";
+                      }
+
+                      if (!disabled && !selectedComrade) {
+                        disabled = true;
+                        disabledLabel = "Select fighter first";
+                      }
+
+                      if (!disabled && isGod && token11SeatsRemaining <= 0) {
+                        disabled = true;
+                        disabledLabel = "God seat full";
+                      }
+
+                      if (
+                        !disabled &&
+                        !isGod &&
+                        discountSeatsRemaining <= 0 &&
+                        !(
+                          hasActiveReservation &&
+                          selectedRelic?.nftId === asset.nftId
+                        )
+                      ) {
+                        disabled = true;
+                        disabledLabel = "Discount seats full";
+                      }
+
+                      const footerLabel = isGod
+                        ? "Special seat · free stake"
+                        : "Relic power: random 10%–40%";
+
+                      return (
+                        <AssetCard
+                          key={asset.nftId}
+                          asset={asset}
+                          accent="relic"
+                          selected={selectedRelic?.nftId === asset.nftId}
+                          onClick={() => {
+                            if (audioEnabled) playBattleFeedback("tick");
+                            setSelectedRelic(asset);
+                          }}
+                          disabled={disabled}
+                          disabledLabel={disabledLabel}
+                          footerLabel={footerLabel}
+                        />
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          ) : null}
+
+          {step === 3 ? (
+            <div className="space-y-5">
+              <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
+                <div className="space-y-4">
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <div className="text-lg font-semibold text-foreground">
+                          Battle cart
+                        </div>
+                        <div className="mt-1 text-sm text-foreground/58">
+                          Final arena review before the on-chain write.
+                        </div>
+                      </div>
+
+                      {selectedRelic ? (
+                        <InfoPill tone="accent">
+                          {selectedRelic.tokenId === "11"
+                            ? "God Relic selected"
+                            : "Discount relic selected"}
+                        </InfoPill>
+                      ) : (
+                        <InfoPill>No relic</InfoPill>
+                      )}
+                    </div>
+
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                      <div className="rounded-3xl border border-border bg-card p-4">
+                        <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
+                          Fighter
+                        </div>
+                        <div className="mt-2 text-base font-semibold text-foreground">
+                          {selectedComrade?.name ?? "No fighter selected"}
+                        </div>
+                        {selectedComrade ? (
+                          <div className="mt-1 text-sm text-foreground/56">
+                            Token #{selectedComrade.tokenId}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="rounded-3xl border border-border bg-card p-4">
+                        <div className="text-xs uppercase tracking-[0.18em] text-foreground/40">
+                          Relic
+                        </div>
+                        <div className="mt-2 text-base font-semibold text-foreground">
+                          {selectedRelic?.name ??
+                            (selectedRelic
+                              ? `Relic #${selectedRelic.tokenId}`
+                              : "No relic selected")}
+                        </div>
+                        {selectedRelic ? (
+                          <div className="mt-1 text-sm text-foreground/56">
+                            Token #{selectedRelic.tokenId}
+                          </div>
+                        ) : (
+                          <div className="mt-1 text-sm text-foreground/56">
+                            Standard entry flow
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-3xl border border-border bg-card p-4">
+                      <div className="text-sm font-semibold text-foreground">
+                        Pricing
+                      </div>
+
+                      <div className="mt-4 space-y-3">
+                        {pricingSummary.map((row) => (
+                          <div
+                            key={row.label}
+                            className="flex items-start justify-between gap-4 text-sm"
+                          >
+                            <span className="text-foreground/58">{row.label}</span>
+                            <span
+                              className={[
+                                "text-right font-medium",
+                                row.tone === "good"
+                                  ? "text-emerald-600 dark:text-emerald-300"
+                                  : row.tone === "warn"
+                                    ? "text-amber-700 dark:text-amber-300"
+                                    : "text-foreground",
+                              ].join(" ")}
+                            >
+                              {row.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                     {selectedRelic && selectedRelic.tokenId !== "11" ? (
-                      <button
-                        type="button"
-                        disabled={!canReserveRelic}
-                        onClick={() => void handleReserveOnly()}
-                        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:bg-card disabled:text-foreground/40"
-                      >
-                        {busy ? "Processing..." : "Reserve bonus seat only"}
-                      </button>
+                      <div className="mt-4 rounded-3xl border border-accent/15 bg-accent/6 p-4 text-sm leading-6 text-foreground/70">
+                        Your relic can cut the stake by a random <span className="font-medium text-foreground">10%–40%</span>. Once reserved, the exact discount locks on-chain and your battle cart refreshes.
+                      </div>
+                    ) : null}
+
+                    {selectedRelic && selectedRelic.tokenId === "11" ? (
+                      <div className="mt-4 rounded-3xl border border-accent/15 bg-accent/6 p-4 text-sm leading-6 text-foreground/70">
+                        <span className="font-medium text-foreground">God Relic #11</span> bypasses the normal discount-seat flow and enters with <span className="font-medium text-foreground">0 DCNT stake</span> when the special seat is available.
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                    <div className="text-sm font-semibold text-foreground">
+                      Live battle checks
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <InfoPill tone={preview?.canEnter ? "good" : "warn"}>
+                        {preview?.canEnter ? "Ready to enter" : reviewReason}
+                      </InfoPill>
+
+                      {requiresReservation ? (
+                        <InfoPill tone={hasActiveReservation ? "good" : "warn"}>
+                          {hasActiveReservation
+                            ? "Reservation active"
+                            : "Reservation needed"}
+                        </InfoPill>
+                      ) : null}
+
+                      {selectedRelicDisabledReason ? (
+                        <InfoPill tone="warn">{selectedRelicDisabledReason}</InfoPill>
+                      ) : null}
+                    </div>
+
+                    {preview?.activeReservationExpiresAt ? (
+                      <div className="mt-4 text-sm text-foreground/58">
+                        Active reservation expires {formatDateTime(preview.activeReservationExpiresAt)}.
+                      </div>
+                    ) : optimisticReservation ? (
+                      <div className="mt-4 text-sm text-foreground/58">
+                        Reservation submitted. Live pricing is syncing now.
+                      </div>
                     ) : null}
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-border bg-background/80 p-5 text-xs leading-6 text-foreground/50">
-                  This flow reads your indexed inventory, checks live queue
-                  readiness, applies relic rules where allowed, and then writes
-                  the actual approvals and entry transactions on-chain.
-                </div>
-              </aside>
+                <aside className="space-y-4">
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5">
+                    <div className="text-sm font-semibold text-foreground">
+                      Action bay
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {selectedRelic && selectedRelic.tokenId !== "11" ? (
+                        <button
+                          type="button"
+                          disabled={!canReserveRelic}
+                          onClick={() => void handleReserveOnly()}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:bg-card disabled:text-foreground/40"
+                        >
+                          {busy ? "Processing..." : reserveActionLabel}
+                        </button>
+                      ) : null}
+
+                      <button
+                        type="button"
+                        disabled={!canEnter}
+                        onClick={() => void handleEnterPool()}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:bg-foreground/15 disabled:text-foreground/40"
+                      >
+                        {busy ? "Processing..." : "Enter battlefield"}
+                        <Swords className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {reserveActionHint ? (
+                      <div className="mt-4 text-xs leading-6 text-foreground/50">
+                        {reserveActionHint}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="rounded-[28px] border border-border bg-background/80 p-5 text-xs leading-6 text-foreground/50">
+                    This flow reads your indexed inventory, checks live queue readiness, applies relic rules where allowed, then writes the real approvals and entry transactions on-chain with premium live feedback.
+                  </div>
+                </aside>
+              </div>
             </div>
-          </div>
-        ) : null}
+          ) : null}
 
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
-          <button
-            type="button"
-            onClick={() => setStep((prev) => Math.max(0, prev - 1) as StepId)}
-            disabled={step === 0}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
-
-          {step < 3 ? (
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
             <button
               type="button"
-              onClick={() => setStep((prev) => Math.min(3, prev + 1) as StepId)}
-              disabled={!canGoNextFromStep}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:bg-foreground/15 disabled:text-foreground/40"
+              onClick={() => {
+                if (audioEnabled && step > 0) playBattleFeedback("tick");
+                setStep((prev) => Math.max(0, prev - 1) as StepId);
+              }}
+              disabled={step === 0}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-45"
             >
-              {step === 0
-                ? "Next: select fighter"
-                : step === 1
-                ? "Next: select relic"
-                : "Next: review and enter"}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </button>
-          ) : (
-            <div className="text-sm text-foreground/50">
-              Final step reached
-            </div>
-          )}
+
+            {step < 3 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (audioEnabled && canGoNextFromStep) playBattleFeedback("tick");
+                  setStep((prev) => Math.min(3, prev + 1) as StepId);
+                }}
+                disabled={!canGoNextFromStep}
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:bg-foreground/15 disabled:text-foreground/40"
+              >
+                {step === 0
+                  ? "Next: select fighter"
+                  : step === 1
+                    ? "Next: select relic"
+                    : "Next: review and enter"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <div className="text-sm text-foreground/50">
+                Final step reached
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
