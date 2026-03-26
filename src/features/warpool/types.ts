@@ -48,6 +48,7 @@ export type WarpoolQueue = {
 
 export type WarpoolHistoryItem = {
   id: string;
+  poolIdOnChain: string | null;
   queue: string;
   winner: string;
   prize: string;
@@ -79,6 +80,7 @@ export type WarpoolBattleEntry = {
   placement: number | null;
   status: string;
   paidStake: string;
+  prizeAmount: string | null;
 };
 
 export type WarpoolTimelineItem = {
@@ -128,6 +130,7 @@ export type WarpoolBattlePlacements = {
 
 export type WarpoolBattle = {
   poolId: string;
+  poolIdOnChain: string | null;
   queue: string;
   state: BattleState;
   stake: string;
@@ -183,6 +186,16 @@ export type WarpoolOwnedAsset = {
   name: string | null;
   imageUrl: string | null;
   rarityScore: string | null;
+
+  isLockedInWarpool?: boolean;
+  lockReason?: string | null;
+  lockPoolId?: string | null;
+  lockQueueTitle?: string | null;
+
+  fatigueUntil?: string | null;
+  isFatigued?: boolean;
+  consecutiveEntries?: number | null;
+  lastSettledPoolId?: string | null;
 };
 
 export type WarpoolQueueAssetsPayload = {

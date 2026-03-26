@@ -6,6 +6,7 @@ import {
   queueStatusTone,
 } from "@/src/features/warpool/lib/helpers";
 import LiveCountdown from "@/src/features/warpool/components/LiveCountdown";
+import { formatNumber } from "@/src/lib/utils";
 
 type Props = {
   queue: WarpoolQueue;
@@ -21,6 +22,20 @@ function isBattleViewable(status: WarpoolQueue["status"]) {
 
 function isDisabled(status: WarpoolQueue["status"]) {
   return status === "Locked" || status === "Closed" || status === "Settled";
+}
+
+function formatCompactAmount(value: string | null | undefined) {
+  if (!value) return "0";
+  const match = value.trim().match(/^([+-]?\d*\.?\d+)\s*(.*)$/);
+  if (!match) return value;
+
+  const numeric = Number(match[1]);
+  const suffix = match[2]?.trim();
+
+  if (!Number.isFinite(numeric)) return value;
+
+  const compact = formatNumber(numeric, { min: 0, max: 2 });
+  return suffix ? `${compact} ${suffix}` : compact;
 }
 
 function QueueCardInner({ queue }: Props) {
@@ -44,7 +59,7 @@ function QueueCardInner({ queue }: Props) {
         <div>
           <div className="text-lg font-semibold">{queue.title}</div>
           <div className="mt-1 text-sm text-foreground/55">
-            {queue.format} · Stake {queue.stake}
+            {queue.format} · Entry {formatCompactAmount(queue.stake)}
           </div>
         </div>
 

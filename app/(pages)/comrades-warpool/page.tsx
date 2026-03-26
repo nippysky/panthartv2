@@ -1,34 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowRight,
-  Clock3,
-  Shield,
-  Swords,
-  Trophy,
-  Wallet,
-} from "lucide-react";
-
-import { useDecentWalletAccount } from "@/src/lib/decentWallet";
+import { ArrowRight, Swords, Trophy } from "lucide-react";
 
 import AsyncState from "@/src/features/warpool/components/AsyncState";
-import HeroStats from "@/src/features/warpool/components/HeroStats";
 import LoadingPanel from "@/src/features/warpool/components/LoadingPanel";
 import QueueCard from "@/src/features/warpool/components/QueueCard";
 import SectionBadge from "@/src/features/warpool/components/SectionBadge";
-import { shortAddress } from "@/src/features/warpool/lib/helpers";
 import { useWarpoolQueues } from "@/src/features/warpool/hook/useWarpoolQueues";
+import { formatNumber } from "@/src/lib/utils";
 
-const RECENT_WINNERS_LIMIT = 5;
+const RECENT_WINNERS_LIMIT = 3;
+
+function formatCompactAmount(value: string | null | undefined) {
+  if (!value) return "0";
+  const match = value.trim().match(/^([+-]?\d*\.?\d+)\s*(.*)$/);
+  if (!match) return value;
+
+  const numeric = Number(match[1]);
+  const suffix = match[2]?.trim();
+
+  if (!Number.isFinite(numeric)) return value;
+
+  const compact = formatNumber(numeric, { min: 0, max: 2 });
+  return suffix ? `${compact} ${suffix}` : compact;
+}
 
 export default function ComradesWarpoolPage() {
-  const { address, isConnected } = useDecentWalletAccount();
-
   const {
     queues,
     recentWinners,
-    liveQueueCount,
     isLoading,
     isRefreshing,
     error,
@@ -90,15 +91,16 @@ export default function ComradesWarpoolPage() {
 
               <div className="space-y-4">
                 <h1 className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-                  Stake. Queue. Battle.
+                  Pick your fighter.
                   <br />
-                  Win the pool.
+                  Enter the arena.
+                  <br />
+                  Take the pool.
                 </h1>
 
                 <p className="max-w-2xl text-sm leading-7 text-foreground/68 sm:text-base">
-                  Browse the real live queues, see exact fill progress, watch the
-                  countdown in motion, and step cleanly through fighter selection,
-                  relic selection, and entry confirmation.
+                  Step into live combat queues, lock in your comrade, add a relic
+                  when the seat is open, and fight for the prize before the pool closes.
                 </p>
               </div>
 
@@ -107,7 +109,7 @@ export default function ComradesWarpoolPage() {
                   href="#live-queues"
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition hover:scale-[1.01]"
                 >
-                  View queues
+                  Enter battlefield
                   <ArrowRight className="h-4 w-4" />
                 </a>
 
@@ -115,32 +117,8 @@ export default function ComradesWarpoolPage() {
                   href="/comrades-warpool/history"
                   className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-medium text-foreground/86 transition hover:bg-background"
                 >
-                  View history
+                  Battle history
                 </Link>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                <HeroStats
-                  icon={<Shield className="h-5 w-5" />}
-                  title="On-chain"
-                  body="Queue flow and pool lifecycle are wired to real Warpool state."
-                />
-
-                <HeroStats
-                  icon={<Clock3 className="h-5 w-5" />}
-                  title={String(liveQueueCount)}
-                  body="Queues currently active, filling, locked, or battle ready."
-                />
-
-                <HeroStats
-                  icon={<Wallet className="h-5 w-5" />}
-                  title={isConnected ? "Ready" : "Connect"}
-                  body={
-                    isConnected
-                      ? `Wallet linked: ${shortAddress(address)}`
-                      : "Connect wallet from the global header to load your fighters."
-                  }
-                />
               </div>
             </div>
 
@@ -178,7 +156,7 @@ export default function ComradesWarpoolPage() {
 
                         <div className="shrink-0 text-right">
                           <p className="text-sm font-semibold text-foreground">
-                            {battle.prize}
+                            {formatCompactAmount(battle.prize)}
                           </p>
                           <p className="mt-1 text-xs text-foreground/45">
                             {battle.time}
@@ -191,7 +169,7 @@ export default function ComradesWarpoolPage() {
               </div>
 
               <div className="mt-4 text-xs text-foreground/45">
-                {isRefreshing ? "Refreshing live data..." : "Live data ready"}
+                {isRefreshing ? "Refreshing live arena data..." : "Arena feed live"}
               </div>
 
               <div className="mt-4 flex flex-wrap gap-3">
@@ -224,11 +202,8 @@ export default function ComradesWarpoolPage() {
               Matchmaking
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-              All queues
+              Live queues
             </h2>
-            <p className="mt-2 text-sm text-foreground/58">
-              Real status, real fill count, real countdown.
-            </p>
           </div>
 
           <Link

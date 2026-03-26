@@ -1,11 +1,9 @@
-// src/app/page.tsx
 import LiveAuctionsSection from "@/src/ui/home/LiveAuctionSection";
 import MarketHeroStrip from "@/src/ui/home/MarketHeroStrip";
 import TopCollectionsSection from "@/src/ui/home/TopCollectionsSection";
-
-
 import MintingNowSection from "@/src/ui/home/MintingNowSection";
 import ActiveListingsSection from "@/src/ui/home/ActiveListingsSection";
+import WarpoolPromoSection from "@/src/ui/home/WarpoolPromoSection";
 
 type WindowKey = "24h" | "7d" | "30d";
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -27,7 +25,10 @@ export default async function HomePage({
     <div className="page-enter pt-6 sm:pt-10">
       <MarketHeroStrip windowKey={windowKey} />
 
-      <div className="h-6 sm:h-10" />
+      <div className="h-10 sm:h-14" />
+      <WarpoolPromoSection />
+
+      <div className="h-10 sm:h-14" />
       <TopCollectionsSection windowKey={windowKey} />
 
       <div className="h-10 sm:h-14" />

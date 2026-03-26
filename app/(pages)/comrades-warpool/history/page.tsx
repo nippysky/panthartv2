@@ -6,9 +6,24 @@ import { ArrowLeft, ArrowRight, CalendarRange, Trophy } from "lucide-react";
 import AsyncState from "@/src/features/warpool/components/AsyncState";
 import SectionBadge from "@/src/features/warpool/components/SectionBadge";
 import { useWarpoolHistory } from "@/src/features/warpool/hook/useWarpoolHistory";
+import { formatNumber } from "@/src/lib/utils";
 
 const INITIAL_VISIBLE = 12;
 const LOAD_MORE_STEP = 12;
+
+function formatCompactAmount(value: string | null | undefined) {
+  if (!value) return "0";
+  const match = value.trim().match(/^([+-]?\d*\.?\d+)\s*(.*)$/);
+  if (!match) return value;
+
+  const numeric = Number(match[1]);
+  const suffix = match[2]?.trim();
+
+  if (!Number.isFinite(numeric)) return value;
+
+  const compact = formatNumber(numeric, { min: 0, max: 2 });
+  return suffix ? `${compact} ${suffix}` : compact;
+}
 
 export default function WarpoolHistoryPage() {
   const { items, isLoading, isRefreshing, error, refetch } = useWarpoolHistory();
@@ -104,7 +119,9 @@ export default function WarpoolHistoryPage() {
                   >
                     <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_auto] lg:items-center">
                       <div className="min-w-0">
-                        <div className="truncate text-lg font-medium">Pool #{row.id}</div>
+                        <div className="truncate text-lg font-medium">
+                          Pool #{row.poolIdOnChain ?? row.id}
+                        </div>
                         <div className="mt-1 truncate text-sm text-foreground/55">
                           {row.queue}
                         </div>
@@ -128,7 +145,7 @@ export default function WarpoolHistoryPage() {
                             Prize
                           </div>
                           <div className="mt-2 truncate text-sm text-foreground">
-                            {row.prize}
+                            {formatCompactAmount(row.prize)}
                           </div>
                         </div>
                       </div>

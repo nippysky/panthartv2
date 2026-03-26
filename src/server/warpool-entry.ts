@@ -13,6 +13,7 @@ const LENS_ABI = [
   "function canReserveRelic(uint256 poolId, address user, uint256 comradeTokenId, uint256 relicTokenId) view returns (bool ok, string reason)",
   "function canEnterPool(uint256 poolId, address user, uint256 comradeTokenId, uint256 relicTokenId, uint256 reservationId) view returns (bool ok, string reason)",
   "function getActiveReservationForUser(uint256 poolId, address user) view returns (uint256)",
+  "function getFighterUsage(address collection, uint256 tokenId) view returns (uint8 consecutiveEntries, uint64 fatiguedUntil, uint64 lastSettledPoolId)",
 ] as const;
 
 function rpcUrl() {
@@ -39,6 +40,18 @@ function formatDcnt(raw?: any): string {
     return `${ethers.formatUnits(String(raw ?? 0), 18)} DCNT`;
   } catch {
     return "0 DCNT";
+  }
+}
+
+function toIsoFromUnixSeconds(value: bigint | number | string | null | undefined) {
+  if (value == null) return null;
+
+  try {
+    const seconds = Number(value);
+    if (!Number.isFinite(seconds) || seconds <= 0) return null;
+    return new Date(seconds * 1000).toISOString();
+  } catch {
+    return null;
   }
 }
 
@@ -83,6 +96,80 @@ function queueTitleFromSlug(slug?: string | null) {
     .join(" ");
 }
 
+async function getFighterUsageMap(params: {
+  comradesCollection: string;
+  tokenIds: string[];
+}) {
+  const usageMap = new Map<
+    string,
+    {
+      consecutiveEntries: number | null;
+      fatiguedUntil: string | null;
+      isFatigued: boolean;
+      lastSettledPoolId: string | null;
+    }
+  >();
+
+  const maybeRpc = rpcUrl();
+  const maybeLens = lensAddress();
+
+  if (!maybeRpc || !maybeLens || !params.comradesCollection || params.tokenIds.length === 0) {
+    return usageMap;
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(maybeRpc);
+    const lens = new ethers.Contract(maybeLens, LENS_ABI, provider);
+    const nowSec = Math.floor(Date.now() / 1000);
+
+    const results = await Promise.all(
+      params.tokenIds.map(async (tokenId) => {
+        try {
+          const usage = await lens.getFighterUsage(
+            params.comradesCollection,
+            BigInt(tokenId)
+          );
+
+          const consecutiveEntries = Number(usage.consecutiveEntries ?? 0);
+          const fatiguedUntilRaw = BigInt(usage.fatiguedUntil ?? 0);
+          const lastSettledPoolIdRaw = BigInt(usage.lastSettledPoolId ?? 0);
+
+          return {
+            tokenId,
+            value: {
+              consecutiveEntries,
+              fatiguedUntil: toIsoFromUnixSeconds(fatiguedUntilRaw),
+              isFatigued: Number(fatiguedUntilRaw) > nowSec,
+              lastSettledPoolId:
+                lastSettledPoolIdRaw > BigInt(0)
+                  ? lastSettledPoolIdRaw.toString()
+                  : null,
+            },
+          };
+        } catch {
+          return {
+            tokenId,
+            value: {
+              consecutiveEntries: null,
+              fatiguedUntil: null,
+              isFatigued: false,
+              lastSettledPoolId: null,
+            },
+          };
+        }
+      })
+    );
+
+    for (const item of results) {
+      usageMap.set(item.tokenId, item.value);
+    }
+  } catch {
+    return usageMap;
+  }
+
+  return usageMap;
+}
+
 export async function listOwnedWarpoolAssets(
   walletAddress: string
 ): Promise<WarpoolQueueAssetsPayload> {
@@ -117,9 +204,16 @@ export async function listOwnedWarpoolAssets(
     },
   });
 
+  const normalizedComrades = comradesCollection.toLowerCase();
+  const normalizedRelics = relicsCollection.toLowerCase();
+
   const comradeNftIds = nfts
-    .filter((nft) => nft.contract.toLowerCase() === comradesCollection.toLowerCase())
+    .filter((nft) => nft.contract.toLowerCase() === normalizedComrades)
     .map((nft) => nft.id);
+
+  const comradeTokenIds = nfts
+    .filter((nft) => nft.contract.toLowerCase() === normalizedComrades)
+    .map((nft) => String(nft.tokenId));
 
   const activeLocks = comradeNftIds.length
     ? await prisma.warpoolEntry.findMany({
@@ -144,6 +238,11 @@ export async function listOwnedWarpoolAssets(
       })
     : [];
 
+  const fighterUsageMap = await getFighterUsageMap({
+    comradesCollection,
+    tokenIds: comradeTokenIds,
+  });
+
   const lockMap = new Map<
     string,
     {
@@ -165,13 +264,12 @@ export async function listOwnedWarpoolAssets(
     });
   }
 
-  const mapAsset = (nft: any): WarpoolOwnedAsset & {
-    isLockedInWarpool?: boolean;
-    lockReason?: string | null;
-    lockPoolId?: string | null;
-    lockQueueTitle?: string | null;
-  } => {
+  const mapAsset = (
+    nft: any
+  ): WarpoolOwnedAsset => {
     const lock = lockMap.get(String(nft.id));
+    const isComrade = String(nft.contract).toLowerCase() === normalizedComrades;
+    const usage = isComrade ? fighterUsageMap.get(String(nft.tokenId)) : null;
 
     return {
       nftId: String(nft.id),
@@ -180,19 +278,25 @@ export async function listOwnedWarpoolAssets(
       name: nft.name ?? null,
       imageUrl: nft.imageUrl ?? null,
       rarityScore: nft.rarityScore ? String(nft.rarityScore) : null,
+
       isLockedInWarpool: lock?.isLockedInWarpool ?? false,
       lockReason: lock?.lockReason ?? null,
       lockPoolId: lock?.lockPoolId ?? null,
       lockQueueTitle: lock?.lockQueueTitle ?? null,
+
+      fatigueUntil: usage?.fatiguedUntil ?? null,
+      isFatigued: usage?.isFatigued ?? false,
+      consecutiveEntries: usage?.consecutiveEntries ?? null,
+      lastSettledPoolId: usage?.lastSettledPoolId ?? null,
     };
   };
 
   const comrades = nfts
-    .filter((nft) => nft.contract.toLowerCase() === comradesCollection.toLowerCase())
+    .filter((nft) => nft.contract.toLowerCase() === normalizedComrades)
     .map(mapAsset);
 
   const relics = nfts
-    .filter((nft) => nft.contract.toLowerCase() === relicsCollection.toLowerCase())
+    .filter((nft) => nft.contract.toLowerCase() === normalizedRelics)
     .map(mapAsset);
 
   return {
@@ -273,18 +377,19 @@ export async function getWarpoolLensPreview(params: {
   let activeReservationIdOnChain = reservation
     ? String(reservation.reservationIdOnChain)
     : null;
-  const activeReservationExpiresAt = reservation?.expiresAtOnChain?.toISOString() ?? null;
+  const activeReservationExpiresAt =
+    reservation?.expiresAtOnChain?.toISOString() ?? null;
   const discountBps = reservation?.discountBps ?? null;
 
   const expectedStake = isToken11
     ? "0 DCNT"
     : reservation?.discountBps
-    ? formatDcnt(
-        (BigInt(String(pool.stakeAmountRaw)) *
-          BigInt(10_000 - Number(reservation.discountBps))) /
-          BigInt(10_000)
-      )
-    : formatDcnt(pool.stakeAmountRaw);
+      ? formatDcnt(
+          (BigInt(String(pool.stakeAmountRaw)) *
+            BigInt(10_000 - Number(reservation.discountBps))) /
+            BigInt(10_000)
+        )
+      : formatDcnt(pool.stakeAmountRaw);
 
   const maybeRpc = rpcUrl();
   const maybeLens = lensAddress();
@@ -343,8 +448,8 @@ export async function getWarpoolLensPreview(params: {
         reserveReason = canReserveRelic
           ? "Discount seat available"
           : reservation
-          ? "Active reservation already exists"
-          : "Discount seats full";
+            ? "Active reservation already exists"
+            : "Discount seats full";
       }
 
       if (queueAcceptsRelics && isToken11) {
@@ -368,8 +473,8 @@ export async function getWarpoolLensPreview(params: {
       reserveReason = canReserveRelic
         ? "Discount seat available"
         : reservation
-        ? "Active reservation already exists"
-        : "Discount seats full";
+          ? "Active reservation already exists"
+          : "Discount seats full";
     }
 
     if (queueAcceptsRelics && isToken11) {

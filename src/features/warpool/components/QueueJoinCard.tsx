@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { useDecentWalletAccount } from "@/src/lib/decentWallet";
+import { formatNumber } from "@/src/lib/utils";
 import {
   fetchWarpoolLensPreview,
   fetchWarpoolQueueAssets,
@@ -110,6 +111,28 @@ function formatRarity(value: unknown): string | null {
   return null;
 }
 
+function formatCompactAmount(value: string | number | null | undefined) {
+  if (value == null) return "0";
+
+  if (typeof value === "number") {
+    return formatNumber(value, { min: 0, max: 2 });
+  }
+
+  const raw = String(value).trim();
+  if (!raw) return "0";
+
+  const match = raw.match(/^([+-]?\d*\.?\d+)\s*(.*)$/);
+  if (!match) return raw;
+
+  const numeric = Number(match[1]);
+  const suffix = match[2]?.trim();
+
+  if (!Number.isFinite(numeric)) return raw;
+
+  const compact = formatNumber(numeric, { min: 0, max: 2 });
+  return suffix ? `${compact} ${suffix}` : compact;
+}
+
 function decodeWarpoolError(error: unknown) {
   const message =
     error instanceof Error
@@ -121,7 +144,7 @@ function decodeWarpoolError(error: unknown) {
   const lower = message.toLowerCase();
 
   if (lower.includes("token 11") && lower.includes("seat")) {
-    return "The God Relic seat is no longer open for this live pool.";
+    return "The god Relic seat is no longer open for this live pool.";
   }
 
   if (lower.includes("seat full")) {
@@ -358,7 +381,7 @@ function parseStakeNumeric(label: string | null | undefined) {
 }
 
 function formatDcntAmount(value: number) {
-  return `${value.toFixed(value % 1 === 0 ? 0 : 2)} DCNT`;
+  return `${formatNumber(value, { min: 0, max: 2 })} DCNT`;
 }
 
 function isPoolLockedStatus(status: string | null | undefined) {
@@ -381,6 +404,12 @@ function getFatigueLabel(asset: LockableAsset, now: number) {
   if (diff <= 0) return null;
 
   return `Fatigued · ${formatRemaining(diff)}`;
+}
+
+function isFatigueActive(asset: LockableAsset, now = Date.now()) {
+  if (!asset.fatigueUntil) return false;
+  const diff = new Date(asset.fatigueUntil).getTime() - now;
+  return diff > 0;
 }
 
 function playBattleFeedback(kind: "tick" | "confirm") {
@@ -509,6 +538,7 @@ export default function QueueJoinCard({
 
         if (!next) return null;
         if (next.isLockedInWarpool) return null;
+        if (isFatigueActive(next)) return null;
 
         return next;
       });
@@ -683,7 +713,7 @@ export default function QueueJoinCard({
     if (selectedRelicIsGod) return "0 DCNT";
 
     if (preview?.expectedStake && previewStakeNumber !== null) {
-      return preview.expectedStake;
+      return formatCompactAmount(preview.expectedStake);
     }
 
     if (
@@ -694,7 +724,7 @@ export default function QueueJoinCard({
       return "Syncing discounted stake...";
     }
 
-    return queue.stake;
+    return formatCompactAmount(queue.stake);
   }, [
     selectedRelicIsGod,
     preview?.expectedStake,
@@ -714,13 +744,13 @@ export default function QueueJoinCard({
     if (queue.stake) {
       rows.push({
         label: "Base stake",
-        value: queue.stake,
+        value: formatCompactAmount(queue.stake),
       });
     }
 
     if (selectedRelicIsGod) {
       rows.push({
-        label: "God Relic bonus",
+        label: "god Relic bonus",
         value: "-100% · free stake",
         tone: "good",
       });
@@ -975,7 +1005,7 @@ export default function QueueJoinCard({
 
       setModalStatus(
         selectedRelic?.tokenId === "11"
-          ? "Unleashing the God Relic into battle...\nThe special seat is now being claimed."
+          ? "Unleashing the god Relic into battle...\nThe special seat is now being claimed."
           : "Submitting your entry to the live arena...\nFinal battle write in progress."
       );
 
@@ -988,9 +1018,7 @@ export default function QueueJoinCard({
       });
 
       setModalTxHash(result.txHash);
-      setModalStatus(
-        "Entry confirmed.\nRouting you back to Warpool..."
-      );
+      setModalStatus("Entry confirmed.\nRouting you back to Warpool...");
 
       await refreshAfterWrite();
       await loadAssets();
@@ -1020,7 +1048,7 @@ export default function QueueJoinCard({
 
   const reserveActionLabel = useMemo(() => {
     if (!selectedRelic) return "Reserve bonus seat";
-    if (selectedRelic.tokenId === "11") return "God Relic enters directly";
+    if (selectedRelic.tokenId === "11") return "god Relic enters directly";
     return "Reserve bonus seat only";
   }, [selectedRelic]);
 
@@ -1049,7 +1077,7 @@ export default function QueueJoinCard({
   const selectedRelicDisabledReason = useMemo(() => {
     if (!selectedRelic) return null;
     if (selectedRelic.tokenId === "11") {
-      if ((preview?.token11SeatsRemaining ?? 1) <= 0) return "God seat full";
+      if ((preview?.token11SeatsRemaining ?? 1) <= 0) return "god seat full";
       return null;
     }
 
@@ -1148,7 +1176,7 @@ export default function QueueJoinCard({
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <OverviewStat label="Status" value={queue.status} />
-                    <OverviewStat label="Stake" value={queue.stake} />
+                    <OverviewStat label="Stake" value={formatCompactAmount(queue.stake)} />
                     <OverviewStat
                       label="Entrants"
                       value={`${displayedEntrants}/${queue.maxEntrants}`}
@@ -1238,7 +1266,7 @@ export default function QueueJoinCard({
                       </div>
 
                       <div className="rounded-2xl border border-border bg-card px-4 py-3">
-                        <span className="font-medium text-foreground">God Relic #11</span> skips reservation and enters with a free stake when the special seat is open.
+                        <span className="font-medium text-foreground">god Relic #11</span> skips reservation and enters with a free stake when the special seat is open.
                       </div>
                     </div>
                   </div>
@@ -1410,7 +1438,7 @@ export default function QueueJoinCard({
 
                       if (!disabled && isGod && token11SeatsRemaining <= 0) {
                         disabled = true;
-                        disabledLabel = "God seat full";
+                        disabledLabel = "god seat full";
                       }
 
                       if (
@@ -1470,7 +1498,7 @@ export default function QueueJoinCard({
                       {selectedRelic ? (
                         <InfoPill tone="accent">
                           {selectedRelic.tokenId === "11"
-                            ? "God Relic selected"
+                            ? "god Relic selected"
                             : "Discount relic selected"}
                         </InfoPill>
                       ) : (
@@ -1552,7 +1580,7 @@ export default function QueueJoinCard({
 
                     {selectedRelic && selectedRelic.tokenId === "11" ? (
                       <div className="mt-4 rounded-3xl border border-accent/15 bg-accent/6 p-4 text-sm leading-6 text-foreground/70">
-                        <span className="font-medium text-foreground">God Relic #11</span> bypasses the normal discount-seat flow and enters with <span className="font-medium text-foreground">0 DCNT stake</span> when the special seat is available.
+                        <span className="font-medium text-foreground">god Relic #11</span> bypasses the normal discount-seat flow and enters with <span className="font-medium text-foreground">0 DCNT stake</span> when the special seat is available.
                       </div>
                     ) : null}
                   </div>

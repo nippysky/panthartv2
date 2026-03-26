@@ -493,6 +493,9 @@ export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
 
     return {
       id: String(battle.pool.id),
+      poolIdOnChain: battle.pool.poolIdOnChain
+        ? String(battle.pool.poolIdOnChain)
+        : null,
       queue: queueMeta.title,
       winner: winnerLabel,
       prize: formatDcnt(winner?.prizeAmountRaw ?? battle.prizePoolRaw ?? 0),
@@ -505,7 +508,6 @@ export async function listWarpoolHistory(): Promise<WarpoolHistoryItem[]> {
     };
   });
 }
-
 
 function timelineLabel(activity: any) {
   switch (activity.type) {
@@ -596,6 +598,10 @@ export async function getWarpoolBattleByPoolId(
     placement: entry.placement ?? null,
     status: String(entry.status),
     paidStake: formatDcnt(entry.paidStakeAmountRaw),
+    prizeAmount:
+      entry.placement === 1 || entry.placement === 2 || entry.placement === 3
+        ? formatDcnt(entry.prizeAmountRaw ?? 0)
+        : null,
   }));
 
   const timeline: WarpoolTimelineItem[] = pool.activities.map((activity) => ({
@@ -622,32 +628,38 @@ export async function getWarpoolBattleByPoolId(
           ? (match.rawResult as Record<string, any>)
           : {};
 
+      const rounds = Array.isArray(raw.rounds)
+        ? raw.rounds.map((roundItem: any, index: number) => ({
+            round: Number(roundItem?.round ?? index + 1),
+            aScore: Number(roundItem?.aScore ?? 0),
+            bScore: Number(roundItem?.bScore ?? 0),
+            winner: String(roundItem?.winner ?? ""),
+            suddenDeath: Boolean(roundItem?.suddenDeath ?? false),
+          }))
+        : [];
+
       return {
         id: String(match.id),
-        roundNumber: match.roundNumber,
-        matchNumber: match.matchNumber,
-        status: String(match.status),
+        roundNumber: Number(match.roundNumber ?? 0),
+        matchNumber: Number(match.matchNumber ?? 0),
+        status: String(match.status ?? ""),
         stage: stageLabel(raw.stage),
         slotAEntryId: match.slotAEntryId ? String(match.slotAEntryId) : null,
         slotBEntryId: match.slotBEntryId ? String(match.slotBEntryId) : null,
         winnerEntryId: match.winnerEntryId ? String(match.winnerEntryId) : null,
         loserEntryId: match.loserEntryId ? String(match.loserEntryId) : null,
-        rounds: Array.isArray(raw.rounds)
-          ? raw.rounds.map((roundItem: any) => ({
-              round: Number(roundItem.round ?? 0),
-              aScore: Number(roundItem.aScore ?? 0),
-              bScore: Number(roundItem.bScore ?? 0),
-              winner: String(roundItem.winner ?? ""),
-              suddenDeath: Boolean(roundItem.suddenDeath ?? false),
-            }))
-          : [],
+        rounds,
         summary:
           raw.summary && typeof raw.summary === "object"
             ? {
                 aWins:
-                  raw.summary.aWins != null ? Number(raw.summary.aWins) : undefined,
+                  raw.summary.aWins != null
+                    ? Number(raw.summary.aWins)
+                    : undefined,
                 bWins:
-                  raw.summary.bWins != null ? Number(raw.summary.bWins) : undefined,
+                  raw.summary.bWins != null
+                    ? Number(raw.summary.bWins)
+                    : undefined,
                 winnerId:
                   raw.summary.winnerId != null
                     ? String(raw.summary.winnerId)
@@ -657,16 +669,32 @@ export async function getWarpoolBattleByPoolId(
                     ? String(raw.summary.loserId)
                     : undefined,
               }
-            : null,
+            : raw && typeof raw === "object"
+              ? {
+                  aWins: raw.aWins != null ? Number(raw.aWins) : undefined,
+                  bWins: raw.bWins != null ? Number(raw.bWins) : undefined,
+                  winnerId:
+                    raw.winnerId != null ? String(raw.winnerId) : undefined,
+                  loserId:
+                    raw.loserId != null ? String(raw.loserId) : undefined,
+                }
+              : null,
       };
     }) ?? [];
 
   return {
     poolId: String(pool.id),
+    poolIdOnChain: pool.poolIdOnChain ? String(pool.poolIdOnChain) : null,
     queue: queueMeta.title,
     state: battleStateFromPool(pool, battle),
     stake: formatDcnt(pool.stakeAmountRaw),
-    prizePool: formatDcnt(battle?.prizePoolRaw ?? 0),
+    prizePool: formatDcnt(
+      battle?.prizePoolRaw ??
+        first?.prizeAmountRaw ??
+        second?.prizeAmountRaw ??
+        third?.prizeAmountRaw ??
+        0
+    ),
     startedAt: formatWhen(pool.openedAt),
     round,
     arena: `${pool.entrantCount}/${pool.targetSize} fighters entered`,
