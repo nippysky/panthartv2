@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🟢 Panth.art — NFT Marketplace + Comrades Warpool
 
-## Getting Started
+Panth.art is a premium NFT marketplace built for the Electroneum EVM ecosystem, combining a fast, minimal trading experience with an on-chain competitive game layer called **Comrades Warpool**.
 
-First, run the development server:
+Designed with an Apple-grade UI philosophy and FAANG-level performance standards, Panth.art focuses on speed, clarity, and real-time on-chain interaction.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Core Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🖼️ NFT Marketplace
+- ERC-721 & ERC-1155 support  
+- Fixed-price listings and auctions  
+- Real-time activity and ownership tracking  
+- Smart media rendering (images, video, animation_url)  
+- On-chain + indexed hybrid architecture for performance  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### ⚔️ Comrades Warpool (Game Layer)
+- Queue-based PvP NFT battle system  
+- Pool combat with automated resolution  
+- Vaultbound staking mechanics  
+- Relic-based fee discounts and strategy layer  
+- Auto-relist of captured assets via marketplace integration  
+- Fully on-chain lifecycle with indexed sync  
 
-## Learn More
+### 🔐 Non-Custodial Wallet Flow
+- Native integration with Decent Wallet  
+- Secure, user-controlled transactions  
+- Seamless in-app browser connection (no friction UX)  
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🧠 Architecture Overview
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Frontend:** Next.js (App Router), TypeScript  
+- **Backend:** Node.js + Prisma (PostgreSQL)  
+- **Blockchain:** Electroneum EVM  
+- **Indexer:** Custom event sync + worker pipelines (DigitalOcean)  
+- **UI System:** Custom components (no heavy UI libraries)  
+- **Design System:** Minimal, rounded, performance-first  
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---

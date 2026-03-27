@@ -5,11 +5,7 @@ import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { detectMediaType, isVideoType } from "@/src/lib/media";
-import {
-  fetchJsonFromIpfs,
-  toCanonicalIpfsUri,
-  toGatewayUrl,
-} from "@/src/lib/ipfs";
+import { fetchJsonFromIpfs, toGatewayUrl } from "@/src/lib/ipfs";
 
 const BLUR_1x1 =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -37,18 +33,13 @@ function cx(...cls: Array<string | false | undefined | null>) {
 }
 
 /**
- * DB-first:
- * - DB HTTP URLs stay exactly as stored
- * - recovered metadata values get canonicalized back to ipfs:// if possible
- *   so they do not keep forcing a dedicated Pinata gateway URL
+ * Important:
+ * - If DB already gives a full HTTP URL, keep it exactly as-is.
+ * - If DB gives ipfs://..., resolve with PUBLIC gateway in modal.
+ *   This avoids forcing dedicated Pinata for external/submitted collections.
  */
-function normalizeDbMediaCandidate(value?: string | null) {
+function resolveMediaUrl(value?: string | null) {
   return toGatewayUrl(value, "PUBLIC");
-}
-
-function normalizeRecoveredMediaCandidate(value?: string | null) {
-  const canonical = toCanonicalIpfsUri(value);
-  return toGatewayUrl(canonical, "PUBLIC");
 }
 
 export default function NftModal({
@@ -66,20 +57,16 @@ export default function NftModal({
   const [recovered, setRecovered] = useState<RecoveredMeta | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const hasPrimaryMedia = !!item?.imageUrl || !!item?.animationUrl;
-
   useEffect(() => {
     let cancelled = false;
 
     async function hydrateFallback() {
       if (!open || !item) return;
 
-      if (hasPrimaryMedia && item.name) {
-        setRecovered(null);
-        return;
-      }
+      const needsRecoveredName = !item.name;
+      const needsRecoveredMedia = !item.animationUrl && !item.imageUrl;
 
-      if (!item.tokenUri) {
+      if (!item.tokenUri || (!needsRecoveredName && !needsRecoveredMedia)) {
         setRecovered(null);
         return;
       }
@@ -116,7 +103,11 @@ export default function NftModal({
         });
       } catch (error) {
         if (!cancelled) {
-          console.error("Failed to recover NFT modal metadata:", item.tokenId, error);
+          console.error(
+            "Failed to recover NFT modal metadata:",
+            item.tokenId,
+            error
+          );
           setRecovered(null);
         }
       }
@@ -127,7 +118,7 @@ export default function NftModal({
     return () => {
       cancelled = true;
     };
-  }, [open, item, hasPrimaryMedia]);
+  }, [open, item]);
 
   useEffect(() => {
     if (!open) return;
@@ -151,44 +142,42 @@ export default function NftModal({
     item?.name ?? recovered?.name ?? (item ? `#${item.tokenId}` : "NFT");
 
   /**
-   * Always prefer DB media first.
-   * Only use recovered metadata when DB value is missing.
-   * If recovered metadata contains a full Pinata HTTP gateway URL, canonicalize it
-   * back to ipfs://... and then resolve through PUBLIC so Open media does not stick
-   * to the dedicated gateway.
+   * Modal media priority:
+   * 1. DB animationUrl
+   * 2. recovered animation_url fallback
+   * 3. DB imageUrl
+   * 4. recovered image fallback
    */
-  const resolvedAnimationUrl = item?.animationUrl
-    ? normalizeDbMediaCandidate(item.animationUrl)
-    : recovered?.animationUrl
-      ? normalizeRecoveredMediaCandidate(recovered.animationUrl)
-      : null;
+  const primaryMediaRaw =
+    item?.animationUrl ??
+    recovered?.animationUrl ??
+    item?.imageUrl ??
+    recovered?.imageUrl ??
+    null;
 
-  const resolvedImageUrl = item?.imageUrl
-    ? normalizeDbMediaCandidate(item.imageUrl)
-    : recovered?.imageUrl
-      ? normalizeRecoveredMediaCandidate(recovered.imageUrl)
-      : null;
+  const posterRaw =
+    item?.imageUrl ??
+    recovered?.imageUrl ??
+    item?.animationUrl ??
+    recovered?.animationUrl ??
+    null;
 
-  /**
-   * If animation_url is present, use it for modal media first.
-   * Otherwise fall back to image.
-   */
-  const mediaUrl = resolvedAnimationUrl || resolvedImageUrl || null;
+  const mediaUrl = useMemo(() => {
+    return resolveMediaUrl(primaryMediaRaw);
+  }, [primaryMediaRaw]);
 
-  /**
-   * Poster prefers image.
-   * If no image exists and the chosen animation is actually an image, use it.
-   */
   const posterUrl = useMemo(() => {
-    if (resolvedImageUrl) return resolvedImageUrl;
+    const resolvedPoster = resolveMediaUrl(posterRaw);
+    if (!resolvedPoster) return null;
 
-    if (resolvedAnimationUrl) {
-      const t = detectMediaType(resolvedAnimationUrl);
-      if (t === "image") return resolvedAnimationUrl;
+    const t = detectMediaType(resolvedPoster);
+    if (t === "video") {
+      const imageFallback = resolveMediaUrl(item?.imageUrl ?? recovered?.imageUrl);
+      return imageFallback ?? null;
     }
 
-    return null;
-  }, [resolvedAnimationUrl, resolvedImageUrl]);
+    return resolvedPoster;
+  }, [posterRaw, item?.imageUrl, recovered?.imageUrl]);
 
   const mediaType = useMemo(() => detectMediaType(mediaUrl), [mediaUrl]);
   const isVideo = isVideoType(mediaType) || Boolean(item?.hasVideo);

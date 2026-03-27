@@ -10,7 +10,7 @@ import {
   NftStatus,
 } from "@/src/lib/generated/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { detectMediaType, ipfsToHttp, isVideoType } from "@/src/lib/media";
+import { detectMediaType, isVideoType } from "@/src/lib/media";
 
 function normalizeMaybeString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -29,15 +29,30 @@ function mapItem(n: {
 }) {
   const rawM: any = n.rawMetadata ?? {};
 
+  /**
+   * DB/source-of-truth order:
+   * 1. explicit DB imageUrl column
+   * 2. DB rawMetadata.image
+   * 3. DB rawMetadata.image_url
+   *
+   * Keep the raw DB value exactly as stored.
+   * Do NOT gateway-convert here.
+   */
   const rawImage =
     normalizeMaybeString(n.imageUrl) ??
     normalizeMaybeString(rawM?.image) ??
     normalizeMaybeString(rawM?.image_url) ??
+    normalizeMaybeString(rawM?.imageUrl) ??
     null;
 
+  /**
+   * DB/source-of-truth animation fields from raw metadata.
+   * Keep exactly as stored.
+   */
   const rawAnimation =
     normalizeMaybeString(rawM?.animation_url) ??
     normalizeMaybeString(rawM?.animationUrl) ??
+    normalizeMaybeString(rawM?.animation) ??
     null;
 
   const mimeType =
@@ -45,18 +60,15 @@ function mapItem(n: {
     normalizeMaybeString(rawM?.contentType) ??
     null;
 
-  const img = ipfsToHttp(rawImage);
-  const anim = ipfsToHttp(rawAnimation);
-
-  const mediaType = detectMediaType(anim ?? img, mimeType);
+  const mediaType = detectMediaType(rawAnimation ?? rawImage, mimeType);
   const hasVideo = isVideoType(mediaType);
 
   return {
     id: n.id,
     tokenId: n.tokenId,
     name: n.name ?? normalizeMaybeString(rawM?.name) ?? null,
-    imageUrl: img ?? null,
-    animationUrl: anim ?? null,
+    imageUrl: rawImage,
+    animationUrl: rawAnimation,
     tokenUri: n.tokenUri ?? null,
     mediaType,
     hasVideo,

@@ -4,8 +4,18 @@ import { toGatewayUrl } from "@/src/lib/ipfs";
 
 export type MediaType = "video" | "image" | "audio" | "html" | "unknown";
 
+/**
+ * Source-of-truth aware:
+ * - If DB already stores an HTTP URL (public gateway, Pinata gateway, etc),
+ *   keep it exactly as-is.
+ * - If DB stores raw ipfs://..., resolve through PUBLIC gateway.
+ *
+ * This avoids forcing dedicated Pinata for collections whose DB media is
+ * intentionally raw IPFS or public-gateway based, while still preserving
+ * collections that already store your dedicated Pinata HTTP URLs in DB.
+ */
 export function ipfsToHttp(url?: string | null) {
-  return toGatewayUrl(url, "PINATA");
+  return toGatewayUrl(url, "PUBLIC");
 }
 
 function getExtension(url?: string | null) {
@@ -20,7 +30,8 @@ function getExtension(url?: string | null) {
     const idx = path.lastIndexOf(".");
     return idx >= 0 ? path.slice(idx) : "";
   } catch {
-    const cleaned = raw.toLowerCase().split("?")[0]?.split("#")[0] ?? raw.toLowerCase();
+    const cleaned =
+      raw.toLowerCase().split("?")[0]?.split("#")[0] ?? raw.toLowerCase();
     const idx = cleaned.lastIndexOf(".");
     return idx >= 0 ? cleaned.slice(idx) : "";
   }
@@ -42,7 +53,13 @@ export function detectMediaType(
   const resolved = ipfsToHttp(url) ?? url;
   const ext = getExtension(resolved);
 
-  if (ext === ".mp4" || ext === ".webm" || ext === ".mov" || ext === ".m4v" || ext === ".ogv") {
+  if (
+    ext === ".mp4" ||
+    ext === ".webm" ||
+    ext === ".mov" ||
+    ext === ".m4v" ||
+    ext === ".ogv"
+  ) {
     return "video";
   }
 
