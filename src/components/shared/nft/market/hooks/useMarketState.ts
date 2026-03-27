@@ -33,11 +33,13 @@ function isChainIdString(id: unknown): id is string {
 function normalizeListing(x: unknown): ListingActiveItem | null {
   if (!x || !isRecord(x)) return null;
 
-  // MUST be chain id for on-chain actions
   const id = (x as any).id;
   if (!isChainIdString(id)) return null;
 
-  // Scheduled listings have isLive=false and must remain visible.
+  // Hard reject anything the API already knows is inactive on-chain.
+  // Keep scheduled listings visible: isLive=false is still valid if onchainActive=true.
+  if ((x as any).onchainActive === false) return null;
+
   return x as ListingActiveItem;
 }
 
@@ -47,7 +49,8 @@ function normalizeAuction(x: unknown): AuctionActiveItem | null {
   const id = (x as any).id;
   if (!isChainIdString(id)) return null;
 
-  // prefer seller.address, fallback to sellerAddress
+  if ((x as any).onchainActive === false) return null;
+
   const sellerObj = (x as any).seller;
   const sellerAddressCompat = (x as any).sellerAddress;
 
@@ -89,17 +92,15 @@ export function useMarketState(args: {
   }, [contract, tokenId]);
 
   const urlListing = useMemo(() => {
-    // ✅ IMPORTANT: NO strictOwner on token page.
     return `/api/listing/active?contract=${encodeURIComponent(
       contract
-    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1`;
+    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1&requireChain=1`;
   }, [contract, tokenId]);
 
   const urlAuction = useMemo(() => {
-    // ✅ IMPORTANT: NO strictOwner on token page.
     return `/api/auction/active?contract=${encodeURIComponent(
       contract
-    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1`;
+    )}&tokenId=${encodeURIComponent(tokenId)}&limit=1&chain=1&requireChain=1`;
   }, [contract, tokenId]);
 
   const fetchState = useCallback(async () => {

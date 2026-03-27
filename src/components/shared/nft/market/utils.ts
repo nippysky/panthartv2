@@ -38,8 +38,36 @@ export function localYmdhmToUnix(local: string): number {
 /* Errors / Address helpers                                             */
 /* ------------------------------------------------------------------ */
 export function errorMessage(e: unknown, fallback: string) {
-  const maybe = e as { reason?: string; shortMessage?: string; message?: string };
-  return maybe?.reason || maybe?.shortMessage || maybe?.message || fallback;
+  const maybe = e as {
+    reason?: string;
+    shortMessage?: string;
+    message?: string;
+    error?: { reason?: string; message?: string; data?: { message?: string } };
+    info?: { error?: { message?: string } };
+    data?: { message?: string };
+  };
+
+  const candidates = [
+    maybe?.reason,
+    maybe?.shortMessage,
+    maybe?.error?.reason,
+    maybe?.error?.data?.message,
+    maybe?.error?.message,
+    maybe?.info?.error?.message,
+    maybe?.data?.message,
+    maybe?.message,
+  ]
+    .filter((x): x is string => typeof x === "string")
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+  const msg = candidates[0] || fallback;
+
+  if (/missing revert data/i.test(msg)) {
+    return "Transaction reverted on-chain. The listing may already be inactive, expired, sold, paused, or no longer match the expected price. Please refresh and try again.";
+  }
+
+  return msg;
 }
 
 export function safeChecksum(addr?: string | null) {

@@ -223,44 +223,68 @@ export const marketplace = {
     return String(tx.hash);
   },
 
-  async buyListingByIdJustInTime(listingId: bigint): Promise<string> {
-    const { signer } = await import("@/src/lib/evm/getSigner").then((m) => m.getBrowserSigner());
-    const { MARKETPLACE_CORE_ABI } = await import("@/src/lib/abis/marketplace-core/marketPlaceCoreABI");
+async buyListingByIdJustInTime(listingId: bigint): Promise<string> {
+  const { signer } = await import("@/src/lib/evm/getSigner").then((m) => m.getBrowserSigner());
+  const { MARKETPLACE_CORE_ABI } = await import("@/src/lib/abis/marketplace-core/marketPlaceCoreABI");
 
-    const on = await readListingById(listingId);
-    if (!on) throw new Error("Listing not found on-chain.");
+  const on = await readListingById(listingId);
+  if (!on) throw new Error("Listing not found on-chain.");
 
-    requireWindowActive({ start: on.row.start, end: on.row.end });
+  requireWindowActive({ start: on.row.start, end: on.row.end });
 
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    if (!mktAddr || !ethers.isAddress(mktAddr)) throw new Error("Missing marketplace address.");
+  const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+  if (!mktAddr || !ethers.isAddress(mktAddr)) throw new Error("Missing marketplace address.");
 
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-    const isNative = on.row.currency === ZERO_ADDR;
+  const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
 
-    if (!isNative) {
-      const ERC20_ABI = [
-        "function allowance(address owner, address spender) view returns (uint256)",
-        "function approve(address spender, uint256 amount) returns (bool)",
-      ] as const;
+  // Fresh chain-truth preflight to stop stale DB/UI listings from reaching buy().
+  const raw = await mkt.listings(listingId).catch(() => null);
+  if (!raw) throw new Error("Listing not found on-chain.");
 
-      const token = new ethers.Contract(on.row.currency, ERC20_ABI, signer);
-      const owner = (await signer.getAddress()) as `0x${string}`;
+  const seller = String(raw[0] ?? "");
+  const currency = (String(raw[5] ?? on.row.currency) || on.row.currency) as `0x${string}`;
+  const price = (raw[6] as bigint | undefined) ?? on.row.price;
+  const active = Boolean(raw[9]);
 
-      const allowance: bigint = await token.allowance(owner, mktAddr);
-      if (allowance < on.row.price) {
-        const txA = await token.approve(mktAddr, on.row.price);
-        await txA.wait();
-      }
+  if (!active) {
+    throw new Error("This listing is no longer active on-chain.");
+  }
+
+  if (!seller || seller === ZERO_ADDR) {
+    throw new Error("Listing seller is invalid on-chain.");
+  }
+
+  const isNative = currency === ZERO_ADDR;
+
+  if (!isNative) {
+    const ERC20_ABI = [
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function approve(address spender, uint256 amount) returns (bool)",
+    ] as const;
+
+    const token = new ethers.Contract(currency, ERC20_ABI, signer);
+    const owner = (await signer.getAddress()) as `0x${string}`;
+
+    const allowance: bigint = await token.allowance(owner, mktAddr);
+    if (allowance < price) {
+      const txA = await token.approve(mktAddr, price);
+      await txA.wait();
     }
+  }
 
-    const overrides: any = {};
-    if (isNative) overrides.value = on.row.price;
+  const overrides: any = {};
+  if (isNative) overrides.value = price;
 
-    const tx = await mkt.buy(listingId, overrides);
-    await tx.wait();
-    return String(tx.hash);
-  },
+  // Optional preflight: surfaces revert earlier and cleaner in many cases.
+  if (typeof (mkt.buy as any).staticCall === "function") {
+    await (mkt.buy as any).staticCall(listingId, overrides);
+  }
+
+  const tx = await mkt.buy(listingId, overrides);
+  await tx.wait();
+  return String(tx.hash);
+},
+
 
   async buyActiveListingForSellerJustInTime(args: {
     collection: `0x${string}`;
