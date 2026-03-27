@@ -19,13 +19,14 @@ const NAV: { title: string; items: FooterLink[] }[] = [
     items: [
       { label: "Minting Now", href: "/minting-now" },
       { label: "Live Auctions", href: "/auction" },
+      { label: "Collections", href: "/collections" },
     ],
   },
   {
     title: "Explore",
     items: [
       { label: "Create a Collection", href: "/create" },
-      { label: "Collections", href: "/collections" },
+      { label: "Comrades Warpool", href: "/comrades-warpool" },
     ],
   },
   {
