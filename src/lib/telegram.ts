@@ -358,31 +358,6 @@ async function sendHtml(kind: TopicKind, html: string) {
 }
 
 /* ───────────────── public helpers ───────────────── */
-
-export async function notifyApproved(items: MiniSubmission[], opts?: { admin?: string }) {
-  if (!telegramEnabled() || items.length === 0) return;
-  const html =
-    items.length === 1
-      ? renderApprovalHtml(items[0], { admin: opts?.admin })
-      : renderBatchSummaryHtml("approved", items, { admin: opts?.admin });
-  await sendHtml("approved", html);
-}
-
-export async function notifyRejected(
-  items: MiniSubmission[],
-  opts?: { admin?: string; reason?: string }
-) {
-  if (!telegramEnabled() || items.length === 0) return;
-  const html =
-    items.length === 1
-      ? renderRejectionHtml(items[0], { admin: opts?.admin, reason: opts?.reason })
-      : renderBatchSummaryHtml("rejected", items, {
-          admin: opts?.admin,
-          reason: opts?.reason,
-        });
-  await sendHtml("rejected", html);
-}
-
 export async function notifyDeployed(
   item: MiniSubmission & { deployer?: string; txHash?: string }
 ) {

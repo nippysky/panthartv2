@@ -7,5 +7,5 @@ export default async function CollectionAdminIndex({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  redirect(`/admin/${slug}/submissions`);
+  redirect(`/admin/${slug}/warpool`);
 }

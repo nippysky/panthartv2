@@ -5,7 +5,11 @@ import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { detectMediaType, isVideoType } from "@/src/lib/media";
-import { fetchJsonFromIpfs, toGatewayUrl } from "@/src/lib/ipfs";
+import {
+  fetchJsonFromIpfs,
+  toCanonicalIpfsUri,
+  toGatewayUrl,
+} from "@/src/lib/ipfs";
 
 const BLUR_1x1 =
   "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -32,8 +36,19 @@ function cx(...cls: Array<string | false | undefined | null>) {
   return cls.filter(Boolean).join(" ");
 }
 
-function normalizeMediaCandidate(value?: string | null) {
-  return toGatewayUrl(value, "PINATA");
+/**
+ * DB-first:
+ * - DB HTTP URLs stay exactly as stored
+ * - recovered metadata values get canonicalized back to ipfs:// if possible
+ *   so they do not keep forcing a dedicated Pinata gateway URL
+ */
+function normalizeDbMediaCandidate(value?: string | null) {
+  return toGatewayUrl(value, "PUBLIC");
+}
+
+function normalizeRecoveredMediaCandidate(value?: string | null) {
+  const canonical = toCanonicalIpfsUri(value);
+  return toGatewayUrl(canonical, "PUBLIC");
 }
 
 export default function NftModal({
@@ -58,12 +73,20 @@ export default function NftModal({
 
     async function hydrateFallback() {
       if (!open || !item) return;
-      if (hasPrimaryMedia && item.name) return;
-      if (!item.tokenUri) return;
+
+      if (hasPrimaryMedia && item.name) {
+        setRecovered(null);
+        return;
+      }
+
+      if (!item.tokenUri) {
+        setRecovered(null);
+        return;
+      }
 
       try {
         const meta = await fetchJsonFromIpfs(item.tokenUri, {
-          pref: "PINATA",
+          pref: "PUBLIC",
           cache: "no-store",
         });
 
@@ -78,22 +101,23 @@ export default function NftModal({
             typeof meta?.image === "string"
               ? meta.image
               : typeof meta?.image_url === "string"
-              ? meta.image_url
-              : typeof meta?.imageUrl === "string"
-              ? meta.imageUrl
-              : null,
+                ? meta.image_url
+                : typeof meta?.imageUrl === "string"
+                  ? meta.imageUrl
+                  : null,
           animationUrl:
             typeof meta?.animation_url === "string"
               ? meta.animation_url
               : typeof meta?.animationUrl === "string"
-              ? meta.animationUrl
-              : typeof meta?.animation === "string"
-              ? meta.animation
-              : null,
+                ? meta.animationUrl
+                : typeof meta?.animation === "string"
+                  ? meta.animation
+                  : null,
         });
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to recover NFT modal metadata:", item.tokenId, error);
+          setRecovered(null);
         }
       }
     }
@@ -104,26 +128,6 @@ export default function NftModal({
       cancelled = true;
     };
   }, [open, item, hasPrimaryMedia]);
-
-  const resolvedName = item?.name ?? recovered?.name ?? (item ? `#${item.tokenId}` : "NFT");
-
-  const mediaUrl = useMemo(() => {
-    const a = normalizeMediaCandidate(recovered?.animationUrl ?? item?.animationUrl);
-    const i = normalizeMediaCandidate(recovered?.imageUrl ?? item?.imageUrl);
-    return a || i || null;
-  }, [item?.animationUrl, item?.imageUrl, recovered?.animationUrl, recovered?.imageUrl]);
-
-  const posterUrl = useMemo(() => {
-    const i = normalizeMediaCandidate(recovered?.imageUrl ?? item?.imageUrl);
-    if (i) return i;
-
-    const a = normalizeMediaCandidate(recovered?.animationUrl ?? item?.animationUrl);
-    const t = detectMediaType(a);
-    return t === "image" ? a : null;
-  }, [item?.imageUrl, item?.animationUrl, recovered?.imageUrl, recovered?.animationUrl]);
-
-  const mediaType = useMemo(() => detectMediaType(mediaUrl), [mediaUrl]);
-  const isVideo = isVideoType(mediaType) || Boolean(item?.hasVideo);
 
   useEffect(() => {
     if (!open) return;
@@ -143,11 +147,59 @@ export default function NftModal({
     };
   }, [open, onClose]);
 
-  const mediaKey = `${open ? "1" : "0"}-${item?.id ?? "none"}`;
+  const resolvedName =
+    item?.name ?? recovered?.name ?? (item ? `#${item.tokenId}` : "NFT");
+
+  /**
+   * Always prefer DB media first.
+   * Only use recovered metadata when DB value is missing.
+   * If recovered metadata contains a full Pinata HTTP gateway URL, canonicalize it
+   * back to ipfs://... and then resolve through PUBLIC so Open media does not stick
+   * to the dedicated gateway.
+   */
+  const resolvedAnimationUrl = item?.animationUrl
+    ? normalizeDbMediaCandidate(item.animationUrl)
+    : recovered?.animationUrl
+      ? normalizeRecoveredMediaCandidate(recovered.animationUrl)
+      : null;
+
+  const resolvedImageUrl = item?.imageUrl
+    ? normalizeDbMediaCandidate(item.imageUrl)
+    : recovered?.imageUrl
+      ? normalizeRecoveredMediaCandidate(recovered.imageUrl)
+      : null;
+
+  /**
+   * If animation_url is present, use it for modal media first.
+   * Otherwise fall back to image.
+   */
+  const mediaUrl = resolvedAnimationUrl || resolvedImageUrl || null;
+
+  /**
+   * Poster prefers image.
+   * If no image exists and the chosen animation is actually an image, use it.
+   */
+  const posterUrl = useMemo(() => {
+    if (resolvedImageUrl) return resolvedImageUrl;
+
+    if (resolvedAnimationUrl) {
+      const t = detectMediaType(resolvedAnimationUrl);
+      if (t === "image") return resolvedAnimationUrl;
+    }
+
+    return null;
+  }, [resolvedAnimationUrl, resolvedImageUrl]);
+
+  const mediaType = useMemo(() => detectMediaType(mediaUrl), [mediaUrl]);
+  const isVideo = isVideoType(mediaType) || Boolean(item?.hasVideo);
+
+  const mediaSessionKey = `${open ? "open" : "closed"}-${item?.id ?? "none"}`;
 
   if (!open || !item) return null;
 
-  const detailsHref = `/collections/${contract}/${encodeURIComponent(String(item.tokenId))}`;
+  const detailsHref = `/collections/${contract}/${encodeURIComponent(
+    String(item.tokenId)
+  )}`;
 
   const modal = (
     <div
@@ -171,10 +223,8 @@ export default function NftModal({
       >
         <div
           className={cx(
-            "w-full max-w-5xl overflow-hidden rounded-[22px] border border-border",
-            "bg-background/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)]",
-            "backdrop-blur-xl",
-            "flex max-h-[calc(100svh-1.5rem)] flex-col"
+            "flex max-h-[calc(100svh-1.5rem)] w-full max-w-5xl flex-col overflow-hidden rounded-[22px] border border-border",
+            "bg-background/95 shadow-[0_30px_120px_rgba(0,0,0,0.55)] backdrop-blur-xl"
           )}
           onClick={(e) => e.stopPropagation()}
         >
@@ -195,6 +245,7 @@ export default function NftModal({
               </Link>
 
               <button
+                type="button"
                 onClick={onClose}
                 className="inline-flex h-9 items-center rounded-full border border-border bg-card px-3 text-sm font-medium hover:bg-background/60"
               >
@@ -206,7 +257,7 @@ export default function NftModal({
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div
-                key={mediaKey}
+                key={mediaSessionKey}
                 className="relative overflow-hidden rounded-2xl border border-border bg-muted"
               >
                 <div className="relative aspect-square">
@@ -215,6 +266,7 @@ export default function NftModal({
                       <video
                         ref={videoRef}
                         src={mediaUrl ?? undefined}
+                        poster={posterUrl ?? undefined}
                         className="h-full w-full object-cover"
                         controls={playing}
                         playsInline
@@ -286,7 +338,7 @@ export default function NftModal({
                 ) : null}
 
                 <div className="mt-4 text-xs text-muted-foreground">
-                  Tip: buying, selling, listing & auctions will live on the details page.
+                  Tip: buying, selling, listing and auctions live on the details page.
                   This modal stays lightweight on purpose.
                 </div>
 

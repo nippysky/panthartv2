@@ -447,34 +447,6 @@ exports.Prisma.AssetUploadScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.CollectionSubmissionScalarFieldEnum = {
-  id: 'id',
-  submittedByUserId: 'submittedByUserId',
-  contract: 'contract',
-  ownerAddress: 'ownerAddress',
-  name: 'name',
-  symbol: 'symbol',
-  logoUrl: 'logoUrl',
-  coverUrl: 'coverUrl',
-  baseUri: 'baseUri',
-  supply: 'supply',
-  description: 'description',
-  website: 'website',
-  x: 'x',
-  instagram: 'instagram',
-  telegram: 'telegram',
-  feeTxHash: 'feeTxHash',
-  feePaidWei: 'feePaidWei',
-  feeVerifiedAt: 'feeVerifiedAt',
-  ownershipVerified: 'ownershipVerified',
-  status: 'status',
-  statusReason: 'statusReason',
-  reviewedByUserId: 'reviewedByUserId',
-  reviewedAt: 'reviewedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.NFTRarityScalarFieldEnum = {
   contract: 'contract',
   tokenId: 'tokenId',
@@ -1031,12 +1003,6 @@ exports.DraftStatus = exports.$Enums.DraftStatus = {
   CONSUMED: 'CONSUMED'
 };
 
-exports.SubmissionStatus = exports.$Enums.SubmissionStatus = {
-  PENDING: 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED'
-};
-
 exports.CurrencyKind = exports.$Enums.CurrencyKind = {
   NATIVE: 'NATIVE',
   ERC20: 'ERC20'
@@ -1219,7 +1185,6 @@ exports.Prisma.ModelName = {
   PresaleWhitelistAddress: 'PresaleWhitelistAddress',
   PresaleDraft: 'PresaleDraft',
   AssetUpload: 'AssetUpload',
-  CollectionSubmission: 'CollectionSubmission',
   NFTRarity: 'NFTRarity',
   HolderReward: 'HolderReward',
   RewardAccumulator: 'RewardAccumulator',

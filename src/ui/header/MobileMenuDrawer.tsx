@@ -14,7 +14,6 @@ import {
   Gavel,
   Gamepad2,
   Layers3,
-  PlusSquare,
   Sparkles,
   User2,
   Wallet,
@@ -201,7 +200,6 @@ export function MobileMenuDrawer({
       { name: "Active Listings", href: "/listings", icon: Layers3 },
       { name: "Live Auctions", href: "/auction-now", icon: Gavel },
       { name: "Comrades Warpool", href: "/comrades-warpool", icon: Gamepad2 },
-      { name: "Submit Collection", href: "/submit-collection", icon: PlusSquare },
       { name: "Profile", href: `/profile/${address}`, icon: User2 },
     ],
     [address]

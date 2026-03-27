@@ -119,11 +119,6 @@ export type PresaleDraft = $Result.DefaultSelection<Prisma.$PresaleDraftPayload>
  */
 export type AssetUpload = $Result.DefaultSelection<Prisma.$AssetUploadPayload>
 /**
- * Model CollectionSubmission
- * 
- */
-export type CollectionSubmission = $Result.DefaultSelection<Prisma.$CollectionSubmissionPayload>
-/**
  * Model NFTRarity
  * 
  */
@@ -336,15 +331,6 @@ export const NftStatus: {
 };
 
 export type NftStatus = (typeof NftStatus)[keyof typeof NftStatus]
-
-
-export const SubmissionStatus: {
-  PENDING: 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED'
-};
-
-export type SubmissionStatus = (typeof SubmissionStatus)[keyof typeof SubmissionStatus]
 
 
 export const GatewayPref: {
@@ -603,10 +589,6 @@ export const IndexStatus: typeof $Enums.IndexStatus
 export type NftStatus = $Enums.NftStatus
 
 export const NftStatus: typeof $Enums.NftStatus
-
-export type SubmissionStatus = $Enums.SubmissionStatus
-
-export const SubmissionStatus: typeof $Enums.SubmissionStatus
 
 export type GatewayPref = $Enums.GatewayPref
 
@@ -1022,16 +1004,6 @@ export class PrismaClient<
     * ```
     */
   get assetUpload(): Prisma.AssetUploadDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.collectionSubmission`: Exposes CRUD operations for the **CollectionSubmission** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more CollectionSubmissions
-    * const collectionSubmissions = await prisma.collectionSubmission.findMany()
-    * ```
-    */
-  get collectionSubmission(): Prisma.CollectionSubmissionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.nFTRarity`: Exposes CRUD operations for the **NFTRarity** model.
@@ -1777,7 +1749,6 @@ export namespace Prisma {
     PresaleWhitelistAddress: 'PresaleWhitelistAddress',
     PresaleDraft: 'PresaleDraft',
     AssetUpload: 'AssetUpload',
-    CollectionSubmission: 'CollectionSubmission',
     NFTRarity: 'NFTRarity',
     HolderReward: 'HolderReward',
     RewardAccumulator: 'RewardAccumulator',
@@ -1822,7 +1793,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "chainState" | "user" | "collection" | "nFT" | "traitStat" | "nFTActivity" | "single721" | "single1155" | "erc1155Balance" | "erc1155Holding" | "marketplaceListing" | "auction" | "auctionBid" | "deployedContract" | "feeConfig" | "feeConfigLog" | "publicSale" | "presale" | "presaleWhitelistAddress" | "presaleDraft" | "assetUpload" | "collectionSubmission" | "nFTRarity" | "holderReward" | "rewardAccumulator" | "currency" | "marketplaceSale" | "rewardAccumulatorMulti" | "holderRewardMulti" | "rewardDistributionLog" | "rewardClaimLog" | "stolenItem" | "stolenEvent" | "multisigSafe" | "multisigOwner" | "multisigTx" | "multisigApproval" | "pendingChainAction" | "warpoolContract" | "warpoolQueueConfig" | "warpoolGlobalConfigSnapshot" | "warpoolPool" | "warpoolEntry" | "warpoolReservation" | "warpoolBattle" | "warpoolBattleMatch" | "warpoolCapture" | "warpoolActivity" | "adminProposal" | "adminProposalAction" | "adminProposalEvent"
+      modelProps: "chainState" | "user" | "collection" | "nFT" | "traitStat" | "nFTActivity" | "single721" | "single1155" | "erc1155Balance" | "erc1155Holding" | "marketplaceListing" | "auction" | "auctionBid" | "deployedContract" | "feeConfig" | "feeConfigLog" | "publicSale" | "presale" | "presaleWhitelistAddress" | "presaleDraft" | "assetUpload" | "nFTRarity" | "holderReward" | "rewardAccumulator" | "currency" | "marketplaceSale" | "rewardAccumulatorMulti" | "holderRewardMulti" | "rewardDistributionLog" | "rewardClaimLog" | "stolenItem" | "stolenEvent" | "multisigSafe" | "multisigOwner" | "multisigTx" | "multisigApproval" | "pendingChainAction" | "warpoolContract" | "warpoolQueueConfig" | "warpoolGlobalConfigSnapshot" | "warpoolPool" | "warpoolEntry" | "warpoolReservation" | "warpoolBattle" | "warpoolBattleMatch" | "warpoolCapture" | "warpoolActivity" | "adminProposal" | "adminProposalAction" | "adminProposalEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3377,80 +3348,6 @@ export namespace Prisma {
           count: {
             args: Prisma.AssetUploadCountArgs<ExtArgs>
             result: $Utils.Optional<AssetUploadCountAggregateOutputType> | number
-          }
-        }
-      }
-      CollectionSubmission: {
-        payload: Prisma.$CollectionSubmissionPayload<ExtArgs>
-        fields: Prisma.CollectionSubmissionFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.CollectionSubmissionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.CollectionSubmissionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>
-          }
-          findFirst: {
-            args: Prisma.CollectionSubmissionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.CollectionSubmissionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>
-          }
-          findMany: {
-            args: Prisma.CollectionSubmissionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>[]
-          }
-          create: {
-            args: Prisma.CollectionSubmissionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>
-          }
-          createMany: {
-            args: Prisma.CollectionSubmissionCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.CollectionSubmissionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>[]
-          }
-          delete: {
-            args: Prisma.CollectionSubmissionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>
-          }
-          update: {
-            args: Prisma.CollectionSubmissionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>
-          }
-          deleteMany: {
-            args: Prisma.CollectionSubmissionDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.CollectionSubmissionUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.CollectionSubmissionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>[]
-          }
-          upsert: {
-            args: Prisma.CollectionSubmissionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CollectionSubmissionPayload>
-          }
-          aggregate: {
-            args: Prisma.CollectionSubmissionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateCollectionSubmission>
-          }
-          groupBy: {
-            args: Prisma.CollectionSubmissionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<CollectionSubmissionGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.CollectionSubmissionCountArgs<ExtArgs>
-            result: $Utils.Optional<CollectionSubmissionCountAggregateOutputType> | number
           }
         }
       }
@@ -5729,7 +5626,6 @@ export namespace Prisma {
     presaleWhitelistAddress?: PresaleWhitelistAddressOmit
     presaleDraft?: PresaleDraftOmit
     assetUpload?: AssetUploadOmit
-    collectionSubmission?: CollectionSubmissionOmit
     nFTRarity?: NFTRarityOmit
     holderReward?: HolderRewardOmit
     rewardAccumulator?: RewardAccumulatorOmit
@@ -5839,35 +5735,33 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
+    adminProposalsCreated: number
+    adminProposalsEdited: number
+    adminProposalEvents: number
     collections: number
-    submissions: number
     holderRewardsMulti: number
     ownedNFTs: number
     rewardClaimLogs: number
     stolenReports: number
-    warpoolEntries: number
-    warpoolReservations: number
     warpoolActivities: number
     warpoolCapturesAsOwner: number
-    adminProposalsCreated: number
-    adminProposalsEdited: number
-    adminProposalEvents: number
+    warpoolEntries: number
+    warpoolReservations: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    adminProposalsCreated?: boolean | UserCountOutputTypeCountAdminProposalsCreatedArgs
+    adminProposalsEdited?: boolean | UserCountOutputTypeCountAdminProposalsEditedArgs
+    adminProposalEvents?: boolean | UserCountOutputTypeCountAdminProposalEventsArgs
     collections?: boolean | UserCountOutputTypeCountCollectionsArgs
-    submissions?: boolean | UserCountOutputTypeCountSubmissionsArgs
     holderRewardsMulti?: boolean | UserCountOutputTypeCountHolderRewardsMultiArgs
     ownedNFTs?: boolean | UserCountOutputTypeCountOwnedNFTsArgs
     rewardClaimLogs?: boolean | UserCountOutputTypeCountRewardClaimLogsArgs
     stolenReports?: boolean | UserCountOutputTypeCountStolenReportsArgs
-    warpoolEntries?: boolean | UserCountOutputTypeCountWarpoolEntriesArgs
-    warpoolReservations?: boolean | UserCountOutputTypeCountWarpoolReservationsArgs
     warpoolActivities?: boolean | UserCountOutputTypeCountWarpoolActivitiesArgs
     warpoolCapturesAsOwner?: boolean | UserCountOutputTypeCountWarpoolCapturesAsOwnerArgs
-    adminProposalsCreated?: boolean | UserCountOutputTypeCountAdminProposalsCreatedArgs
-    adminProposalsEdited?: boolean | UserCountOutputTypeCountAdminProposalsEditedArgs
-    adminProposalEvents?: boolean | UserCountOutputTypeCountAdminProposalEventsArgs
+    warpoolEntries?: boolean | UserCountOutputTypeCountWarpoolEntriesArgs
+    warpoolReservations?: boolean | UserCountOutputTypeCountWarpoolReservationsArgs
   }
 
   // Custom InputTypes
@@ -5884,15 +5778,29 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountCollectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CollectionWhereInput
+  export type UserCountOutputTypeCountAdminProposalsCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountSubmissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CollectionSubmissionWhereInput
+  export type UserCountOutputTypeCountAdminProposalsEditedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAdminProposalEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalEventWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCollectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CollectionWhereInput
   }
 
   /**
@@ -5926,20 +5834,6 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountWarpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WarpoolEntryWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountWarpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WarpoolReservationWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
   export type UserCountOutputTypeCountWarpoolActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolActivityWhereInput
   }
@@ -5954,22 +5848,15 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountAdminProposalsCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AdminProposalWhereInput
+  export type UserCountOutputTypeCountWarpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WarpoolEntryWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountAdminProposalsEditedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AdminProposalWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountAdminProposalEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AdminProposalEventWhereInput
+  export type UserCountOutputTypeCountWarpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WarpoolReservationWhereInput
   }
 
 
@@ -6022,10 +5909,10 @@ export namespace Prisma {
     listingEntries: number
     sales: number
     activities: number
-    warpoolEntries: number
-    warpoolReservations: number
     warpoolActivities: number
     warpoolCaptures: number
+    warpoolEntries: number
+    warpoolReservations: number
   }
 
   export type NFTCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6033,10 +5920,10 @@ export namespace Prisma {
     listingEntries?: boolean | NFTCountOutputTypeCountListingEntriesArgs
     sales?: boolean | NFTCountOutputTypeCountSalesArgs
     activities?: boolean | NFTCountOutputTypeCountActivitiesArgs
-    warpoolEntries?: boolean | NFTCountOutputTypeCountWarpoolEntriesArgs
-    warpoolReservations?: boolean | NFTCountOutputTypeCountWarpoolReservationsArgs
     warpoolActivities?: boolean | NFTCountOutputTypeCountWarpoolActivitiesArgs
     warpoolCaptures?: boolean | NFTCountOutputTypeCountWarpoolCapturesArgs
+    warpoolEntries?: boolean | NFTCountOutputTypeCountWarpoolEntriesArgs
+    warpoolReservations?: boolean | NFTCountOutputTypeCountWarpoolReservationsArgs
   }
 
   // Custom InputTypes
@@ -6081,20 +5968,6 @@ export namespace Prisma {
   /**
    * NFTCountOutputType without action
    */
-  export type NFTCountOutputTypeCountWarpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WarpoolEntryWhereInput
-  }
-
-  /**
-   * NFTCountOutputType without action
-   */
-  export type NFTCountOutputTypeCountWarpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WarpoolReservationWhereInput
-  }
-
-  /**
-   * NFTCountOutputType without action
-   */
   export type NFTCountOutputTypeCountWarpoolActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolActivityWhereInput
   }
@@ -6104,6 +5977,20 @@ export namespace Prisma {
    */
   export type NFTCountOutputTypeCountWarpoolCapturesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolCaptureWhereInput
+  }
+
+  /**
+   * NFTCountOutputType without action
+   */
+  export type NFTCountOutputTypeCountWarpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WarpoolEntryWhereInput
+  }
+
+  /**
+   * NFTCountOutputType without action
+   */
+  export type NFTCountOutputTypeCountWarpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WarpoolReservationWhereInput
   }
 
 
@@ -6410,15 +6297,15 @@ export namespace Prisma {
    */
 
   export type MultisigSafeCountOutputType = {
+    adminProposals: number
     owners: number
     txs: number
-    adminProposals: number
   }
 
   export type MultisigSafeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    adminProposals?: boolean | MultisigSafeCountOutputTypeCountAdminProposalsArgs
     owners?: boolean | MultisigSafeCountOutputTypeCountOwnersArgs
     txs?: boolean | MultisigSafeCountOutputTypeCountTxsArgs
-    adminProposals?: boolean | MultisigSafeCountOutputTypeCountAdminProposalsArgs
   }
 
   // Custom InputTypes
@@ -6435,6 +6322,13 @@ export namespace Prisma {
   /**
    * MultisigSafeCountOutputType without action
    */
+  export type MultisigSafeCountOutputTypeCountAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
+  }
+
+  /**
+   * MultisigSafeCountOutputType without action
+   */
   export type MultisigSafeCountOutputTypeCountOwnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MultisigOwnerWhereInput
   }
@@ -6446,26 +6340,19 @@ export namespace Prisma {
     where?: MultisigTxWhereInput
   }
 
-  /**
-   * MultisigSafeCountOutputType without action
-   */
-  export type MultisigSafeCountOutputTypeCountAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AdminProposalWhereInput
-  }
-
 
   /**
    * Count Type MultisigTxCountOutputType
    */
 
   export type MultisigTxCountOutputType = {
-    approvals: number
     linkedAdminProposals: number
+    approvals: number
   }
 
   export type MultisigTxCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    approvals?: boolean | MultisigTxCountOutputTypeCountApprovalsArgs
     linkedAdminProposals?: boolean | MultisigTxCountOutputTypeCountLinkedAdminProposalsArgs
+    approvals?: boolean | MultisigTxCountOutputTypeCountApprovalsArgs
   }
 
   // Custom InputTypes
@@ -6482,15 +6369,15 @@ export namespace Prisma {
   /**
    * MultisigTxCountOutputType without action
    */
-  export type MultisigTxCountOutputTypeCountApprovalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MultisigApprovalWhereInput
+  export type MultisigTxCountOutputTypeCountLinkedAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminProposalWhereInput
   }
 
   /**
    * MultisigTxCountOutputType without action
    */
-  export type MultisigTxCountOutputTypeCountLinkedAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AdminProposalWhereInput
+  export type MultisigTxCountOutputTypeCountApprovalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MultisigApprovalWhereInput
   }
 
 
@@ -6499,15 +6386,15 @@ export namespace Prisma {
    */
 
   export type WarpoolPoolCountOutputType = {
+    activities: number
     entries: number
     reservations: number
-    activities: number
   }
 
   export type WarpoolPoolCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activities?: boolean | WarpoolPoolCountOutputTypeCountActivitiesArgs
     entries?: boolean | WarpoolPoolCountOutputTypeCountEntriesArgs
     reservations?: boolean | WarpoolPoolCountOutputTypeCountReservationsArgs
-    activities?: boolean | WarpoolPoolCountOutputTypeCountActivitiesArgs
   }
 
   // Custom InputTypes
@@ -6524,6 +6411,13 @@ export namespace Prisma {
   /**
    * WarpoolPoolCountOutputType without action
    */
+  export type WarpoolPoolCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WarpoolActivityWhereInput
+  }
+
+  /**
+   * WarpoolPoolCountOutputType without action
+   */
   export type WarpoolPoolCountOutputTypeCountEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolEntryWhereInput
   }
@@ -6533,13 +6427,6 @@ export namespace Prisma {
    */
   export type WarpoolPoolCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WarpoolReservationWhereInput
-  }
-
-  /**
-   * WarpoolPoolCountOutputType without action
-   */
-  export type WarpoolPoolCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WarpoolActivityWhereInput
   }
 
 
@@ -7921,19 +7808,18 @@ export namespace Prisma {
     telegram?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    adminProposalsCreated?: boolean | User$adminProposalsCreatedArgs<ExtArgs>
+    adminProposalsEdited?: boolean | User$adminProposalsEditedArgs<ExtArgs>
+    adminProposalEvents?: boolean | User$adminProposalEventsArgs<ExtArgs>
     collections?: boolean | User$collectionsArgs<ExtArgs>
-    submissions?: boolean | User$submissionsArgs<ExtArgs>
     holderRewardsMulti?: boolean | User$holderRewardsMultiArgs<ExtArgs>
     ownedNFTs?: boolean | User$ownedNFTsArgs<ExtArgs>
     rewardClaimLogs?: boolean | User$rewardClaimLogsArgs<ExtArgs>
     stolenReports?: boolean | User$stolenReportsArgs<ExtArgs>
-    warpoolEntries?: boolean | User$warpoolEntriesArgs<ExtArgs>
-    warpoolReservations?: boolean | User$warpoolReservationsArgs<ExtArgs>
     warpoolActivities?: boolean | User$warpoolActivitiesArgs<ExtArgs>
     warpoolCapturesAsOwner?: boolean | User$warpoolCapturesAsOwnerArgs<ExtArgs>
-    adminProposalsCreated?: boolean | User$adminProposalsCreatedArgs<ExtArgs>
-    adminProposalsEdited?: boolean | User$adminProposalsEditedArgs<ExtArgs>
-    adminProposalEvents?: boolean | User$adminProposalEventsArgs<ExtArgs>
+    warpoolEntries?: boolean | User$warpoolEntriesArgs<ExtArgs>
+    warpoolReservations?: boolean | User$warpoolReservationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7984,19 +7870,18 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "walletAddress" | "username" | "bio" | "profileBanner" | "profileAvatar" | "x" | "instagram" | "website" | "telegram" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    adminProposalsCreated?: boolean | User$adminProposalsCreatedArgs<ExtArgs>
+    adminProposalsEdited?: boolean | User$adminProposalsEditedArgs<ExtArgs>
+    adminProposalEvents?: boolean | User$adminProposalEventsArgs<ExtArgs>
     collections?: boolean | User$collectionsArgs<ExtArgs>
-    submissions?: boolean | User$submissionsArgs<ExtArgs>
     holderRewardsMulti?: boolean | User$holderRewardsMultiArgs<ExtArgs>
     ownedNFTs?: boolean | User$ownedNFTsArgs<ExtArgs>
     rewardClaimLogs?: boolean | User$rewardClaimLogsArgs<ExtArgs>
     stolenReports?: boolean | User$stolenReportsArgs<ExtArgs>
-    warpoolEntries?: boolean | User$warpoolEntriesArgs<ExtArgs>
-    warpoolReservations?: boolean | User$warpoolReservationsArgs<ExtArgs>
     warpoolActivities?: boolean | User$warpoolActivitiesArgs<ExtArgs>
     warpoolCapturesAsOwner?: boolean | User$warpoolCapturesAsOwnerArgs<ExtArgs>
-    adminProposalsCreated?: boolean | User$adminProposalsCreatedArgs<ExtArgs>
-    adminProposalsEdited?: boolean | User$adminProposalsEditedArgs<ExtArgs>
-    adminProposalEvents?: boolean | User$adminProposalEventsArgs<ExtArgs>
+    warpoolEntries?: boolean | User$warpoolEntriesArgs<ExtArgs>
+    warpoolReservations?: boolean | User$warpoolReservationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -8005,19 +7890,18 @@ export namespace Prisma {
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
+      adminProposalsCreated: Prisma.$AdminProposalPayload<ExtArgs>[]
+      adminProposalsEdited: Prisma.$AdminProposalPayload<ExtArgs>[]
+      adminProposalEvents: Prisma.$AdminProposalEventPayload<ExtArgs>[]
       collections: Prisma.$CollectionPayload<ExtArgs>[]
-      submissions: Prisma.$CollectionSubmissionPayload<ExtArgs>[]
       holderRewardsMulti: Prisma.$HolderRewardMultiPayload<ExtArgs>[]
       ownedNFTs: Prisma.$NFTPayload<ExtArgs>[]
       rewardClaimLogs: Prisma.$RewardClaimLogPayload<ExtArgs>[]
       stolenReports: Prisma.$StolenItemPayload<ExtArgs>[]
-      warpoolEntries: Prisma.$WarpoolEntryPayload<ExtArgs>[]
-      warpoolReservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
       warpoolActivities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
       warpoolCapturesAsOwner: Prisma.$WarpoolCapturePayload<ExtArgs>[]
-      adminProposalsCreated: Prisma.$AdminProposalPayload<ExtArgs>[]
-      adminProposalsEdited: Prisma.$AdminProposalPayload<ExtArgs>[]
-      adminProposalEvents: Prisma.$AdminProposalEventPayload<ExtArgs>[]
+      warpoolEntries: Prisma.$WarpoolEntryPayload<ExtArgs>[]
+      warpoolReservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8426,19 +8310,18 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    adminProposalsCreated<T extends User$adminProposalsCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminProposalsEdited<T extends User$adminProposalsEditedArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalsEditedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    adminProposalEvents<T extends User$adminProposalEventsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     collections<T extends User$collectionsArgs<ExtArgs> = {}>(args?: Subset<T, User$collectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    submissions<T extends User$submissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     holderRewardsMulti<T extends User$holderRewardsMultiArgs<ExtArgs> = {}>(args?: Subset<T, User$holderRewardsMultiArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HolderRewardMultiPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ownedNFTs<T extends User$ownedNFTsArgs<ExtArgs> = {}>(args?: Subset<T, User$ownedNFTsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     rewardClaimLogs<T extends User$rewardClaimLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$rewardClaimLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardClaimLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stolenReports<T extends User$stolenReportsArgs<ExtArgs> = {}>(args?: Subset<T, User$stolenReportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StolenItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    warpoolEntries<T extends User$warpoolEntriesArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    warpoolReservations<T extends User$warpoolReservationsArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     warpoolActivities<T extends User$warpoolActivitiesArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     warpoolCapturesAsOwner<T extends User$warpoolCapturesAsOwnerArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolCapturesAsOwnerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolCapturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    adminProposalsCreated<T extends User$adminProposalsCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    adminProposalsEdited<T extends User$adminProposalsEditedArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalsEditedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    adminProposalEvents<T extends User$adminProposalEventsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminProposalEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    warpoolEntries<T extends User$warpoolEntriesArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    warpoolReservations<T extends User$warpoolReservationsArgs<ExtArgs> = {}>(args?: Subset<T, User$warpoolReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8873,6 +8756,78 @@ export namespace Prisma {
   }
 
   /**
+   * User.adminProposalsCreated
+   */
+  export type User$adminProposalsCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * User.adminProposalsEdited
+   */
+  export type User$adminProposalsEditedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * User.adminProposalEvents
+   */
+  export type User$adminProposalEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposalEvent
+     */
+    select?: AdminProposalEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposalEvent
+     */
+    omit?: AdminProposalEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalEventInclude<ExtArgs> | null
+    where?: AdminProposalEventWhereInput
+    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
+    cursor?: AdminProposalEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
+  }
+
+  /**
    * User.collections
    */
   export type User$collectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8894,30 +8849,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CollectionScalarFieldEnum | CollectionScalarFieldEnum[]
-  }
-
-  /**
-   * User.submissions
-   */
-  export type User$submissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    where?: CollectionSubmissionWhereInput
-    orderBy?: CollectionSubmissionOrderByWithRelationInput | CollectionSubmissionOrderByWithRelationInput[]
-    cursor?: CollectionSubmissionWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: CollectionSubmissionScalarFieldEnum | CollectionSubmissionScalarFieldEnum[]
   }
 
   /**
@@ -9017,54 +8948,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.warpoolEntries
-   */
-  export type User$warpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolEntry
-     */
-    select?: WarpoolEntrySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolEntry
-     */
-    omit?: WarpoolEntryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolEntryInclude<ExtArgs> | null
-    where?: WarpoolEntryWhereInput
-    orderBy?: WarpoolEntryOrderByWithRelationInput | WarpoolEntryOrderByWithRelationInput[]
-    cursor?: WarpoolEntryWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolEntryScalarFieldEnum | WarpoolEntryScalarFieldEnum[]
-  }
-
-  /**
-   * User.warpoolReservations
-   */
-  export type User$warpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolReservation
-     */
-    select?: WarpoolReservationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolReservation
-     */
-    omit?: WarpoolReservationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolReservationInclude<ExtArgs> | null
-    where?: WarpoolReservationWhereInput
-    orderBy?: WarpoolReservationOrderByWithRelationInput | WarpoolReservationOrderByWithRelationInput[]
-    cursor?: WarpoolReservationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolReservationScalarFieldEnum | WarpoolReservationScalarFieldEnum[]
-  }
-
-  /**
    * User.warpoolActivities
    */
   export type User$warpoolActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9113,75 +8996,51 @@ export namespace Prisma {
   }
 
   /**
-   * User.adminProposalsCreated
+   * User.warpoolEntries
    */
-  export type User$adminProposalsCreatedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$warpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AdminProposal
+     * Select specific fields to fetch from the WarpoolEntry
      */
-    select?: AdminProposalSelect<ExtArgs> | null
+    select?: WarpoolEntrySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AdminProposal
+     * Omit specific fields from the WarpoolEntry
      */
-    omit?: AdminProposalOmit<ExtArgs> | null
+    omit?: WarpoolEntryOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AdminProposalInclude<ExtArgs> | null
-    where?: AdminProposalWhereInput
-    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
-    cursor?: AdminProposalWhereUniqueInput
+    include?: WarpoolEntryInclude<ExtArgs> | null
+    where?: WarpoolEntryWhereInput
+    orderBy?: WarpoolEntryOrderByWithRelationInput | WarpoolEntryOrderByWithRelationInput[]
+    cursor?: WarpoolEntryWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+    distinct?: WarpoolEntryScalarFieldEnum | WarpoolEntryScalarFieldEnum[]
   }
 
   /**
-   * User.adminProposalsEdited
+   * User.warpoolReservations
    */
-  export type User$adminProposalsEditedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$warpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AdminProposal
+     * Select specific fields to fetch from the WarpoolReservation
      */
-    select?: AdminProposalSelect<ExtArgs> | null
+    select?: WarpoolReservationSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the AdminProposal
+     * Omit specific fields from the WarpoolReservation
      */
-    omit?: AdminProposalOmit<ExtArgs> | null
+    omit?: WarpoolReservationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AdminProposalInclude<ExtArgs> | null
-    where?: AdminProposalWhereInput
-    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
-    cursor?: AdminProposalWhereUniqueInput
+    include?: WarpoolReservationInclude<ExtArgs> | null
+    where?: WarpoolReservationWhereInput
+    orderBy?: WarpoolReservationOrderByWithRelationInput | WarpoolReservationOrderByWithRelationInput[]
+    cursor?: WarpoolReservationWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
-  }
-
-  /**
-   * User.adminProposalEvents
-   */
-  export type User$adminProposalEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AdminProposalEvent
-     */
-    select?: AdminProposalEventSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AdminProposalEvent
-     */
-    omit?: AdminProposalEventOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: AdminProposalEventInclude<ExtArgs> | null
-    where?: AdminProposalEventWhereInput
-    orderBy?: AdminProposalEventOrderByWithRelationInput | AdminProposalEventOrderByWithRelationInput[]
-    cursor?: AdminProposalEventWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: AdminProposalEventScalarFieldEnum | AdminProposalEventScalarFieldEnum[]
+    distinct?: WarpoolReservationScalarFieldEnum | WarpoolReservationScalarFieldEnum[]
   }
 
   /**
@@ -11071,10 +10930,10 @@ export namespace Prisma {
     single1155?: boolean | NFT$single1155Args<ExtArgs>
     single721?: boolean | NFT$single721Args<ExtArgs>
     activities?: boolean | NFT$activitiesArgs<ExtArgs>
-    warpoolEntries?: boolean | NFT$warpoolEntriesArgs<ExtArgs>
-    warpoolReservations?: boolean | NFT$warpoolReservationsArgs<ExtArgs>
     warpoolActivities?: boolean | NFT$warpoolActivitiesArgs<ExtArgs>
     warpoolCaptures?: boolean | NFT$warpoolCapturesArgs<ExtArgs>
+    warpoolEntries?: boolean | NFT$warpoolEntriesArgs<ExtArgs>
+    warpoolReservations?: boolean | NFT$warpoolReservationsArgs<ExtArgs>
     _count?: boolean | NFTCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["nFT"]>
 
@@ -11171,10 +11030,10 @@ export namespace Prisma {
     single1155?: boolean | NFT$single1155Args<ExtArgs>
     single721?: boolean | NFT$single721Args<ExtArgs>
     activities?: boolean | NFT$activitiesArgs<ExtArgs>
-    warpoolEntries?: boolean | NFT$warpoolEntriesArgs<ExtArgs>
-    warpoolReservations?: boolean | NFT$warpoolReservationsArgs<ExtArgs>
     warpoolActivities?: boolean | NFT$warpoolActivitiesArgs<ExtArgs>
     warpoolCaptures?: boolean | NFT$warpoolCapturesArgs<ExtArgs>
+    warpoolEntries?: boolean | NFT$warpoolEntriesArgs<ExtArgs>
+    warpoolReservations?: boolean | NFT$warpoolReservationsArgs<ExtArgs>
     _count?: boolean | NFTCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type NFTIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11201,10 +11060,10 @@ export namespace Prisma {
       single1155: Prisma.$Single1155Payload<ExtArgs> | null
       single721: Prisma.$Single721Payload<ExtArgs> | null
       activities: Prisma.$NFTActivityPayload<ExtArgs>[]
-      warpoolEntries: Prisma.$WarpoolEntryPayload<ExtArgs>[]
-      warpoolReservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
       warpoolActivities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
       warpoolCaptures: Prisma.$WarpoolCapturePayload<ExtArgs>[]
+      warpoolEntries: Prisma.$WarpoolEntryPayload<ExtArgs>[]
+      warpoolReservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11631,10 +11490,10 @@ export namespace Prisma {
     single1155<T extends NFT$single1155Args<ExtArgs> = {}>(args?: Subset<T, NFT$single1155Args<ExtArgs>>): Prisma__Single1155Client<$Result.GetResult<Prisma.$Single1155Payload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     single721<T extends NFT$single721Args<ExtArgs> = {}>(args?: Subset<T, NFT$single721Args<ExtArgs>>): Prisma__Single721Client<$Result.GetResult<Prisma.$Single721Payload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     activities<T extends NFT$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, NFT$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NFTActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    warpoolEntries<T extends NFT$warpoolEntriesArgs<ExtArgs> = {}>(args?: Subset<T, NFT$warpoolEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    warpoolReservations<T extends NFT$warpoolReservationsArgs<ExtArgs> = {}>(args?: Subset<T, NFT$warpoolReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     warpoolActivities<T extends NFT$warpoolActivitiesArgs<ExtArgs> = {}>(args?: Subset<T, NFT$warpoolActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     warpoolCaptures<T extends NFT$warpoolCapturesArgs<ExtArgs> = {}>(args?: Subset<T, NFT$warpoolCapturesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolCapturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    warpoolEntries<T extends NFT$warpoolEntriesArgs<ExtArgs> = {}>(args?: Subset<T, NFT$warpoolEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    warpoolReservations<T extends NFT$warpoolReservationsArgs<ExtArgs> = {}>(args?: Subset<T, NFT$warpoolReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12259,54 +12118,6 @@ export namespace Prisma {
   }
 
   /**
-   * NFT.warpoolEntries
-   */
-  export type NFT$warpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolEntry
-     */
-    select?: WarpoolEntrySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolEntry
-     */
-    omit?: WarpoolEntryOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolEntryInclude<ExtArgs> | null
-    where?: WarpoolEntryWhereInput
-    orderBy?: WarpoolEntryOrderByWithRelationInput | WarpoolEntryOrderByWithRelationInput[]
-    cursor?: WarpoolEntryWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolEntryScalarFieldEnum | WarpoolEntryScalarFieldEnum[]
-  }
-
-  /**
-   * NFT.warpoolReservations
-   */
-  export type NFT$warpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolReservation
-     */
-    select?: WarpoolReservationSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolReservation
-     */
-    omit?: WarpoolReservationOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolReservationInclude<ExtArgs> | null
-    where?: WarpoolReservationWhereInput
-    orderBy?: WarpoolReservationOrderByWithRelationInput | WarpoolReservationOrderByWithRelationInput[]
-    cursor?: WarpoolReservationWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolReservationScalarFieldEnum | WarpoolReservationScalarFieldEnum[]
-  }
-
-  /**
    * NFT.warpoolActivities
    */
   export type NFT$warpoolActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12352,6 +12163,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WarpoolCaptureScalarFieldEnum | WarpoolCaptureScalarFieldEnum[]
+  }
+
+  /**
+   * NFT.warpoolEntries
+   */
+  export type NFT$warpoolEntriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WarpoolEntry
+     */
+    select?: WarpoolEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WarpoolEntry
+     */
+    omit?: WarpoolEntryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WarpoolEntryInclude<ExtArgs> | null
+    where?: WarpoolEntryWhereInput
+    orderBy?: WarpoolEntryOrderByWithRelationInput | WarpoolEntryOrderByWithRelationInput[]
+    cursor?: WarpoolEntryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WarpoolEntryScalarFieldEnum | WarpoolEntryScalarFieldEnum[]
+  }
+
+  /**
+   * NFT.warpoolReservations
+   */
+  export type NFT$warpoolReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WarpoolReservation
+     */
+    select?: WarpoolReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WarpoolReservation
+     */
+    omit?: WarpoolReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WarpoolReservationInclude<ExtArgs> | null
+    where?: WarpoolReservationWhereInput
+    orderBy?: WarpoolReservationOrderByWithRelationInput | WarpoolReservationOrderByWithRelationInput[]
+    cursor?: WarpoolReservationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WarpoolReservationScalarFieldEnum | WarpoolReservationScalarFieldEnum[]
   }
 
   /**
@@ -32887,1367 +32746,6 @@ export namespace Prisma {
 
 
   /**
-   * Model CollectionSubmission
-   */
-
-  export type AggregateCollectionSubmission = {
-    _count: CollectionSubmissionCountAggregateOutputType | null
-    _avg: CollectionSubmissionAvgAggregateOutputType | null
-    _sum: CollectionSubmissionSumAggregateOutputType | null
-    _min: CollectionSubmissionMinAggregateOutputType | null
-    _max: CollectionSubmissionMaxAggregateOutputType | null
-  }
-
-  export type CollectionSubmissionAvgAggregateOutputType = {
-    supply: number | null
-    feePaidWei: Decimal | null
-  }
-
-  export type CollectionSubmissionSumAggregateOutputType = {
-    supply: number | null
-    feePaidWei: Decimal | null
-  }
-
-  export type CollectionSubmissionMinAggregateOutputType = {
-    id: string | null
-    submittedByUserId: string | null
-    contract: string | null
-    ownerAddress: string | null
-    name: string | null
-    symbol: string | null
-    logoUrl: string | null
-    coverUrl: string | null
-    baseUri: string | null
-    supply: number | null
-    description: string | null
-    website: string | null
-    x: string | null
-    instagram: string | null
-    telegram: string | null
-    feeTxHash: string | null
-    feePaidWei: Decimal | null
-    feeVerifiedAt: Date | null
-    ownershipVerified: boolean | null
-    status: $Enums.SubmissionStatus | null
-    statusReason: string | null
-    reviewedByUserId: string | null
-    reviewedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type CollectionSubmissionMaxAggregateOutputType = {
-    id: string | null
-    submittedByUserId: string | null
-    contract: string | null
-    ownerAddress: string | null
-    name: string | null
-    symbol: string | null
-    logoUrl: string | null
-    coverUrl: string | null
-    baseUri: string | null
-    supply: number | null
-    description: string | null
-    website: string | null
-    x: string | null
-    instagram: string | null
-    telegram: string | null
-    feeTxHash: string | null
-    feePaidWei: Decimal | null
-    feeVerifiedAt: Date | null
-    ownershipVerified: boolean | null
-    status: $Enums.SubmissionStatus | null
-    statusReason: string | null
-    reviewedByUserId: string | null
-    reviewedAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type CollectionSubmissionCountAggregateOutputType = {
-    id: number
-    submittedByUserId: number
-    contract: number
-    ownerAddress: number
-    name: number
-    symbol: number
-    logoUrl: number
-    coverUrl: number
-    baseUri: number
-    supply: number
-    description: number
-    website: number
-    x: number
-    instagram: number
-    telegram: number
-    feeTxHash: number
-    feePaidWei: number
-    feeVerifiedAt: number
-    ownershipVerified: number
-    status: number
-    statusReason: number
-    reviewedByUserId: number
-    reviewedAt: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type CollectionSubmissionAvgAggregateInputType = {
-    supply?: true
-    feePaidWei?: true
-  }
-
-  export type CollectionSubmissionSumAggregateInputType = {
-    supply?: true
-    feePaidWei?: true
-  }
-
-  export type CollectionSubmissionMinAggregateInputType = {
-    id?: true
-    submittedByUserId?: true
-    contract?: true
-    ownerAddress?: true
-    name?: true
-    symbol?: true
-    logoUrl?: true
-    coverUrl?: true
-    baseUri?: true
-    supply?: true
-    description?: true
-    website?: true
-    x?: true
-    instagram?: true
-    telegram?: true
-    feeTxHash?: true
-    feePaidWei?: true
-    feeVerifiedAt?: true
-    ownershipVerified?: true
-    status?: true
-    statusReason?: true
-    reviewedByUserId?: true
-    reviewedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type CollectionSubmissionMaxAggregateInputType = {
-    id?: true
-    submittedByUserId?: true
-    contract?: true
-    ownerAddress?: true
-    name?: true
-    symbol?: true
-    logoUrl?: true
-    coverUrl?: true
-    baseUri?: true
-    supply?: true
-    description?: true
-    website?: true
-    x?: true
-    instagram?: true
-    telegram?: true
-    feeTxHash?: true
-    feePaidWei?: true
-    feeVerifiedAt?: true
-    ownershipVerified?: true
-    status?: true
-    statusReason?: true
-    reviewedByUserId?: true
-    reviewedAt?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type CollectionSubmissionCountAggregateInputType = {
-    id?: true
-    submittedByUserId?: true
-    contract?: true
-    ownerAddress?: true
-    name?: true
-    symbol?: true
-    logoUrl?: true
-    coverUrl?: true
-    baseUri?: true
-    supply?: true
-    description?: true
-    website?: true
-    x?: true
-    instagram?: true
-    telegram?: true
-    feeTxHash?: true
-    feePaidWei?: true
-    feeVerifiedAt?: true
-    ownershipVerified?: true
-    status?: true
-    statusReason?: true
-    reviewedByUserId?: true
-    reviewedAt?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type CollectionSubmissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which CollectionSubmission to aggregate.
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of CollectionSubmissions to fetch.
-     */
-    orderBy?: CollectionSubmissionOrderByWithRelationInput | CollectionSubmissionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: CollectionSubmissionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` CollectionSubmissions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` CollectionSubmissions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned CollectionSubmissions
-    **/
-    _count?: true | CollectionSubmissionCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: CollectionSubmissionAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: CollectionSubmissionSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: CollectionSubmissionMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: CollectionSubmissionMaxAggregateInputType
-  }
-
-  export type GetCollectionSubmissionAggregateType<T extends CollectionSubmissionAggregateArgs> = {
-        [P in keyof T & keyof AggregateCollectionSubmission]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateCollectionSubmission[P]>
-      : GetScalarType<T[P], AggregateCollectionSubmission[P]>
-  }
-
-
-
-
-  export type CollectionSubmissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CollectionSubmissionWhereInput
-    orderBy?: CollectionSubmissionOrderByWithAggregationInput | CollectionSubmissionOrderByWithAggregationInput[]
-    by: CollectionSubmissionScalarFieldEnum[] | CollectionSubmissionScalarFieldEnum
-    having?: CollectionSubmissionScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: CollectionSubmissionCountAggregateInputType | true
-    _avg?: CollectionSubmissionAvgAggregateInputType
-    _sum?: CollectionSubmissionSumAggregateInputType
-    _min?: CollectionSubmissionMinAggregateInputType
-    _max?: CollectionSubmissionMaxAggregateInputType
-  }
-
-  export type CollectionSubmissionGroupByOutputType = {
-    id: string
-    submittedByUserId: string
-    contract: string
-    ownerAddress: string | null
-    name: string | null
-    symbol: string | null
-    logoUrl: string | null
-    coverUrl: string | null
-    baseUri: string | null
-    supply: number | null
-    description: string | null
-    website: string | null
-    x: string | null
-    instagram: string | null
-    telegram: string | null
-    feeTxHash: string | null
-    feePaidWei: Decimal | null
-    feeVerifiedAt: Date | null
-    ownershipVerified: boolean
-    status: $Enums.SubmissionStatus
-    statusReason: string | null
-    reviewedByUserId: string | null
-    reviewedAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-    _count: CollectionSubmissionCountAggregateOutputType | null
-    _avg: CollectionSubmissionAvgAggregateOutputType | null
-    _sum: CollectionSubmissionSumAggregateOutputType | null
-    _min: CollectionSubmissionMinAggregateOutputType | null
-    _max: CollectionSubmissionMaxAggregateOutputType | null
-  }
-
-  type GetCollectionSubmissionGroupByPayload<T extends CollectionSubmissionGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<CollectionSubmissionGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof CollectionSubmissionGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], CollectionSubmissionGroupByOutputType[P]>
-            : GetScalarType<T[P], CollectionSubmissionGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type CollectionSubmissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    submittedByUserId?: boolean
-    contract?: boolean
-    ownerAddress?: boolean
-    name?: boolean
-    symbol?: boolean
-    logoUrl?: boolean
-    coverUrl?: boolean
-    baseUri?: boolean
-    supply?: boolean
-    description?: boolean
-    website?: boolean
-    x?: boolean
-    instagram?: boolean
-    telegram?: boolean
-    feeTxHash?: boolean
-    feePaidWei?: boolean
-    feeVerifiedAt?: boolean
-    ownershipVerified?: boolean
-    status?: boolean
-    statusReason?: boolean
-    reviewedByUserId?: boolean
-    reviewedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    submittedBy?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["collectionSubmission"]>
-
-  export type CollectionSubmissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    submittedByUserId?: boolean
-    contract?: boolean
-    ownerAddress?: boolean
-    name?: boolean
-    symbol?: boolean
-    logoUrl?: boolean
-    coverUrl?: boolean
-    baseUri?: boolean
-    supply?: boolean
-    description?: boolean
-    website?: boolean
-    x?: boolean
-    instagram?: boolean
-    telegram?: boolean
-    feeTxHash?: boolean
-    feePaidWei?: boolean
-    feeVerifiedAt?: boolean
-    ownershipVerified?: boolean
-    status?: boolean
-    statusReason?: boolean
-    reviewedByUserId?: boolean
-    reviewedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    submittedBy?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["collectionSubmission"]>
-
-  export type CollectionSubmissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    submittedByUserId?: boolean
-    contract?: boolean
-    ownerAddress?: boolean
-    name?: boolean
-    symbol?: boolean
-    logoUrl?: boolean
-    coverUrl?: boolean
-    baseUri?: boolean
-    supply?: boolean
-    description?: boolean
-    website?: boolean
-    x?: boolean
-    instagram?: boolean
-    telegram?: boolean
-    feeTxHash?: boolean
-    feePaidWei?: boolean
-    feeVerifiedAt?: boolean
-    ownershipVerified?: boolean
-    status?: boolean
-    statusReason?: boolean
-    reviewedByUserId?: boolean
-    reviewedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    submittedBy?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["collectionSubmission"]>
-
-  export type CollectionSubmissionSelectScalar = {
-    id?: boolean
-    submittedByUserId?: boolean
-    contract?: boolean
-    ownerAddress?: boolean
-    name?: boolean
-    symbol?: boolean
-    logoUrl?: boolean
-    coverUrl?: boolean
-    baseUri?: boolean
-    supply?: boolean
-    description?: boolean
-    website?: boolean
-    x?: boolean
-    instagram?: boolean
-    telegram?: boolean
-    feeTxHash?: boolean
-    feePaidWei?: boolean
-    feeVerifiedAt?: boolean
-    ownershipVerified?: boolean
-    status?: boolean
-    statusReason?: boolean
-    reviewedByUserId?: boolean
-    reviewedAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type CollectionSubmissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "submittedByUserId" | "contract" | "ownerAddress" | "name" | "symbol" | "logoUrl" | "coverUrl" | "baseUri" | "supply" | "description" | "website" | "x" | "instagram" | "telegram" | "feeTxHash" | "feePaidWei" | "feeVerifiedAt" | "ownershipVerified" | "status" | "statusReason" | "reviewedByUserId" | "reviewedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["collectionSubmission"]>
-  export type CollectionSubmissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    submittedBy?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type CollectionSubmissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    submittedBy?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type CollectionSubmissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    submittedBy?: boolean | UserDefaultArgs<ExtArgs>
-  }
-
-  export type $CollectionSubmissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "CollectionSubmission"
-    objects: {
-      submittedBy: Prisma.$UserPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      submittedByUserId: string
-      contract: string
-      ownerAddress: string | null
-      name: string | null
-      symbol: string | null
-      logoUrl: string | null
-      coverUrl: string | null
-      baseUri: string | null
-      supply: number | null
-      description: string | null
-      website: string | null
-      x: string | null
-      instagram: string | null
-      telegram: string | null
-      feeTxHash: string | null
-      feePaidWei: Prisma.Decimal | null
-      feeVerifiedAt: Date | null
-      ownershipVerified: boolean
-      status: $Enums.SubmissionStatus
-      statusReason: string | null
-      reviewedByUserId: string | null
-      reviewedAt: Date | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["collectionSubmission"]>
-    composites: {}
-  }
-
-  type CollectionSubmissionGetPayload<S extends boolean | null | undefined | CollectionSubmissionDefaultArgs> = $Result.GetResult<Prisma.$CollectionSubmissionPayload, S>
-
-  type CollectionSubmissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<CollectionSubmissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: CollectionSubmissionCountAggregateInputType | true
-    }
-
-  export interface CollectionSubmissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CollectionSubmission'], meta: { name: 'CollectionSubmission' } }
-    /**
-     * Find zero or one CollectionSubmission that matches the filter.
-     * @param {CollectionSubmissionFindUniqueArgs} args - Arguments to find a CollectionSubmission
-     * @example
-     * // Get one CollectionSubmission
-     * const collectionSubmission = await prisma.collectionSubmission.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends CollectionSubmissionFindUniqueArgs>(args: SelectSubset<T, CollectionSubmissionFindUniqueArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one CollectionSubmission that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {CollectionSubmissionFindUniqueOrThrowArgs} args - Arguments to find a CollectionSubmission
-     * @example
-     * // Get one CollectionSubmission
-     * const collectionSubmission = await prisma.collectionSubmission.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends CollectionSubmissionFindUniqueOrThrowArgs>(args: SelectSubset<T, CollectionSubmissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first CollectionSubmission that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionFindFirstArgs} args - Arguments to find a CollectionSubmission
-     * @example
-     * // Get one CollectionSubmission
-     * const collectionSubmission = await prisma.collectionSubmission.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends CollectionSubmissionFindFirstArgs>(args?: SelectSubset<T, CollectionSubmissionFindFirstArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first CollectionSubmission that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionFindFirstOrThrowArgs} args - Arguments to find a CollectionSubmission
-     * @example
-     * // Get one CollectionSubmission
-     * const collectionSubmission = await prisma.collectionSubmission.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends CollectionSubmissionFindFirstOrThrowArgs>(args?: SelectSubset<T, CollectionSubmissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more CollectionSubmissions that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all CollectionSubmissions
-     * const collectionSubmissions = await prisma.collectionSubmission.findMany()
-     * 
-     * // Get first 10 CollectionSubmissions
-     * const collectionSubmissions = await prisma.collectionSubmission.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const collectionSubmissionWithIdOnly = await prisma.collectionSubmission.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends CollectionSubmissionFindManyArgs>(args?: SelectSubset<T, CollectionSubmissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a CollectionSubmission.
-     * @param {CollectionSubmissionCreateArgs} args - Arguments to create a CollectionSubmission.
-     * @example
-     * // Create one CollectionSubmission
-     * const CollectionSubmission = await prisma.collectionSubmission.create({
-     *   data: {
-     *     // ... data to create a CollectionSubmission
-     *   }
-     * })
-     * 
-     */
-    create<T extends CollectionSubmissionCreateArgs>(args: SelectSubset<T, CollectionSubmissionCreateArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many CollectionSubmissions.
-     * @param {CollectionSubmissionCreateManyArgs} args - Arguments to create many CollectionSubmissions.
-     * @example
-     * // Create many CollectionSubmissions
-     * const collectionSubmission = await prisma.collectionSubmission.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends CollectionSubmissionCreateManyArgs>(args?: SelectSubset<T, CollectionSubmissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many CollectionSubmissions and returns the data saved in the database.
-     * @param {CollectionSubmissionCreateManyAndReturnArgs} args - Arguments to create many CollectionSubmissions.
-     * @example
-     * // Create many CollectionSubmissions
-     * const collectionSubmission = await prisma.collectionSubmission.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many CollectionSubmissions and only return the `id`
-     * const collectionSubmissionWithIdOnly = await prisma.collectionSubmission.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends CollectionSubmissionCreateManyAndReturnArgs>(args?: SelectSubset<T, CollectionSubmissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a CollectionSubmission.
-     * @param {CollectionSubmissionDeleteArgs} args - Arguments to delete one CollectionSubmission.
-     * @example
-     * // Delete one CollectionSubmission
-     * const CollectionSubmission = await prisma.collectionSubmission.delete({
-     *   where: {
-     *     // ... filter to delete one CollectionSubmission
-     *   }
-     * })
-     * 
-     */
-    delete<T extends CollectionSubmissionDeleteArgs>(args: SelectSubset<T, CollectionSubmissionDeleteArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one CollectionSubmission.
-     * @param {CollectionSubmissionUpdateArgs} args - Arguments to update one CollectionSubmission.
-     * @example
-     * // Update one CollectionSubmission
-     * const collectionSubmission = await prisma.collectionSubmission.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends CollectionSubmissionUpdateArgs>(args: SelectSubset<T, CollectionSubmissionUpdateArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more CollectionSubmissions.
-     * @param {CollectionSubmissionDeleteManyArgs} args - Arguments to filter CollectionSubmissions to delete.
-     * @example
-     * // Delete a few CollectionSubmissions
-     * const { count } = await prisma.collectionSubmission.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends CollectionSubmissionDeleteManyArgs>(args?: SelectSubset<T, CollectionSubmissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more CollectionSubmissions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many CollectionSubmissions
-     * const collectionSubmission = await prisma.collectionSubmission.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends CollectionSubmissionUpdateManyArgs>(args: SelectSubset<T, CollectionSubmissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more CollectionSubmissions and returns the data updated in the database.
-     * @param {CollectionSubmissionUpdateManyAndReturnArgs} args - Arguments to update many CollectionSubmissions.
-     * @example
-     * // Update many CollectionSubmissions
-     * const collectionSubmission = await prisma.collectionSubmission.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more CollectionSubmissions and only return the `id`
-     * const collectionSubmissionWithIdOnly = await prisma.collectionSubmission.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends CollectionSubmissionUpdateManyAndReturnArgs>(args: SelectSubset<T, CollectionSubmissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one CollectionSubmission.
-     * @param {CollectionSubmissionUpsertArgs} args - Arguments to update or create a CollectionSubmission.
-     * @example
-     * // Update or create a CollectionSubmission
-     * const collectionSubmission = await prisma.collectionSubmission.upsert({
-     *   create: {
-     *     // ... data to create a CollectionSubmission
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the CollectionSubmission we want to update
-     *   }
-     * })
-     */
-    upsert<T extends CollectionSubmissionUpsertArgs>(args: SelectSubset<T, CollectionSubmissionUpsertArgs<ExtArgs>>): Prisma__CollectionSubmissionClient<$Result.GetResult<Prisma.$CollectionSubmissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of CollectionSubmissions.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionCountArgs} args - Arguments to filter CollectionSubmissions to count.
-     * @example
-     * // Count the number of CollectionSubmissions
-     * const count = await prisma.collectionSubmission.count({
-     *   where: {
-     *     // ... the filter for the CollectionSubmissions we want to count
-     *   }
-     * })
-    **/
-    count<T extends CollectionSubmissionCountArgs>(
-      args?: Subset<T, CollectionSubmissionCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], CollectionSubmissionCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a CollectionSubmission.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends CollectionSubmissionAggregateArgs>(args: Subset<T, CollectionSubmissionAggregateArgs>): Prisma.PrismaPromise<GetCollectionSubmissionAggregateType<T>>
-
-    /**
-     * Group by CollectionSubmission.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CollectionSubmissionGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends CollectionSubmissionGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: CollectionSubmissionGroupByArgs['orderBy'] }
-        : { orderBy?: CollectionSubmissionGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, CollectionSubmissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCollectionSubmissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the CollectionSubmission model
-   */
-  readonly fields: CollectionSubmissionFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for CollectionSubmission.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__CollectionSubmissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    submittedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the CollectionSubmission model
-   */
-  interface CollectionSubmissionFieldRefs {
-    readonly id: FieldRef<"CollectionSubmission", 'String'>
-    readonly submittedByUserId: FieldRef<"CollectionSubmission", 'String'>
-    readonly contract: FieldRef<"CollectionSubmission", 'String'>
-    readonly ownerAddress: FieldRef<"CollectionSubmission", 'String'>
-    readonly name: FieldRef<"CollectionSubmission", 'String'>
-    readonly symbol: FieldRef<"CollectionSubmission", 'String'>
-    readonly logoUrl: FieldRef<"CollectionSubmission", 'String'>
-    readonly coverUrl: FieldRef<"CollectionSubmission", 'String'>
-    readonly baseUri: FieldRef<"CollectionSubmission", 'String'>
-    readonly supply: FieldRef<"CollectionSubmission", 'Int'>
-    readonly description: FieldRef<"CollectionSubmission", 'String'>
-    readonly website: FieldRef<"CollectionSubmission", 'String'>
-    readonly x: FieldRef<"CollectionSubmission", 'String'>
-    readonly instagram: FieldRef<"CollectionSubmission", 'String'>
-    readonly telegram: FieldRef<"CollectionSubmission", 'String'>
-    readonly feeTxHash: FieldRef<"CollectionSubmission", 'String'>
-    readonly feePaidWei: FieldRef<"CollectionSubmission", 'Decimal'>
-    readonly feeVerifiedAt: FieldRef<"CollectionSubmission", 'DateTime'>
-    readonly ownershipVerified: FieldRef<"CollectionSubmission", 'Boolean'>
-    readonly status: FieldRef<"CollectionSubmission", 'SubmissionStatus'>
-    readonly statusReason: FieldRef<"CollectionSubmission", 'String'>
-    readonly reviewedByUserId: FieldRef<"CollectionSubmission", 'String'>
-    readonly reviewedAt: FieldRef<"CollectionSubmission", 'DateTime'>
-    readonly createdAt: FieldRef<"CollectionSubmission", 'DateTime'>
-    readonly updatedAt: FieldRef<"CollectionSubmission", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * CollectionSubmission findUnique
-   */
-  export type CollectionSubmissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * Filter, which CollectionSubmission to fetch.
-     */
-    where: CollectionSubmissionWhereUniqueInput
-  }
-
-  /**
-   * CollectionSubmission findUniqueOrThrow
-   */
-  export type CollectionSubmissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * Filter, which CollectionSubmission to fetch.
-     */
-    where: CollectionSubmissionWhereUniqueInput
-  }
-
-  /**
-   * CollectionSubmission findFirst
-   */
-  export type CollectionSubmissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * Filter, which CollectionSubmission to fetch.
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of CollectionSubmissions to fetch.
-     */
-    orderBy?: CollectionSubmissionOrderByWithRelationInput | CollectionSubmissionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for CollectionSubmissions.
-     */
-    cursor?: CollectionSubmissionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` CollectionSubmissions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` CollectionSubmissions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of CollectionSubmissions.
-     */
-    distinct?: CollectionSubmissionScalarFieldEnum | CollectionSubmissionScalarFieldEnum[]
-  }
-
-  /**
-   * CollectionSubmission findFirstOrThrow
-   */
-  export type CollectionSubmissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * Filter, which CollectionSubmission to fetch.
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of CollectionSubmissions to fetch.
-     */
-    orderBy?: CollectionSubmissionOrderByWithRelationInput | CollectionSubmissionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for CollectionSubmissions.
-     */
-    cursor?: CollectionSubmissionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` CollectionSubmissions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` CollectionSubmissions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of CollectionSubmissions.
-     */
-    distinct?: CollectionSubmissionScalarFieldEnum | CollectionSubmissionScalarFieldEnum[]
-  }
-
-  /**
-   * CollectionSubmission findMany
-   */
-  export type CollectionSubmissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * Filter, which CollectionSubmissions to fetch.
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of CollectionSubmissions to fetch.
-     */
-    orderBy?: CollectionSubmissionOrderByWithRelationInput | CollectionSubmissionOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing CollectionSubmissions.
-     */
-    cursor?: CollectionSubmissionWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` CollectionSubmissions from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` CollectionSubmissions.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of CollectionSubmissions.
-     */
-    distinct?: CollectionSubmissionScalarFieldEnum | CollectionSubmissionScalarFieldEnum[]
-  }
-
-  /**
-   * CollectionSubmission create
-   */
-  export type CollectionSubmissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * The data needed to create a CollectionSubmission.
-     */
-    data: XOR<CollectionSubmissionCreateInput, CollectionSubmissionUncheckedCreateInput>
-  }
-
-  /**
-   * CollectionSubmission createMany
-   */
-  export type CollectionSubmissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many CollectionSubmissions.
-     */
-    data: CollectionSubmissionCreateManyInput | CollectionSubmissionCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * CollectionSubmission createManyAndReturn
-   */
-  export type CollectionSubmissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * The data used to create many CollectionSubmissions.
-     */
-    data: CollectionSubmissionCreateManyInput | CollectionSubmissionCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * CollectionSubmission update
-   */
-  export type CollectionSubmissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * The data needed to update a CollectionSubmission.
-     */
-    data: XOR<CollectionSubmissionUpdateInput, CollectionSubmissionUncheckedUpdateInput>
-    /**
-     * Choose, which CollectionSubmission to update.
-     */
-    where: CollectionSubmissionWhereUniqueInput
-  }
-
-  /**
-   * CollectionSubmission updateMany
-   */
-  export type CollectionSubmissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update CollectionSubmissions.
-     */
-    data: XOR<CollectionSubmissionUpdateManyMutationInput, CollectionSubmissionUncheckedUpdateManyInput>
-    /**
-     * Filter which CollectionSubmissions to update
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * Limit how many CollectionSubmissions to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * CollectionSubmission updateManyAndReturn
-   */
-  export type CollectionSubmissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * The data used to update CollectionSubmissions.
-     */
-    data: XOR<CollectionSubmissionUpdateManyMutationInput, CollectionSubmissionUncheckedUpdateManyInput>
-    /**
-     * Filter which CollectionSubmissions to update
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * Limit how many CollectionSubmissions to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * CollectionSubmission upsert
-   */
-  export type CollectionSubmissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * The filter to search for the CollectionSubmission to update in case it exists.
-     */
-    where: CollectionSubmissionWhereUniqueInput
-    /**
-     * In case the CollectionSubmission found by the `where` argument doesn't exist, create a new CollectionSubmission with this data.
-     */
-    create: XOR<CollectionSubmissionCreateInput, CollectionSubmissionUncheckedCreateInput>
-    /**
-     * In case the CollectionSubmission was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<CollectionSubmissionUpdateInput, CollectionSubmissionUncheckedUpdateInput>
-  }
-
-  /**
-   * CollectionSubmission delete
-   */
-  export type CollectionSubmissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-    /**
-     * Filter which CollectionSubmission to delete.
-     */
-    where: CollectionSubmissionWhereUniqueInput
-  }
-
-  /**
-   * CollectionSubmission deleteMany
-   */
-  export type CollectionSubmissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which CollectionSubmissions to delete
-     */
-    where?: CollectionSubmissionWhereInput
-    /**
-     * Limit how many CollectionSubmissions to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * CollectionSubmission without action
-   */
-  export type CollectionSubmissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the CollectionSubmission
-     */
-    select?: CollectionSubmissionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the CollectionSubmission
-     */
-    omit?: CollectionSubmissionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CollectionSubmissionInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model NFTRarity
    */
 
@@ -47018,9 +45516,9 @@ export namespace Prisma {
     threshold?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    adminProposals?: boolean | MultisigSafe$adminProposalsArgs<ExtArgs>
     owners?: boolean | MultisigSafe$ownersArgs<ExtArgs>
     txs?: boolean | MultisigSafe$txsArgs<ExtArgs>
-    adminProposals?: boolean | MultisigSafe$adminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigSafeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["multisigSafe"]>
 
@@ -47053,9 +45551,9 @@ export namespace Prisma {
 
   export type MultisigSafeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "contract" | "name" | "threshold" | "createdAt" | "updatedAt", ExtArgs["result"]["multisigSafe"]>
   export type MultisigSafeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    adminProposals?: boolean | MultisigSafe$adminProposalsArgs<ExtArgs>
     owners?: boolean | MultisigSafe$ownersArgs<ExtArgs>
     txs?: boolean | MultisigSafe$txsArgs<ExtArgs>
-    adminProposals?: boolean | MultisigSafe$adminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigSafeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MultisigSafeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -47064,9 +45562,9 @@ export namespace Prisma {
   export type $MultisigSafePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "MultisigSafe"
     objects: {
+      adminProposals: Prisma.$AdminProposalPayload<ExtArgs>[]
       owners: Prisma.$MultisigOwnerPayload<ExtArgs>[]
       txs: Prisma.$MultisigTxPayload<ExtArgs>[]
-      adminProposals: Prisma.$AdminProposalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -47469,9 +45967,9 @@ export namespace Prisma {
    */
   export interface Prisma__MultisigSafeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    adminProposals<T extends MultisigSafe$adminProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$adminProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     owners<T extends MultisigSafe$ownersArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$ownersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigOwnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     txs<T extends MultisigSafe$txsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$txsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigTxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    adminProposals<T extends MultisigSafe$adminProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafe$adminProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -47900,6 +46398,30 @@ export namespace Prisma {
   }
 
   /**
+   * MultisigSafe.adminProposals
+   */
+  export type MultisigSafe$adminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminProposal
+     */
+    select?: AdminProposalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdminProposal
+     */
+    omit?: AdminProposalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdminProposalInclude<ExtArgs> | null
+    where?: AdminProposalWhereInput
+    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
+    cursor?: AdminProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
    * MultisigSafe.owners
    */
   export type MultisigSafe$ownersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -47945,30 +46467,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MultisigTxScalarFieldEnum | MultisigTxScalarFieldEnum[]
-  }
-
-  /**
-   * MultisigSafe.adminProposals
-   */
-  export type MultisigSafe$adminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AdminProposal
-     */
-    select?: AdminProposalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AdminProposal
-     */
-    omit?: AdminProposalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: AdminProposalInclude<ExtArgs> | null
-    where?: AdminProposalWhereInput
-    orderBy?: AdminProposalOrderByWithRelationInput | AdminProposalOrderByWithRelationInput[]
-    cursor?: AdminProposalWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
   }
 
   /**
@@ -49315,9 +47813,9 @@ export namespace Prisma {
     executedTxHash?: boolean
     createdAt?: boolean
     executedAt?: boolean
+    linkedAdminProposals?: boolean | MultisigTx$linkedAdminProposalsArgs<ExtArgs>
     approvals?: boolean | MultisigTx$approvalsArgs<ExtArgs>
     safe?: boolean | MultisigSafeDefaultArgs<ExtArgs>
-    linkedAdminProposals?: boolean | MultisigTx$linkedAdminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigTxCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["multisigTx"]>
 
@@ -49370,9 +47868,9 @@ export namespace Prisma {
 
   export type MultisigTxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "safeId" | "nonce" | "to" | "valueWei" | "dataHex" | "operation" | "submittedBy" | "status" | "executedTxHash" | "createdAt" | "executedAt", ExtArgs["result"]["multisigTx"]>
   export type MultisigTxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    linkedAdminProposals?: boolean | MultisigTx$linkedAdminProposalsArgs<ExtArgs>
     approvals?: boolean | MultisigTx$approvalsArgs<ExtArgs>
     safe?: boolean | MultisigSafeDefaultArgs<ExtArgs>
-    linkedAdminProposals?: boolean | MultisigTx$linkedAdminProposalsArgs<ExtArgs>
     _count?: boolean | MultisigTxCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MultisigTxIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -49385,9 +47883,9 @@ export namespace Prisma {
   export type $MultisigTxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "MultisigTx"
     objects: {
+      linkedAdminProposals: Prisma.$AdminProposalPayload<ExtArgs>[]
       approvals: Prisma.$MultisigApprovalPayload<ExtArgs>[]
       safe: Prisma.$MultisigSafePayload<ExtArgs>
-      linkedAdminProposals: Prisma.$AdminProposalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -49796,9 +48294,9 @@ export namespace Prisma {
    */
   export interface Prisma__MultisigTxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    linkedAdminProposals<T extends MultisigTx$linkedAdminProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigTx$linkedAdminProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     approvals<T extends MultisigTx$approvalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigTx$approvalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigApprovalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     safe<T extends MultisigSafeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MultisigSafeDefaultArgs<ExtArgs>>): Prisma__MultisigSafeClient<$Result.GetResult<Prisma.$MultisigSafePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    linkedAdminProposals<T extends MultisigTx$linkedAdminProposalsArgs<ExtArgs> = {}>(args?: Subset<T, MultisigTx$linkedAdminProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -50241,30 +48739,6 @@ export namespace Prisma {
   }
 
   /**
-   * MultisigTx.approvals
-   */
-  export type MultisigTx$approvalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MultisigApproval
-     */
-    select?: MultisigApprovalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MultisigApproval
-     */
-    omit?: MultisigApprovalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MultisigApprovalInclude<ExtArgs> | null
-    where?: MultisigApprovalWhereInput
-    orderBy?: MultisigApprovalOrderByWithRelationInput | MultisigApprovalOrderByWithRelationInput[]
-    cursor?: MultisigApprovalWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: MultisigApprovalScalarFieldEnum | MultisigApprovalScalarFieldEnum[]
-  }
-
-  /**
    * MultisigTx.linkedAdminProposals
    */
   export type MultisigTx$linkedAdminProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -50286,6 +48760,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AdminProposalScalarFieldEnum | AdminProposalScalarFieldEnum[]
+  }
+
+  /**
+   * MultisigTx.approvals
+   */
+  export type MultisigTx$approvalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MultisigApproval
+     */
+    select?: MultisigApprovalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MultisigApproval
+     */
+    omit?: MultisigApprovalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigApprovalInclude<ExtArgs> | null
+    where?: MultisigApprovalWhereInput
+    orderBy?: MultisigApprovalOrderByWithRelationInput | MultisigApprovalOrderByWithRelationInput[]
+    cursor?: MultisigApprovalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MultisigApprovalScalarFieldEnum | MultisigApprovalScalarFieldEnum[]
   }
 
   /**
@@ -56845,10 +55343,10 @@ export namespace Prisma {
     settleTxHash?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    entries?: boolean | WarpoolPool$entriesArgs<ExtArgs>
-    reservations?: boolean | WarpoolPool$reservationsArgs<ExtArgs>
     activities?: boolean | WarpoolPool$activitiesArgs<ExtArgs>
     battle?: boolean | WarpoolPool$battleArgs<ExtArgs>
+    entries?: boolean | WarpoolPool$entriesArgs<ExtArgs>
+    reservations?: boolean | WarpoolPool$reservationsArgs<ExtArgs>
     _count?: boolean | WarpoolPoolCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolPool"]>
 
@@ -56998,10 +55496,10 @@ export namespace Prisma {
 
   export type WarpoolPoolOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "chainId" | "coreContract" | "poolIdOnChain" | "queueKey" | "queueSlug" | "configVersion" | "state" | "tier" | "mode" | "singleEntryPerWallet" | "targetSize" | "minStartSize" | "entrantCount" | "runnableSize" | "stakeAmountRaw" | "platformFeeBps" | "firstPlaceBps" | "secondPlaceBps" | "thirdPlaceBps" | "relicMinDiscountBps" | "relicMaxDiscountBps" | "discountSeatCap" | "token11SeatCap" | "token11FeeShareBps" | "discountSeatsUsed" | "discountSeatsReserved" | "token11SeatsUsed" | "comradesCollection" | "relicsCollection" | "dcntToken" | "treasury" | "openedAt" | "expiresAt" | "lockedAt" | "battleReadyAt" | "settledAt" | "closedAt" | "expiredRefundedAt" | "seedBlockNumber" | "openTxHash" | "lockTxHash" | "settleTxHash" | "createdAt" | "updatedAt", ExtArgs["result"]["warpoolPool"]>
   export type WarpoolPoolInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    entries?: boolean | WarpoolPool$entriesArgs<ExtArgs>
-    reservations?: boolean | WarpoolPool$reservationsArgs<ExtArgs>
     activities?: boolean | WarpoolPool$activitiesArgs<ExtArgs>
     battle?: boolean | WarpoolPool$battleArgs<ExtArgs>
+    entries?: boolean | WarpoolPool$entriesArgs<ExtArgs>
+    reservations?: boolean | WarpoolPool$reservationsArgs<ExtArgs>
     _count?: boolean | WarpoolPoolCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WarpoolPoolIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -57010,10 +55508,10 @@ export namespace Prisma {
   export type $WarpoolPoolPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WarpoolPool"
     objects: {
-      entries: Prisma.$WarpoolEntryPayload<ExtArgs>[]
-      reservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
       activities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
       battle: Prisma.$WarpoolBattlePayload<ExtArgs> | null
+      entries: Prisma.$WarpoolEntryPayload<ExtArgs>[]
+      reservations: Prisma.$WarpoolReservationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -57455,10 +55953,10 @@ export namespace Prisma {
    */
   export interface Prisma__WarpoolPoolClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    entries<T extends WarpoolPool$entriesArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPool$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    reservations<T extends WarpoolPool$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPool$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activities<T extends WarpoolPool$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPool$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     battle<T extends WarpoolPool$battleArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPool$battleArgs<ExtArgs>>): Prisma__WarpoolBattleClient<$Result.GetResult<Prisma.$WarpoolBattlePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    entries<T extends WarpoolPool$entriesArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPool$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reservations<T extends WarpoolPool$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPool$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -57926,6 +56424,49 @@ export namespace Prisma {
   }
 
   /**
+   * WarpoolPool.activities
+   */
+  export type WarpoolPool$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WarpoolActivity
+     */
+    select?: WarpoolActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WarpoolActivity
+     */
+    omit?: WarpoolActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WarpoolActivityInclude<ExtArgs> | null
+    where?: WarpoolActivityWhereInput
+    orderBy?: WarpoolActivityOrderByWithRelationInput | WarpoolActivityOrderByWithRelationInput[]
+    cursor?: WarpoolActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WarpoolActivityScalarFieldEnum | WarpoolActivityScalarFieldEnum[]
+  }
+
+  /**
+   * WarpoolPool.battle
+   */
+  export type WarpoolPool$battleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WarpoolBattle
+     */
+    select?: WarpoolBattleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WarpoolBattle
+     */
+    omit?: WarpoolBattleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WarpoolBattleInclude<ExtArgs> | null
+    where?: WarpoolBattleWhereInput
+  }
+
+  /**
    * WarpoolPool.entries
    */
   export type WarpoolPool$entriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -57971,49 +56512,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WarpoolReservationScalarFieldEnum | WarpoolReservationScalarFieldEnum[]
-  }
-
-  /**
-   * WarpoolPool.activities
-   */
-  export type WarpoolPool$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolActivity
-     */
-    select?: WarpoolActivitySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolActivity
-     */
-    omit?: WarpoolActivityOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolActivityInclude<ExtArgs> | null
-    where?: WarpoolActivityWhereInput
-    orderBy?: WarpoolActivityOrderByWithRelationInput | WarpoolActivityOrderByWithRelationInput[]
-    cursor?: WarpoolActivityWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolActivityScalarFieldEnum | WarpoolActivityScalarFieldEnum[]
-  }
-
-  /**
-   * WarpoolPool.battle
-   */
-  export type WarpoolPool$battleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolBattle
-     */
-    select?: WarpoolBattleSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolBattle
-     */
-    omit?: WarpoolBattleOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolBattleInclude<ExtArgs> | null
-    where?: WarpoolBattleWhereInput
   }
 
   /**
@@ -58429,12 +56927,12 @@ export namespace Prisma {
     reservationId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
-    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
-    nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
-    reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
-    capture?: boolean | WarpoolEntry$captureArgs<ExtArgs>
     activities?: boolean | WarpoolEntry$activitiesArgs<ExtArgs>
+    capture?: boolean | WarpoolEntry$captureArgs<ExtArgs>
+    nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
+    reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
+    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
     _count?: boolean | WarpoolEntryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolEntry"]>
 
@@ -58465,10 +56963,10 @@ export namespace Prisma {
     reservationId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
-    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
     nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
+    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolEntry"]>
 
   export type WarpoolEntrySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -58498,10 +56996,10 @@ export namespace Prisma {
     reservationId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
-    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
     nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
+    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolEntry"]>
 
   export type WarpoolEntrySelectScalar = {
@@ -58535,36 +57033,36 @@ export namespace Prisma {
 
   export type WarpoolEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "chainId" | "coreContract" | "entryIdOnChain" | "poolId" | "userId" | "userAddress" | "nftId" | "comradeContract" | "comradeTokenId" | "relicContract" | "relicTokenId" | "relicType" | "status" | "placement" | "selectedForBattle" | "relicDiscountBps" | "baseStakeAmountRaw" | "paidStakeAmountRaw" | "refundedStakeAmountRaw" | "prizeAmountRaw" | "joinedAt" | "joinedTxHash" | "reservationId" | "createdAt" | "updatedAt", ExtArgs["result"]["warpoolEntry"]>
   export type WarpoolEntryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
-    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
-    nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
-    reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
-    capture?: boolean | WarpoolEntry$captureArgs<ExtArgs>
     activities?: boolean | WarpoolEntry$activitiesArgs<ExtArgs>
+    capture?: boolean | WarpoolEntry$captureArgs<ExtArgs>
+    nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
+    reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
+    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
     _count?: boolean | WarpoolEntryCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WarpoolEntryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
-    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
     nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
+    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
   }
   export type WarpoolEntryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
-    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
     nft?: boolean | WarpoolEntry$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     reservation?: boolean | WarpoolEntry$reservationArgs<ExtArgs>
+    user?: boolean | WarpoolEntry$userArgs<ExtArgs>
   }
 
   export type $WarpoolEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WarpoolEntry"
     objects: {
-      pool: Prisma.$WarpoolPoolPayload<ExtArgs>
-      user: Prisma.$UserPayload<ExtArgs> | null
-      nft: Prisma.$NFTPayload<ExtArgs> | null
-      reservation: Prisma.$WarpoolReservationPayload<ExtArgs> | null
-      capture: Prisma.$WarpoolCapturePayload<ExtArgs> | null
       activities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
+      capture: Prisma.$WarpoolCapturePayload<ExtArgs> | null
+      nft: Prisma.$NFTPayload<ExtArgs> | null
+      pool: Prisma.$WarpoolPoolPayload<ExtArgs>
+      reservation: Prisma.$WarpoolReservationPayload<ExtArgs> | null
+      user: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -58987,12 +57485,12 @@ export namespace Prisma {
    */
   export interface Prisma__WarpoolEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    pool<T extends WarpoolPoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPoolDefaultArgs<ExtArgs>>): Prisma__WarpoolPoolClient<$Result.GetResult<Prisma.$WarpoolPoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    user<T extends WarpoolEntry$userArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    nft<T extends WarpoolEntry$nftArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$nftArgs<ExtArgs>>): Prisma__NFTClient<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    reservation<T extends WarpoolEntry$reservationArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$reservationArgs<ExtArgs>>): Prisma__WarpoolReservationClient<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    capture<T extends WarpoolEntry$captureArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$captureArgs<ExtArgs>>): Prisma__WarpoolCaptureClient<$Result.GetResult<Prisma.$WarpoolCapturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     activities<T extends WarpoolEntry$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    capture<T extends WarpoolEntry$captureArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$captureArgs<ExtArgs>>): Prisma__WarpoolCaptureClient<$Result.GetResult<Prisma.$WarpoolCapturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    nft<T extends WarpoolEntry$nftArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$nftArgs<ExtArgs>>): Prisma__NFTClient<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    pool<T extends WarpoolPoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPoolDefaultArgs<ExtArgs>>): Prisma__WarpoolPoolClient<$Result.GetResult<Prisma.$WarpoolPoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    reservation<T extends WarpoolEntry$reservationArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$reservationArgs<ExtArgs>>): Prisma__WarpoolReservationClient<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    user<T extends WarpoolEntry$userArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolEntry$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -59449,22 +57947,46 @@ export namespace Prisma {
   }
 
   /**
-   * WarpoolEntry.user
+   * WarpoolEntry.activities
    */
-  export type WarpoolEntry$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WarpoolEntry$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the User
+     * Select specific fields to fetch from the WarpoolActivity
      */
-    select?: UserSelect<ExtArgs> | null
+    select?: WarpoolActivitySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
+     * Omit specific fields from the WarpoolActivity
      */
-    omit?: UserOmit<ExtArgs> | null
+    omit?: WarpoolActivityOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
+    include?: WarpoolActivityInclude<ExtArgs> | null
+    where?: WarpoolActivityWhereInput
+    orderBy?: WarpoolActivityOrderByWithRelationInput | WarpoolActivityOrderByWithRelationInput[]
+    cursor?: WarpoolActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WarpoolActivityScalarFieldEnum | WarpoolActivityScalarFieldEnum[]
+  }
+
+  /**
+   * WarpoolEntry.capture
+   */
+  export type WarpoolEntry$captureArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WarpoolCapture
+     */
+    select?: WarpoolCaptureSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WarpoolCapture
+     */
+    omit?: WarpoolCaptureOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WarpoolCaptureInclude<ExtArgs> | null
+    where?: WarpoolCaptureWhereInput
   }
 
   /**
@@ -59506,46 +58028,22 @@ export namespace Prisma {
   }
 
   /**
-   * WarpoolEntry.capture
+   * WarpoolEntry.user
    */
-  export type WarpoolEntry$captureArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WarpoolEntry$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the WarpoolCapture
+     * Select specific fields to fetch from the User
      */
-    select?: WarpoolCaptureSelect<ExtArgs> | null
+    select?: UserSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the WarpoolCapture
+     * Omit specific fields from the User
      */
-    omit?: WarpoolCaptureOmit<ExtArgs> | null
+    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WarpoolCaptureInclude<ExtArgs> | null
-    where?: WarpoolCaptureWhereInput
-  }
-
-  /**
-   * WarpoolEntry.activities
-   */
-  export type WarpoolEntry$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolActivity
-     */
-    select?: WarpoolActivitySelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolActivity
-     */
-    omit?: WarpoolActivityOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolActivityInclude<ExtArgs> | null
-    where?: WarpoolActivityWhereInput
-    orderBy?: WarpoolActivityOrderByWithRelationInput | WarpoolActivityOrderByWithRelationInput[]
-    cursor?: WarpoolActivityWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolActivityScalarFieldEnum | WarpoolActivityScalarFieldEnum[]
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -59909,11 +58407,11 @@ export namespace Prisma {
     resolvedTxHash?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    activities?: boolean | WarpoolReservation$activitiesArgs<ExtArgs>
+    entry?: boolean | WarpoolReservation$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
     pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     user?: boolean | WarpoolReservation$userArgs<ExtArgs>
-    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
-    entry?: boolean | WarpoolReservation$entryArgs<ExtArgs>
-    activities?: boolean | WarpoolReservation$activitiesArgs<ExtArgs>
     _count?: boolean | WarpoolReservationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolReservation"]>
 
@@ -59940,9 +58438,9 @@ export namespace Prisma {
     resolvedTxHash?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
     pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     user?: boolean | WarpoolReservation$userArgs<ExtArgs>
-    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolReservation"]>
 
   export type WarpoolReservationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -59968,9 +58466,9 @@ export namespace Prisma {
     resolvedTxHash?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
     pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     user?: boolean | WarpoolReservation$userArgs<ExtArgs>
-    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolReservation"]>
 
   export type WarpoolReservationSelectScalar = {
@@ -60000,32 +58498,32 @@ export namespace Prisma {
 
   export type WarpoolReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "chainId" | "coreContract" | "reservationIdOnChain" | "poolId" | "userId" | "userAddress" | "nftId" | "comradeContract" | "comradeTokenId" | "relicContract" | "relicTokenId" | "status" | "discountBps" | "createdAtOnChain" | "expiresAtOnChain" | "consumedAt" | "expiredAt" | "createdTxHash" | "resolvedTxHash" | "createdAt" | "updatedAt", ExtArgs["result"]["warpoolReservation"]>
   export type WarpoolReservationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activities?: boolean | WarpoolReservation$activitiesArgs<ExtArgs>
+    entry?: boolean | WarpoolReservation$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
     pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     user?: boolean | WarpoolReservation$userArgs<ExtArgs>
-    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
-    entry?: boolean | WarpoolReservation$entryArgs<ExtArgs>
-    activities?: boolean | WarpoolReservation$activitiesArgs<ExtArgs>
     _count?: boolean | WarpoolReservationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WarpoolReservationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
     pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     user?: boolean | WarpoolReservation$userArgs<ExtArgs>
-    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
   }
   export type WarpoolReservationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
     pool?: boolean | WarpoolPoolDefaultArgs<ExtArgs>
     user?: boolean | WarpoolReservation$userArgs<ExtArgs>
-    nft?: boolean | WarpoolReservation$nftArgs<ExtArgs>
   }
 
   export type $WarpoolReservationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WarpoolReservation"
     objects: {
+      activities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
+      entry: Prisma.$WarpoolEntryPayload<ExtArgs> | null
+      nft: Prisma.$NFTPayload<ExtArgs> | null
       pool: Prisma.$WarpoolPoolPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs> | null
-      nft: Prisma.$NFTPayload<ExtArgs> | null
-      entry: Prisma.$WarpoolEntryPayload<ExtArgs> | null
-      activities: Prisma.$WarpoolActivityPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -60444,11 +58942,11 @@ export namespace Prisma {
    */
   export interface Prisma__WarpoolReservationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    activities<T extends WarpoolReservation$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    entry<T extends WarpoolReservation$entryArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$entryArgs<ExtArgs>>): Prisma__WarpoolEntryClient<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    nft<T extends WarpoolReservation$nftArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$nftArgs<ExtArgs>>): Prisma__NFTClient<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     pool<T extends WarpoolPoolDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolPoolDefaultArgs<ExtArgs>>): Prisma__WarpoolPoolClient<$Result.GetResult<Prisma.$WarpoolPoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends WarpoolReservation$userArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    nft<T extends WarpoolReservation$nftArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$nftArgs<ExtArgs>>): Prisma__NFTClient<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    entry<T extends WarpoolReservation$entryArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$entryArgs<ExtArgs>>): Prisma__WarpoolEntryClient<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    activities<T extends WarpoolReservation$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolReservation$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WarpoolActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -60901,41 +59399,27 @@ export namespace Prisma {
   }
 
   /**
-   * WarpoolReservation.user
+   * WarpoolReservation.activities
    */
-  export type WarpoolReservation$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WarpoolReservation$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the User
+     * Select specific fields to fetch from the WarpoolActivity
      */
-    select?: UserSelect<ExtArgs> | null
+    select?: WarpoolActivitySelect<ExtArgs> | null
     /**
-     * Omit specific fields from the User
+     * Omit specific fields from the WarpoolActivity
      */
-    omit?: UserOmit<ExtArgs> | null
+    omit?: WarpoolActivityOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * WarpoolReservation.nft
-   */
-  export type WarpoolReservation$nftArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NFT
-     */
-    select?: NFTSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the NFT
-     */
-    omit?: NFTOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NFTInclude<ExtArgs> | null
-    where?: NFTWhereInput
+    include?: WarpoolActivityInclude<ExtArgs> | null
+    where?: WarpoolActivityWhereInput
+    orderBy?: WarpoolActivityOrderByWithRelationInput | WarpoolActivityOrderByWithRelationInput[]
+    cursor?: WarpoolActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WarpoolActivityScalarFieldEnum | WarpoolActivityScalarFieldEnum[]
   }
 
   /**
@@ -60958,27 +59442,41 @@ export namespace Prisma {
   }
 
   /**
-   * WarpoolReservation.activities
+   * WarpoolReservation.nft
    */
-  export type WarpoolReservation$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WarpoolReservation$nftArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the WarpoolActivity
+     * Select specific fields to fetch from the NFT
      */
-    select?: WarpoolActivitySelect<ExtArgs> | null
+    select?: NFTSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the WarpoolActivity
+     * Omit specific fields from the NFT
      */
-    omit?: WarpoolActivityOmit<ExtArgs> | null
+    omit?: NFTOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WarpoolActivityInclude<ExtArgs> | null
-    where?: WarpoolActivityWhereInput
-    orderBy?: WarpoolActivityOrderByWithRelationInput | WarpoolActivityOrderByWithRelationInput[]
-    cursor?: WarpoolActivityWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: WarpoolActivityScalarFieldEnum | WarpoolActivityScalarFieldEnum[]
+    include?: NFTInclude<ExtArgs> | null
+    where?: NFTWhereInput
+  }
+
+  /**
+   * WarpoolReservation.user
+   */
+  export type WarpoolReservation$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -65026,11 +63524,11 @@ export namespace Prisma {
     timestamp?: boolean
     payload?: boolean
     createdAt?: boolean
-    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     entry?: boolean | WarpoolActivity$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     reservation?: boolean | WarpoolActivity$reservationArgs<ExtArgs>
     user?: boolean | WarpoolActivity$userArgs<ExtArgs>
-    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolActivity"]>
 
   export type WarpoolActivitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -65050,11 +63548,11 @@ export namespace Prisma {
     timestamp?: boolean
     payload?: boolean
     createdAt?: boolean
-    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     entry?: boolean | WarpoolActivity$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     reservation?: boolean | WarpoolActivity$reservationArgs<ExtArgs>
     user?: boolean | WarpoolActivity$userArgs<ExtArgs>
-    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolActivity"]>
 
   export type WarpoolActivitySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -65074,11 +63572,11 @@ export namespace Prisma {
     timestamp?: boolean
     payload?: boolean
     createdAt?: boolean
-    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     entry?: boolean | WarpoolActivity$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     reservation?: boolean | WarpoolActivity$reservationArgs<ExtArgs>
     user?: boolean | WarpoolActivity$userArgs<ExtArgs>
-    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
   }, ExtArgs["result"]["warpoolActivity"]>
 
   export type WarpoolActivitySelectScalar = {
@@ -65102,35 +63600,35 @@ export namespace Prisma {
 
   export type WarpoolActivityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "chainId" | "coreContract" | "poolId" | "entryId" | "reservationId" | "userId" | "userAddress" | "nftId" | "type" | "txHash" | "logIndex" | "blockNumber" | "timestamp" | "payload" | "createdAt", ExtArgs["result"]["warpoolActivity"]>
   export type WarpoolActivityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     entry?: boolean | WarpoolActivity$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     reservation?: boolean | WarpoolActivity$reservationArgs<ExtArgs>
     user?: boolean | WarpoolActivity$userArgs<ExtArgs>
-    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
   }
   export type WarpoolActivityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     entry?: boolean | WarpoolActivity$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     reservation?: boolean | WarpoolActivity$reservationArgs<ExtArgs>
     user?: boolean | WarpoolActivity$userArgs<ExtArgs>
-    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
   }
   export type WarpoolActivityIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     entry?: boolean | WarpoolActivity$entryArgs<ExtArgs>
+    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
+    pool?: boolean | WarpoolActivity$poolArgs<ExtArgs>
     reservation?: boolean | WarpoolActivity$reservationArgs<ExtArgs>
     user?: boolean | WarpoolActivity$userArgs<ExtArgs>
-    nft?: boolean | WarpoolActivity$nftArgs<ExtArgs>
   }
 
   export type $WarpoolActivityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WarpoolActivity"
     objects: {
-      pool: Prisma.$WarpoolPoolPayload<ExtArgs> | null
       entry: Prisma.$WarpoolEntryPayload<ExtArgs> | null
+      nft: Prisma.$NFTPayload<ExtArgs> | null
+      pool: Prisma.$WarpoolPoolPayload<ExtArgs> | null
       reservation: Prisma.$WarpoolReservationPayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs> | null
-      nft: Prisma.$NFTPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -65543,11 +64041,11 @@ export namespace Prisma {
    */
   export interface Prisma__WarpoolActivityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    pool<T extends WarpoolActivity$poolArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$poolArgs<ExtArgs>>): Prisma__WarpoolPoolClient<$Result.GetResult<Prisma.$WarpoolPoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     entry<T extends WarpoolActivity$entryArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$entryArgs<ExtArgs>>): Prisma__WarpoolEntryClient<$Result.GetResult<Prisma.$WarpoolEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    nft<T extends WarpoolActivity$nftArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$nftArgs<ExtArgs>>): Prisma__NFTClient<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    pool<T extends WarpoolActivity$poolArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$poolArgs<ExtArgs>>): Prisma__WarpoolPoolClient<$Result.GetResult<Prisma.$WarpoolPoolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     reservation<T extends WarpoolActivity$reservationArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$reservationArgs<ExtArgs>>): Prisma__WarpoolReservationClient<$Result.GetResult<Prisma.$WarpoolReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends WarpoolActivity$userArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    nft<T extends WarpoolActivity$nftArgs<ExtArgs> = {}>(args?: Subset<T, WarpoolActivity$nftArgs<ExtArgs>>): Prisma__NFTClient<$Result.GetResult<Prisma.$NFTPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -65994,25 +64492,6 @@ export namespace Prisma {
   }
 
   /**
-   * WarpoolActivity.pool
-   */
-  export type WarpoolActivity$poolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the WarpoolPool
-     */
-    select?: WarpoolPoolSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the WarpoolPool
-     */
-    omit?: WarpoolPoolOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: WarpoolPoolInclude<ExtArgs> | null
-    where?: WarpoolPoolWhereInput
-  }
-
-  /**
    * WarpoolActivity.entry
    */
   export type WarpoolActivity$entryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -66029,6 +64508,44 @@ export namespace Prisma {
      */
     include?: WarpoolEntryInclude<ExtArgs> | null
     where?: WarpoolEntryWhereInput
+  }
+
+  /**
+   * WarpoolActivity.nft
+   */
+  export type WarpoolActivity$nftArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NFT
+     */
+    select?: NFTSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NFT
+     */
+    omit?: NFTOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NFTInclude<ExtArgs> | null
+    where?: NFTWhereInput
+  }
+
+  /**
+   * WarpoolActivity.pool
+   */
+  export type WarpoolActivity$poolArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WarpoolPool
+     */
+    select?: WarpoolPoolSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WarpoolPool
+     */
+    omit?: WarpoolPoolOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WarpoolPoolInclude<ExtArgs> | null
+    where?: WarpoolPoolWhereInput
   }
 
   /**
@@ -66067,25 +64584,6 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
-  }
-
-  /**
-   * WarpoolActivity.nft
-   */
-  export type WarpoolActivity$nftArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the NFT
-     */
-    select?: NFTSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the NFT
-     */
-    omit?: NFTOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NFTInclude<ExtArgs> | null
-    where?: NFTWhereInput
   }
 
   /**
@@ -66501,9 +64999,9 @@ export namespace Prisma {
     metadataJson?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
     lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
     actions?: boolean | AdminProposal$actionsArgs<ExtArgs>
     events?: boolean | AdminProposal$eventsArgs<ExtArgs>
@@ -66540,9 +65038,9 @@ export namespace Prisma {
     metadataJson?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
     lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
   }, ExtArgs["result"]["adminProposal"]>
 
@@ -66576,9 +65074,9 @@ export namespace Prisma {
     metadataJson?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
     lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
   }, ExtArgs["result"]["adminProposal"]>
 
@@ -66616,33 +65114,33 @@ export namespace Prisma {
 
   export type AdminProposalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "area" | "kind" | "title" | "slug" | "summary" | "description" | "safeId" | "safeContract" | "chainId" | "createdByUserId" | "createdByAddress" | "lastEditedByUserId" | "lastEditedByAddress" | "basedOnConfigVersion" | "runtimeReferenceId" | "status" | "actionCount" | "submittedMultisigTxId" | "submittedMultisigNonce" | "submittedAt" | "approvedAt" | "executedAt" | "cancelledAt" | "failedAt" | "snapshotJson" | "metadataJson" | "createdAt" | "updatedAt", ExtArgs["result"]["adminProposal"]>
   export type AdminProposalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
     lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
     actions?: boolean | AdminProposal$actionsArgs<ExtArgs>
     events?: boolean | AdminProposal$eventsArgs<ExtArgs>
     _count?: boolean | AdminProposalCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AdminProposalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
     lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
   }
   export type AdminProposalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     createdByUser?: boolean | AdminProposal$createdByUserArgs<ExtArgs>
     lastEditedByUser?: boolean | AdminProposal$lastEditedByUserArgs<ExtArgs>
+    safe?: boolean | AdminProposal$safeArgs<ExtArgs>
     submittedMultisigTx?: boolean | AdminProposal$submittedMultisigTxArgs<ExtArgs>
   }
 
   export type $AdminProposalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AdminProposal"
     objects: {
-      safe: Prisma.$MultisigSafePayload<ExtArgs> | null
       createdByUser: Prisma.$UserPayload<ExtArgs> | null
       lastEditedByUser: Prisma.$UserPayload<ExtArgs> | null
+      safe: Prisma.$MultisigSafePayload<ExtArgs> | null
       submittedMultisigTx: Prisma.$MultisigTxPayload<ExtArgs> | null
       actions: Prisma.$AdminProposalActionPayload<ExtArgs>[]
       events: Prisma.$AdminProposalEventPayload<ExtArgs>[]
@@ -67071,9 +65569,9 @@ export namespace Prisma {
    */
   export interface Prisma__AdminProposalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    safe<T extends AdminProposal$safeArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$safeArgs<ExtArgs>>): Prisma__MultisigSafeClient<$Result.GetResult<Prisma.$MultisigSafePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     createdByUser<T extends AdminProposal$createdByUserArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$createdByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     lastEditedByUser<T extends AdminProposal$lastEditedByUserArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$lastEditedByUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    safe<T extends AdminProposal$safeArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$safeArgs<ExtArgs>>): Prisma__MultisigSafeClient<$Result.GetResult<Prisma.$MultisigSafePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     submittedMultisigTx<T extends AdminProposal$submittedMultisigTxArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$submittedMultisigTxArgs<ExtArgs>>): Prisma__MultisigTxClient<$Result.GetResult<Prisma.$MultisigTxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     actions<T extends AdminProposal$actionsArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$actionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     events<T extends AdminProposal$eventsArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposal$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminProposalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -67536,25 +66034,6 @@ export namespace Prisma {
   }
 
   /**
-   * AdminProposal.safe
-   */
-  export type AdminProposal$safeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MultisigSafe
-     */
-    select?: MultisigSafeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MultisigSafe
-     */
-    omit?: MultisigSafeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MultisigSafeInclude<ExtArgs> | null
-    where?: MultisigSafeWhereInput
-  }
-
-  /**
    * AdminProposal.createdByUser
    */
   export type AdminProposal$createdByUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -67590,6 +66069,25 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
+  }
+
+  /**
+   * AdminProposal.safe
+   */
+  export type AdminProposal$safeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MultisigSafe
+     */
+    select?: MultisigSafeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MultisigSafe
+     */
+    omit?: MultisigSafeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigSafeInclude<ExtArgs> | null
+    where?: MultisigSafeWhereInput
   }
 
   /**
@@ -69115,8 +67613,8 @@ export namespace Prisma {
     note?: boolean
     payloadJson?: boolean
     createdAt?: boolean
-    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
     actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["adminProposalEvent"]>
 
   export type AdminProposalEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -69128,8 +67626,8 @@ export namespace Prisma {
     note?: boolean
     payloadJson?: boolean
     createdAt?: boolean
-    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
     actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["adminProposalEvent"]>
 
   export type AdminProposalEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -69141,8 +67639,8 @@ export namespace Prisma {
     note?: boolean
     payloadJson?: boolean
     createdAt?: boolean
-    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
     actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["adminProposalEvent"]>
 
   export type AdminProposalEventSelectScalar = {
@@ -69158,23 +67656,23 @@ export namespace Prisma {
 
   export type AdminProposalEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "proposalId" | "actorUserId" | "actorAddress" | "type" | "note" | "payloadJson" | "createdAt", ExtArgs["result"]["adminProposalEvent"]>
   export type AdminProposalEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
     actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
   }
   export type AdminProposalEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
     actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
   }
   export type AdminProposalEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
     actorUser?: boolean | AdminProposalEvent$actorUserArgs<ExtArgs>
+    proposal?: boolean | AdminProposalDefaultArgs<ExtArgs>
   }
 
   export type $AdminProposalEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AdminProposalEvent"
     objects: {
-      proposal: Prisma.$AdminProposalPayload<ExtArgs>
       actorUser: Prisma.$UserPayload<ExtArgs> | null
+      proposal: Prisma.$AdminProposalPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -69579,8 +68077,8 @@ export namespace Prisma {
    */
   export interface Prisma__AdminProposalEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    proposal<T extends AdminProposalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposalDefaultArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     actorUser<T extends AdminProposalEvent$actorUserArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposalEvent$actorUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    proposal<T extends AdminProposalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdminProposalDefaultArgs<ExtArgs>>): Prisma__AdminProposalClient<$Result.GetResult<Prisma.$AdminProposalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -70460,37 +68958,6 @@ export namespace Prisma {
   export type AssetUploadScalarFieldEnum = (typeof AssetUploadScalarFieldEnum)[keyof typeof AssetUploadScalarFieldEnum]
 
 
-  export const CollectionSubmissionScalarFieldEnum: {
-    id: 'id',
-    submittedByUserId: 'submittedByUserId',
-    contract: 'contract',
-    ownerAddress: 'ownerAddress',
-    name: 'name',
-    symbol: 'symbol',
-    logoUrl: 'logoUrl',
-    coverUrl: 'coverUrl',
-    baseUri: 'baseUri',
-    supply: 'supply',
-    description: 'description',
-    website: 'website',
-    x: 'x',
-    instagram: 'instagram',
-    telegram: 'telegram',
-    feeTxHash: 'feeTxHash',
-    feePaidWei: 'feePaidWei',
-    feeVerifiedAt: 'feeVerifiedAt',
-    ownershipVerified: 'ownershipVerified',
-    status: 'status',
-    statusReason: 'statusReason',
-    reviewedByUserId: 'reviewedByUserId',
-    reviewedAt: 'reviewedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type CollectionSubmissionScalarFieldEnum = (typeof CollectionSubmissionScalarFieldEnum)[keyof typeof CollectionSubmissionScalarFieldEnum]
-
-
   export const NFTRarityScalarFieldEnum: {
     contract: 'contract',
     tokenId: 'tokenId',
@@ -71313,20 +69780,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'SubmissionStatus'
-   */
-  export type EnumSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubmissionStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'SubmissionStatus[]'
-   */
-  export type ListEnumSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubmissionStatus[]'>
-    
-
-
-  /**
    * Reference to a field of type 'CurrencyKind'
    */
   export type EnumCurrencyKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CurrencyKind'>
@@ -71689,19 +70142,18 @@ export namespace Prisma {
     telegram?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    adminProposalsCreated?: AdminProposalListRelationFilter
+    adminProposalsEdited?: AdminProposalListRelationFilter
+    adminProposalEvents?: AdminProposalEventListRelationFilter
     collections?: CollectionListRelationFilter
-    submissions?: CollectionSubmissionListRelationFilter
     holderRewardsMulti?: HolderRewardMultiListRelationFilter
     ownedNFTs?: NFTListRelationFilter
     rewardClaimLogs?: RewardClaimLogListRelationFilter
     stolenReports?: StolenItemListRelationFilter
-    warpoolEntries?: WarpoolEntryListRelationFilter
-    warpoolReservations?: WarpoolReservationListRelationFilter
     warpoolActivities?: WarpoolActivityListRelationFilter
     warpoolCapturesAsOwner?: WarpoolCaptureListRelationFilter
-    adminProposalsCreated?: AdminProposalListRelationFilter
-    adminProposalsEdited?: AdminProposalListRelationFilter
-    adminProposalEvents?: AdminProposalEventListRelationFilter
+    warpoolEntries?: WarpoolEntryListRelationFilter
+    warpoolReservations?: WarpoolReservationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -71717,19 +70169,18 @@ export namespace Prisma {
     telegram?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    adminProposalsCreated?: AdminProposalOrderByRelationAggregateInput
+    adminProposalsEdited?: AdminProposalOrderByRelationAggregateInput
+    adminProposalEvents?: AdminProposalEventOrderByRelationAggregateInput
     collections?: CollectionOrderByRelationAggregateInput
-    submissions?: CollectionSubmissionOrderByRelationAggregateInput
     holderRewardsMulti?: HolderRewardMultiOrderByRelationAggregateInput
     ownedNFTs?: NFTOrderByRelationAggregateInput
     rewardClaimLogs?: RewardClaimLogOrderByRelationAggregateInput
     stolenReports?: StolenItemOrderByRelationAggregateInput
-    warpoolEntries?: WarpoolEntryOrderByRelationAggregateInput
-    warpoolReservations?: WarpoolReservationOrderByRelationAggregateInput
     warpoolActivities?: WarpoolActivityOrderByRelationAggregateInput
     warpoolCapturesAsOwner?: WarpoolCaptureOrderByRelationAggregateInput
-    adminProposalsCreated?: AdminProposalOrderByRelationAggregateInput
-    adminProposalsEdited?: AdminProposalOrderByRelationAggregateInput
-    adminProposalEvents?: AdminProposalEventOrderByRelationAggregateInput
+    warpoolEntries?: WarpoolEntryOrderByRelationAggregateInput
+    warpoolReservations?: WarpoolReservationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -71748,19 +70199,18 @@ export namespace Prisma {
     telegram?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    adminProposalsCreated?: AdminProposalListRelationFilter
+    adminProposalsEdited?: AdminProposalListRelationFilter
+    adminProposalEvents?: AdminProposalEventListRelationFilter
     collections?: CollectionListRelationFilter
-    submissions?: CollectionSubmissionListRelationFilter
     holderRewardsMulti?: HolderRewardMultiListRelationFilter
     ownedNFTs?: NFTListRelationFilter
     rewardClaimLogs?: RewardClaimLogListRelationFilter
     stolenReports?: StolenItemListRelationFilter
-    warpoolEntries?: WarpoolEntryListRelationFilter
-    warpoolReservations?: WarpoolReservationListRelationFilter
     warpoolActivities?: WarpoolActivityListRelationFilter
     warpoolCapturesAsOwner?: WarpoolCaptureListRelationFilter
-    adminProposalsCreated?: AdminProposalListRelationFilter
-    adminProposalsEdited?: AdminProposalListRelationFilter
-    adminProposalEvents?: AdminProposalEventListRelationFilter
+    warpoolEntries?: WarpoolEntryListRelationFilter
+    warpoolReservations?: WarpoolReservationListRelationFilter
   }, "id" | "walletAddress">
 
   export type UserOrderByWithAggregationInput = {
@@ -72015,10 +70465,10 @@ export namespace Prisma {
     single1155?: XOR<Single1155NullableScalarRelationFilter, Single1155WhereInput> | null
     single721?: XOR<Single721NullableScalarRelationFilter, Single721WhereInput> | null
     activities?: NFTActivityListRelationFilter
-    warpoolEntries?: WarpoolEntryListRelationFilter
-    warpoolReservations?: WarpoolReservationListRelationFilter
     warpoolActivities?: WarpoolActivityListRelationFilter
     warpoolCaptures?: WarpoolCaptureListRelationFilter
+    warpoolEntries?: WarpoolEntryListRelationFilter
+    warpoolReservations?: WarpoolReservationListRelationFilter
   }
 
   export type NFTOrderByWithRelationInput = {
@@ -72052,10 +70502,10 @@ export namespace Prisma {
     single1155?: Single1155OrderByWithRelationInput
     single721?: Single721OrderByWithRelationInput
     activities?: NFTActivityOrderByRelationAggregateInput
-    warpoolEntries?: WarpoolEntryOrderByRelationAggregateInput
-    warpoolReservations?: WarpoolReservationOrderByRelationAggregateInput
     warpoolActivities?: WarpoolActivityOrderByRelationAggregateInput
     warpoolCaptures?: WarpoolCaptureOrderByRelationAggregateInput
+    warpoolEntries?: WarpoolEntryOrderByRelationAggregateInput
+    warpoolReservations?: WarpoolReservationOrderByRelationAggregateInput
   }
 
   export type NFTWhereUniqueInput = Prisma.AtLeast<{
@@ -72094,10 +70544,10 @@ export namespace Prisma {
     single1155?: XOR<Single1155NullableScalarRelationFilter, Single1155WhereInput> | null
     single721?: XOR<Single721NullableScalarRelationFilter, Single721WhereInput> | null
     activities?: NFTActivityListRelationFilter
-    warpoolEntries?: WarpoolEntryListRelationFilter
-    warpoolReservations?: WarpoolReservationListRelationFilter
     warpoolActivities?: WarpoolActivityListRelationFilter
     warpoolCaptures?: WarpoolCaptureListRelationFilter
+    warpoolEntries?: WarpoolEntryListRelationFilter
+    warpoolReservations?: WarpoolReservationListRelationFilter
   }, "id" | "contract_tokenId" | "tokenId_contract_collectionId">
 
   export type NFTOrderByWithAggregationInput = {
@@ -73740,163 +72190,6 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"AssetUpload"> | Date | string
   }
 
-  export type CollectionSubmissionWhereInput = {
-    AND?: CollectionSubmissionWhereInput | CollectionSubmissionWhereInput[]
-    OR?: CollectionSubmissionWhereInput[]
-    NOT?: CollectionSubmissionWhereInput | CollectionSubmissionWhereInput[]
-    id?: StringFilter<"CollectionSubmission"> | string
-    submittedByUserId?: StringFilter<"CollectionSubmission"> | string
-    contract?: StringFilter<"CollectionSubmission"> | string
-    ownerAddress?: StringNullableFilter<"CollectionSubmission"> | string | null
-    name?: StringNullableFilter<"CollectionSubmission"> | string | null
-    symbol?: StringNullableFilter<"CollectionSubmission"> | string | null
-    logoUrl?: StringNullableFilter<"CollectionSubmission"> | string | null
-    coverUrl?: StringNullableFilter<"CollectionSubmission"> | string | null
-    baseUri?: StringNullableFilter<"CollectionSubmission"> | string | null
-    supply?: IntNullableFilter<"CollectionSubmission"> | number | null
-    description?: StringNullableFilter<"CollectionSubmission"> | string | null
-    website?: StringNullableFilter<"CollectionSubmission"> | string | null
-    x?: StringNullableFilter<"CollectionSubmission"> | string | null
-    instagram?: StringNullableFilter<"CollectionSubmission"> | string | null
-    telegram?: StringNullableFilter<"CollectionSubmission"> | string | null
-    feeTxHash?: StringNullableFilter<"CollectionSubmission"> | string | null
-    feePaidWei?: DecimalNullableFilter<"CollectionSubmission"> | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: DateTimeNullableFilter<"CollectionSubmission"> | Date | string | null
-    ownershipVerified?: BoolFilter<"CollectionSubmission"> | boolean
-    status?: EnumSubmissionStatusFilter<"CollectionSubmission"> | $Enums.SubmissionStatus
-    statusReason?: StringNullableFilter<"CollectionSubmission"> | string | null
-    reviewedByUserId?: StringNullableFilter<"CollectionSubmission"> | string | null
-    reviewedAt?: DateTimeNullableFilter<"CollectionSubmission"> | Date | string | null
-    createdAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
-    updatedAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
-    submittedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }
-
-  export type CollectionSubmissionOrderByWithRelationInput = {
-    id?: SortOrder
-    submittedByUserId?: SortOrder
-    contract?: SortOrder
-    ownerAddress?: SortOrderInput | SortOrder
-    name?: SortOrderInput | SortOrder
-    symbol?: SortOrderInput | SortOrder
-    logoUrl?: SortOrderInput | SortOrder
-    coverUrl?: SortOrderInput | SortOrder
-    baseUri?: SortOrderInput | SortOrder
-    supply?: SortOrderInput | SortOrder
-    description?: SortOrderInput | SortOrder
-    website?: SortOrderInput | SortOrder
-    x?: SortOrderInput | SortOrder
-    instagram?: SortOrderInput | SortOrder
-    telegram?: SortOrderInput | SortOrder
-    feeTxHash?: SortOrderInput | SortOrder
-    feePaidWei?: SortOrderInput | SortOrder
-    feeVerifiedAt?: SortOrderInput | SortOrder
-    ownershipVerified?: SortOrder
-    status?: SortOrder
-    statusReason?: SortOrderInput | SortOrder
-    reviewedByUserId?: SortOrderInput | SortOrder
-    reviewedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    submittedBy?: UserOrderByWithRelationInput
-  }
-
-  export type CollectionSubmissionWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    contract?: string
-    feeTxHash?: string
-    AND?: CollectionSubmissionWhereInput | CollectionSubmissionWhereInput[]
-    OR?: CollectionSubmissionWhereInput[]
-    NOT?: CollectionSubmissionWhereInput | CollectionSubmissionWhereInput[]
-    submittedByUserId?: StringFilter<"CollectionSubmission"> | string
-    ownerAddress?: StringNullableFilter<"CollectionSubmission"> | string | null
-    name?: StringNullableFilter<"CollectionSubmission"> | string | null
-    symbol?: StringNullableFilter<"CollectionSubmission"> | string | null
-    logoUrl?: StringNullableFilter<"CollectionSubmission"> | string | null
-    coverUrl?: StringNullableFilter<"CollectionSubmission"> | string | null
-    baseUri?: StringNullableFilter<"CollectionSubmission"> | string | null
-    supply?: IntNullableFilter<"CollectionSubmission"> | number | null
-    description?: StringNullableFilter<"CollectionSubmission"> | string | null
-    website?: StringNullableFilter<"CollectionSubmission"> | string | null
-    x?: StringNullableFilter<"CollectionSubmission"> | string | null
-    instagram?: StringNullableFilter<"CollectionSubmission"> | string | null
-    telegram?: StringNullableFilter<"CollectionSubmission"> | string | null
-    feePaidWei?: DecimalNullableFilter<"CollectionSubmission"> | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: DateTimeNullableFilter<"CollectionSubmission"> | Date | string | null
-    ownershipVerified?: BoolFilter<"CollectionSubmission"> | boolean
-    status?: EnumSubmissionStatusFilter<"CollectionSubmission"> | $Enums.SubmissionStatus
-    statusReason?: StringNullableFilter<"CollectionSubmission"> | string | null
-    reviewedByUserId?: StringNullableFilter<"CollectionSubmission"> | string | null
-    reviewedAt?: DateTimeNullableFilter<"CollectionSubmission"> | Date | string | null
-    createdAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
-    updatedAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
-    submittedBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "contract" | "feeTxHash">
-
-  export type CollectionSubmissionOrderByWithAggregationInput = {
-    id?: SortOrder
-    submittedByUserId?: SortOrder
-    contract?: SortOrder
-    ownerAddress?: SortOrderInput | SortOrder
-    name?: SortOrderInput | SortOrder
-    symbol?: SortOrderInput | SortOrder
-    logoUrl?: SortOrderInput | SortOrder
-    coverUrl?: SortOrderInput | SortOrder
-    baseUri?: SortOrderInput | SortOrder
-    supply?: SortOrderInput | SortOrder
-    description?: SortOrderInput | SortOrder
-    website?: SortOrderInput | SortOrder
-    x?: SortOrderInput | SortOrder
-    instagram?: SortOrderInput | SortOrder
-    telegram?: SortOrderInput | SortOrder
-    feeTxHash?: SortOrderInput | SortOrder
-    feePaidWei?: SortOrderInput | SortOrder
-    feeVerifiedAt?: SortOrderInput | SortOrder
-    ownershipVerified?: SortOrder
-    status?: SortOrder
-    statusReason?: SortOrderInput | SortOrder
-    reviewedByUserId?: SortOrderInput | SortOrder
-    reviewedAt?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: CollectionSubmissionCountOrderByAggregateInput
-    _avg?: CollectionSubmissionAvgOrderByAggregateInput
-    _max?: CollectionSubmissionMaxOrderByAggregateInput
-    _min?: CollectionSubmissionMinOrderByAggregateInput
-    _sum?: CollectionSubmissionSumOrderByAggregateInput
-  }
-
-  export type CollectionSubmissionScalarWhereWithAggregatesInput = {
-    AND?: CollectionSubmissionScalarWhereWithAggregatesInput | CollectionSubmissionScalarWhereWithAggregatesInput[]
-    OR?: CollectionSubmissionScalarWhereWithAggregatesInput[]
-    NOT?: CollectionSubmissionScalarWhereWithAggregatesInput | CollectionSubmissionScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"CollectionSubmission"> | string
-    submittedByUserId?: StringWithAggregatesFilter<"CollectionSubmission"> | string
-    contract?: StringWithAggregatesFilter<"CollectionSubmission"> | string
-    ownerAddress?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    name?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    symbol?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    logoUrl?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    coverUrl?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    baseUri?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    supply?: IntNullableWithAggregatesFilter<"CollectionSubmission"> | number | null
-    description?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    website?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    x?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    instagram?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    telegram?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    feeTxHash?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    feePaidWei?: DecimalNullableWithAggregatesFilter<"CollectionSubmission"> | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: DateTimeNullableWithAggregatesFilter<"CollectionSubmission"> | Date | string | null
-    ownershipVerified?: BoolWithAggregatesFilter<"CollectionSubmission"> | boolean
-    status?: EnumSubmissionStatusWithAggregatesFilter<"CollectionSubmission"> | $Enums.SubmissionStatus
-    statusReason?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    reviewedByUserId?: StringNullableWithAggregatesFilter<"CollectionSubmission"> | string | null
-    reviewedAt?: DateTimeNullableWithAggregatesFilter<"CollectionSubmission"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"CollectionSubmission"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"CollectionSubmission"> | Date | string
-  }
-
   export type NFTRarityWhereInput = {
     AND?: NFTRarityWhereInput | NFTRarityWhereInput[]
     OR?: NFTRarityWhereInput[]
@@ -74720,9 +73013,9 @@ export namespace Prisma {
     threshold?: IntFilter<"MultisigSafe"> | number
     createdAt?: DateTimeFilter<"MultisigSafe"> | Date | string
     updatedAt?: DateTimeFilter<"MultisigSafe"> | Date | string
+    adminProposals?: AdminProposalListRelationFilter
     owners?: MultisigOwnerListRelationFilter
     txs?: MultisigTxListRelationFilter
-    adminProposals?: AdminProposalListRelationFilter
   }
 
   export type MultisigSafeOrderByWithRelationInput = {
@@ -74732,9 +73025,9 @@ export namespace Prisma {
     threshold?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    adminProposals?: AdminProposalOrderByRelationAggregateInput
     owners?: MultisigOwnerOrderByRelationAggregateInput
     txs?: MultisigTxOrderByRelationAggregateInput
-    adminProposals?: AdminProposalOrderByRelationAggregateInput
   }
 
   export type MultisigSafeWhereUniqueInput = Prisma.AtLeast<{
@@ -74747,9 +73040,9 @@ export namespace Prisma {
     threshold?: IntFilter<"MultisigSafe"> | number
     createdAt?: DateTimeFilter<"MultisigSafe"> | Date | string
     updatedAt?: DateTimeFilter<"MultisigSafe"> | Date | string
+    adminProposals?: AdminProposalListRelationFilter
     owners?: MultisigOwnerListRelationFilter
     txs?: MultisigTxListRelationFilter
-    adminProposals?: AdminProposalListRelationFilter
   }, "id" | "contract">
 
   export type MultisigSafeOrderByWithAggregationInput = {
@@ -74850,9 +73143,9 @@ export namespace Prisma {
     executedTxHash?: StringNullableFilter<"MultisigTx"> | string | null
     createdAt?: DateTimeFilter<"MultisigTx"> | Date | string
     executedAt?: DateTimeNullableFilter<"MultisigTx"> | Date | string | null
+    linkedAdminProposals?: AdminProposalListRelationFilter
     approvals?: MultisigApprovalListRelationFilter
     safe?: XOR<MultisigSafeScalarRelationFilter, MultisigSafeWhereInput>
-    linkedAdminProposals?: AdminProposalListRelationFilter
   }
 
   export type MultisigTxOrderByWithRelationInput = {
@@ -74868,9 +73161,9 @@ export namespace Prisma {
     executedTxHash?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     executedAt?: SortOrderInput | SortOrder
+    linkedAdminProposals?: AdminProposalOrderByRelationAggregateInput
     approvals?: MultisigApprovalOrderByRelationAggregateInput
     safe?: MultisigSafeOrderByWithRelationInput
-    linkedAdminProposals?: AdminProposalOrderByRelationAggregateInput
   }
 
   export type MultisigTxWhereUniqueInput = Prisma.AtLeast<{
@@ -74890,9 +73183,9 @@ export namespace Prisma {
     executedTxHash?: StringNullableFilter<"MultisigTx"> | string | null
     createdAt?: DateTimeFilter<"MultisigTx"> | Date | string
     executedAt?: DateTimeNullableFilter<"MultisigTx"> | Date | string | null
+    linkedAdminProposals?: AdminProposalListRelationFilter
     approvals?: MultisigApprovalListRelationFilter
     safe?: XOR<MultisigSafeScalarRelationFilter, MultisigSafeWhereInput>
-    linkedAdminProposals?: AdminProposalListRelationFilter
   }, "id" | "safeId_nonce">
 
   export type MultisigTxOrderByWithAggregationInput = {
@@ -75503,10 +73796,10 @@ export namespace Prisma {
     settleTxHash?: StringNullableFilter<"WarpoolPool"> | string | null
     createdAt?: DateTimeFilter<"WarpoolPool"> | Date | string
     updatedAt?: DateTimeFilter<"WarpoolPool"> | Date | string
-    entries?: WarpoolEntryListRelationFilter
-    reservations?: WarpoolReservationListRelationFilter
     activities?: WarpoolActivityListRelationFilter
     battle?: XOR<WarpoolBattleNullableScalarRelationFilter, WarpoolBattleWhereInput> | null
+    entries?: WarpoolEntryListRelationFilter
+    reservations?: WarpoolReservationListRelationFilter
   }
 
   export type WarpoolPoolOrderByWithRelationInput = {
@@ -75555,10 +73848,10 @@ export namespace Prisma {
     settleTxHash?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    entries?: WarpoolEntryOrderByRelationAggregateInput
-    reservations?: WarpoolReservationOrderByRelationAggregateInput
     activities?: WarpoolActivityOrderByRelationAggregateInput
     battle?: WarpoolBattleOrderByWithRelationInput
+    entries?: WarpoolEntryOrderByRelationAggregateInput
+    reservations?: WarpoolReservationOrderByRelationAggregateInput
   }
 
   export type WarpoolPoolWhereUniqueInput = Prisma.AtLeast<{
@@ -75611,10 +73904,10 @@ export namespace Prisma {
     settleTxHash?: StringNullableFilter<"WarpoolPool"> | string | null
     createdAt?: DateTimeFilter<"WarpoolPool"> | Date | string
     updatedAt?: DateTimeFilter<"WarpoolPool"> | Date | string
-    entries?: WarpoolEntryListRelationFilter
-    reservations?: WarpoolReservationListRelationFilter
     activities?: WarpoolActivityListRelationFilter
     battle?: XOR<WarpoolBattleNullableScalarRelationFilter, WarpoolBattleWhereInput> | null
+    entries?: WarpoolEntryListRelationFilter
+    reservations?: WarpoolReservationListRelationFilter
   }, "id" | "chainId_coreContract_poolIdOnChain">
 
   export type WarpoolPoolOrderByWithAggregationInput = {
@@ -75751,12 +74044,12 @@ export namespace Prisma {
     reservationId?: StringNullableFilter<"WarpoolEntry"> | string | null
     createdAt?: DateTimeFilter<"WarpoolEntry"> | Date | string
     updatedAt?: DateTimeFilter<"WarpoolEntry"> | Date | string
-    pool?: XOR<WarpoolPoolScalarRelationFilter, WarpoolPoolWhereInput>
-    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
-    reservation?: XOR<WarpoolReservationNullableScalarRelationFilter, WarpoolReservationWhereInput> | null
-    capture?: XOR<WarpoolCaptureNullableScalarRelationFilter, WarpoolCaptureWhereInput> | null
     activities?: WarpoolActivityListRelationFilter
+    capture?: XOR<WarpoolCaptureNullableScalarRelationFilter, WarpoolCaptureWhereInput> | null
+    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
+    pool?: XOR<WarpoolPoolScalarRelationFilter, WarpoolPoolWhereInput>
+    reservation?: XOR<WarpoolReservationNullableScalarRelationFilter, WarpoolReservationWhereInput> | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type WarpoolEntryOrderByWithRelationInput = {
@@ -75786,12 +74079,12 @@ export namespace Prisma {
     reservationId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    pool?: WarpoolPoolOrderByWithRelationInput
-    user?: UserOrderByWithRelationInput
-    nft?: NFTOrderByWithRelationInput
-    reservation?: WarpoolReservationOrderByWithRelationInput
-    capture?: WarpoolCaptureOrderByWithRelationInput
     activities?: WarpoolActivityOrderByRelationAggregateInput
+    capture?: WarpoolCaptureOrderByWithRelationInput
+    nft?: NFTOrderByWithRelationInput
+    pool?: WarpoolPoolOrderByWithRelationInput
+    reservation?: WarpoolReservationOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
   }
 
   export type WarpoolEntryWhereUniqueInput = Prisma.AtLeast<{
@@ -75825,12 +74118,12 @@ export namespace Prisma {
     joinedTxHash?: StringNullableFilter<"WarpoolEntry"> | string | null
     createdAt?: DateTimeFilter<"WarpoolEntry"> | Date | string
     updatedAt?: DateTimeFilter<"WarpoolEntry"> | Date | string
-    pool?: XOR<WarpoolPoolScalarRelationFilter, WarpoolPoolWhereInput>
-    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
-    reservation?: XOR<WarpoolReservationNullableScalarRelationFilter, WarpoolReservationWhereInput> | null
-    capture?: XOR<WarpoolCaptureNullableScalarRelationFilter, WarpoolCaptureWhereInput> | null
     activities?: WarpoolActivityListRelationFilter
+    capture?: XOR<WarpoolCaptureNullableScalarRelationFilter, WarpoolCaptureWhereInput> | null
+    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
+    pool?: XOR<WarpoolPoolScalarRelationFilter, WarpoolPoolWhereInput>
+    reservation?: XOR<WarpoolReservationNullableScalarRelationFilter, WarpoolReservationWhereInput> | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "reservationId" | "chainId_coreContract_entryIdOnChain">
 
   export type WarpoolEntryOrderByWithAggregationInput = {
@@ -75925,11 +74218,11 @@ export namespace Prisma {
     resolvedTxHash?: StringNullableFilter<"WarpoolReservation"> | string | null
     createdAt?: DateTimeFilter<"WarpoolReservation"> | Date | string
     updatedAt?: DateTimeFilter<"WarpoolReservation"> | Date | string
+    activities?: WarpoolActivityListRelationFilter
+    entry?: XOR<WarpoolEntryNullableScalarRelationFilter, WarpoolEntryWhereInput> | null
+    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
     pool?: XOR<WarpoolPoolScalarRelationFilter, WarpoolPoolWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
-    entry?: XOR<WarpoolEntryNullableScalarRelationFilter, WarpoolEntryWhereInput> | null
-    activities?: WarpoolActivityListRelationFilter
   }
 
   export type WarpoolReservationOrderByWithRelationInput = {
@@ -75955,11 +74248,11 @@ export namespace Prisma {
     resolvedTxHash?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    activities?: WarpoolActivityOrderByRelationAggregateInput
+    entry?: WarpoolEntryOrderByWithRelationInput
+    nft?: NFTOrderByWithRelationInput
     pool?: WarpoolPoolOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    nft?: NFTOrderByWithRelationInput
-    entry?: WarpoolEntryOrderByWithRelationInput
-    activities?: WarpoolActivityOrderByRelationAggregateInput
   }
 
   export type WarpoolReservationWhereUniqueInput = Prisma.AtLeast<{
@@ -75989,11 +74282,11 @@ export namespace Prisma {
     resolvedTxHash?: StringNullableFilter<"WarpoolReservation"> | string | null
     createdAt?: DateTimeFilter<"WarpoolReservation"> | Date | string
     updatedAt?: DateTimeFilter<"WarpoolReservation"> | Date | string
+    activities?: WarpoolActivityListRelationFilter
+    entry?: XOR<WarpoolEntryNullableScalarRelationFilter, WarpoolEntryWhereInput> | null
+    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
     pool?: XOR<WarpoolPoolScalarRelationFilter, WarpoolPoolWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
-    entry?: XOR<WarpoolEntryNullableScalarRelationFilter, WarpoolEntryWhereInput> | null
-    activities?: WarpoolActivityListRelationFilter
   }, "id" | "chainId_coreContract_reservationIdOnChain">
 
   export type WarpoolReservationOrderByWithAggregationInput = {
@@ -76397,11 +74690,11 @@ export namespace Prisma {
     timestamp?: DateTimeFilter<"WarpoolActivity"> | Date | string
     payload?: JsonNullableFilter<"WarpoolActivity">
     createdAt?: DateTimeFilter<"WarpoolActivity"> | Date | string
-    pool?: XOR<WarpoolPoolNullableScalarRelationFilter, WarpoolPoolWhereInput> | null
     entry?: XOR<WarpoolEntryNullableScalarRelationFilter, WarpoolEntryWhereInput> | null
+    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
+    pool?: XOR<WarpoolPoolNullableScalarRelationFilter, WarpoolPoolWhereInput> | null
     reservation?: XOR<WarpoolReservationNullableScalarRelationFilter, WarpoolReservationWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
   }
 
   export type WarpoolActivityOrderByWithRelationInput = {
@@ -76421,11 +74714,11 @@ export namespace Prisma {
     timestamp?: SortOrder
     payload?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    pool?: WarpoolPoolOrderByWithRelationInput
     entry?: WarpoolEntryOrderByWithRelationInput
+    nft?: NFTOrderByWithRelationInput
+    pool?: WarpoolPoolOrderByWithRelationInput
     reservation?: WarpoolReservationOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    nft?: NFTOrderByWithRelationInput
   }
 
   export type WarpoolActivityWhereUniqueInput = Prisma.AtLeast<{
@@ -76449,11 +74742,11 @@ export namespace Prisma {
     timestamp?: DateTimeFilter<"WarpoolActivity"> | Date | string
     payload?: JsonNullableFilter<"WarpoolActivity">
     createdAt?: DateTimeFilter<"WarpoolActivity"> | Date | string
-    pool?: XOR<WarpoolPoolNullableScalarRelationFilter, WarpoolPoolWhereInput> | null
     entry?: XOR<WarpoolEntryNullableScalarRelationFilter, WarpoolEntryWhereInput> | null
+    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
+    pool?: XOR<WarpoolPoolNullableScalarRelationFilter, WarpoolPoolWhereInput> | null
     reservation?: XOR<WarpoolReservationNullableScalarRelationFilter, WarpoolReservationWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    nft?: XOR<NFTNullableScalarRelationFilter, NFTWhereInput> | null
   }, "id" | "txHash_logIndex">
 
   export type WarpoolActivityOrderByWithAggregationInput = {
@@ -76535,9 +74828,9 @@ export namespace Prisma {
     metadataJson?: JsonNullableFilter<"AdminProposal">
     createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
     updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
-    safe?: XOR<MultisigSafeNullableScalarRelationFilter, MultisigSafeWhereInput> | null
     createdByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     lastEditedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    safe?: XOR<MultisigSafeNullableScalarRelationFilter, MultisigSafeWhereInput> | null
     submittedMultisigTx?: XOR<MultisigTxNullableScalarRelationFilter, MultisigTxWhereInput> | null
     actions?: AdminProposalActionListRelationFilter
     events?: AdminProposalEventListRelationFilter
@@ -76573,9 +74866,9 @@ export namespace Prisma {
     metadataJson?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    safe?: MultisigSafeOrderByWithRelationInput
     createdByUser?: UserOrderByWithRelationInput
     lastEditedByUser?: UserOrderByWithRelationInput
+    safe?: MultisigSafeOrderByWithRelationInput
     submittedMultisigTx?: MultisigTxOrderByWithRelationInput
     actions?: AdminProposalActionOrderByRelationAggregateInput
     events?: AdminProposalEventOrderByRelationAggregateInput
@@ -76614,9 +74907,9 @@ export namespace Prisma {
     metadataJson?: JsonNullableFilter<"AdminProposal">
     createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
     updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
-    safe?: XOR<MultisigSafeNullableScalarRelationFilter, MultisigSafeWhereInput> | null
     createdByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     lastEditedByUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    safe?: XOR<MultisigSafeNullableScalarRelationFilter, MultisigSafeWhereInput> | null
     submittedMultisigTx?: XOR<MultisigTxNullableScalarRelationFilter, MultisigTxWhereInput> | null
     actions?: AdminProposalActionListRelationFilter
     events?: AdminProposalEventListRelationFilter
@@ -76824,8 +75117,8 @@ export namespace Prisma {
     note?: StringNullableFilter<"AdminProposalEvent"> | string | null
     payloadJson?: JsonNullableFilter<"AdminProposalEvent">
     createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
-    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
     actorUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
   }
 
   export type AdminProposalEventOrderByWithRelationInput = {
@@ -76837,8 +75130,8 @@ export namespace Prisma {
     note?: SortOrderInput | SortOrder
     payloadJson?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    proposal?: AdminProposalOrderByWithRelationInput
     actorUser?: UserOrderByWithRelationInput
+    proposal?: AdminProposalOrderByWithRelationInput
   }
 
   export type AdminProposalEventWhereUniqueInput = Prisma.AtLeast<{
@@ -76853,8 +75146,8 @@ export namespace Prisma {
     note?: StringNullableFilter<"AdminProposalEvent"> | string | null
     payloadJson?: JsonNullableFilter<"AdminProposalEvent">
     createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
-    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
     actorUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    proposal?: XOR<AdminProposalScalarRelationFilter, AdminProposalWhereInput>
   }, "id">
 
   export type AdminProposalEventOrderByWithAggregationInput = {
@@ -76947,19 +75240,18 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
     collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -76975,19 +75267,18 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -77003,19 +75294,18 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -77031,19 +75321,18 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -77347,10 +75636,10 @@ export namespace Prisma {
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateInput = {
@@ -77380,10 +75669,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTUpdateInput = {
@@ -77413,10 +75702,10 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateInput = {
@@ -77446,10 +75735,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type NFTCreateManyInput = {
@@ -79299,201 +77588,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type CollectionSubmissionCreateInput = {
-    id?: string
-    contract: string
-    ownerAddress?: string | null
-    name?: string | null
-    symbol?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    baseUri?: string | null
-    supply?: number | null
-    description?: string | null
-    website?: string | null
-    x?: string | null
-    instagram?: string | null
-    telegram?: string | null
-    feeTxHash?: string | null
-    feePaidWei?: Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: Date | string | null
-    ownershipVerified?: boolean
-    status?: $Enums.SubmissionStatus
-    statusReason?: string | null
-    reviewedByUserId?: string | null
-    reviewedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    submittedBy: UserCreateNestedOneWithoutSubmissionsInput
-  }
-
-  export type CollectionSubmissionUncheckedCreateInput = {
-    id?: string
-    submittedByUserId: string
-    contract: string
-    ownerAddress?: string | null
-    name?: string | null
-    symbol?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    baseUri?: string | null
-    supply?: number | null
-    description?: string | null
-    website?: string | null
-    x?: string | null
-    instagram?: string | null
-    telegram?: string | null
-    feeTxHash?: string | null
-    feePaidWei?: Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: Date | string | null
-    ownershipVerified?: boolean
-    status?: $Enums.SubmissionStatus
-    statusReason?: string | null
-    reviewedByUserId?: string | null
-    reviewedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionSubmissionUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedBy?: UserUpdateOneRequiredWithoutSubmissionsNestedInput
-  }
-
-  export type CollectionSubmissionUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    submittedByUserId?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CollectionSubmissionCreateManyInput = {
-    id?: string
-    submittedByUserId: string
-    contract: string
-    ownerAddress?: string | null
-    name?: string | null
-    symbol?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    baseUri?: string | null
-    supply?: number | null
-    description?: string | null
-    website?: string | null
-    x?: string | null
-    instagram?: string | null
-    telegram?: string | null
-    feeTxHash?: string | null
-    feePaidWei?: Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: Date | string | null
-    ownershipVerified?: boolean
-    status?: $Enums.SubmissionStatus
-    statusReason?: string | null
-    reviewedByUserId?: string | null
-    reviewedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionSubmissionUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CollectionSubmissionUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    submittedByUserId?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type NFTRarityCreateInput = {
     contract: string
     tokenId: string
@@ -80371,9 +78465,9 @@ export namespace Prisma {
     threshold: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
     owners?: MultisigOwnerCreateNestedManyWithoutSafeInput
     txs?: MultisigTxCreateNestedManyWithoutSafeInput
-    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUncheckedCreateInput = {
@@ -80383,9 +78477,9 @@ export namespace Prisma {
     threshold: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
     owners?: MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput
     txs?: MultisigTxUncheckedCreateNestedManyWithoutSafeInput
-    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUpdateInput = {
@@ -80395,9 +78489,9 @@ export namespace Prisma {
     threshold?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
     owners?: MultisigOwnerUpdateManyWithoutSafeNestedInput
     txs?: MultisigTxUpdateManyWithoutSafeNestedInput
-    adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeUncheckedUpdateInput = {
@@ -80407,9 +78501,9 @@ export namespace Prisma {
     threshold?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
     owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
     txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
-    adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeCreateManyInput = {
@@ -80506,9 +78600,9 @@ export namespace Prisma {
     executedTxHash?: string | null
     createdAt?: Date | string
     executedAt?: Date | string | null
+    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
     approvals?: MultisigApprovalCreateNestedManyWithoutTxInput
     safe: MultisigSafeCreateNestedOneWithoutTxsInput
-    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
   }
 
   export type MultisigTxUncheckedCreateInput = {
@@ -80524,8 +78618,8 @@ export namespace Prisma {
     executedTxHash?: string | null
     createdAt?: Date | string
     executedAt?: Date | string | null
-    approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
     linkedAdminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput
+    approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
   }
 
   export type MultisigTxUpdateInput = {
@@ -80540,9 +78634,9 @@ export namespace Prisma {
     executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
     approvals?: MultisigApprovalUpdateManyWithoutTxNestedInput
     safe?: MultisigSafeUpdateOneRequiredWithoutTxsNestedInput
-    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
   export type MultisigTxUncheckedUpdateInput = {
@@ -80558,8 +78652,8 @@ export namespace Prisma {
     executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
     linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
+    approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
   }
 
   export type MultisigTxCreateManyInput = {
@@ -81274,10 +79368,10 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    entries?: WarpoolEntryCreateNestedManyWithoutPoolInput
-    reservations?: WarpoolReservationCreateNestedManyWithoutPoolInput
     activities?: WarpoolActivityCreateNestedManyWithoutPoolInput
     battle?: WarpoolBattleCreateNestedOneWithoutPoolInput
+    entries?: WarpoolEntryCreateNestedManyWithoutPoolInput
+    reservations?: WarpoolReservationCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolUncheckedCreateInput = {
@@ -81326,10 +79420,10 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    entries?: WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput
-    reservations?: WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput
     activities?: WarpoolActivityUncheckedCreateNestedManyWithoutPoolInput
     battle?: WarpoolBattleUncheckedCreateNestedOneWithoutPoolInput
+    entries?: WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput
+    reservations?: WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolUpdateInput = {
@@ -81378,10 +79472,10 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: WarpoolEntryUpdateManyWithoutPoolNestedInput
-    reservations?: WarpoolReservationUpdateManyWithoutPoolNestedInput
     activities?: WarpoolActivityUpdateManyWithoutPoolNestedInput
     battle?: WarpoolBattleUpdateOneWithoutPoolNestedInput
+    entries?: WarpoolEntryUpdateManyWithoutPoolNestedInput
+    reservations?: WarpoolReservationUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolPoolUncheckedUpdateInput = {
@@ -81430,10 +79524,10 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput
-    reservations?: WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutPoolNestedInput
     battle?: WarpoolBattleUncheckedUpdateOneWithoutPoolNestedInput
+    entries?: WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput
+    reservations?: WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolPoolCreateManyInput = {
@@ -81603,12 +79697,12 @@ export namespace Prisma {
     joinedTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
-    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
-    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
     activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
+    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
+    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
+    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
   }
 
   export type WarpoolEntryUncheckedCreateInput = {
@@ -81638,8 +79732,8 @@ export namespace Prisma {
     reservationId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
     activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
   }
 
   export type WarpoolEntryUpdateInput = {
@@ -81665,12 +79759,12 @@ export namespace Prisma {
     joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
-    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
-    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
     activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
+    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
   }
 
   export type WarpoolEntryUncheckedUpdateInput = {
@@ -81700,8 +79794,8 @@ export namespace Prisma {
     reservationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
   }
 
   export type WarpoolEntryCreateManyInput = {
@@ -81807,11 +79901,11 @@ export namespace Prisma {
     resolvedTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
+    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
     pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
     user?: UserCreateNestedOneWithoutWarpoolReservationsInput
-    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
-    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
   }
 
   export type WarpoolReservationUncheckedCreateInput = {
@@ -81837,8 +79931,8 @@ export namespace Prisma {
     resolvedTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
     activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
   }
 
   export type WarpoolReservationUpdateInput = {
@@ -81861,11 +79955,11 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
     pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
     user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
-    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
   }
 
   export type WarpoolReservationUncheckedUpdateInput = {
@@ -81891,8 +79985,8 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
   }
 
   export type WarpoolReservationCreateManyInput = {
@@ -82341,11 +80435,11 @@ export namespace Prisma {
     timestamp: Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
     entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
+    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
+    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
     reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
     user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
   }
 
   export type WarpoolActivityUncheckedCreateInput = {
@@ -82379,11 +80473,11 @@ export namespace Prisma {
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     entry?: WarpoolEntryUpdateOneWithoutActivitiesNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
+    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
     user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
   }
 
   export type WarpoolActivityUncheckedUpdateInput = {
@@ -82483,9 +80577,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
     lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
     actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
     events?: AdminProposalEventCreateNestedManyWithoutProposalInput
@@ -82551,9 +80645,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
     lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
     actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
     events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
@@ -82831,8 +80925,8 @@ export namespace Prisma {
     note?: string | null
     payloadJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    proposal: AdminProposalCreateNestedOneWithoutEventsInput
     actorUser?: UserCreateNestedOneWithoutAdminProposalEventsInput
+    proposal: AdminProposalCreateNestedOneWithoutEventsInput
   }
 
   export type AdminProposalEventUncheckedCreateInput = {
@@ -82853,8 +80947,8 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     payloadJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    proposal?: AdminProposalUpdateOneRequiredWithoutEventsNestedInput
     actorUser?: UserUpdateOneWithoutAdminProposalEventsNestedInput
+    proposal?: AdminProposalUpdateOneRequiredWithoutEventsNestedInput
   }
 
   export type AdminProposalEventUncheckedUpdateInput = {
@@ -83019,16 +81113,22 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type AdminProposalListRelationFilter = {
+    every?: AdminProposalWhereInput
+    some?: AdminProposalWhereInput
+    none?: AdminProposalWhereInput
+  }
+
+  export type AdminProposalEventListRelationFilter = {
+    every?: AdminProposalEventWhereInput
+    some?: AdminProposalEventWhereInput
+    none?: AdminProposalEventWhereInput
+  }
+
   export type CollectionListRelationFilter = {
     every?: CollectionWhereInput
     some?: CollectionWhereInput
     none?: CollectionWhereInput
-  }
-
-  export type CollectionSubmissionListRelationFilter = {
-    every?: CollectionSubmissionWhereInput
-    some?: CollectionSubmissionWhereInput
-    none?: CollectionSubmissionWhereInput
   }
 
   export type HolderRewardMultiListRelationFilter = {
@@ -83055,18 +81155,6 @@ export namespace Prisma {
     none?: StolenItemWhereInput
   }
 
-  export type WarpoolEntryListRelationFilter = {
-    every?: WarpoolEntryWhereInput
-    some?: WarpoolEntryWhereInput
-    none?: WarpoolEntryWhereInput
-  }
-
-  export type WarpoolReservationListRelationFilter = {
-    every?: WarpoolReservationWhereInput
-    some?: WarpoolReservationWhereInput
-    none?: WarpoolReservationWhereInput
-  }
-
   export type WarpoolActivityListRelationFilter = {
     every?: WarpoolActivityWhereInput
     some?: WarpoolActivityWhereInput
@@ -83079,16 +81167,16 @@ export namespace Prisma {
     none?: WarpoolCaptureWhereInput
   }
 
-  export type AdminProposalListRelationFilter = {
-    every?: AdminProposalWhereInput
-    some?: AdminProposalWhereInput
-    none?: AdminProposalWhereInput
+  export type WarpoolEntryListRelationFilter = {
+    every?: WarpoolEntryWhereInput
+    some?: WarpoolEntryWhereInput
+    none?: WarpoolEntryWhereInput
   }
 
-  export type AdminProposalEventListRelationFilter = {
-    every?: AdminProposalEventWhereInput
-    some?: AdminProposalEventWhereInput
-    none?: AdminProposalEventWhereInput
+  export type WarpoolReservationListRelationFilter = {
+    every?: WarpoolReservationWhereInput
+    some?: WarpoolReservationWhereInput
+    none?: WarpoolReservationWhereInput
   }
 
   export type SortOrderInput = {
@@ -83096,11 +81184,15 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
-  export type CollectionOrderByRelationAggregateInput = {
+  export type AdminProposalOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type CollectionSubmissionOrderByRelationAggregateInput = {
+  export type AdminProposalEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CollectionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -83120,14 +81212,6 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type WarpoolEntryOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type WarpoolReservationOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type WarpoolActivityOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -83136,11 +81220,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type AdminProposalOrderByRelationAggregateInput = {
+  export type WarpoolEntryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type AdminProposalEventOrderByRelationAggregateInput = {
+  export type WarpoolReservationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -84933,117 +83017,6 @@ export namespace Prisma {
     bytes?: SortOrder
   }
 
-  export type EnumSubmissionStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubmissionStatus | EnumSubmissionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubmissionStatusFilter<$PrismaModel> | $Enums.SubmissionStatus
-  }
-
-  export type CollectionSubmissionCountOrderByAggregateInput = {
-    id?: SortOrder
-    submittedByUserId?: SortOrder
-    contract?: SortOrder
-    ownerAddress?: SortOrder
-    name?: SortOrder
-    symbol?: SortOrder
-    logoUrl?: SortOrder
-    coverUrl?: SortOrder
-    baseUri?: SortOrder
-    supply?: SortOrder
-    description?: SortOrder
-    website?: SortOrder
-    x?: SortOrder
-    instagram?: SortOrder
-    telegram?: SortOrder
-    feeTxHash?: SortOrder
-    feePaidWei?: SortOrder
-    feeVerifiedAt?: SortOrder
-    ownershipVerified?: SortOrder
-    status?: SortOrder
-    statusReason?: SortOrder
-    reviewedByUserId?: SortOrder
-    reviewedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type CollectionSubmissionAvgOrderByAggregateInput = {
-    supply?: SortOrder
-    feePaidWei?: SortOrder
-  }
-
-  export type CollectionSubmissionMaxOrderByAggregateInput = {
-    id?: SortOrder
-    submittedByUserId?: SortOrder
-    contract?: SortOrder
-    ownerAddress?: SortOrder
-    name?: SortOrder
-    symbol?: SortOrder
-    logoUrl?: SortOrder
-    coverUrl?: SortOrder
-    baseUri?: SortOrder
-    supply?: SortOrder
-    description?: SortOrder
-    website?: SortOrder
-    x?: SortOrder
-    instagram?: SortOrder
-    telegram?: SortOrder
-    feeTxHash?: SortOrder
-    feePaidWei?: SortOrder
-    feeVerifiedAt?: SortOrder
-    ownershipVerified?: SortOrder
-    status?: SortOrder
-    statusReason?: SortOrder
-    reviewedByUserId?: SortOrder
-    reviewedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type CollectionSubmissionMinOrderByAggregateInput = {
-    id?: SortOrder
-    submittedByUserId?: SortOrder
-    contract?: SortOrder
-    ownerAddress?: SortOrder
-    name?: SortOrder
-    symbol?: SortOrder
-    logoUrl?: SortOrder
-    coverUrl?: SortOrder
-    baseUri?: SortOrder
-    supply?: SortOrder
-    description?: SortOrder
-    website?: SortOrder
-    x?: SortOrder
-    instagram?: SortOrder
-    telegram?: SortOrder
-    feeTxHash?: SortOrder
-    feePaidWei?: SortOrder
-    feeVerifiedAt?: SortOrder
-    ownershipVerified?: SortOrder
-    status?: SortOrder
-    statusReason?: SortOrder
-    reviewedByUserId?: SortOrder
-    reviewedAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type CollectionSubmissionSumOrderByAggregateInput = {
-    supply?: SortOrder
-    feePaidWei?: SortOrder
-  }
-
-  export type EnumSubmissionStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubmissionStatus | EnumSubmissionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubmissionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubmissionStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumSubmissionStatusFilter<$PrismaModel>
-    _max?: NestedEnumSubmissionStatusFilter<$PrismaModel>
-  }
-
   export type NFTRarityContractTokenIdCompoundUniqueInput = {
     contract: string
     tokenId: string
@@ -86517,9 +84490,9 @@ export namespace Prisma {
     not?: NestedEnumWarpoolEntryStatusFilter<$PrismaModel> | $Enums.WarpoolEntryStatus
   }
 
-  export type WarpoolPoolScalarRelationFilter = {
-    is?: WarpoolPoolWhereInput
-    isNot?: WarpoolPoolWhereInput
+  export type WarpoolCaptureNullableScalarRelationFilter = {
+    is?: WarpoolCaptureWhereInput | null
+    isNot?: WarpoolCaptureWhereInput | null
   }
 
   export type NFTNullableScalarRelationFilter = {
@@ -86527,14 +84500,14 @@ export namespace Prisma {
     isNot?: NFTWhereInput | null
   }
 
+  export type WarpoolPoolScalarRelationFilter = {
+    is?: WarpoolPoolWhereInput
+    isNot?: WarpoolPoolWhereInput
+  }
+
   export type WarpoolReservationNullableScalarRelationFilter = {
     is?: WarpoolReservationWhereInput | null
     isNot?: WarpoolReservationWhereInput | null
-  }
-
-  export type WarpoolCaptureNullableScalarRelationFilter = {
-    is?: WarpoolCaptureWhereInput | null
-    isNot?: WarpoolCaptureWhereInput | null
   }
 
   export type WarpoolEntryChainIdCoreContractEntryIdOnChainCompoundUniqueInput = {
@@ -87485,18 +85458,32 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type AdminProposalCreateNestedManyWithoutCreatedByUserInput = {
+    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
+    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
+  export type AdminProposalCreateNestedManyWithoutLastEditedByUserInput = {
+    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
+    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
+  export type AdminProposalEventCreateNestedManyWithoutActorUserInput = {
+    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
+    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+  }
+
   export type CollectionCreateNestedManyWithoutCreatorInput = {
     create?: XOR<CollectionCreateWithoutCreatorInput, CollectionUncheckedCreateWithoutCreatorInput> | CollectionCreateWithoutCreatorInput[] | CollectionUncheckedCreateWithoutCreatorInput[]
     connectOrCreate?: CollectionCreateOrConnectWithoutCreatorInput | CollectionCreateOrConnectWithoutCreatorInput[]
     createMany?: CollectionCreateManyCreatorInputEnvelope
     connect?: CollectionWhereUniqueInput | CollectionWhereUniqueInput[]
-  }
-
-  export type CollectionSubmissionCreateNestedManyWithoutSubmittedByInput = {
-    create?: XOR<CollectionSubmissionCreateWithoutSubmittedByInput, CollectionSubmissionUncheckedCreateWithoutSubmittedByInput> | CollectionSubmissionCreateWithoutSubmittedByInput[] | CollectionSubmissionUncheckedCreateWithoutSubmittedByInput[]
-    connectOrCreate?: CollectionSubmissionCreateOrConnectWithoutSubmittedByInput | CollectionSubmissionCreateOrConnectWithoutSubmittedByInput[]
-    createMany?: CollectionSubmissionCreateManySubmittedByInputEnvelope
-    connect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
   }
 
   export type HolderRewardMultiCreateNestedManyWithoutUserInput = {
@@ -87527,20 +85514,6 @@ export namespace Prisma {
     connect?: StolenItemWhereUniqueInput | StolenItemWhereUniqueInput[]
   }
 
-  export type WarpoolEntryCreateNestedManyWithoutUserInput = {
-    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
-    createMany?: WarpoolEntryCreateManyUserInputEnvelope
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-  }
-
-  export type WarpoolReservationCreateNestedManyWithoutUserInput = {
-    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
-    createMany?: WarpoolReservationCreateManyUserInputEnvelope
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-  }
-
   export type WarpoolActivityCreateNestedManyWithoutUserInput = {
     create?: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput> | WarpoolActivityCreateWithoutUserInput[] | WarpoolActivityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutUserInput | WarpoolActivityCreateOrConnectWithoutUserInput[]
@@ -87555,21 +85528,35 @@ export namespace Prisma {
     connect?: WarpoolCaptureWhereUniqueInput | WarpoolCaptureWhereUniqueInput[]
   }
 
-  export type AdminProposalCreateNestedManyWithoutCreatedByUserInput = {
+  export type WarpoolEntryCreateNestedManyWithoutUserInput = {
+    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
+    createMany?: WarpoolEntryCreateManyUserInputEnvelope
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+  }
+
+  export type WarpoolReservationCreateNestedManyWithoutUserInput = {
+    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
+    createMany?: WarpoolReservationCreateManyUserInputEnvelope
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+  }
+
+  export type AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput = {
     create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
     createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
     connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
   }
 
-  export type AdminProposalCreateNestedManyWithoutLastEditedByUserInput = {
+  export type AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput = {
     create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
     createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
     connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
   }
 
-  export type AdminProposalEventCreateNestedManyWithoutActorUserInput = {
+  export type AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput = {
     create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
     connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
     createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
@@ -87581,13 +85568,6 @@ export namespace Prisma {
     connectOrCreate?: CollectionCreateOrConnectWithoutCreatorInput | CollectionCreateOrConnectWithoutCreatorInput[]
     createMany?: CollectionCreateManyCreatorInputEnvelope
     connect?: CollectionWhereUniqueInput | CollectionWhereUniqueInput[]
-  }
-
-  export type CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput = {
-    create?: XOR<CollectionSubmissionCreateWithoutSubmittedByInput, CollectionSubmissionUncheckedCreateWithoutSubmittedByInput> | CollectionSubmissionCreateWithoutSubmittedByInput[] | CollectionSubmissionUncheckedCreateWithoutSubmittedByInput[]
-    connectOrCreate?: CollectionSubmissionCreateOrConnectWithoutSubmittedByInput | CollectionSubmissionCreateOrConnectWithoutSubmittedByInput[]
-    createMany?: CollectionSubmissionCreateManySubmittedByInputEnvelope
-    connect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
   }
 
   export type HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput = {
@@ -87618,20 +85598,6 @@ export namespace Prisma {
     connect?: StolenItemWhereUniqueInput | StolenItemWhereUniqueInput[]
   }
 
-  export type WarpoolEntryUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
-    createMany?: WarpoolEntryCreateManyUserInputEnvelope
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-  }
-
-  export type WarpoolReservationUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
-    createMany?: WarpoolReservationCreateManyUserInputEnvelope
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-  }
-
   export type WarpoolActivityUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput> | WarpoolActivityCreateWithoutUserInput[] | WarpoolActivityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutUserInput | WarpoolActivityCreateOrConnectWithoutUserInput[]
@@ -87646,25 +85612,18 @@ export namespace Prisma {
     connect?: WarpoolCaptureWhereUniqueInput | WarpoolCaptureWhereUniqueInput[]
   }
 
-  export type AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput = {
-    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
-    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  export type WarpoolEntryUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
+    createMany?: WarpoolEntryCreateManyUserInputEnvelope
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
   }
 
-  export type AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput = {
-    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
-    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-  }
-
-  export type AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput = {
-    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
-    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
-    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
-    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+  export type WarpoolReservationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
+    createMany?: WarpoolReservationCreateManyUserInputEnvelope
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -87673,6 +85632,48 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type AdminProposalUpdateManyWithoutCreatedByUserNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput[]
+    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput | AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
+  export type AdminProposalUpdateManyWithoutLastEditedByUserNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput[]
+    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput | AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  }
+
+  export type AdminProposalEventUpdateManyWithoutActorUserNestedInput = {
+    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
+    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
+    upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput[]
+    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
+    set?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    disconnect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    delete?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
+    update?: AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput[]
+    updateMany?: AdminProposalEventUpdateManyWithWhereWithoutActorUserInput | AdminProposalEventUpdateManyWithWhereWithoutActorUserInput[]
+    deleteMany?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
   }
 
   export type CollectionUpdateManyWithoutCreatorNestedInput = {
@@ -87687,20 +85688,6 @@ export namespace Prisma {
     update?: CollectionUpdateWithWhereUniqueWithoutCreatorInput | CollectionUpdateWithWhereUniqueWithoutCreatorInput[]
     updateMany?: CollectionUpdateManyWithWhereWithoutCreatorInput | CollectionUpdateManyWithWhereWithoutCreatorInput[]
     deleteMany?: CollectionScalarWhereInput | CollectionScalarWhereInput[]
-  }
-
-  export type CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput = {
-    create?: XOR<CollectionSubmissionCreateWithoutSubmittedByInput, CollectionSubmissionUncheckedCreateWithoutSubmittedByInput> | CollectionSubmissionCreateWithoutSubmittedByInput[] | CollectionSubmissionUncheckedCreateWithoutSubmittedByInput[]
-    connectOrCreate?: CollectionSubmissionCreateOrConnectWithoutSubmittedByInput | CollectionSubmissionCreateOrConnectWithoutSubmittedByInput[]
-    upsert?: CollectionSubmissionUpsertWithWhereUniqueWithoutSubmittedByInput | CollectionSubmissionUpsertWithWhereUniqueWithoutSubmittedByInput[]
-    createMany?: CollectionSubmissionCreateManySubmittedByInputEnvelope
-    set?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    disconnect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    delete?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    connect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    update?: CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput | CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput[]
-    updateMany?: CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput | CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput[]
-    deleteMany?: CollectionSubmissionScalarWhereInput | CollectionSubmissionScalarWhereInput[]
   }
 
   export type HolderRewardMultiUpdateManyWithoutUserNestedInput = {
@@ -87759,34 +85746,6 @@ export namespace Prisma {
     deleteMany?: StolenItemScalarWhereInput | StolenItemScalarWhereInput[]
   }
 
-  export type WarpoolEntryUpdateManyWithoutUserNestedInput = {
-    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
-    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutUserInput | WarpoolEntryUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: WarpoolEntryCreateManyUserInputEnvelope
-    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    update?: WarpoolEntryUpdateWithWhereUniqueWithoutUserInput | WarpoolEntryUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutUserInput | WarpoolEntryUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
-  }
-
-  export type WarpoolReservationUpdateManyWithoutUserNestedInput = {
-    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
-    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutUserInput | WarpoolReservationUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: WarpoolReservationCreateManyUserInputEnvelope
-    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    update?: WarpoolReservationUpdateWithWhereUniqueWithoutUserInput | WarpoolReservationUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutUserInput | WarpoolReservationUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
-  }
-
   export type WarpoolActivityUpdateManyWithoutUserNestedInput = {
     create?: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput> | WarpoolActivityCreateWithoutUserInput[] | WarpoolActivityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutUserInput | WarpoolActivityCreateOrConnectWithoutUserInput[]
@@ -87815,7 +85774,35 @@ export namespace Prisma {
     deleteMany?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
   }
 
-  export type AdminProposalUpdateManyWithoutCreatedByUserNestedInput = {
+  export type WarpoolEntryUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
+    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutUserInput | WarpoolEntryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WarpoolEntryCreateManyUserInputEnvelope
+    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    update?: WarpoolEntryUpdateWithWhereUniqueWithoutUserInput | WarpoolEntryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutUserInput | WarpoolEntryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
+  }
+
+  export type WarpoolReservationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
+    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutUserInput | WarpoolReservationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WarpoolReservationCreateManyUserInputEnvelope
+    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    update?: WarpoolReservationUpdateWithWhereUniqueWithoutUserInput | WarpoolReservationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutUserInput | WarpoolReservationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput = {
     create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
     upsert?: AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput[]
@@ -87829,7 +85816,7 @@ export namespace Prisma {
     deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
-  export type AdminProposalUpdateManyWithoutLastEditedByUserNestedInput = {
+  export type AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput = {
     create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
     upsert?: AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput[]
@@ -87843,7 +85830,7 @@ export namespace Prisma {
     deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
-  export type AdminProposalEventUpdateManyWithoutActorUserNestedInput = {
+  export type AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput = {
     create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
     connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
     upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput[]
@@ -87869,20 +85856,6 @@ export namespace Prisma {
     update?: CollectionUpdateWithWhereUniqueWithoutCreatorInput | CollectionUpdateWithWhereUniqueWithoutCreatorInput[]
     updateMany?: CollectionUpdateManyWithWhereWithoutCreatorInput | CollectionUpdateManyWithWhereWithoutCreatorInput[]
     deleteMany?: CollectionScalarWhereInput | CollectionScalarWhereInput[]
-  }
-
-  export type CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput = {
-    create?: XOR<CollectionSubmissionCreateWithoutSubmittedByInput, CollectionSubmissionUncheckedCreateWithoutSubmittedByInput> | CollectionSubmissionCreateWithoutSubmittedByInput[] | CollectionSubmissionUncheckedCreateWithoutSubmittedByInput[]
-    connectOrCreate?: CollectionSubmissionCreateOrConnectWithoutSubmittedByInput | CollectionSubmissionCreateOrConnectWithoutSubmittedByInput[]
-    upsert?: CollectionSubmissionUpsertWithWhereUniqueWithoutSubmittedByInput | CollectionSubmissionUpsertWithWhereUniqueWithoutSubmittedByInput[]
-    createMany?: CollectionSubmissionCreateManySubmittedByInputEnvelope
-    set?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    disconnect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    delete?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    connect?: CollectionSubmissionWhereUniqueInput | CollectionSubmissionWhereUniqueInput[]
-    update?: CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput | CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput[]
-    updateMany?: CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput | CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput[]
-    deleteMany?: CollectionSubmissionScalarWhereInput | CollectionSubmissionScalarWhereInput[]
   }
 
   export type HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput = {
@@ -87941,34 +85914,6 @@ export namespace Prisma {
     deleteMany?: StolenItemScalarWhereInput | StolenItemScalarWhereInput[]
   }
 
-  export type WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
-    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutUserInput | WarpoolEntryUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: WarpoolEntryCreateManyUserInputEnvelope
-    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    update?: WarpoolEntryUpdateWithWhereUniqueWithoutUserInput | WarpoolEntryUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutUserInput | WarpoolEntryUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
-  }
-
-  export type WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
-    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutUserInput | WarpoolReservationUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: WarpoolReservationCreateManyUserInputEnvelope
-    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    update?: WarpoolReservationUpdateWithWhereUniqueWithoutUserInput | WarpoolReservationUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutUserInput | WarpoolReservationUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
-  }
-
   export type WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput> | WarpoolActivityCreateWithoutUserInput[] | WarpoolActivityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutUserInput | WarpoolActivityCreateOrConnectWithoutUserInput[]
@@ -87997,46 +85942,32 @@ export namespace Prisma {
     deleteMany?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
   }
 
-  export type AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput = {
-    create?: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput> | AdminProposalCreateWithoutCreatedByUserInput[] | AdminProposalUncheckedCreateWithoutCreatedByUserInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutCreatedByUserInput | AdminProposalCreateOrConnectWithoutCreatedByUserInput[]
-    upsert?: AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput[]
-    createMany?: AdminProposalCreateManyCreatedByUserInputEnvelope
-    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    update?: AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput[]
-    updateMany?: AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput | AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput[]
-    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+  export type WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput> | WarpoolEntryCreateWithoutUserInput[] | WarpoolEntryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutUserInput | WarpoolEntryCreateOrConnectWithoutUserInput[]
+    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutUserInput | WarpoolEntryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WarpoolEntryCreateManyUserInputEnvelope
+    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    update?: WarpoolEntryUpdateWithWhereUniqueWithoutUserInput | WarpoolEntryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutUserInput | WarpoolEntryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
   }
 
-  export type AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput = {
-    create?: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput> | AdminProposalCreateWithoutLastEditedByUserInput[] | AdminProposalUncheckedCreateWithoutLastEditedByUserInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutLastEditedByUserInput | AdminProposalCreateOrConnectWithoutLastEditedByUserInput[]
-    upsert?: AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput[]
-    createMany?: AdminProposalCreateManyLastEditedByUserInputEnvelope
-    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    update?: AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput | AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput[]
-    updateMany?: AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput | AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput[]
-    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
-  }
-
-  export type AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput = {
-    create?: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput> | AdminProposalEventCreateWithoutActorUserInput[] | AdminProposalEventUncheckedCreateWithoutActorUserInput[]
-    connectOrCreate?: AdminProposalEventCreateOrConnectWithoutActorUserInput | AdminProposalEventCreateOrConnectWithoutActorUserInput[]
-    upsert?: AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput[]
-    createMany?: AdminProposalEventCreateManyActorUserInputEnvelope
-    set?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
-    disconnect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
-    delete?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
-    connect?: AdminProposalEventWhereUniqueInput | AdminProposalEventWhereUniqueInput[]
-    update?: AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput | AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput[]
-    updateMany?: AdminProposalEventUpdateManyWithWhereWithoutActorUserInput | AdminProposalEventUpdateManyWithWhereWithoutActorUserInput[]
-    deleteMany?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+  export type WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput> | WarpoolReservationCreateWithoutUserInput[] | WarpoolReservationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutUserInput | WarpoolReservationCreateOrConnectWithoutUserInput[]
+    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutUserInput | WarpoolReservationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WarpoolReservationCreateManyUserInputEnvelope
+    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    update?: WarpoolReservationUpdateWithWhereUniqueWithoutUserInput | WarpoolReservationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutUserInput | WarpoolReservationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
   }
 
   export type AssetUploadCreateNestedManyWithoutCollectionInput = {
@@ -88313,20 +86244,6 @@ export namespace Prisma {
     connect?: NFTActivityWhereUniqueInput | NFTActivityWhereUniqueInput[]
   }
 
-  export type WarpoolEntryCreateNestedManyWithoutNftInput = {
-    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
-    createMany?: WarpoolEntryCreateManyNftInputEnvelope
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-  }
-
-  export type WarpoolReservationCreateNestedManyWithoutNftInput = {
-    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
-    createMany?: WarpoolReservationCreateManyNftInputEnvelope
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-  }
-
   export type WarpoolActivityCreateNestedManyWithoutNftInput = {
     create?: XOR<WarpoolActivityCreateWithoutNftInput, WarpoolActivityUncheckedCreateWithoutNftInput> | WarpoolActivityCreateWithoutNftInput[] | WarpoolActivityUncheckedCreateWithoutNftInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutNftInput | WarpoolActivityCreateOrConnectWithoutNftInput[]
@@ -88339,6 +86256,20 @@ export namespace Prisma {
     connectOrCreate?: WarpoolCaptureCreateOrConnectWithoutNftInput | WarpoolCaptureCreateOrConnectWithoutNftInput[]
     createMany?: WarpoolCaptureCreateManyNftInputEnvelope
     connect?: WarpoolCaptureWhereUniqueInput | WarpoolCaptureWhereUniqueInput[]
+  }
+
+  export type WarpoolEntryCreateNestedManyWithoutNftInput = {
+    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
+    createMany?: WarpoolEntryCreateManyNftInputEnvelope
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+  }
+
+  export type WarpoolReservationCreateNestedManyWithoutNftInput = {
+    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
+    createMany?: WarpoolReservationCreateManyNftInputEnvelope
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
   }
 
   export type AuctionUncheckedCreateNestedManyWithoutNftInput = {
@@ -88369,20 +86300,6 @@ export namespace Prisma {
     connect?: NFTActivityWhereUniqueInput | NFTActivityWhereUniqueInput[]
   }
 
-  export type WarpoolEntryUncheckedCreateNestedManyWithoutNftInput = {
-    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
-    createMany?: WarpoolEntryCreateManyNftInputEnvelope
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-  }
-
-  export type WarpoolReservationUncheckedCreateNestedManyWithoutNftInput = {
-    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
-    createMany?: WarpoolReservationCreateManyNftInputEnvelope
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-  }
-
   export type WarpoolActivityUncheckedCreateNestedManyWithoutNftInput = {
     create?: XOR<WarpoolActivityCreateWithoutNftInput, WarpoolActivityUncheckedCreateWithoutNftInput> | WarpoolActivityCreateWithoutNftInput[] | WarpoolActivityUncheckedCreateWithoutNftInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutNftInput | WarpoolActivityCreateOrConnectWithoutNftInput[]
@@ -88395,6 +86312,20 @@ export namespace Prisma {
     connectOrCreate?: WarpoolCaptureCreateOrConnectWithoutNftInput | WarpoolCaptureCreateOrConnectWithoutNftInput[]
     createMany?: WarpoolCaptureCreateManyNftInputEnvelope
     connect?: WarpoolCaptureWhereUniqueInput | WarpoolCaptureWhereUniqueInput[]
+  }
+
+  export type WarpoolEntryUncheckedCreateNestedManyWithoutNftInput = {
+    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
+    createMany?: WarpoolEntryCreateManyNftInputEnvelope
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+  }
+
+  export type WarpoolReservationUncheckedCreateNestedManyWithoutNftInput = {
+    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
+    createMany?: WarpoolReservationCreateManyNftInputEnvelope
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
   }
 
   export type EnumNftStatusFieldUpdateOperationsInput = {
@@ -88505,34 +86436,6 @@ export namespace Prisma {
     deleteMany?: NFTActivityScalarWhereInput | NFTActivityScalarWhereInput[]
   }
 
-  export type WarpoolEntryUpdateManyWithoutNftNestedInput = {
-    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
-    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutNftInput | WarpoolEntryUpsertWithWhereUniqueWithoutNftInput[]
-    createMany?: WarpoolEntryCreateManyNftInputEnvelope
-    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    update?: WarpoolEntryUpdateWithWhereUniqueWithoutNftInput | WarpoolEntryUpdateWithWhereUniqueWithoutNftInput[]
-    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutNftInput | WarpoolEntryUpdateManyWithWhereWithoutNftInput[]
-    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
-  }
-
-  export type WarpoolReservationUpdateManyWithoutNftNestedInput = {
-    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
-    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutNftInput | WarpoolReservationUpsertWithWhereUniqueWithoutNftInput[]
-    createMany?: WarpoolReservationCreateManyNftInputEnvelope
-    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    update?: WarpoolReservationUpdateWithWhereUniqueWithoutNftInput | WarpoolReservationUpdateWithWhereUniqueWithoutNftInput[]
-    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutNftInput | WarpoolReservationUpdateManyWithWhereWithoutNftInput[]
-    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
-  }
-
   export type WarpoolActivityUpdateManyWithoutNftNestedInput = {
     create?: XOR<WarpoolActivityCreateWithoutNftInput, WarpoolActivityUncheckedCreateWithoutNftInput> | WarpoolActivityCreateWithoutNftInput[] | WarpoolActivityUncheckedCreateWithoutNftInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutNftInput | WarpoolActivityCreateOrConnectWithoutNftInput[]
@@ -88559,6 +86462,34 @@ export namespace Prisma {
     update?: WarpoolCaptureUpdateWithWhereUniqueWithoutNftInput | WarpoolCaptureUpdateWithWhereUniqueWithoutNftInput[]
     updateMany?: WarpoolCaptureUpdateManyWithWhereWithoutNftInput | WarpoolCaptureUpdateManyWithWhereWithoutNftInput[]
     deleteMany?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
+  }
+
+  export type WarpoolEntryUpdateManyWithoutNftNestedInput = {
+    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
+    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutNftInput | WarpoolEntryUpsertWithWhereUniqueWithoutNftInput[]
+    createMany?: WarpoolEntryCreateManyNftInputEnvelope
+    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    update?: WarpoolEntryUpdateWithWhereUniqueWithoutNftInput | WarpoolEntryUpdateWithWhereUniqueWithoutNftInput[]
+    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutNftInput | WarpoolEntryUpdateManyWithWhereWithoutNftInput[]
+    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
+  }
+
+  export type WarpoolReservationUpdateManyWithoutNftNestedInput = {
+    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
+    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutNftInput | WarpoolReservationUpsertWithWhereUniqueWithoutNftInput[]
+    createMany?: WarpoolReservationCreateManyNftInputEnvelope
+    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    update?: WarpoolReservationUpdateWithWhereUniqueWithoutNftInput | WarpoolReservationUpdateWithWhereUniqueWithoutNftInput[]
+    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutNftInput | WarpoolReservationUpdateManyWithWhereWithoutNftInput[]
+    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
   }
 
   export type AuctionUncheckedUpdateManyWithoutNftNestedInput = {
@@ -88617,34 +86548,6 @@ export namespace Prisma {
     deleteMany?: NFTActivityScalarWhereInput | NFTActivityScalarWhereInput[]
   }
 
-  export type WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput = {
-    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
-    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutNftInput | WarpoolEntryUpsertWithWhereUniqueWithoutNftInput[]
-    createMany?: WarpoolEntryCreateManyNftInputEnvelope
-    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    update?: WarpoolEntryUpdateWithWhereUniqueWithoutNftInput | WarpoolEntryUpdateWithWhereUniqueWithoutNftInput[]
-    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutNftInput | WarpoolEntryUpdateManyWithWhereWithoutNftInput[]
-    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
-  }
-
-  export type WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput = {
-    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
-    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutNftInput | WarpoolReservationUpsertWithWhereUniqueWithoutNftInput[]
-    createMany?: WarpoolReservationCreateManyNftInputEnvelope
-    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    update?: WarpoolReservationUpdateWithWhereUniqueWithoutNftInput | WarpoolReservationUpdateWithWhereUniqueWithoutNftInput[]
-    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutNftInput | WarpoolReservationUpdateManyWithWhereWithoutNftInput[]
-    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
-  }
-
   export type WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput = {
     create?: XOR<WarpoolActivityCreateWithoutNftInput, WarpoolActivityUncheckedCreateWithoutNftInput> | WarpoolActivityCreateWithoutNftInput[] | WarpoolActivityUncheckedCreateWithoutNftInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutNftInput | WarpoolActivityCreateOrConnectWithoutNftInput[]
@@ -88671,6 +86574,34 @@ export namespace Prisma {
     update?: WarpoolCaptureUpdateWithWhereUniqueWithoutNftInput | WarpoolCaptureUpdateWithWhereUniqueWithoutNftInput[]
     updateMany?: WarpoolCaptureUpdateManyWithWhereWithoutNftInput | WarpoolCaptureUpdateManyWithWhereWithoutNftInput[]
     deleteMany?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
+  }
+
+  export type WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput = {
+    create?: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput> | WarpoolEntryCreateWithoutNftInput[] | WarpoolEntryUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutNftInput | WarpoolEntryCreateOrConnectWithoutNftInput[]
+    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutNftInput | WarpoolEntryUpsertWithWhereUniqueWithoutNftInput[]
+    createMany?: WarpoolEntryCreateManyNftInputEnvelope
+    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    update?: WarpoolEntryUpdateWithWhereUniqueWithoutNftInput | WarpoolEntryUpdateWithWhereUniqueWithoutNftInput[]
+    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutNftInput | WarpoolEntryUpdateManyWithWhereWithoutNftInput[]
+    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
+  }
+
+  export type WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput = {
+    create?: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput> | WarpoolReservationCreateWithoutNftInput[] | WarpoolReservationUncheckedCreateWithoutNftInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutNftInput | WarpoolReservationCreateOrConnectWithoutNftInput[]
+    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutNftInput | WarpoolReservationUpsertWithWhereUniqueWithoutNftInput[]
+    createMany?: WarpoolReservationCreateManyNftInputEnvelope
+    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    update?: WarpoolReservationUpdateWithWhereUniqueWithoutNftInput | WarpoolReservationUpdateWithWhereUniqueWithoutNftInput[]
+    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutNftInput | WarpoolReservationUpdateManyWithWhereWithoutNftInput[]
+    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
   }
 
   export type NFTCreateNestedOneWithoutActivitiesInput = {
@@ -89417,24 +87348,6 @@ export namespace Prisma {
     update?: XOR<XOR<Single721UpdateToOneWithWhereWithoutAssetUploadsInput, Single721UpdateWithoutAssetUploadsInput>, Single721UncheckedUpdateWithoutAssetUploadsInput>
   }
 
-  export type UserCreateNestedOneWithoutSubmissionsInput = {
-    create?: XOR<UserCreateWithoutSubmissionsInput, UserUncheckedCreateWithoutSubmissionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSubmissionsInput
-    connect?: UserWhereUniqueInput
-  }
-
-  export type EnumSubmissionStatusFieldUpdateOperationsInput = {
-    set?: $Enums.SubmissionStatus
-  }
-
-  export type UserUpdateOneRequiredWithoutSubmissionsNestedInput = {
-    create?: XOR<UserCreateWithoutSubmissionsInput, UserUncheckedCreateWithoutSubmissionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutSubmissionsInput
-    upsert?: UserUpsertWithoutSubmissionsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSubmissionsInput, UserUpdateWithoutSubmissionsInput>, UserUncheckedUpdateWithoutSubmissionsInput>
-  }
-
   export type AuctionCreateNestedManyWithoutCurrencyInput = {
     create?: XOR<AuctionCreateWithoutCurrencyInput, AuctionUncheckedCreateWithoutCurrencyInput> | AuctionCreateWithoutCurrencyInput[] | AuctionUncheckedCreateWithoutCurrencyInput[]
     connectOrCreate?: AuctionCreateOrConnectWithoutCurrencyInput | AuctionCreateOrConnectWithoutCurrencyInput[]
@@ -89907,6 +87820,13 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutStolenReportsInput, UserUpdateWithoutStolenReportsInput>, UserUncheckedUpdateWithoutStolenReportsInput>
   }
 
+  export type AdminProposalCreateNestedManyWithoutSafeInput = {
+    create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
+    createMany?: AdminProposalCreateManySafeInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+  }
+
   export type MultisigOwnerCreateNestedManyWithoutSafeInput = {
     create?: XOR<MultisigOwnerCreateWithoutSafeInput, MultisigOwnerUncheckedCreateWithoutSafeInput> | MultisigOwnerCreateWithoutSafeInput[] | MultisigOwnerUncheckedCreateWithoutSafeInput[]
     connectOrCreate?: MultisigOwnerCreateOrConnectWithoutSafeInput | MultisigOwnerCreateOrConnectWithoutSafeInput[]
@@ -89921,7 +87841,7 @@ export namespace Prisma {
     connect?: MultisigTxWhereUniqueInput | MultisigTxWhereUniqueInput[]
   }
 
-  export type AdminProposalCreateNestedManyWithoutSafeInput = {
+  export type AdminProposalUncheckedCreateNestedManyWithoutSafeInput = {
     create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
     createMany?: AdminProposalCreateManySafeInputEnvelope
@@ -89942,11 +87862,18 @@ export namespace Prisma {
     connect?: MultisigTxWhereUniqueInput | MultisigTxWhereUniqueInput[]
   }
 
-  export type AdminProposalUncheckedCreateNestedManyWithoutSafeInput = {
+  export type AdminProposalUpdateManyWithoutSafeNestedInput = {
     create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSafeInput | AdminProposalUpsertWithWhereUniqueWithoutSafeInput[]
     createMany?: AdminProposalCreateManySafeInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
     connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutSafeInput | AdminProposalUpdateWithWhereUniqueWithoutSafeInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutSafeInput | AdminProposalUpdateManyWithWhereWithoutSafeInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
   export type MultisigOwnerUpdateManyWithoutSafeNestedInput = {
@@ -89977,7 +87904,7 @@ export namespace Prisma {
     deleteMany?: MultisigTxScalarWhereInput | MultisigTxScalarWhereInput[]
   }
 
-  export type AdminProposalUpdateManyWithoutSafeNestedInput = {
+  export type AdminProposalUncheckedUpdateManyWithoutSafeNestedInput = {
     create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
     upsert?: AdminProposalUpsertWithWhereUniqueWithoutSafeInput | AdminProposalUpsertWithWhereUniqueWithoutSafeInput[]
@@ -90019,20 +87946,6 @@ export namespace Prisma {
     deleteMany?: MultisigTxScalarWhereInput | MultisigTxScalarWhereInput[]
   }
 
-  export type AdminProposalUncheckedUpdateManyWithoutSafeNestedInput = {
-    create?: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput> | AdminProposalCreateWithoutSafeInput[] | AdminProposalUncheckedCreateWithoutSafeInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutSafeInput | AdminProposalCreateOrConnectWithoutSafeInput[]
-    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSafeInput | AdminProposalUpsertWithWhereUniqueWithoutSafeInput[]
-    createMany?: AdminProposalCreateManySafeInputEnvelope
-    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    update?: AdminProposalUpdateWithWhereUniqueWithoutSafeInput | AdminProposalUpdateWithWhereUniqueWithoutSafeInput[]
-    updateMany?: AdminProposalUpdateManyWithWhereWithoutSafeInput | AdminProposalUpdateManyWithWhereWithoutSafeInput[]
-    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
-  }
-
   export type MultisigSafeCreateNestedOneWithoutOwnersInput = {
     create?: XOR<MultisigSafeCreateWithoutOwnersInput, MultisigSafeUncheckedCreateWithoutOwnersInput>
     connectOrCreate?: MultisigSafeCreateOrConnectWithoutOwnersInput
@@ -90045,6 +87958,13 @@ export namespace Prisma {
     upsert?: MultisigSafeUpsertWithoutOwnersInput
     connect?: MultisigSafeWhereUniqueInput
     update?: XOR<XOR<MultisigSafeUpdateToOneWithWhereWithoutOwnersInput, MultisigSafeUpdateWithoutOwnersInput>, MultisigSafeUncheckedUpdateWithoutOwnersInput>
+  }
+
+  export type AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput = {
+    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
+    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
   }
 
   export type MultisigApprovalCreateNestedManyWithoutTxInput = {
@@ -90060,7 +87980,7 @@ export namespace Prisma {
     connect?: MultisigSafeWhereUniqueInput
   }
 
-  export type AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput = {
+  export type AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput = {
     create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
     createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
@@ -90074,15 +87994,22 @@ export namespace Prisma {
     connect?: MultisigApprovalWhereUniqueInput | MultisigApprovalWhereUniqueInput[]
   }
 
-  export type AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput = {
-    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
-    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-  }
-
   export type EnumMultisigTxStatusFieldUpdateOperationsInput = {
     set?: $Enums.MultisigTxStatus
+  }
+
+  export type AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
+    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput[]
+    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
+    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
+    update?: AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput[]
+    updateMany?: AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput | AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput[]
+    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
   export type MultisigApprovalUpdateManyWithoutTxNestedInput = {
@@ -90107,7 +88034,7 @@ export namespace Prisma {
     update?: XOR<XOR<MultisigSafeUpdateToOneWithWhereWithoutTxsInput, MultisigSafeUpdateWithoutTxsInput>, MultisigSafeUncheckedUpdateWithoutTxsInput>
   }
 
-  export type AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput = {
+  export type AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput = {
     create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
     connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
     upsert?: AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput[]
@@ -90133,20 +88060,6 @@ export namespace Prisma {
     update?: MultisigApprovalUpdateWithWhereUniqueWithoutTxInput | MultisigApprovalUpdateWithWhereUniqueWithoutTxInput[]
     updateMany?: MultisigApprovalUpdateManyWithWhereWithoutTxInput | MultisigApprovalUpdateManyWithWhereWithoutTxInput[]
     deleteMany?: MultisigApprovalScalarWhereInput | MultisigApprovalScalarWhereInput[]
-  }
-
-  export type AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput = {
-    create?: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput> | AdminProposalCreateWithoutSubmittedMultisigTxInput[] | AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput[]
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput | AdminProposalCreateOrConnectWithoutSubmittedMultisigTxInput[]
-    upsert?: AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput[]
-    createMany?: AdminProposalCreateManySubmittedMultisigTxInputEnvelope
-    set?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    disconnect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    delete?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    connect?: AdminProposalWhereUniqueInput | AdminProposalWhereUniqueInput[]
-    update?: AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput | AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput[]
-    updateMany?: AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput | AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput[]
-    deleteMany?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
   }
 
   export type MultisigTxCreateNestedOneWithoutApprovalsInput = {
@@ -90187,20 +88100,6 @@ export namespace Prisma {
     divide?: bigint | number
   }
 
-  export type WarpoolEntryCreateNestedManyWithoutPoolInput = {
-    create?: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput> | WarpoolEntryCreateWithoutPoolInput[] | WarpoolEntryUncheckedCreateWithoutPoolInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutPoolInput | WarpoolEntryCreateOrConnectWithoutPoolInput[]
-    createMany?: WarpoolEntryCreateManyPoolInputEnvelope
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-  }
-
-  export type WarpoolReservationCreateNestedManyWithoutPoolInput = {
-    create?: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput> | WarpoolReservationCreateWithoutPoolInput[] | WarpoolReservationUncheckedCreateWithoutPoolInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutPoolInput | WarpoolReservationCreateOrConnectWithoutPoolInput[]
-    createMany?: WarpoolReservationCreateManyPoolInputEnvelope
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-  }
-
   export type WarpoolActivityCreateNestedManyWithoutPoolInput = {
     create?: XOR<WarpoolActivityCreateWithoutPoolInput, WarpoolActivityUncheckedCreateWithoutPoolInput> | WarpoolActivityCreateWithoutPoolInput[] | WarpoolActivityUncheckedCreateWithoutPoolInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutPoolInput | WarpoolActivityCreateOrConnectWithoutPoolInput[]
@@ -90214,14 +88113,14 @@ export namespace Prisma {
     connect?: WarpoolBattleWhereUniqueInput
   }
 
-  export type WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput = {
+  export type WarpoolEntryCreateNestedManyWithoutPoolInput = {
     create?: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput> | WarpoolEntryCreateWithoutPoolInput[] | WarpoolEntryUncheckedCreateWithoutPoolInput[]
     connectOrCreate?: WarpoolEntryCreateOrConnectWithoutPoolInput | WarpoolEntryCreateOrConnectWithoutPoolInput[]
     createMany?: WarpoolEntryCreateManyPoolInputEnvelope
     connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
   }
 
-  export type WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput = {
+  export type WarpoolReservationCreateNestedManyWithoutPoolInput = {
     create?: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput> | WarpoolReservationCreateWithoutPoolInput[] | WarpoolReservationUncheckedCreateWithoutPoolInput[]
     connectOrCreate?: WarpoolReservationCreateOrConnectWithoutPoolInput | WarpoolReservationCreateOrConnectWithoutPoolInput[]
     createMany?: WarpoolReservationCreateManyPoolInputEnvelope
@@ -90241,40 +88140,26 @@ export namespace Prisma {
     connect?: WarpoolBattleWhereUniqueInput
   }
 
+  export type WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput = {
+    create?: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput> | WarpoolEntryCreateWithoutPoolInput[] | WarpoolEntryUncheckedCreateWithoutPoolInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutPoolInput | WarpoolEntryCreateOrConnectWithoutPoolInput[]
+    createMany?: WarpoolEntryCreateManyPoolInputEnvelope
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+  }
+
+  export type WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput = {
+    create?: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput> | WarpoolReservationCreateWithoutPoolInput[] | WarpoolReservationUncheckedCreateWithoutPoolInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutPoolInput | WarpoolReservationCreateOrConnectWithoutPoolInput[]
+    createMany?: WarpoolReservationCreateManyPoolInputEnvelope
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+  }
+
   export type NullableEnumWarpoolQueueSlugFieldUpdateOperationsInput = {
     set?: $Enums.WarpoolQueueSlug | null
   }
 
   export type EnumWarpoolPoolStatusFieldUpdateOperationsInput = {
     set?: $Enums.WarpoolPoolStatus
-  }
-
-  export type WarpoolEntryUpdateManyWithoutPoolNestedInput = {
-    create?: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput> | WarpoolEntryCreateWithoutPoolInput[] | WarpoolEntryUncheckedCreateWithoutPoolInput[]
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutPoolInput | WarpoolEntryCreateOrConnectWithoutPoolInput[]
-    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput | WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput[]
-    createMany?: WarpoolEntryCreateManyPoolInputEnvelope
-    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
-    update?: WarpoolEntryUpdateWithWhereUniqueWithoutPoolInput | WarpoolEntryUpdateWithWhereUniqueWithoutPoolInput[]
-    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutPoolInput | WarpoolEntryUpdateManyWithWhereWithoutPoolInput[]
-    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
-  }
-
-  export type WarpoolReservationUpdateManyWithoutPoolNestedInput = {
-    create?: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput> | WarpoolReservationCreateWithoutPoolInput[] | WarpoolReservationUncheckedCreateWithoutPoolInput[]
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutPoolInput | WarpoolReservationCreateOrConnectWithoutPoolInput[]
-    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput | WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput[]
-    createMany?: WarpoolReservationCreateManyPoolInputEnvelope
-    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
-    update?: WarpoolReservationUpdateWithWhereUniqueWithoutPoolInput | WarpoolReservationUpdateWithWhereUniqueWithoutPoolInput[]
-    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutPoolInput | WarpoolReservationUpdateManyWithWhereWithoutPoolInput[]
-    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
   }
 
   export type WarpoolActivityUpdateManyWithoutPoolNestedInput = {
@@ -90301,7 +88186,7 @@ export namespace Prisma {
     update?: XOR<XOR<WarpoolBattleUpdateToOneWithWhereWithoutPoolInput, WarpoolBattleUpdateWithoutPoolInput>, WarpoolBattleUncheckedUpdateWithoutPoolInput>
   }
 
-  export type WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput = {
+  export type WarpoolEntryUpdateManyWithoutPoolNestedInput = {
     create?: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput> | WarpoolEntryCreateWithoutPoolInput[] | WarpoolEntryUncheckedCreateWithoutPoolInput[]
     connectOrCreate?: WarpoolEntryCreateOrConnectWithoutPoolInput | WarpoolEntryCreateOrConnectWithoutPoolInput[]
     upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput | WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput[]
@@ -90315,7 +88200,7 @@ export namespace Prisma {
     deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
   }
 
-  export type WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput = {
+  export type WarpoolReservationUpdateManyWithoutPoolNestedInput = {
     create?: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput> | WarpoolReservationCreateWithoutPoolInput[] | WarpoolReservationUncheckedCreateWithoutPoolInput[]
     connectOrCreate?: WarpoolReservationCreateOrConnectWithoutPoolInput | WarpoolReservationCreateOrConnectWithoutPoolInput[]
     upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput | WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput[]
@@ -90353,28 +88238,39 @@ export namespace Prisma {
     update?: XOR<XOR<WarpoolBattleUpdateToOneWithWhereWithoutPoolInput, WarpoolBattleUpdateWithoutPoolInput>, WarpoolBattleUncheckedUpdateWithoutPoolInput>
   }
 
-  export type WarpoolPoolCreateNestedOneWithoutEntriesInput = {
-    create?: XOR<WarpoolPoolCreateWithoutEntriesInput, WarpoolPoolUncheckedCreateWithoutEntriesInput>
-    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutEntriesInput
-    connect?: WarpoolPoolWhereUniqueInput
+  export type WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput = {
+    create?: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput> | WarpoolEntryCreateWithoutPoolInput[] | WarpoolEntryUncheckedCreateWithoutPoolInput[]
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutPoolInput | WarpoolEntryCreateOrConnectWithoutPoolInput[]
+    upsert?: WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput | WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput[]
+    createMany?: WarpoolEntryCreateManyPoolInputEnvelope
+    set?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    disconnect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    delete?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    connect?: WarpoolEntryWhereUniqueInput | WarpoolEntryWhereUniqueInput[]
+    update?: WarpoolEntryUpdateWithWhereUniqueWithoutPoolInput | WarpoolEntryUpdateWithWhereUniqueWithoutPoolInput[]
+    updateMany?: WarpoolEntryUpdateManyWithWhereWithoutPoolInput | WarpoolEntryUpdateManyWithWhereWithoutPoolInput[]
+    deleteMany?: WarpoolEntryScalarWhereInput | WarpoolEntryScalarWhereInput[]
   }
 
-  export type UserCreateNestedOneWithoutWarpoolEntriesInput = {
-    create?: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
-    connectOrCreate?: UserCreateOrConnectWithoutWarpoolEntriesInput
-    connect?: UserWhereUniqueInput
+  export type WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput = {
+    create?: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput> | WarpoolReservationCreateWithoutPoolInput[] | WarpoolReservationUncheckedCreateWithoutPoolInput[]
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutPoolInput | WarpoolReservationCreateOrConnectWithoutPoolInput[]
+    upsert?: WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput | WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput[]
+    createMany?: WarpoolReservationCreateManyPoolInputEnvelope
+    set?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    disconnect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    delete?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    connect?: WarpoolReservationWhereUniqueInput | WarpoolReservationWhereUniqueInput[]
+    update?: WarpoolReservationUpdateWithWhereUniqueWithoutPoolInput | WarpoolReservationUpdateWithWhereUniqueWithoutPoolInput[]
+    updateMany?: WarpoolReservationUpdateManyWithWhereWithoutPoolInput | WarpoolReservationUpdateManyWithWhereWithoutPoolInput[]
+    deleteMany?: WarpoolReservationScalarWhereInput | WarpoolReservationScalarWhereInput[]
   }
 
-  export type NFTCreateNestedOneWithoutWarpoolEntriesInput = {
-    create?: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
-    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolEntriesInput
-    connect?: NFTWhereUniqueInput
-  }
-
-  export type WarpoolReservationCreateNestedOneWithoutEntryInput = {
-    create?: XOR<WarpoolReservationCreateWithoutEntryInput, WarpoolReservationUncheckedCreateWithoutEntryInput>
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutEntryInput
-    connect?: WarpoolReservationWhereUniqueInput
+  export type WarpoolActivityCreateNestedManyWithoutEntryInput = {
+    create?: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput> | WarpoolActivityCreateWithoutEntryInput[] | WarpoolActivityUncheckedCreateWithoutEntryInput[]
+    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutEntryInput | WarpoolActivityCreateOrConnectWithoutEntryInput[]
+    createMany?: WarpoolActivityCreateManyEntryInputEnvelope
+    connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
   }
 
   export type WarpoolCaptureCreateNestedOneWithoutEntryInput = {
@@ -90383,7 +88279,31 @@ export namespace Prisma {
     connect?: WarpoolCaptureWhereUniqueInput
   }
 
-  export type WarpoolActivityCreateNestedManyWithoutEntryInput = {
+  export type NFTCreateNestedOneWithoutWarpoolEntriesInput = {
+    create?: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
+    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolEntriesInput
+    connect?: NFTWhereUniqueInput
+  }
+
+  export type WarpoolPoolCreateNestedOneWithoutEntriesInput = {
+    create?: XOR<WarpoolPoolCreateWithoutEntriesInput, WarpoolPoolUncheckedCreateWithoutEntriesInput>
+    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutEntriesInput
+    connect?: WarpoolPoolWhereUniqueInput
+  }
+
+  export type WarpoolReservationCreateNestedOneWithoutEntryInput = {
+    create?: XOR<WarpoolReservationCreateWithoutEntryInput, WarpoolReservationUncheckedCreateWithoutEntryInput>
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutEntryInput
+    connect?: WarpoolReservationWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutWarpoolEntriesInput = {
+    create?: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutWarpoolEntriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput = {
     create?: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput> | WarpoolActivityCreateWithoutEntryInput[] | WarpoolActivityUncheckedCreateWithoutEntryInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutEntryInput | WarpoolActivityCreateOrConnectWithoutEntryInput[]
     createMany?: WarpoolActivityCreateManyEntryInputEnvelope
@@ -90396,13 +88316,6 @@ export namespace Prisma {
     connect?: WarpoolCaptureWhereUniqueInput
   }
 
-  export type WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput = {
-    create?: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput> | WarpoolActivityCreateWithoutEntryInput[] | WarpoolActivityUncheckedCreateWithoutEntryInput[]
-    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutEntryInput | WarpoolActivityCreateOrConnectWithoutEntryInput[]
-    createMany?: WarpoolActivityCreateManyEntryInputEnvelope
-    connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-  }
-
   export type EnumWarpoolRelicTypeFieldUpdateOperationsInput = {
     set?: $Enums.WarpoolRelicType
   }
@@ -90411,42 +88324,18 @@ export namespace Prisma {
     set?: $Enums.WarpoolEntryStatus
   }
 
-  export type WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput = {
-    create?: XOR<WarpoolPoolCreateWithoutEntriesInput, WarpoolPoolUncheckedCreateWithoutEntriesInput>
-    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutEntriesInput
-    upsert?: WarpoolPoolUpsertWithoutEntriesInput
-    connect?: WarpoolPoolWhereUniqueInput
-    update?: XOR<XOR<WarpoolPoolUpdateToOneWithWhereWithoutEntriesInput, WarpoolPoolUpdateWithoutEntriesInput>, WarpoolPoolUncheckedUpdateWithoutEntriesInput>
-  }
-
-  export type UserUpdateOneWithoutWarpoolEntriesNestedInput = {
-    create?: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
-    connectOrCreate?: UserCreateOrConnectWithoutWarpoolEntriesInput
-    upsert?: UserUpsertWithoutWarpoolEntriesInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWarpoolEntriesInput, UserUpdateWithoutWarpoolEntriesInput>, UserUncheckedUpdateWithoutWarpoolEntriesInput>
-  }
-
-  export type NFTUpdateOneWithoutWarpoolEntriesNestedInput = {
-    create?: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
-    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolEntriesInput
-    upsert?: NFTUpsertWithoutWarpoolEntriesInput
-    disconnect?: NFTWhereInput | boolean
-    delete?: NFTWhereInput | boolean
-    connect?: NFTWhereUniqueInput
-    update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolEntriesInput, NFTUpdateWithoutWarpoolEntriesInput>, NFTUncheckedUpdateWithoutWarpoolEntriesInput>
-  }
-
-  export type WarpoolReservationUpdateOneWithoutEntryNestedInput = {
-    create?: XOR<WarpoolReservationCreateWithoutEntryInput, WarpoolReservationUncheckedCreateWithoutEntryInput>
-    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutEntryInput
-    upsert?: WarpoolReservationUpsertWithoutEntryInput
-    disconnect?: WarpoolReservationWhereInput | boolean
-    delete?: WarpoolReservationWhereInput | boolean
-    connect?: WarpoolReservationWhereUniqueInput
-    update?: XOR<XOR<WarpoolReservationUpdateToOneWithWhereWithoutEntryInput, WarpoolReservationUpdateWithoutEntryInput>, WarpoolReservationUncheckedUpdateWithoutEntryInput>
+  export type WarpoolActivityUpdateManyWithoutEntryNestedInput = {
+    create?: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput> | WarpoolActivityCreateWithoutEntryInput[] | WarpoolActivityUncheckedCreateWithoutEntryInput[]
+    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutEntryInput | WarpoolActivityCreateOrConnectWithoutEntryInput[]
+    upsert?: WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput | WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput[]
+    createMany?: WarpoolActivityCreateManyEntryInputEnvelope
+    set?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    disconnect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    delete?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    update?: WarpoolActivityUpdateWithWhereUniqueWithoutEntryInput | WarpoolActivityUpdateWithWhereUniqueWithoutEntryInput[]
+    updateMany?: WarpoolActivityUpdateManyWithWhereWithoutEntryInput | WarpoolActivityUpdateManyWithWhereWithoutEntryInput[]
+    deleteMany?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
   }
 
   export type WarpoolCaptureUpdateOneWithoutEntryNestedInput = {
@@ -90459,7 +88348,45 @@ export namespace Prisma {
     update?: XOR<XOR<WarpoolCaptureUpdateToOneWithWhereWithoutEntryInput, WarpoolCaptureUpdateWithoutEntryInput>, WarpoolCaptureUncheckedUpdateWithoutEntryInput>
   }
 
-  export type WarpoolActivityUpdateManyWithoutEntryNestedInput = {
+  export type NFTUpdateOneWithoutWarpoolEntriesNestedInput = {
+    create?: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
+    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolEntriesInput
+    upsert?: NFTUpsertWithoutWarpoolEntriesInput
+    disconnect?: NFTWhereInput | boolean
+    delete?: NFTWhereInput | boolean
+    connect?: NFTWhereUniqueInput
+    update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolEntriesInput, NFTUpdateWithoutWarpoolEntriesInput>, NFTUncheckedUpdateWithoutWarpoolEntriesInput>
+  }
+
+  export type WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput = {
+    create?: XOR<WarpoolPoolCreateWithoutEntriesInput, WarpoolPoolUncheckedCreateWithoutEntriesInput>
+    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutEntriesInput
+    upsert?: WarpoolPoolUpsertWithoutEntriesInput
+    connect?: WarpoolPoolWhereUniqueInput
+    update?: XOR<XOR<WarpoolPoolUpdateToOneWithWhereWithoutEntriesInput, WarpoolPoolUpdateWithoutEntriesInput>, WarpoolPoolUncheckedUpdateWithoutEntriesInput>
+  }
+
+  export type WarpoolReservationUpdateOneWithoutEntryNestedInput = {
+    create?: XOR<WarpoolReservationCreateWithoutEntryInput, WarpoolReservationUncheckedCreateWithoutEntryInput>
+    connectOrCreate?: WarpoolReservationCreateOrConnectWithoutEntryInput
+    upsert?: WarpoolReservationUpsertWithoutEntryInput
+    disconnect?: WarpoolReservationWhereInput | boolean
+    delete?: WarpoolReservationWhereInput | boolean
+    connect?: WarpoolReservationWhereUniqueInput
+    update?: XOR<XOR<WarpoolReservationUpdateToOneWithWhereWithoutEntryInput, WarpoolReservationUpdateWithoutEntryInput>, WarpoolReservationUncheckedUpdateWithoutEntryInput>
+  }
+
+  export type UserUpdateOneWithoutWarpoolEntriesNestedInput = {
+    create?: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutWarpoolEntriesInput
+    upsert?: UserUpsertWithoutWarpoolEntriesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWarpoolEntriesInput, UserUpdateWithoutWarpoolEntriesInput>, UserUncheckedUpdateWithoutWarpoolEntriesInput>
+  }
+
+  export type WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput = {
     create?: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput> | WarpoolActivityCreateWithoutEntryInput[] | WarpoolActivityUncheckedCreateWithoutEntryInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutEntryInput | WarpoolActivityCreateOrConnectWithoutEntryInput[]
     upsert?: WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput | WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput[]
@@ -90483,18 +88410,23 @@ export namespace Prisma {
     update?: XOR<XOR<WarpoolCaptureUpdateToOneWithWhereWithoutEntryInput, WarpoolCaptureUpdateWithoutEntryInput>, WarpoolCaptureUncheckedUpdateWithoutEntryInput>
   }
 
-  export type WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput = {
-    create?: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput> | WarpoolActivityCreateWithoutEntryInput[] | WarpoolActivityUncheckedCreateWithoutEntryInput[]
-    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutEntryInput | WarpoolActivityCreateOrConnectWithoutEntryInput[]
-    upsert?: WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput | WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput[]
-    createMany?: WarpoolActivityCreateManyEntryInputEnvelope
-    set?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    disconnect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    delete?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+  export type WarpoolActivityCreateNestedManyWithoutReservationInput = {
+    create?: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput> | WarpoolActivityCreateWithoutReservationInput[] | WarpoolActivityUncheckedCreateWithoutReservationInput[]
+    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutReservationInput | WarpoolActivityCreateOrConnectWithoutReservationInput[]
+    createMany?: WarpoolActivityCreateManyReservationInputEnvelope
     connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    update?: WarpoolActivityUpdateWithWhereUniqueWithoutEntryInput | WarpoolActivityUpdateWithWhereUniqueWithoutEntryInput[]
-    updateMany?: WarpoolActivityUpdateManyWithWhereWithoutEntryInput | WarpoolActivityUpdateManyWithWhereWithoutEntryInput[]
-    deleteMany?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
+  }
+
+  export type WarpoolEntryCreateNestedOneWithoutReservationInput = {
+    create?: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutReservationInput
+    connect?: WarpoolEntryWhereUniqueInput
+  }
+
+  export type NFTCreateNestedOneWithoutWarpoolReservationsInput = {
+    create?: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
+    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolReservationsInput
+    connect?: NFTWhereUniqueInput
   }
 
   export type WarpoolPoolCreateNestedOneWithoutReservationsInput = {
@@ -90509,19 +88441,7 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type NFTCreateNestedOneWithoutWarpoolReservationsInput = {
-    create?: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
-    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolReservationsInput
-    connect?: NFTWhereUniqueInput
-  }
-
-  export type WarpoolEntryCreateNestedOneWithoutReservationInput = {
-    create?: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutReservationInput
-    connect?: WarpoolEntryWhereUniqueInput
-  }
-
-  export type WarpoolActivityCreateNestedManyWithoutReservationInput = {
+  export type WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput = {
     create?: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput> | WarpoolActivityCreateWithoutReservationInput[] | WarpoolActivityUncheckedCreateWithoutReservationInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutReservationInput | WarpoolActivityCreateOrConnectWithoutReservationInput[]
     createMany?: WarpoolActivityCreateManyReservationInputEnvelope
@@ -90534,15 +88454,42 @@ export namespace Prisma {
     connect?: WarpoolEntryWhereUniqueInput
   }
 
-  export type WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput = {
-    create?: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput> | WarpoolActivityCreateWithoutReservationInput[] | WarpoolActivityUncheckedCreateWithoutReservationInput[]
-    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutReservationInput | WarpoolActivityCreateOrConnectWithoutReservationInput[]
-    createMany?: WarpoolActivityCreateManyReservationInputEnvelope
-    connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-  }
-
   export type EnumWarpoolReservationStatusFieldUpdateOperationsInput = {
     set?: $Enums.WarpoolReservationStatus
+  }
+
+  export type WarpoolActivityUpdateManyWithoutReservationNestedInput = {
+    create?: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput> | WarpoolActivityCreateWithoutReservationInput[] | WarpoolActivityUncheckedCreateWithoutReservationInput[]
+    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutReservationInput | WarpoolActivityCreateOrConnectWithoutReservationInput[]
+    upsert?: WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput | WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput[]
+    createMany?: WarpoolActivityCreateManyReservationInputEnvelope
+    set?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    disconnect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    delete?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
+    update?: WarpoolActivityUpdateWithWhereUniqueWithoutReservationInput | WarpoolActivityUpdateWithWhereUniqueWithoutReservationInput[]
+    updateMany?: WarpoolActivityUpdateManyWithWhereWithoutReservationInput | WarpoolActivityUpdateManyWithWhereWithoutReservationInput[]
+    deleteMany?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
+  }
+
+  export type WarpoolEntryUpdateOneWithoutReservationNestedInput = {
+    create?: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
+    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutReservationInput
+    upsert?: WarpoolEntryUpsertWithoutReservationInput
+    disconnect?: WarpoolEntryWhereInput | boolean
+    delete?: WarpoolEntryWhereInput | boolean
+    connect?: WarpoolEntryWhereUniqueInput
+    update?: XOR<XOR<WarpoolEntryUpdateToOneWithWhereWithoutReservationInput, WarpoolEntryUpdateWithoutReservationInput>, WarpoolEntryUncheckedUpdateWithoutReservationInput>
+  }
+
+  export type NFTUpdateOneWithoutWarpoolReservationsNestedInput = {
+    create?: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
+    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolReservationsInput
+    upsert?: NFTUpsertWithoutWarpoolReservationsInput
+    disconnect?: NFTWhereInput | boolean
+    delete?: NFTWhereInput | boolean
+    connect?: NFTWhereUniqueInput
+    update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolReservationsInput, NFTUpdateWithoutWarpoolReservationsInput>, NFTUncheckedUpdateWithoutWarpoolReservationsInput>
   }
 
   export type WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput = {
@@ -90563,27 +88510,7 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWarpoolReservationsInput, UserUpdateWithoutWarpoolReservationsInput>, UserUncheckedUpdateWithoutWarpoolReservationsInput>
   }
 
-  export type NFTUpdateOneWithoutWarpoolReservationsNestedInput = {
-    create?: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
-    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolReservationsInput
-    upsert?: NFTUpsertWithoutWarpoolReservationsInput
-    disconnect?: NFTWhereInput | boolean
-    delete?: NFTWhereInput | boolean
-    connect?: NFTWhereUniqueInput
-    update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolReservationsInput, NFTUpdateWithoutWarpoolReservationsInput>, NFTUncheckedUpdateWithoutWarpoolReservationsInput>
-  }
-
-  export type WarpoolEntryUpdateOneWithoutReservationNestedInput = {
-    create?: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
-    connectOrCreate?: WarpoolEntryCreateOrConnectWithoutReservationInput
-    upsert?: WarpoolEntryUpsertWithoutReservationInput
-    disconnect?: WarpoolEntryWhereInput | boolean
-    delete?: WarpoolEntryWhereInput | boolean
-    connect?: WarpoolEntryWhereUniqueInput
-    update?: XOR<XOR<WarpoolEntryUpdateToOneWithWhereWithoutReservationInput, WarpoolEntryUpdateWithoutReservationInput>, WarpoolEntryUncheckedUpdateWithoutReservationInput>
-  }
-
-  export type WarpoolActivityUpdateManyWithoutReservationNestedInput = {
+  export type WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput = {
     create?: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput> | WarpoolActivityCreateWithoutReservationInput[] | WarpoolActivityUncheckedCreateWithoutReservationInput[]
     connectOrCreate?: WarpoolActivityCreateOrConnectWithoutReservationInput | WarpoolActivityCreateOrConnectWithoutReservationInput[]
     upsert?: WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput | WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput[]
@@ -90605,20 +88532,6 @@ export namespace Prisma {
     delete?: WarpoolEntryWhereInput | boolean
     connect?: WarpoolEntryWhereUniqueInput
     update?: XOR<XOR<WarpoolEntryUpdateToOneWithWhereWithoutReservationInput, WarpoolEntryUpdateWithoutReservationInput>, WarpoolEntryUncheckedUpdateWithoutReservationInput>
-  }
-
-  export type WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput = {
-    create?: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput> | WarpoolActivityCreateWithoutReservationInput[] | WarpoolActivityUncheckedCreateWithoutReservationInput[]
-    connectOrCreate?: WarpoolActivityCreateOrConnectWithoutReservationInput | WarpoolActivityCreateOrConnectWithoutReservationInput[]
-    upsert?: WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput | WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput[]
-    createMany?: WarpoolActivityCreateManyReservationInputEnvelope
-    set?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    disconnect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    delete?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    connect?: WarpoolActivityWhereUniqueInput | WarpoolActivityWhereUniqueInput[]
-    update?: WarpoolActivityUpdateWithWhereUniqueWithoutReservationInput | WarpoolActivityUpdateWithWhereUniqueWithoutReservationInput[]
-    updateMany?: WarpoolActivityUpdateManyWithWhereWithoutReservationInput | WarpoolActivityUpdateManyWithWhereWithoutReservationInput[]
-    deleteMany?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
   }
 
   export type WarpoolPoolCreateNestedOneWithoutBattleInput = {
@@ -90765,16 +88678,22 @@ export namespace Prisma {
     update?: XOR<XOR<MarketplaceListingUpdateToOneWithWhereWithoutRelistCapturesInput, MarketplaceListingUpdateWithoutRelistCapturesInput>, MarketplaceListingUncheckedUpdateWithoutRelistCapturesInput>
   }
 
-  export type WarpoolPoolCreateNestedOneWithoutActivitiesInput = {
-    create?: XOR<WarpoolPoolCreateWithoutActivitiesInput, WarpoolPoolUncheckedCreateWithoutActivitiesInput>
-    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutActivitiesInput
-    connect?: WarpoolPoolWhereUniqueInput
-  }
-
   export type WarpoolEntryCreateNestedOneWithoutActivitiesInput = {
     create?: XOR<WarpoolEntryCreateWithoutActivitiesInput, WarpoolEntryUncheckedCreateWithoutActivitiesInput>
     connectOrCreate?: WarpoolEntryCreateOrConnectWithoutActivitiesInput
     connect?: WarpoolEntryWhereUniqueInput
+  }
+
+  export type NFTCreateNestedOneWithoutWarpoolActivitiesInput = {
+    create?: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
+    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolActivitiesInput
+    connect?: NFTWhereUniqueInput
+  }
+
+  export type WarpoolPoolCreateNestedOneWithoutActivitiesInput = {
+    create?: XOR<WarpoolPoolCreateWithoutActivitiesInput, WarpoolPoolUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutActivitiesInput
+    connect?: WarpoolPoolWhereUniqueInput
   }
 
   export type WarpoolReservationCreateNestedOneWithoutActivitiesInput = {
@@ -90789,24 +88708,8 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type NFTCreateNestedOneWithoutWarpoolActivitiesInput = {
-    create?: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
-    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolActivitiesInput
-    connect?: NFTWhereUniqueInput
-  }
-
   export type EnumWarpoolActivityTypeFieldUpdateOperationsInput = {
     set?: $Enums.WarpoolActivityType
-  }
-
-  export type WarpoolPoolUpdateOneWithoutActivitiesNestedInput = {
-    create?: XOR<WarpoolPoolCreateWithoutActivitiesInput, WarpoolPoolUncheckedCreateWithoutActivitiesInput>
-    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutActivitiesInput
-    upsert?: WarpoolPoolUpsertWithoutActivitiesInput
-    disconnect?: WarpoolPoolWhereInput | boolean
-    delete?: WarpoolPoolWhereInput | boolean
-    connect?: WarpoolPoolWhereUniqueInput
-    update?: XOR<XOR<WarpoolPoolUpdateToOneWithWhereWithoutActivitiesInput, WarpoolPoolUpdateWithoutActivitiesInput>, WarpoolPoolUncheckedUpdateWithoutActivitiesInput>
   }
 
   export type WarpoolEntryUpdateOneWithoutActivitiesNestedInput = {
@@ -90817,6 +88720,26 @@ export namespace Prisma {
     delete?: WarpoolEntryWhereInput | boolean
     connect?: WarpoolEntryWhereUniqueInput
     update?: XOR<XOR<WarpoolEntryUpdateToOneWithWhereWithoutActivitiesInput, WarpoolEntryUpdateWithoutActivitiesInput>, WarpoolEntryUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type NFTUpdateOneWithoutWarpoolActivitiesNestedInput = {
+    create?: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
+    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolActivitiesInput
+    upsert?: NFTUpsertWithoutWarpoolActivitiesInput
+    disconnect?: NFTWhereInput | boolean
+    delete?: NFTWhereInput | boolean
+    connect?: NFTWhereUniqueInput
+    update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolActivitiesInput, NFTUpdateWithoutWarpoolActivitiesInput>, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
+  }
+
+  export type WarpoolPoolUpdateOneWithoutActivitiesNestedInput = {
+    create?: XOR<WarpoolPoolCreateWithoutActivitiesInput, WarpoolPoolUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: WarpoolPoolCreateOrConnectWithoutActivitiesInput
+    upsert?: WarpoolPoolUpsertWithoutActivitiesInput
+    disconnect?: WarpoolPoolWhereInput | boolean
+    delete?: WarpoolPoolWhereInput | boolean
+    connect?: WarpoolPoolWhereUniqueInput
+    update?: XOR<XOR<WarpoolPoolUpdateToOneWithWhereWithoutActivitiesInput, WarpoolPoolUpdateWithoutActivitiesInput>, WarpoolPoolUncheckedUpdateWithoutActivitiesInput>
   }
 
   export type WarpoolReservationUpdateOneWithoutActivitiesNestedInput = {
@@ -90839,22 +88762,6 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWarpoolActivitiesInput, UserUpdateWithoutWarpoolActivitiesInput>, UserUncheckedUpdateWithoutWarpoolActivitiesInput>
   }
 
-  export type NFTUpdateOneWithoutWarpoolActivitiesNestedInput = {
-    create?: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
-    connectOrCreate?: NFTCreateOrConnectWithoutWarpoolActivitiesInput
-    upsert?: NFTUpsertWithoutWarpoolActivitiesInput
-    disconnect?: NFTWhereInput | boolean
-    delete?: NFTWhereInput | boolean
-    connect?: NFTWhereUniqueInput
-    update?: XOR<XOR<NFTUpdateToOneWithWhereWithoutWarpoolActivitiesInput, NFTUpdateWithoutWarpoolActivitiesInput>, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
-  }
-
-  export type MultisigSafeCreateNestedOneWithoutAdminProposalsInput = {
-    create?: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
-    connectOrCreate?: MultisigSafeCreateOrConnectWithoutAdminProposalsInput
-    connect?: MultisigSafeWhereUniqueInput
-  }
-
   export type UserCreateNestedOneWithoutAdminProposalsCreatedInput = {
     create?: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
     connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsCreatedInput
@@ -90865,6 +88772,12 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
     connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsEditedInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type MultisigSafeCreateNestedOneWithoutAdminProposalsInput = {
+    create?: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
+    connectOrCreate?: MultisigSafeCreateOrConnectWithoutAdminProposalsInput
+    connect?: MultisigSafeWhereUniqueInput
   }
 
   export type MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput = {
@@ -90921,16 +88834,6 @@ export namespace Prisma {
     set?: $Enums.AdminProposalStatus
   }
 
-  export type MultisigSafeUpdateOneWithoutAdminProposalsNestedInput = {
-    create?: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
-    connectOrCreate?: MultisigSafeCreateOrConnectWithoutAdminProposalsInput
-    upsert?: MultisigSafeUpsertWithoutAdminProposalsInput
-    disconnect?: MultisigSafeWhereInput | boolean
-    delete?: MultisigSafeWhereInput | boolean
-    connect?: MultisigSafeWhereUniqueInput
-    update?: XOR<XOR<MultisigSafeUpdateToOneWithWhereWithoutAdminProposalsInput, MultisigSafeUpdateWithoutAdminProposalsInput>, MultisigSafeUncheckedUpdateWithoutAdminProposalsInput>
-  }
-
   export type UserUpdateOneWithoutAdminProposalsCreatedNestedInput = {
     create?: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
     connectOrCreate?: UserCreateOrConnectWithoutAdminProposalsCreatedInput
@@ -90949,6 +88852,16 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminProposalsEditedInput, UserUpdateWithoutAdminProposalsEditedInput>, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
+  }
+
+  export type MultisigSafeUpdateOneWithoutAdminProposalsNestedInput = {
+    create?: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
+    connectOrCreate?: MultisigSafeCreateOrConnectWithoutAdminProposalsInput
+    upsert?: MultisigSafeUpsertWithoutAdminProposalsInput
+    disconnect?: MultisigSafeWhereInput | boolean
+    delete?: MultisigSafeWhereInput | boolean
+    connect?: MultisigSafeWhereUniqueInput
+    update?: XOR<XOR<MultisigSafeUpdateToOneWithWhereWithoutAdminProposalsInput, MultisigSafeUpdateWithoutAdminProposalsInput>, MultisigSafeUncheckedUpdateWithoutAdminProposalsInput>
   }
 
   export type MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput = {
@@ -91035,24 +88948,16 @@ export namespace Prisma {
     update?: XOR<XOR<AdminProposalUpdateToOneWithWhereWithoutActionsInput, AdminProposalUpdateWithoutActionsInput>, AdminProposalUncheckedUpdateWithoutActionsInput>
   }
 
-  export type AdminProposalCreateNestedOneWithoutEventsInput = {
-    create?: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
-    connectOrCreate?: AdminProposalCreateOrConnectWithoutEventsInput
-    connect?: AdminProposalWhereUniqueInput
-  }
-
   export type UserCreateNestedOneWithoutAdminProposalEventsInput = {
     create?: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAdminProposalEventsInput
     connect?: UserWhereUniqueInput
   }
 
-  export type AdminProposalUpdateOneRequiredWithoutEventsNestedInput = {
+  export type AdminProposalCreateNestedOneWithoutEventsInput = {
     create?: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
     connectOrCreate?: AdminProposalCreateOrConnectWithoutEventsInput
-    upsert?: AdminProposalUpsertWithoutEventsInput
     connect?: AdminProposalWhereUniqueInput
-    update?: XOR<XOR<AdminProposalUpdateToOneWithWhereWithoutEventsInput, AdminProposalUpdateWithoutEventsInput>, AdminProposalUncheckedUpdateWithoutEventsInput>
   }
 
   export type UserUpdateOneWithoutAdminProposalEventsNestedInput = {
@@ -91063,6 +88968,14 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdminProposalEventsInput, UserUpdateWithoutAdminProposalEventsInput>, UserUncheckedUpdateWithoutAdminProposalEventsInput>
+  }
+
+  export type AdminProposalUpdateOneRequiredWithoutEventsNestedInput = {
+    create?: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: AdminProposalCreateOrConnectWithoutEventsInput
+    upsert?: AdminProposalUpsertWithoutEventsInput
+    connect?: AdminProposalWhereUniqueInput
+    update?: XOR<XOR<AdminProposalUpdateToOneWithWhereWithoutEventsInput, AdminProposalUpdateWithoutEventsInput>, AdminProposalUncheckedUpdateWithoutEventsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -91518,23 +89431,6 @@ export namespace Prisma {
     _max?: NestedEnumDraftStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumSubmissionStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubmissionStatus | EnumSubmissionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubmissionStatusFilter<$PrismaModel> | $Enums.SubmissionStatus
-  }
-
-  export type NestedEnumSubmissionStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubmissionStatus | EnumSubmissionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubmissionStatus[] | ListEnumSubmissionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubmissionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubmissionStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumSubmissionStatusFilter<$PrismaModel>
-    _max?: NestedEnumSubmissionStatusFilter<$PrismaModel>
-  }
-
   export type NestedEnumCurrencyKindFilter<$PrismaModel = never> = {
     equals?: $Enums.CurrencyKind | EnumCurrencyKindFieldRefInput<$PrismaModel>
     in?: $Enums.CurrencyKind[] | ListEnumCurrencyKindFieldRefInput<$PrismaModel>
@@ -91946,536 +89842,6 @@ export namespace Prisma {
     _max?: NestedEnumAdminProposalActionStatusFilter<$PrismaModel>
   }
 
-  export type CollectionCreateWithoutCreatorInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
-    deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
-    nfts?: NFTCreateNestedManyWithoutCollectionInput
-    presale?: PresaleCreateNestedOneWithoutCollectionInput
-    publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
-  }
-
-  export type CollectionUncheckedCreateWithoutCreatorInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
-    deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
-    nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
-    presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
-    publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
-  }
-
-  export type CollectionCreateOrConnectWithoutCreatorInput = {
-    where: CollectionWhereUniqueInput
-    create: XOR<CollectionCreateWithoutCreatorInput, CollectionUncheckedCreateWithoutCreatorInput>
-  }
-
-  export type CollectionCreateManyCreatorInputEnvelope = {
-    data: CollectionCreateManyCreatorInput | CollectionCreateManyCreatorInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type CollectionSubmissionCreateWithoutSubmittedByInput = {
-    id?: string
-    contract: string
-    ownerAddress?: string | null
-    name?: string | null
-    symbol?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    baseUri?: string | null
-    supply?: number | null
-    description?: string | null
-    website?: string | null
-    x?: string | null
-    instagram?: string | null
-    telegram?: string | null
-    feeTxHash?: string | null
-    feePaidWei?: Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: Date | string | null
-    ownershipVerified?: boolean
-    status?: $Enums.SubmissionStatus
-    statusReason?: string | null
-    reviewedByUserId?: string | null
-    reviewedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionSubmissionUncheckedCreateWithoutSubmittedByInput = {
-    id?: string
-    contract: string
-    ownerAddress?: string | null
-    name?: string | null
-    symbol?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    baseUri?: string | null
-    supply?: number | null
-    description?: string | null
-    website?: string | null
-    x?: string | null
-    instagram?: string | null
-    telegram?: string | null
-    feeTxHash?: string | null
-    feePaidWei?: Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: Date | string | null
-    ownershipVerified?: boolean
-    status?: $Enums.SubmissionStatus
-    statusReason?: string | null
-    reviewedByUserId?: string | null
-    reviewedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionSubmissionCreateOrConnectWithoutSubmittedByInput = {
-    where: CollectionSubmissionWhereUniqueInput
-    create: XOR<CollectionSubmissionCreateWithoutSubmittedByInput, CollectionSubmissionUncheckedCreateWithoutSubmittedByInput>
-  }
-
-  export type CollectionSubmissionCreateManySubmittedByInputEnvelope = {
-    data: CollectionSubmissionCreateManySubmittedByInput | CollectionSubmissionCreateManySubmittedByInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type HolderRewardMultiCreateWithoutUserInput = {
-    id?: string
-    walletAddress: string
-    lastAccPerToken?: Decimal | DecimalJsLike | number | string
-    claimedAmount?: Decimal | DecimalJsLike | number | string
-    updatedAt?: Date | string
-    currency: CurrencyCreateNestedOneWithoutHolderRewardsInput
-  }
-
-  export type HolderRewardMultiUncheckedCreateWithoutUserInput = {
-    id?: string
-    walletAddress: string
-    currencyId: string
-    lastAccPerToken?: Decimal | DecimalJsLike | number | string
-    claimedAmount?: Decimal | DecimalJsLike | number | string
-    updatedAt?: Date | string
-  }
-
-  export type HolderRewardMultiCreateOrConnectWithoutUserInput = {
-    where: HolderRewardMultiWhereUniqueInput
-    create: XOR<HolderRewardMultiCreateWithoutUserInput, HolderRewardMultiUncheckedCreateWithoutUserInput>
-  }
-
-  export type HolderRewardMultiCreateManyUserInputEnvelope = {
-    data: HolderRewardMultiCreateManyUserInput | HolderRewardMultiCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type NFTCreateWithoutOwnerInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
-    collection?: CollectionCreateNestedOneWithoutNftsInput
-    single1155?: Single1155CreateNestedOneWithoutNftsInput
-    single721?: Single721CreateNestedOneWithoutNftsInput
-    activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
-  }
-
-  export type NFTUncheckedCreateWithoutOwnerInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    collectionId?: string | null
-    single721Id?: string | null
-    single1155Id?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
-    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
-  }
-
-  export type NFTCreateOrConnectWithoutOwnerInput = {
-    where: NFTWhereUniqueInput
-    create: XOR<NFTCreateWithoutOwnerInput, NFTUncheckedCreateWithoutOwnerInput>
-  }
-
-  export type NFTCreateManyOwnerInputEnvelope = {
-    data: NFTCreateManyOwnerInput | NFTCreateManyOwnerInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type RewardClaimLogCreateWithoutUserInput = {
-    id?: string
-    walletAddress: string
-    amount: Decimal | DecimalJsLike | number | string
-    txHash?: string | null
-    timestamp?: Date | string
-    currency: CurrencyCreateNestedOneWithoutClaimLogsInput
-  }
-
-  export type RewardClaimLogUncheckedCreateWithoutUserInput = {
-    id?: string
-    walletAddress: string
-    currencyId: string
-    amount: Decimal | DecimalJsLike | number | string
-    txHash?: string | null
-    timestamp?: Date | string
-  }
-
-  export type RewardClaimLogCreateOrConnectWithoutUserInput = {
-    where: RewardClaimLogWhereUniqueInput
-    create: XOR<RewardClaimLogCreateWithoutUserInput, RewardClaimLogUncheckedCreateWithoutUserInput>
-  }
-
-  export type RewardClaimLogCreateManyUserInputEnvelope = {
-    data: RewardClaimLogCreateManyUserInput | RewardClaimLogCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type StolenItemCreateWithoutReporterInput = {
-    id?: string
-    contract: string
-    tokenId: string
-    status?: $Enums.StolenStatus
-    source?: $Enums.StolenSource
-    reporterAddress?: string | null
-    evidenceUrl?: string | null
-    notes?: string | null
-    disputed?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type StolenItemUncheckedCreateWithoutReporterInput = {
-    id?: string
-    contract: string
-    tokenId: string
-    status?: $Enums.StolenStatus
-    source?: $Enums.StolenSource
-    reporterAddress?: string | null
-    evidenceUrl?: string | null
-    notes?: string | null
-    disputed?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type StolenItemCreateOrConnectWithoutReporterInput = {
-    where: StolenItemWhereUniqueInput
-    create: XOR<StolenItemCreateWithoutReporterInput, StolenItemUncheckedCreateWithoutReporterInput>
-  }
-
-  export type StolenItemCreateManyReporterInputEnvelope = {
-    data: StolenItemCreateManyReporterInput | StolenItemCreateManyReporterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WarpoolEntryCreateWithoutUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
-    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryUncheckedCreateWithoutUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    poolId: string
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    reservationId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryCreateOrConnectWithoutUserInput = {
-    where: WarpoolEntryWhereUniqueInput
-    create: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput>
-  }
-
-  export type WarpoolEntryCreateManyUserInputEnvelope = {
-    data: WarpoolEntryCreateManyUserInput | WarpoolEntryCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WarpoolReservationCreateWithoutUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
-    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
-    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
-  }
-
-  export type WarpoolReservationUncheckedCreateWithoutUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    poolId: string
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
-  }
-
-  export type WarpoolReservationCreateOrConnectWithoutUserInput = {
-    where: WarpoolReservationWhereUniqueInput
-    create: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput>
-  }
-
-  export type WarpoolReservationCreateManyUserInputEnvelope = {
-    data: WarpoolReservationCreateManyUserInput | WarpoolReservationCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WarpoolActivityCreateWithoutUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    userAddress?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
-    entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
-  }
-
-  export type WarpoolActivityUncheckedCreateWithoutUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    poolId?: string | null
-    entryId?: string | null
-    reservationId?: string | null
-    userAddress?: string | null
-    nftId?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type WarpoolActivityCreateOrConnectWithoutUserInput = {
-    where: WarpoolActivityWhereUniqueInput
-    create: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput>
-  }
-
-  export type WarpoolActivityCreateManyUserInputEnvelope = {
-    data: WarpoolActivityCreateManyUserInput | WarpoolActivityCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WarpoolCaptureCreateWithoutOriginalOwnerInput = {
-    id?: string
-    contract: string
-    tokenId: string
-    originalOwnerAddress: string
-    capturedAt: Date | string
-    status?: $Enums.WarpoolCaptureStatus
-    relistStatus?: $Enums.WarpoolRelistStatus
-    notes?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    entry: WarpoolEntryCreateNestedOneWithoutCaptureInput
-    nft?: NFTCreateNestedOneWithoutWarpoolCapturesInput
-    relistListing?: MarketplaceListingCreateNestedOneWithoutRelistCapturesInput
-  }
-
-  export type WarpoolCaptureUncheckedCreateWithoutOriginalOwnerInput = {
-    id?: string
-    entryId: string
-    nftId?: string | null
-    contract: string
-    tokenId: string
-    originalOwnerAddress: string
-    capturedAt: Date | string
-    status?: $Enums.WarpoolCaptureStatus
-    relistStatus?: $Enums.WarpoolRelistStatus
-    relistListingId?: string | null
-    notes?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WarpoolCaptureCreateOrConnectWithoutOriginalOwnerInput = {
-    where: WarpoolCaptureWhereUniqueInput
-    create: XOR<WarpoolCaptureCreateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedCreateWithoutOriginalOwnerInput>
-  }
-
-  export type WarpoolCaptureCreateManyOriginalOwnerInputEnvelope = {
-    data: WarpoolCaptureCreateManyOriginalOwnerInput | WarpoolCaptureCreateManyOriginalOwnerInput[]
-    skipDuplicates?: boolean
-  }
-
   export type AdminProposalCreateWithoutCreatedByUserInput = {
     id?: string
     area: $Enums.AdminProposalArea
@@ -92502,8 +89868,8 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
     actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
     events?: AdminProposalEventCreateNestedManyWithoutProposalInput
@@ -92578,8 +89944,8 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
     actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
     events?: AdminProposalEventCreateNestedManyWithoutProposalInput
@@ -92658,6 +90024,569 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CollectionCreateWithoutCreatorInput = {
+    id?: string
+    name: string
+    symbol: string
+    contract: string
+    description?: string | null
+    logoUrl?: string | null
+    coverUrl?: string | null
+    standard?: string
+    supply?: number | null
+    baseUri?: string | null
+    gatewayPref?: $Enums.GatewayPref
+    indexStatus?: $Enums.IndexStatus
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    discord?: string | null
+    telegram?: string | null
+    floorPrice?: number
+    volume?: number
+    itemsCount?: number
+    ownersCount?: number
+    change24h?: number
+    ownerAddress: string
+    isOrphan?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assetUploads?: AssetUploadCreateNestedManyWithoutCollectionInput
+    deployment?: DeployedContractCreateNestedOneWithoutCollectionInput
+    nfts?: NFTCreateNestedManyWithoutCollectionInput
+    presale?: PresaleCreateNestedOneWithoutCollectionInput
+    publicSale?: PublicSaleCreateNestedOneWithoutCollectionInput
+  }
+
+  export type CollectionUncheckedCreateWithoutCreatorInput = {
+    id?: string
+    name: string
+    symbol: string
+    contract: string
+    description?: string | null
+    logoUrl?: string | null
+    coverUrl?: string | null
+    standard?: string
+    supply?: number | null
+    baseUri?: string | null
+    gatewayPref?: $Enums.GatewayPref
+    indexStatus?: $Enums.IndexStatus
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    discord?: string | null
+    telegram?: string | null
+    floorPrice?: number
+    volume?: number
+    itemsCount?: number
+    ownersCount?: number
+    change24h?: number
+    ownerAddress: string
+    isOrphan?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    assetUploads?: AssetUploadUncheckedCreateNestedManyWithoutCollectionInput
+    deployment?: DeployedContractUncheckedCreateNestedOneWithoutCollectionInput
+    nfts?: NFTUncheckedCreateNestedManyWithoutCollectionInput
+    presale?: PresaleUncheckedCreateNestedOneWithoutCollectionInput
+    publicSale?: PublicSaleUncheckedCreateNestedOneWithoutCollectionInput
+  }
+
+  export type CollectionCreateOrConnectWithoutCreatorInput = {
+    where: CollectionWhereUniqueInput
+    create: XOR<CollectionCreateWithoutCreatorInput, CollectionUncheckedCreateWithoutCreatorInput>
+  }
+
+  export type CollectionCreateManyCreatorInputEnvelope = {
+    data: CollectionCreateManyCreatorInput | CollectionCreateManyCreatorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type HolderRewardMultiCreateWithoutUserInput = {
+    id?: string
+    walletAddress: string
+    lastAccPerToken?: Decimal | DecimalJsLike | number | string
+    claimedAmount?: Decimal | DecimalJsLike | number | string
+    updatedAt?: Date | string
+    currency: CurrencyCreateNestedOneWithoutHolderRewardsInput
+  }
+
+  export type HolderRewardMultiUncheckedCreateWithoutUserInput = {
+    id?: string
+    walletAddress: string
+    currencyId: string
+    lastAccPerToken?: Decimal | DecimalJsLike | number | string
+    claimedAmount?: Decimal | DecimalJsLike | number | string
+    updatedAt?: Date | string
+  }
+
+  export type HolderRewardMultiCreateOrConnectWithoutUserInput = {
+    where: HolderRewardMultiWhereUniqueInput
+    create: XOR<HolderRewardMultiCreateWithoutUserInput, HolderRewardMultiUncheckedCreateWithoutUserInput>
+  }
+
+  export type HolderRewardMultiCreateManyUserInputEnvelope = {
+    data: HolderRewardMultiCreateManyUserInput | HolderRewardMultiCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NFTCreateWithoutOwnerInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
+    collection?: CollectionCreateNestedOneWithoutNftsInput
+    single1155?: Single1155CreateNestedOneWithoutNftsInput
+    single721?: Single721CreateNestedOneWithoutNftsInput
+    activities?: NFTActivityCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTUncheckedCreateWithoutOwnerInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    collectionId?: string | null
+    single721Id?: string | null
+    single1155Id?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
+    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTCreateOrConnectWithoutOwnerInput = {
+    where: NFTWhereUniqueInput
+    create: XOR<NFTCreateWithoutOwnerInput, NFTUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type NFTCreateManyOwnerInputEnvelope = {
+    data: NFTCreateManyOwnerInput | NFTCreateManyOwnerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type RewardClaimLogCreateWithoutUserInput = {
+    id?: string
+    walletAddress: string
+    amount: Decimal | DecimalJsLike | number | string
+    txHash?: string | null
+    timestamp?: Date | string
+    currency: CurrencyCreateNestedOneWithoutClaimLogsInput
+  }
+
+  export type RewardClaimLogUncheckedCreateWithoutUserInput = {
+    id?: string
+    walletAddress: string
+    currencyId: string
+    amount: Decimal | DecimalJsLike | number | string
+    txHash?: string | null
+    timestamp?: Date | string
+  }
+
+  export type RewardClaimLogCreateOrConnectWithoutUserInput = {
+    where: RewardClaimLogWhereUniqueInput
+    create: XOR<RewardClaimLogCreateWithoutUserInput, RewardClaimLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type RewardClaimLogCreateManyUserInputEnvelope = {
+    data: RewardClaimLogCreateManyUserInput | RewardClaimLogCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StolenItemCreateWithoutReporterInput = {
+    id?: string
+    contract: string
+    tokenId: string
+    status?: $Enums.StolenStatus
+    source?: $Enums.StolenSource
+    reporterAddress?: string | null
+    evidenceUrl?: string | null
+    notes?: string | null
+    disputed?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StolenItemUncheckedCreateWithoutReporterInput = {
+    id?: string
+    contract: string
+    tokenId: string
+    status?: $Enums.StolenStatus
+    source?: $Enums.StolenSource
+    reporterAddress?: string | null
+    evidenceUrl?: string | null
+    notes?: string | null
+    disputed?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StolenItemCreateOrConnectWithoutReporterInput = {
+    where: StolenItemWhereUniqueInput
+    create: XOR<StolenItemCreateWithoutReporterInput, StolenItemUncheckedCreateWithoutReporterInput>
+  }
+
+  export type StolenItemCreateManyReporterInputEnvelope = {
+    data: StolenItemCreateManyReporterInput | StolenItemCreateManyReporterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolActivityCreateWithoutUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    userAddress?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
+    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
+    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type WarpoolActivityUncheckedCreateWithoutUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    poolId?: string | null
+    entryId?: string | null
+    reservationId?: string | null
+    userAddress?: string | null
+    nftId?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type WarpoolActivityCreateOrConnectWithoutUserInput = {
+    where: WarpoolActivityWhereUniqueInput
+    create: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput>
+  }
+
+  export type WarpoolActivityCreateManyUserInputEnvelope = {
+    data: WarpoolActivityCreateManyUserInput | WarpoolActivityCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolCaptureCreateWithoutOriginalOwnerInput = {
+    id?: string
+    contract: string
+    tokenId: string
+    originalOwnerAddress: string
+    capturedAt: Date | string
+    status?: $Enums.WarpoolCaptureStatus
+    relistStatus?: $Enums.WarpoolRelistStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    entry: WarpoolEntryCreateNestedOneWithoutCaptureInput
+    nft?: NFTCreateNestedOneWithoutWarpoolCapturesInput
+    relistListing?: MarketplaceListingCreateNestedOneWithoutRelistCapturesInput
+  }
+
+  export type WarpoolCaptureUncheckedCreateWithoutOriginalOwnerInput = {
+    id?: string
+    entryId: string
+    nftId?: string | null
+    contract: string
+    tokenId: string
+    originalOwnerAddress: string
+    capturedAt: Date | string
+    status?: $Enums.WarpoolCaptureStatus
+    relistStatus?: $Enums.WarpoolRelistStatus
+    relistListingId?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WarpoolCaptureCreateOrConnectWithoutOriginalOwnerInput = {
+    where: WarpoolCaptureWhereUniqueInput
+    create: XOR<WarpoolCaptureCreateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedCreateWithoutOriginalOwnerInput>
+  }
+
+  export type WarpoolCaptureCreateManyOriginalOwnerInputEnvelope = {
+    data: WarpoolCaptureCreateManyOriginalOwnerInput | WarpoolCaptureCreateManyOriginalOwnerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolEntryCreateWithoutUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
+    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
+    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
+  }
+
+  export type WarpoolEntryUncheckedCreateWithoutUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    poolId: string
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    reservationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
+  }
+
+  export type WarpoolEntryCreateOrConnectWithoutUserInput = {
+    where: WarpoolEntryWhereUniqueInput
+    create: XOR<WarpoolEntryCreateWithoutUserInput, WarpoolEntryUncheckedCreateWithoutUserInput>
+  }
+
+  export type WarpoolEntryCreateManyUserInputEnvelope = {
+    data: WarpoolEntryCreateManyUserInput | WarpoolEntryCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolReservationCreateWithoutUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
+    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
+    pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
+  }
+
+  export type WarpoolReservationUncheckedCreateWithoutUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    poolId: string
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type WarpoolReservationCreateOrConnectWithoutUserInput = {
+    where: WarpoolReservationWhereUniqueInput
+    create: XOR<WarpoolReservationCreateWithoutUserInput, WarpoolReservationUncheckedCreateWithoutUserInput>
+  }
+
+  export type WarpoolReservationCreateManyUserInputEnvelope = {
+    data: WarpoolReservationCreateManyUserInput | WarpoolReservationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutCreatedByUserInput, AdminProposalUncheckedUpdateWithoutCreatedByUserInput>
+    create: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutCreatedByUserInput, AdminProposalUncheckedUpdateWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutCreatedByUserInput>
+  }
+
+  export type AdminProposalScalarWhereInput = {
+    AND?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+    OR?: AdminProposalScalarWhereInput[]
+    NOT?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
+    id?: StringFilter<"AdminProposal"> | string
+    area?: EnumAdminProposalAreaFilter<"AdminProposal"> | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFilter<"AdminProposal"> | $Enums.AdminProposalKind
+    title?: StringFilter<"AdminProposal"> | string
+    slug?: StringNullableFilter<"AdminProposal"> | string | null
+    summary?: StringNullableFilter<"AdminProposal"> | string | null
+    description?: StringNullableFilter<"AdminProposal"> | string | null
+    safeId?: StringNullableFilter<"AdminProposal"> | string | null
+    safeContract?: StringNullableFilter<"AdminProposal"> | string | null
+    chainId?: IntNullableFilter<"AdminProposal"> | number | null
+    createdByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    createdByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByUserId?: StringNullableFilter<"AdminProposal"> | string | null
+    lastEditedByAddress?: StringNullableFilter<"AdminProposal"> | string | null
+    basedOnConfigVersion?: BigIntNullableFilter<"AdminProposal"> | bigint | number | null
+    runtimeReferenceId?: StringNullableFilter<"AdminProposal"> | string | null
+    status?: EnumAdminProposalStatusFilter<"AdminProposal"> | $Enums.AdminProposalStatus
+    actionCount?: IntFilter<"AdminProposal"> | number
+    submittedMultisigTxId?: StringNullableFilter<"AdminProposal"> | string | null
+    submittedMultisigNonce?: IntNullableFilter<"AdminProposal"> | number | null
+    submittedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    approvedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    executedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
+    snapshotJson?: JsonNullableFilter<"AdminProposal">
+    metadataJson?: JsonNullableFilter<"AdminProposal">
+    createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
+    updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
+  }
+
+  export type AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutLastEditedByUserInput, AdminProposalUncheckedUpdateWithoutLastEditedByUserInput>
+    create: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutLastEditedByUserInput, AdminProposalUncheckedUpdateWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutLastEditedByUserInput>
+  }
+
+  export type AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput = {
+    where: AdminProposalEventWhereUniqueInput
+    update: XOR<AdminProposalEventUpdateWithoutActorUserInput, AdminProposalEventUncheckedUpdateWithoutActorUserInput>
+    create: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput = {
+    where: AdminProposalEventWhereUniqueInput
+    data: XOR<AdminProposalEventUpdateWithoutActorUserInput, AdminProposalEventUncheckedUpdateWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventUpdateManyWithWhereWithoutActorUserInput = {
+    where: AdminProposalEventScalarWhereInput
+    data: XOR<AdminProposalEventUpdateManyMutationInput, AdminProposalEventUncheckedUpdateManyWithoutActorUserInput>
+  }
+
+  export type AdminProposalEventScalarWhereInput = {
+    AND?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+    OR?: AdminProposalEventScalarWhereInput[]
+    NOT?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
+    id?: StringFilter<"AdminProposalEvent"> | string
+    proposalId?: StringFilter<"AdminProposalEvent"> | string
+    actorUserId?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    actorAddress?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    type?: StringFilter<"AdminProposalEvent"> | string
+    note?: StringNullableFilter<"AdminProposalEvent"> | string | null
+    payloadJson?: JsonNullableFilter<"AdminProposalEvent">
+    createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
+  }
+
   export type CollectionUpsertWithWhereUniqueWithoutCreatorInput = {
     where: CollectionWhereUniqueInput
     update: XOR<CollectionUpdateWithoutCreatorInput, CollectionUncheckedUpdateWithoutCreatorInput>
@@ -92705,53 +90634,6 @@ export namespace Prisma {
     isOrphan?: BoolFilter<"Collection"> | boolean
     createdAt?: DateTimeFilter<"Collection"> | Date | string
     updatedAt?: DateTimeFilter<"Collection"> | Date | string
-  }
-
-  export type CollectionSubmissionUpsertWithWhereUniqueWithoutSubmittedByInput = {
-    where: CollectionSubmissionWhereUniqueInput
-    update: XOR<CollectionSubmissionUpdateWithoutSubmittedByInput, CollectionSubmissionUncheckedUpdateWithoutSubmittedByInput>
-    create: XOR<CollectionSubmissionCreateWithoutSubmittedByInput, CollectionSubmissionUncheckedCreateWithoutSubmittedByInput>
-  }
-
-  export type CollectionSubmissionUpdateWithWhereUniqueWithoutSubmittedByInput = {
-    where: CollectionSubmissionWhereUniqueInput
-    data: XOR<CollectionSubmissionUpdateWithoutSubmittedByInput, CollectionSubmissionUncheckedUpdateWithoutSubmittedByInput>
-  }
-
-  export type CollectionSubmissionUpdateManyWithWhereWithoutSubmittedByInput = {
-    where: CollectionSubmissionScalarWhereInput
-    data: XOR<CollectionSubmissionUpdateManyMutationInput, CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByInput>
-  }
-
-  export type CollectionSubmissionScalarWhereInput = {
-    AND?: CollectionSubmissionScalarWhereInput | CollectionSubmissionScalarWhereInput[]
-    OR?: CollectionSubmissionScalarWhereInput[]
-    NOT?: CollectionSubmissionScalarWhereInput | CollectionSubmissionScalarWhereInput[]
-    id?: StringFilter<"CollectionSubmission"> | string
-    submittedByUserId?: StringFilter<"CollectionSubmission"> | string
-    contract?: StringFilter<"CollectionSubmission"> | string
-    ownerAddress?: StringNullableFilter<"CollectionSubmission"> | string | null
-    name?: StringNullableFilter<"CollectionSubmission"> | string | null
-    symbol?: StringNullableFilter<"CollectionSubmission"> | string | null
-    logoUrl?: StringNullableFilter<"CollectionSubmission"> | string | null
-    coverUrl?: StringNullableFilter<"CollectionSubmission"> | string | null
-    baseUri?: StringNullableFilter<"CollectionSubmission"> | string | null
-    supply?: IntNullableFilter<"CollectionSubmission"> | number | null
-    description?: StringNullableFilter<"CollectionSubmission"> | string | null
-    website?: StringNullableFilter<"CollectionSubmission"> | string | null
-    x?: StringNullableFilter<"CollectionSubmission"> | string | null
-    instagram?: StringNullableFilter<"CollectionSubmission"> | string | null
-    telegram?: StringNullableFilter<"CollectionSubmission"> | string | null
-    feeTxHash?: StringNullableFilter<"CollectionSubmission"> | string | null
-    feePaidWei?: DecimalNullableFilter<"CollectionSubmission"> | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: DateTimeNullableFilter<"CollectionSubmission"> | Date | string | null
-    ownershipVerified?: BoolFilter<"CollectionSubmission"> | boolean
-    status?: EnumSubmissionStatusFilter<"CollectionSubmission"> | $Enums.SubmissionStatus
-    statusReason?: StringNullableFilter<"CollectionSubmission"> | string | null
-    reviewedByUserId?: StringNullableFilter<"CollectionSubmission"> | string | null
-    reviewedAt?: DateTimeNullableFilter<"CollectionSubmission"> | Date | string | null
-    createdAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
-    updatedAt?: DateTimeFilter<"CollectionSubmission"> | Date | string
   }
 
   export type HolderRewardMultiUpsertWithWhereUniqueWithoutUserInput = {
@@ -92890,6 +90772,80 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"StolenItem"> | Date | string
   }
 
+  export type WarpoolActivityUpsertWithWhereUniqueWithoutUserInput = {
+    where: WarpoolActivityWhereUniqueInput
+    update: XOR<WarpoolActivityUpdateWithoutUserInput, WarpoolActivityUncheckedUpdateWithoutUserInput>
+    create: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput>
+  }
+
+  export type WarpoolActivityUpdateWithWhereUniqueWithoutUserInput = {
+    where: WarpoolActivityWhereUniqueInput
+    data: XOR<WarpoolActivityUpdateWithoutUserInput, WarpoolActivityUncheckedUpdateWithoutUserInput>
+  }
+
+  export type WarpoolActivityUpdateManyWithWhereWithoutUserInput = {
+    where: WarpoolActivityScalarWhereInput
+    data: XOR<WarpoolActivityUpdateManyMutationInput, WarpoolActivityUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type WarpoolActivityScalarWhereInput = {
+    AND?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
+    OR?: WarpoolActivityScalarWhereInput[]
+    NOT?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
+    id?: StringFilter<"WarpoolActivity"> | string
+    chainId?: IntFilter<"WarpoolActivity"> | number
+    coreContract?: StringFilter<"WarpoolActivity"> | string
+    poolId?: StringNullableFilter<"WarpoolActivity"> | string | null
+    entryId?: StringNullableFilter<"WarpoolActivity"> | string | null
+    reservationId?: StringNullableFilter<"WarpoolActivity"> | string | null
+    userId?: StringNullableFilter<"WarpoolActivity"> | string | null
+    userAddress?: StringNullableFilter<"WarpoolActivity"> | string | null
+    nftId?: StringNullableFilter<"WarpoolActivity"> | string | null
+    type?: EnumWarpoolActivityTypeFilter<"WarpoolActivity"> | $Enums.WarpoolActivityType
+    txHash?: StringNullableFilter<"WarpoolActivity"> | string | null
+    logIndex?: IntNullableFilter<"WarpoolActivity"> | number | null
+    blockNumber?: IntNullableFilter<"WarpoolActivity"> | number | null
+    timestamp?: DateTimeFilter<"WarpoolActivity"> | Date | string
+    payload?: JsonNullableFilter<"WarpoolActivity">
+    createdAt?: DateTimeFilter<"WarpoolActivity"> | Date | string
+  }
+
+  export type WarpoolCaptureUpsertWithWhereUniqueWithoutOriginalOwnerInput = {
+    where: WarpoolCaptureWhereUniqueInput
+    update: XOR<WarpoolCaptureUpdateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedUpdateWithoutOriginalOwnerInput>
+    create: XOR<WarpoolCaptureCreateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedCreateWithoutOriginalOwnerInput>
+  }
+
+  export type WarpoolCaptureUpdateWithWhereUniqueWithoutOriginalOwnerInput = {
+    where: WarpoolCaptureWhereUniqueInput
+    data: XOR<WarpoolCaptureUpdateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedUpdateWithoutOriginalOwnerInput>
+  }
+
+  export type WarpoolCaptureUpdateManyWithWhereWithoutOriginalOwnerInput = {
+    where: WarpoolCaptureScalarWhereInput
+    data: XOR<WarpoolCaptureUpdateManyMutationInput, WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerInput>
+  }
+
+  export type WarpoolCaptureScalarWhereInput = {
+    AND?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
+    OR?: WarpoolCaptureScalarWhereInput[]
+    NOT?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
+    id?: StringFilter<"WarpoolCapture"> | string
+    entryId?: StringFilter<"WarpoolCapture"> | string
+    nftId?: StringNullableFilter<"WarpoolCapture"> | string | null
+    contract?: StringFilter<"WarpoolCapture"> | string
+    tokenId?: StringFilter<"WarpoolCapture"> | string
+    originalOwnerId?: StringNullableFilter<"WarpoolCapture"> | string | null
+    originalOwnerAddress?: StringFilter<"WarpoolCapture"> | string
+    capturedAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
+    status?: EnumWarpoolCaptureStatusFilter<"WarpoolCapture"> | $Enums.WarpoolCaptureStatus
+    relistStatus?: EnumWarpoolRelistStatusFilter<"WarpoolCapture"> | $Enums.WarpoolRelistStatus
+    relistListingId?: StringNullableFilter<"WarpoolCapture"> | string | null
+    notes?: StringNullableFilter<"WarpoolCapture"> | string | null
+    createdAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
+    updatedAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
+  }
+
   export type WarpoolEntryUpsertWithWhereUniqueWithoutUserInput = {
     where: WarpoolEntryWhereUniqueInput
     update: XOR<WarpoolEntryUpdateWithoutUserInput, WarpoolEntryUncheckedUpdateWithoutUserInput>
@@ -92982,177 +90938,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"WarpoolReservation"> | Date | string
   }
 
-  export type WarpoolActivityUpsertWithWhereUniqueWithoutUserInput = {
-    where: WarpoolActivityWhereUniqueInput
-    update: XOR<WarpoolActivityUpdateWithoutUserInput, WarpoolActivityUncheckedUpdateWithoutUserInput>
-    create: XOR<WarpoolActivityCreateWithoutUserInput, WarpoolActivityUncheckedCreateWithoutUserInput>
-  }
-
-  export type WarpoolActivityUpdateWithWhereUniqueWithoutUserInput = {
-    where: WarpoolActivityWhereUniqueInput
-    data: XOR<WarpoolActivityUpdateWithoutUserInput, WarpoolActivityUncheckedUpdateWithoutUserInput>
-  }
-
-  export type WarpoolActivityUpdateManyWithWhereWithoutUserInput = {
-    where: WarpoolActivityScalarWhereInput
-    data: XOR<WarpoolActivityUpdateManyMutationInput, WarpoolActivityUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type WarpoolActivityScalarWhereInput = {
-    AND?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
-    OR?: WarpoolActivityScalarWhereInput[]
-    NOT?: WarpoolActivityScalarWhereInput | WarpoolActivityScalarWhereInput[]
-    id?: StringFilter<"WarpoolActivity"> | string
-    chainId?: IntFilter<"WarpoolActivity"> | number
-    coreContract?: StringFilter<"WarpoolActivity"> | string
-    poolId?: StringNullableFilter<"WarpoolActivity"> | string | null
-    entryId?: StringNullableFilter<"WarpoolActivity"> | string | null
-    reservationId?: StringNullableFilter<"WarpoolActivity"> | string | null
-    userId?: StringNullableFilter<"WarpoolActivity"> | string | null
-    userAddress?: StringNullableFilter<"WarpoolActivity"> | string | null
-    nftId?: StringNullableFilter<"WarpoolActivity"> | string | null
-    type?: EnumWarpoolActivityTypeFilter<"WarpoolActivity"> | $Enums.WarpoolActivityType
-    txHash?: StringNullableFilter<"WarpoolActivity"> | string | null
-    logIndex?: IntNullableFilter<"WarpoolActivity"> | number | null
-    blockNumber?: IntNullableFilter<"WarpoolActivity"> | number | null
-    timestamp?: DateTimeFilter<"WarpoolActivity"> | Date | string
-    payload?: JsonNullableFilter<"WarpoolActivity">
-    createdAt?: DateTimeFilter<"WarpoolActivity"> | Date | string
-  }
-
-  export type WarpoolCaptureUpsertWithWhereUniqueWithoutOriginalOwnerInput = {
-    where: WarpoolCaptureWhereUniqueInput
-    update: XOR<WarpoolCaptureUpdateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedUpdateWithoutOriginalOwnerInput>
-    create: XOR<WarpoolCaptureCreateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedCreateWithoutOriginalOwnerInput>
-  }
-
-  export type WarpoolCaptureUpdateWithWhereUniqueWithoutOriginalOwnerInput = {
-    where: WarpoolCaptureWhereUniqueInput
-    data: XOR<WarpoolCaptureUpdateWithoutOriginalOwnerInput, WarpoolCaptureUncheckedUpdateWithoutOriginalOwnerInput>
-  }
-
-  export type WarpoolCaptureUpdateManyWithWhereWithoutOriginalOwnerInput = {
-    where: WarpoolCaptureScalarWhereInput
-    data: XOR<WarpoolCaptureUpdateManyMutationInput, WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerInput>
-  }
-
-  export type WarpoolCaptureScalarWhereInput = {
-    AND?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
-    OR?: WarpoolCaptureScalarWhereInput[]
-    NOT?: WarpoolCaptureScalarWhereInput | WarpoolCaptureScalarWhereInput[]
-    id?: StringFilter<"WarpoolCapture"> | string
-    entryId?: StringFilter<"WarpoolCapture"> | string
-    nftId?: StringNullableFilter<"WarpoolCapture"> | string | null
-    contract?: StringFilter<"WarpoolCapture"> | string
-    tokenId?: StringFilter<"WarpoolCapture"> | string
-    originalOwnerId?: StringNullableFilter<"WarpoolCapture"> | string | null
-    originalOwnerAddress?: StringFilter<"WarpoolCapture"> | string
-    capturedAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
-    status?: EnumWarpoolCaptureStatusFilter<"WarpoolCapture"> | $Enums.WarpoolCaptureStatus
-    relistStatus?: EnumWarpoolRelistStatusFilter<"WarpoolCapture"> | $Enums.WarpoolRelistStatus
-    relistListingId?: StringNullableFilter<"WarpoolCapture"> | string | null
-    notes?: StringNullableFilter<"WarpoolCapture"> | string | null
-    createdAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
-    updatedAt?: DateTimeFilter<"WarpoolCapture"> | Date | string
-  }
-
-  export type AdminProposalUpsertWithWhereUniqueWithoutCreatedByUserInput = {
-    where: AdminProposalWhereUniqueInput
-    update: XOR<AdminProposalUpdateWithoutCreatedByUserInput, AdminProposalUncheckedUpdateWithoutCreatedByUserInput>
-    create: XOR<AdminProposalCreateWithoutCreatedByUserInput, AdminProposalUncheckedCreateWithoutCreatedByUserInput>
-  }
-
-  export type AdminProposalUpdateWithWhereUniqueWithoutCreatedByUserInput = {
-    where: AdminProposalWhereUniqueInput
-    data: XOR<AdminProposalUpdateWithoutCreatedByUserInput, AdminProposalUncheckedUpdateWithoutCreatedByUserInput>
-  }
-
-  export type AdminProposalUpdateManyWithWhereWithoutCreatedByUserInput = {
-    where: AdminProposalScalarWhereInput
-    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutCreatedByUserInput>
-  }
-
-  export type AdminProposalScalarWhereInput = {
-    AND?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
-    OR?: AdminProposalScalarWhereInput[]
-    NOT?: AdminProposalScalarWhereInput | AdminProposalScalarWhereInput[]
-    id?: StringFilter<"AdminProposal"> | string
-    area?: EnumAdminProposalAreaFilter<"AdminProposal"> | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFilter<"AdminProposal"> | $Enums.AdminProposalKind
-    title?: StringFilter<"AdminProposal"> | string
-    slug?: StringNullableFilter<"AdminProposal"> | string | null
-    summary?: StringNullableFilter<"AdminProposal"> | string | null
-    description?: StringNullableFilter<"AdminProposal"> | string | null
-    safeId?: StringNullableFilter<"AdminProposal"> | string | null
-    safeContract?: StringNullableFilter<"AdminProposal"> | string | null
-    chainId?: IntNullableFilter<"AdminProposal"> | number | null
-    createdByUserId?: StringNullableFilter<"AdminProposal"> | string | null
-    createdByAddress?: StringNullableFilter<"AdminProposal"> | string | null
-    lastEditedByUserId?: StringNullableFilter<"AdminProposal"> | string | null
-    lastEditedByAddress?: StringNullableFilter<"AdminProposal"> | string | null
-    basedOnConfigVersion?: BigIntNullableFilter<"AdminProposal"> | bigint | number | null
-    runtimeReferenceId?: StringNullableFilter<"AdminProposal"> | string | null
-    status?: EnumAdminProposalStatusFilter<"AdminProposal"> | $Enums.AdminProposalStatus
-    actionCount?: IntFilter<"AdminProposal"> | number
-    submittedMultisigTxId?: StringNullableFilter<"AdminProposal"> | string | null
-    submittedMultisigNonce?: IntNullableFilter<"AdminProposal"> | number | null
-    submittedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
-    approvedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
-    executedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
-    cancelledAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
-    failedAt?: DateTimeNullableFilter<"AdminProposal"> | Date | string | null
-    snapshotJson?: JsonNullableFilter<"AdminProposal">
-    metadataJson?: JsonNullableFilter<"AdminProposal">
-    createdAt?: DateTimeFilter<"AdminProposal"> | Date | string
-    updatedAt?: DateTimeFilter<"AdminProposal"> | Date | string
-  }
-
-  export type AdminProposalUpsertWithWhereUniqueWithoutLastEditedByUserInput = {
-    where: AdminProposalWhereUniqueInput
-    update: XOR<AdminProposalUpdateWithoutLastEditedByUserInput, AdminProposalUncheckedUpdateWithoutLastEditedByUserInput>
-    create: XOR<AdminProposalCreateWithoutLastEditedByUserInput, AdminProposalUncheckedCreateWithoutLastEditedByUserInput>
-  }
-
-  export type AdminProposalUpdateWithWhereUniqueWithoutLastEditedByUserInput = {
-    where: AdminProposalWhereUniqueInput
-    data: XOR<AdminProposalUpdateWithoutLastEditedByUserInput, AdminProposalUncheckedUpdateWithoutLastEditedByUserInput>
-  }
-
-  export type AdminProposalUpdateManyWithWhereWithoutLastEditedByUserInput = {
-    where: AdminProposalScalarWhereInput
-    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutLastEditedByUserInput>
-  }
-
-  export type AdminProposalEventUpsertWithWhereUniqueWithoutActorUserInput = {
-    where: AdminProposalEventWhereUniqueInput
-    update: XOR<AdminProposalEventUpdateWithoutActorUserInput, AdminProposalEventUncheckedUpdateWithoutActorUserInput>
-    create: XOR<AdminProposalEventCreateWithoutActorUserInput, AdminProposalEventUncheckedCreateWithoutActorUserInput>
-  }
-
-  export type AdminProposalEventUpdateWithWhereUniqueWithoutActorUserInput = {
-    where: AdminProposalEventWhereUniqueInput
-    data: XOR<AdminProposalEventUpdateWithoutActorUserInput, AdminProposalEventUncheckedUpdateWithoutActorUserInput>
-  }
-
-  export type AdminProposalEventUpdateManyWithWhereWithoutActorUserInput = {
-    where: AdminProposalEventScalarWhereInput
-    data: XOR<AdminProposalEventUpdateManyMutationInput, AdminProposalEventUncheckedUpdateManyWithoutActorUserInput>
-  }
-
-  export type AdminProposalEventScalarWhereInput = {
-    AND?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
-    OR?: AdminProposalEventScalarWhereInput[]
-    NOT?: AdminProposalEventScalarWhereInput | AdminProposalEventScalarWhereInput[]
-    id?: StringFilter<"AdminProposalEvent"> | string
-    proposalId?: StringFilter<"AdminProposalEvent"> | string
-    actorUserId?: StringNullableFilter<"AdminProposalEvent"> | string | null
-    actorAddress?: StringNullableFilter<"AdminProposalEvent"> | string | null
-    type?: StringFilter<"AdminProposalEvent"> | string
-    note?: StringNullableFilter<"AdminProposalEvent"> | string | null
-    payloadJson?: JsonNullableFilter<"AdminProposalEvent">
-    createdAt?: DateTimeFilter<"AdminProposalEvent"> | Date | string
-  }
-
   export type AssetUploadCreateWithoutCollectionInput = {
     id?: string
     uploaderUserId?: string | null
@@ -93206,18 +90991,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCollectionsInput = {
@@ -93233,18 +91017,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCollectionsInput = {
@@ -93327,10 +91110,10 @@ export namespace Prisma {
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutCollectionInput = {
@@ -93359,10 +91142,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutCollectionInput = {
@@ -93492,18 +91275,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollectionsInput = {
@@ -93519,18 +91301,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type DeployedContractUpsertWithoutCollectionInput = {
@@ -93914,18 +91695,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedNFTsInput = {
@@ -93941,18 +91721,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedNFTsInput = {
@@ -94098,138 +91877,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type WarpoolEntryCreateWithoutNftInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
-    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
-    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryUncheckedCreateWithoutNftInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    poolId: string
-    userId?: string | null
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    reservationId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryCreateOrConnectWithoutNftInput = {
-    where: WarpoolEntryWhereUniqueInput
-    create: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput>
-  }
-
-  export type WarpoolEntryCreateManyNftInputEnvelope = {
-    data: WarpoolEntryCreateManyNftInput | WarpoolEntryCreateManyNftInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WarpoolReservationCreateWithoutNftInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
-    user?: UserCreateNestedOneWithoutWarpoolReservationsInput
-    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
-  }
-
-  export type WarpoolReservationUncheckedCreateWithoutNftInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    poolId: string
-    userId?: string | null
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
-  }
-
-  export type WarpoolReservationCreateOrConnectWithoutNftInput = {
-    where: WarpoolReservationWhereUniqueInput
-    create: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput>
-  }
-
-  export type WarpoolReservationCreateManyNftInputEnvelope = {
-    data: WarpoolReservationCreateManyNftInput | WarpoolReservationCreateManyNftInput[]
-    skipDuplicates?: boolean
-  }
-
   export type WarpoolActivityCreateWithoutNftInput = {
     id?: string
     chainId: number
@@ -94242,8 +91889,8 @@ export namespace Prisma {
     timestamp: Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
     entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
+    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
     reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
     user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
   }
@@ -94315,6 +91962,138 @@ export namespace Prisma {
 
   export type WarpoolCaptureCreateManyNftInputEnvelope = {
     data: WarpoolCaptureCreateManyNftInput | WarpoolCaptureCreateManyNftInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolEntryCreateWithoutNftInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
+    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
+    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
+  }
+
+  export type WarpoolEntryUncheckedCreateWithoutNftInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    poolId: string
+    userId?: string | null
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    reservationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
+  }
+
+  export type WarpoolEntryCreateOrConnectWithoutNftInput = {
+    where: WarpoolEntryWhereUniqueInput
+    create: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput>
+  }
+
+  export type WarpoolEntryCreateManyNftInputEnvelope = {
+    data: WarpoolEntryCreateManyNftInput | WarpoolEntryCreateManyNftInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolReservationCreateWithoutNftInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
+    pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
+    user?: UserCreateNestedOneWithoutWarpoolReservationsInput
+  }
+
+  export type WarpoolReservationUncheckedCreateWithoutNftInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    poolId: string
+    userId?: string | null
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type WarpoolReservationCreateOrConnectWithoutNftInput = {
+    where: WarpoolReservationWhereUniqueInput
+    create: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput>
+  }
+
+  export type WarpoolReservationCreateManyNftInputEnvelope = {
+    data: WarpoolReservationCreateManyNftInput | WarpoolReservationCreateManyNftInput[]
     skipDuplicates?: boolean
   }
 
@@ -94541,18 +92320,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedNFTsInput = {
@@ -94568,18 +92346,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type Single1155UpsertWithoutNftsInput = {
@@ -94725,38 +92502,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"NFTActivity"> | Date | string
   }
 
-  export type WarpoolEntryUpsertWithWhereUniqueWithoutNftInput = {
-    where: WarpoolEntryWhereUniqueInput
-    update: XOR<WarpoolEntryUpdateWithoutNftInput, WarpoolEntryUncheckedUpdateWithoutNftInput>
-    create: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput>
-  }
-
-  export type WarpoolEntryUpdateWithWhereUniqueWithoutNftInput = {
-    where: WarpoolEntryWhereUniqueInput
-    data: XOR<WarpoolEntryUpdateWithoutNftInput, WarpoolEntryUncheckedUpdateWithoutNftInput>
-  }
-
-  export type WarpoolEntryUpdateManyWithWhereWithoutNftInput = {
-    where: WarpoolEntryScalarWhereInput
-    data: XOR<WarpoolEntryUpdateManyMutationInput, WarpoolEntryUncheckedUpdateManyWithoutNftInput>
-  }
-
-  export type WarpoolReservationUpsertWithWhereUniqueWithoutNftInput = {
-    where: WarpoolReservationWhereUniqueInput
-    update: XOR<WarpoolReservationUpdateWithoutNftInput, WarpoolReservationUncheckedUpdateWithoutNftInput>
-    create: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput>
-  }
-
-  export type WarpoolReservationUpdateWithWhereUniqueWithoutNftInput = {
-    where: WarpoolReservationWhereUniqueInput
-    data: XOR<WarpoolReservationUpdateWithoutNftInput, WarpoolReservationUncheckedUpdateWithoutNftInput>
-  }
-
-  export type WarpoolReservationUpdateManyWithWhereWithoutNftInput = {
-    where: WarpoolReservationScalarWhereInput
-    data: XOR<WarpoolReservationUpdateManyMutationInput, WarpoolReservationUncheckedUpdateManyWithoutNftInput>
-  }
-
   export type WarpoolActivityUpsertWithWhereUniqueWithoutNftInput = {
     where: WarpoolActivityWhereUniqueInput
     update: XOR<WarpoolActivityUpdateWithoutNftInput, WarpoolActivityUncheckedUpdateWithoutNftInput>
@@ -94789,6 +92534,38 @@ export namespace Prisma {
     data: XOR<WarpoolCaptureUpdateManyMutationInput, WarpoolCaptureUncheckedUpdateManyWithoutNftInput>
   }
 
+  export type WarpoolEntryUpsertWithWhereUniqueWithoutNftInput = {
+    where: WarpoolEntryWhereUniqueInput
+    update: XOR<WarpoolEntryUpdateWithoutNftInput, WarpoolEntryUncheckedUpdateWithoutNftInput>
+    create: XOR<WarpoolEntryCreateWithoutNftInput, WarpoolEntryUncheckedCreateWithoutNftInput>
+  }
+
+  export type WarpoolEntryUpdateWithWhereUniqueWithoutNftInput = {
+    where: WarpoolEntryWhereUniqueInput
+    data: XOR<WarpoolEntryUpdateWithoutNftInput, WarpoolEntryUncheckedUpdateWithoutNftInput>
+  }
+
+  export type WarpoolEntryUpdateManyWithWhereWithoutNftInput = {
+    where: WarpoolEntryScalarWhereInput
+    data: XOR<WarpoolEntryUpdateManyMutationInput, WarpoolEntryUncheckedUpdateManyWithoutNftInput>
+  }
+
+  export type WarpoolReservationUpsertWithWhereUniqueWithoutNftInput = {
+    where: WarpoolReservationWhereUniqueInput
+    update: XOR<WarpoolReservationUpdateWithoutNftInput, WarpoolReservationUncheckedUpdateWithoutNftInput>
+    create: XOR<WarpoolReservationCreateWithoutNftInput, WarpoolReservationUncheckedCreateWithoutNftInput>
+  }
+
+  export type WarpoolReservationUpdateWithWhereUniqueWithoutNftInput = {
+    where: WarpoolReservationWhereUniqueInput
+    data: XOR<WarpoolReservationUpdateWithoutNftInput, WarpoolReservationUncheckedUpdateWithoutNftInput>
+  }
+
+  export type WarpoolReservationUpdateManyWithWhereWithoutNftInput = {
+    where: WarpoolReservationScalarWhereInput
+    data: XOR<WarpoolReservationUpdateManyMutationInput, WarpoolReservationUncheckedUpdateManyWithoutNftInput>
+  }
+
   export type NFTCreateWithoutActivitiesInput = {
     id?: string
     tokenId: string
@@ -94815,10 +92592,10 @@ export namespace Prisma {
     owner?: UserCreateNestedOneWithoutOwnedNFTsInput
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutActivitiesInput = {
@@ -94847,10 +92624,10 @@ export namespace Prisma {
     auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutActivitiesInput = {
@@ -94895,10 +92672,10 @@ export namespace Prisma {
     owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutActivitiesInput = {
@@ -94927,10 +92704,10 @@ export namespace Prisma {
     auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type AssetUploadCreateWithoutSingle721Input = {
@@ -95048,10 +92825,10 @@ export namespace Prisma {
     owner?: UserCreateNestedOneWithoutOwnedNFTsInput
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutSingle721Input = {
@@ -95080,10 +92857,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutSingle721Input = {
@@ -95322,10 +93099,10 @@ export namespace Prisma {
     owner?: UserCreateNestedOneWithoutOwnedNFTsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutSingle1155Input = {
@@ -95354,10 +93131,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutSingle1155Input = {
@@ -95659,10 +93436,10 @@ export namespace Prisma {
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutListingEntriesInput = {
@@ -95691,10 +93468,10 @@ export namespace Prisma {
     auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutListingEntriesInput = {
@@ -95828,10 +93605,10 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutListingEntriesInput = {
@@ -95860,10 +93637,10 @@ export namespace Prisma {
     auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type WarpoolCaptureUpsertWithWhereUniqueWithoutRelistListingInput = {
@@ -95949,10 +93726,10 @@ export namespace Prisma {
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutAuctionEntriesInput = {
@@ -95981,10 +93758,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutAuctionEntriesInput = {
@@ -96110,10 +93887,10 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutAuctionEntriesInput = {
@@ -96142,10 +93919,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type AuctionBidUpsertWithWhereUniqueWithoutAuctionInput = {
@@ -97651,130 +95428,6 @@ export namespace Prisma {
     nfts?: NFTUncheckedUpdateManyWithoutSingle721NestedInput
   }
 
-  export type UserCreateWithoutSubmissionsInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserUncheckedCreateWithoutSubmissionsInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserCreateOrConnectWithoutSubmissionsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutSubmissionsInput, UserUncheckedCreateWithoutSubmissionsInput>
-  }
-
-  export type UserUpsertWithoutSubmissionsInput = {
-    update: XOR<UserUpdateWithoutSubmissionsInput, UserUncheckedUpdateWithoutSubmissionsInput>
-    create: XOR<UserCreateWithoutSubmissionsInput, UserUncheckedCreateWithoutSubmissionsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutSubmissionsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutSubmissionsInput, UserUncheckedUpdateWithoutSubmissionsInput>
-  }
-
-  export type UserUpdateWithoutSubmissionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutSubmissionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
-  }
-
   export type AuctionCreateWithoutCurrencyInput = {
     id?: string
     sellerAddress: string
@@ -98279,10 +95932,10 @@ export namespace Prisma {
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutSalesInput = {
@@ -98311,10 +95964,10 @@ export namespace Prisma {
     auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutSalesInput = {
@@ -98406,10 +96059,10 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutSalesInput = {
@@ -98438,10 +96091,10 @@ export namespace Prisma {
     auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type CurrencyCreateWithoutRewardAccumulatorsInput = {
@@ -98586,18 +96239,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutHolderRewardsMultiInput = {
@@ -98613,18 +96265,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutHolderRewardsMultiInput = {
@@ -98703,18 +96354,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutHolderRewardsMultiInput = {
@@ -98730,18 +96380,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CurrencyCreateWithoutDistributionLogsInput = {
@@ -98886,18 +96535,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRewardClaimLogsInput = {
@@ -98913,18 +96561,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRewardClaimLogsInput = {
@@ -99003,18 +96650,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRewardClaimLogsInput = {
@@ -99030,18 +96676,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutStolenReportsInput = {
@@ -99057,18 +96702,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutStolenReportsInput = {
@@ -99084,18 +96728,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
     adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
     adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
     adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutStolenReportsInput = {
@@ -99127,18 +96770,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStolenReportsInput = {
@@ -99154,84 +96796,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
     adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
     adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
     adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type MultisigOwnerCreateWithoutSafeInput = {
-    id?: string
-    ownerAddress: string
-    addedAt?: Date | string
-    removedAt?: Date | string | null
-  }
-
-  export type MultisigOwnerUncheckedCreateWithoutSafeInput = {
-    id?: string
-    ownerAddress: string
-    addedAt?: Date | string
-    removedAt?: Date | string | null
-  }
-
-  export type MultisigOwnerCreateOrConnectWithoutSafeInput = {
-    where: MultisigOwnerWhereUniqueInput
-    create: XOR<MultisigOwnerCreateWithoutSafeInput, MultisigOwnerUncheckedCreateWithoutSafeInput>
-  }
-
-  export type MultisigOwnerCreateManySafeInputEnvelope = {
-    data: MultisigOwnerCreateManySafeInput | MultisigOwnerCreateManySafeInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type MultisigTxCreateWithoutSafeInput = {
-    id?: string
-    nonce: number
-    to: string
-    valueWei?: Decimal | DecimalJsLike | number | string
-    dataHex?: string | null
-    operation?: number | null
-    submittedBy?: string | null
-    status?: $Enums.MultisigTxStatus
-    executedTxHash?: string | null
-    createdAt?: Date | string
-    executedAt?: Date | string | null
-    approvals?: MultisigApprovalCreateNestedManyWithoutTxInput
-    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
-  }
-
-  export type MultisigTxUncheckedCreateWithoutSafeInput = {
-    id?: string
-    nonce: number
-    to: string
-    valueWei?: Decimal | DecimalJsLike | number | string
-    dataHex?: string | null
-    operation?: number | null
-    submittedBy?: string | null
-    status?: $Enums.MultisigTxStatus
-    executedTxHash?: string | null
-    createdAt?: Date | string
-    executedAt?: Date | string | null
-    approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
-    linkedAdminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput
-  }
-
-  export type MultisigTxCreateOrConnectWithoutSafeInput = {
-    where: MultisigTxWhereUniqueInput
-    create: XOR<MultisigTxCreateWithoutSafeInput, MultisigTxUncheckedCreateWithoutSafeInput>
-  }
-
-  export type MultisigTxCreateManySafeInputEnvelope = {
-    data: MultisigTxCreateManySafeInput | MultisigTxCreateManySafeInput[]
-    skipDuplicates?: boolean
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AdminProposalCreateWithoutSafeInput = {
@@ -99310,6 +96885,88 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MultisigOwnerCreateWithoutSafeInput = {
+    id?: string
+    ownerAddress: string
+    addedAt?: Date | string
+    removedAt?: Date | string | null
+  }
+
+  export type MultisigOwnerUncheckedCreateWithoutSafeInput = {
+    id?: string
+    ownerAddress: string
+    addedAt?: Date | string
+    removedAt?: Date | string | null
+  }
+
+  export type MultisigOwnerCreateOrConnectWithoutSafeInput = {
+    where: MultisigOwnerWhereUniqueInput
+    create: XOR<MultisigOwnerCreateWithoutSafeInput, MultisigOwnerUncheckedCreateWithoutSafeInput>
+  }
+
+  export type MultisigOwnerCreateManySafeInputEnvelope = {
+    data: MultisigOwnerCreateManySafeInput | MultisigOwnerCreateManySafeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MultisigTxCreateWithoutSafeInput = {
+    id?: string
+    nonce: number
+    to: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    dataHex?: string | null
+    operation?: number | null
+    submittedBy?: string | null
+    status?: $Enums.MultisigTxStatus
+    executedTxHash?: string | null
+    createdAt?: Date | string
+    executedAt?: Date | string | null
+    linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
+    approvals?: MultisigApprovalCreateNestedManyWithoutTxInput
+  }
+
+  export type MultisigTxUncheckedCreateWithoutSafeInput = {
+    id?: string
+    nonce: number
+    to: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    dataHex?: string | null
+    operation?: number | null
+    submittedBy?: string | null
+    status?: $Enums.MultisigTxStatus
+    executedTxHash?: string | null
+    createdAt?: Date | string
+    executedAt?: Date | string | null
+    linkedAdminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSubmittedMultisigTxInput
+    approvals?: MultisigApprovalUncheckedCreateNestedManyWithoutTxInput
+  }
+
+  export type MultisigTxCreateOrConnectWithoutSafeInput = {
+    where: MultisigTxWhereUniqueInput
+    create: XOR<MultisigTxCreateWithoutSafeInput, MultisigTxUncheckedCreateWithoutSafeInput>
+  }
+
+  export type MultisigTxCreateManySafeInputEnvelope = {
+    data: MultisigTxCreateManySafeInput | MultisigTxCreateManySafeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AdminProposalUpsertWithWhereUniqueWithoutSafeInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutSafeInput, AdminProposalUncheckedUpdateWithoutSafeInput>
+    create: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutSafeInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutSafeInput, AdminProposalUncheckedUpdateWithoutSafeInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutSafeInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutSafeInput>
+  }
+
   export type MultisigOwnerUpsertWithWhereUniqueWithoutSafeInput = {
     where: MultisigOwnerWhereUniqueInput
     update: XOR<MultisigOwnerUpdateWithoutSafeInput, MultisigOwnerUncheckedUpdateWithoutSafeInput>
@@ -99371,22 +97028,6 @@ export namespace Prisma {
     executedAt?: DateTimeNullableFilter<"MultisigTx"> | Date | string | null
   }
 
-  export type AdminProposalUpsertWithWhereUniqueWithoutSafeInput = {
-    where: AdminProposalWhereUniqueInput
-    update: XOR<AdminProposalUpdateWithoutSafeInput, AdminProposalUncheckedUpdateWithoutSafeInput>
-    create: XOR<AdminProposalCreateWithoutSafeInput, AdminProposalUncheckedCreateWithoutSafeInput>
-  }
-
-  export type AdminProposalUpdateWithWhereUniqueWithoutSafeInput = {
-    where: AdminProposalWhereUniqueInput
-    data: XOR<AdminProposalUpdateWithoutSafeInput, AdminProposalUncheckedUpdateWithoutSafeInput>
-  }
-
-  export type AdminProposalUpdateManyWithWhereWithoutSafeInput = {
-    where: AdminProposalScalarWhereInput
-    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutSafeInput>
-  }
-
   export type MultisigSafeCreateWithoutOwnersInput = {
     id?: string
     contract: string
@@ -99394,8 +97035,8 @@ export namespace Prisma {
     threshold: number
     createdAt?: Date | string
     updatedAt?: Date | string
-    txs?: MultisigTxCreateNestedManyWithoutSafeInput
     adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
+    txs?: MultisigTxCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeUncheckedCreateWithoutOwnersInput = {
@@ -99405,8 +97046,8 @@ export namespace Prisma {
     threshold: number
     createdAt?: Date | string
     updatedAt?: Date | string
-    txs?: MultisigTxUncheckedCreateNestedManyWithoutSafeInput
     adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
+    txs?: MultisigTxUncheckedCreateNestedManyWithoutSafeInput
   }
 
   export type MultisigSafeCreateOrConnectWithoutOwnersInput = {
@@ -99432,8 +97073,8 @@ export namespace Prisma {
     threshold?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    txs?: MultisigTxUpdateManyWithoutSafeNestedInput
     adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
+    txs?: MultisigTxUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeUncheckedUpdateWithoutOwnersInput = {
@@ -99443,59 +97084,8 @@ export namespace Prisma {
     threshold?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
     adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
-  }
-
-  export type MultisigApprovalCreateWithoutTxInput = {
-    id?: string
-    ownerAddress: string
-    signature?: string | null
-    createdAt?: Date | string
-  }
-
-  export type MultisigApprovalUncheckedCreateWithoutTxInput = {
-    id?: string
-    ownerAddress: string
-    signature?: string | null
-    createdAt?: Date | string
-  }
-
-  export type MultisigApprovalCreateOrConnectWithoutTxInput = {
-    where: MultisigApprovalWhereUniqueInput
-    create: XOR<MultisigApprovalCreateWithoutTxInput, MultisigApprovalUncheckedCreateWithoutTxInput>
-  }
-
-  export type MultisigApprovalCreateManyTxInputEnvelope = {
-    data: MultisigApprovalCreateManyTxInput | MultisigApprovalCreateManyTxInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type MultisigSafeCreateWithoutTxsInput = {
-    id?: string
-    contract: string
-    name?: string | null
-    threshold: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    owners?: MultisigOwnerCreateNestedManyWithoutSafeInput
-    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
-  }
-
-  export type MultisigSafeUncheckedCreateWithoutTxsInput = {
-    id?: string
-    contract: string
-    name?: string | null
-    threshold: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    owners?: MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput
-    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
-  }
-
-  export type MultisigSafeCreateOrConnectWithoutTxsInput = {
-    where: MultisigSafeWhereUniqueInput
-    create: XOR<MultisigSafeCreateWithoutTxsInput, MultisigSafeUncheckedCreateWithoutTxsInput>
+    txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
   }
 
   export type AdminProposalCreateWithoutSubmittedMultisigTxInput = {
@@ -99524,9 +97114,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
     lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
     events?: AdminProposalEventCreateNestedManyWithoutProposalInput
   }
@@ -99574,6 +97164,73 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MultisigApprovalCreateWithoutTxInput = {
+    id?: string
+    ownerAddress: string
+    signature?: string | null
+    createdAt?: Date | string
+  }
+
+  export type MultisigApprovalUncheckedCreateWithoutTxInput = {
+    id?: string
+    ownerAddress: string
+    signature?: string | null
+    createdAt?: Date | string
+  }
+
+  export type MultisigApprovalCreateOrConnectWithoutTxInput = {
+    where: MultisigApprovalWhereUniqueInput
+    create: XOR<MultisigApprovalCreateWithoutTxInput, MultisigApprovalUncheckedCreateWithoutTxInput>
+  }
+
+  export type MultisigApprovalCreateManyTxInputEnvelope = {
+    data: MultisigApprovalCreateManyTxInput | MultisigApprovalCreateManyTxInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MultisigSafeCreateWithoutTxsInput = {
+    id?: string
+    contract: string
+    name?: string | null
+    threshold: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposals?: AdminProposalCreateNestedManyWithoutSafeInput
+    owners?: MultisigOwnerCreateNestedManyWithoutSafeInput
+  }
+
+  export type MultisigSafeUncheckedCreateWithoutTxsInput = {
+    id?: string
+    contract: string
+    name?: string | null
+    threshold: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposals?: AdminProposalUncheckedCreateNestedManyWithoutSafeInput
+    owners?: MultisigOwnerUncheckedCreateNestedManyWithoutSafeInput
+  }
+
+  export type MultisigSafeCreateOrConnectWithoutTxsInput = {
+    where: MultisigSafeWhereUniqueInput
+    create: XOR<MultisigSafeCreateWithoutTxsInput, MultisigSafeUncheckedCreateWithoutTxsInput>
+  }
+
+  export type AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalWhereUniqueInput
+    update: XOR<AdminProposalUpdateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput>
+    create: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput>
+  }
+
+  export type AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalWhereUniqueInput
+    data: XOR<AdminProposalUpdateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput>
+  }
+
+  export type AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput = {
+    where: AdminProposalScalarWhereInput
+    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxInput>
+  }
+
   export type MultisigApprovalUpsertWithWhereUniqueWithoutTxInput = {
     where: MultisigApprovalWhereUniqueInput
     update: XOR<MultisigApprovalUpdateWithoutTxInput, MultisigApprovalUncheckedUpdateWithoutTxInput>
@@ -99619,8 +97276,8 @@ export namespace Prisma {
     threshold?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    owners?: MultisigOwnerUpdateManyWithoutSafeNestedInput
     adminProposals?: AdminProposalUpdateManyWithoutSafeNestedInput
+    owners?: MultisigOwnerUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigSafeUncheckedUpdateWithoutTxsInput = {
@@ -99630,24 +97287,8 @@ export namespace Prisma {
     threshold?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
     adminProposals?: AdminProposalUncheckedUpdateManyWithoutSafeNestedInput
-  }
-
-  export type AdminProposalUpsertWithWhereUniqueWithoutSubmittedMultisigTxInput = {
-    where: AdminProposalWhereUniqueInput
-    update: XOR<AdminProposalUpdateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput>
-    create: XOR<AdminProposalCreateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedCreateWithoutSubmittedMultisigTxInput>
-  }
-
-  export type AdminProposalUpdateWithWhereUniqueWithoutSubmittedMultisigTxInput = {
-    where: AdminProposalWhereUniqueInput
-    data: XOR<AdminProposalUpdateWithoutSubmittedMultisigTxInput, AdminProposalUncheckedUpdateWithoutSubmittedMultisigTxInput>
-  }
-
-  export type AdminProposalUpdateManyWithWhereWithoutSubmittedMultisigTxInput = {
-    where: AdminProposalScalarWhereInput
-    data: XOR<AdminProposalUpdateManyMutationInput, AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxInput>
+    owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
   }
 
   export type MultisigTxCreateWithoutApprovalsInput = {
@@ -99662,8 +97303,8 @@ export namespace Prisma {
     executedTxHash?: string | null
     createdAt?: Date | string
     executedAt?: Date | string | null
-    safe: MultisigSafeCreateNestedOneWithoutTxsInput
     linkedAdminProposals?: AdminProposalCreateNestedManyWithoutSubmittedMultisigTxInput
+    safe: MultisigSafeCreateNestedOneWithoutTxsInput
   }
 
   export type MultisigTxUncheckedCreateWithoutApprovalsInput = {
@@ -99710,8 +97351,8 @@ export namespace Prisma {
     executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    safe?: MultisigSafeUpdateOneRequiredWithoutTxsNestedInput
     linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
+    safe?: MultisigSafeUpdateOneRequiredWithoutTxsNestedInput
   }
 
   export type MultisigTxUncheckedUpdateWithoutApprovalsInput = {
@@ -99730,138 +97371,6 @@ export namespace Prisma {
     linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
   }
 
-  export type WarpoolEntryCreateWithoutPoolInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
-    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryUncheckedCreateWithoutPoolInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    userId?: string | null
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    reservationId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryCreateOrConnectWithoutPoolInput = {
-    where: WarpoolEntryWhereUniqueInput
-    create: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput>
-  }
-
-  export type WarpoolEntryCreateManyPoolInputEnvelope = {
-    data: WarpoolEntryCreateManyPoolInput | WarpoolEntryCreateManyPoolInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type WarpoolReservationCreateWithoutPoolInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    user?: UserCreateNestedOneWithoutWarpoolReservationsInput
-    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
-    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
-  }
-
-  export type WarpoolReservationUncheckedCreateWithoutPoolInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    userId?: string | null
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
-  }
-
-  export type WarpoolReservationCreateOrConnectWithoutPoolInput = {
-    where: WarpoolReservationWhereUniqueInput
-    create: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput>
-  }
-
-  export type WarpoolReservationCreateManyPoolInputEnvelope = {
-    data: WarpoolReservationCreateManyPoolInput | WarpoolReservationCreateManyPoolInput[]
-    skipDuplicates?: boolean
-  }
-
   export type WarpoolActivityCreateWithoutPoolInput = {
     id?: string
     chainId: number
@@ -99875,9 +97384,9 @@ export namespace Prisma {
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
+    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
     reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
     user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
   }
 
   export type WarpoolActivityUncheckedCreateWithoutPoolInput = {
@@ -99953,36 +97462,136 @@ export namespace Prisma {
     create: XOR<WarpoolBattleCreateWithoutPoolInput, WarpoolBattleUncheckedCreateWithoutPoolInput>
   }
 
-  export type WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput = {
+  export type WarpoolEntryCreateWithoutPoolInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
+    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
+    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
+  }
+
+  export type WarpoolEntryUncheckedCreateWithoutPoolInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    userId?: string | null
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    reservationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
+  }
+
+  export type WarpoolEntryCreateOrConnectWithoutPoolInput = {
     where: WarpoolEntryWhereUniqueInput
-    update: XOR<WarpoolEntryUpdateWithoutPoolInput, WarpoolEntryUncheckedUpdateWithoutPoolInput>
     create: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput>
   }
 
-  export type WarpoolEntryUpdateWithWhereUniqueWithoutPoolInput = {
-    where: WarpoolEntryWhereUniqueInput
-    data: XOR<WarpoolEntryUpdateWithoutPoolInput, WarpoolEntryUncheckedUpdateWithoutPoolInput>
+  export type WarpoolEntryCreateManyPoolInputEnvelope = {
+    data: WarpoolEntryCreateManyPoolInput | WarpoolEntryCreateManyPoolInput[]
+    skipDuplicates?: boolean
   }
 
-  export type WarpoolEntryUpdateManyWithWhereWithoutPoolInput = {
-    where: WarpoolEntryScalarWhereInput
-    data: XOR<WarpoolEntryUpdateManyMutationInput, WarpoolEntryUncheckedUpdateManyWithoutPoolInput>
+  export type WarpoolReservationCreateWithoutPoolInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
+    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
+    user?: UserCreateNestedOneWithoutWarpoolReservationsInput
   }
 
-  export type WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput = {
+  export type WarpoolReservationUncheckedCreateWithoutPoolInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    userId?: string | null
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutReservationInput
+    entry?: WarpoolEntryUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type WarpoolReservationCreateOrConnectWithoutPoolInput = {
     where: WarpoolReservationWhereUniqueInput
-    update: XOR<WarpoolReservationUpdateWithoutPoolInput, WarpoolReservationUncheckedUpdateWithoutPoolInput>
     create: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput>
   }
 
-  export type WarpoolReservationUpdateWithWhereUniqueWithoutPoolInput = {
-    where: WarpoolReservationWhereUniqueInput
-    data: XOR<WarpoolReservationUpdateWithoutPoolInput, WarpoolReservationUncheckedUpdateWithoutPoolInput>
-  }
-
-  export type WarpoolReservationUpdateManyWithWhereWithoutPoolInput = {
-    where: WarpoolReservationScalarWhereInput
-    data: XOR<WarpoolReservationUpdateManyMutationInput, WarpoolReservationUncheckedUpdateManyWithoutPoolInput>
+  export type WarpoolReservationCreateManyPoolInputEnvelope = {
+    data: WarpoolReservationCreateManyPoolInput | WarpoolReservationCreateManyPoolInput[]
+    skipDuplicates?: boolean
   }
 
   export type WarpoolActivityUpsertWithWhereUniqueWithoutPoolInput = {
@@ -100052,6 +97661,190 @@ export namespace Prisma {
     matches?: WarpoolBattleMatchUncheckedUpdateManyWithoutBattleNestedInput
   }
 
+  export type WarpoolEntryUpsertWithWhereUniqueWithoutPoolInput = {
+    where: WarpoolEntryWhereUniqueInput
+    update: XOR<WarpoolEntryUpdateWithoutPoolInput, WarpoolEntryUncheckedUpdateWithoutPoolInput>
+    create: XOR<WarpoolEntryCreateWithoutPoolInput, WarpoolEntryUncheckedCreateWithoutPoolInput>
+  }
+
+  export type WarpoolEntryUpdateWithWhereUniqueWithoutPoolInput = {
+    where: WarpoolEntryWhereUniqueInput
+    data: XOR<WarpoolEntryUpdateWithoutPoolInput, WarpoolEntryUncheckedUpdateWithoutPoolInput>
+  }
+
+  export type WarpoolEntryUpdateManyWithWhereWithoutPoolInput = {
+    where: WarpoolEntryScalarWhereInput
+    data: XOR<WarpoolEntryUpdateManyMutationInput, WarpoolEntryUncheckedUpdateManyWithoutPoolInput>
+  }
+
+  export type WarpoolReservationUpsertWithWhereUniqueWithoutPoolInput = {
+    where: WarpoolReservationWhereUniqueInput
+    update: XOR<WarpoolReservationUpdateWithoutPoolInput, WarpoolReservationUncheckedUpdateWithoutPoolInput>
+    create: XOR<WarpoolReservationCreateWithoutPoolInput, WarpoolReservationUncheckedCreateWithoutPoolInput>
+  }
+
+  export type WarpoolReservationUpdateWithWhereUniqueWithoutPoolInput = {
+    where: WarpoolReservationWhereUniqueInput
+    data: XOR<WarpoolReservationUpdateWithoutPoolInput, WarpoolReservationUncheckedUpdateWithoutPoolInput>
+  }
+
+  export type WarpoolReservationUpdateManyWithWhereWithoutPoolInput = {
+    where: WarpoolReservationScalarWhereInput
+    data: XOR<WarpoolReservationUpdateManyMutationInput, WarpoolReservationUncheckedUpdateManyWithoutPoolInput>
+  }
+
+  export type WarpoolActivityCreateWithoutEntryInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    userAddress?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
+    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
+    user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
+  }
+
+  export type WarpoolActivityUncheckedCreateWithoutEntryInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    poolId?: string | null
+    reservationId?: string | null
+    userId?: string | null
+    userAddress?: string | null
+    nftId?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type WarpoolActivityCreateOrConnectWithoutEntryInput = {
+    where: WarpoolActivityWhereUniqueInput
+    create: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput>
+  }
+
+  export type WarpoolActivityCreateManyEntryInputEnvelope = {
+    data: WarpoolActivityCreateManyEntryInput | WarpoolActivityCreateManyEntryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WarpoolCaptureCreateWithoutEntryInput = {
+    id?: string
+    contract: string
+    tokenId: string
+    originalOwnerAddress: string
+    capturedAt: Date | string
+    status?: $Enums.WarpoolCaptureStatus
+    relistStatus?: $Enums.WarpoolRelistStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    nft?: NFTCreateNestedOneWithoutWarpoolCapturesInput
+    originalOwner?: UserCreateNestedOneWithoutWarpoolCapturesAsOwnerInput
+    relistListing?: MarketplaceListingCreateNestedOneWithoutRelistCapturesInput
+  }
+
+  export type WarpoolCaptureUncheckedCreateWithoutEntryInput = {
+    id?: string
+    nftId?: string | null
+    contract: string
+    tokenId: string
+    originalOwnerId?: string | null
+    originalOwnerAddress: string
+    capturedAt: Date | string
+    status?: $Enums.WarpoolCaptureStatus
+    relistStatus?: $Enums.WarpoolRelistStatus
+    relistListingId?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WarpoolCaptureCreateOrConnectWithoutEntryInput = {
+    where: WarpoolCaptureWhereUniqueInput
+    create: XOR<WarpoolCaptureCreateWithoutEntryInput, WarpoolCaptureUncheckedCreateWithoutEntryInput>
+  }
+
+  export type NFTCreateWithoutWarpoolEntriesInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
+    collection?: CollectionCreateNestedOneWithoutNftsInput
+    owner?: UserCreateNestedOneWithoutOwnedNFTsInput
+    single1155?: Single1155CreateNestedOneWithoutNftsInput
+    single721?: Single721CreateNestedOneWithoutNftsInput
+    activities?: NFTActivityCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTUncheckedCreateWithoutWarpoolEntriesInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    ownerId?: string | null
+    collectionId?: string | null
+    single721Id?: string | null
+    single1155Id?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
+    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTCreateOrConnectWithoutWarpoolEntriesInput = {
+    where: NFTWhereUniqueInput
+    create: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
+  }
+
   export type WarpoolPoolCreateWithoutEntriesInput = {
     id?: string
     chainId: number
@@ -100098,9 +97891,9 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    reservations?: WarpoolReservationCreateNestedManyWithoutPoolInput
     activities?: WarpoolActivityCreateNestedManyWithoutPoolInput
     battle?: WarpoolBattleCreateNestedOneWithoutPoolInput
+    reservations?: WarpoolReservationCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolUncheckedCreateWithoutEntriesInput = {
@@ -100149,142 +97942,14 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    reservations?: WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput
     activities?: WarpoolActivityUncheckedCreateNestedManyWithoutPoolInput
     battle?: WarpoolBattleUncheckedCreateNestedOneWithoutPoolInput
+    reservations?: WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolCreateOrConnectWithoutEntriesInput = {
     where: WarpoolPoolWhereUniqueInput
     create: XOR<WarpoolPoolCreateWithoutEntriesInput, WarpoolPoolUncheckedCreateWithoutEntriesInput>
-  }
-
-  export type UserCreateWithoutWarpoolEntriesInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserUncheckedCreateWithoutWarpoolEntriesInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserCreateOrConnectWithoutWarpoolEntriesInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
-  }
-
-  export type NFTCreateWithoutWarpoolEntriesInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
-    collection?: CollectionCreateNestedOneWithoutNftsInput
-    owner?: UserCreateNestedOneWithoutOwnedNFTsInput
-    single1155?: Single1155CreateNestedOneWithoutNftsInput
-    single721?: Single721CreateNestedOneWithoutNftsInput
-    activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
-  }
-
-  export type NFTUncheckedCreateWithoutWarpoolEntriesInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    ownerId?: string | null
-    collectionId?: string | null
-    single721Id?: string | null
-    single1155Id?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
-    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
-  }
-
-  export type NFTCreateOrConnectWithoutWarpoolEntriesInput = {
-    where: NFTWhereUniqueInput
-    create: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
   }
 
   export type WarpoolReservationCreateWithoutEntryInput = {
@@ -100307,10 +97972,10 @@ export namespace Prisma {
     resolvedTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
+    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
     pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
     user?: UserCreateNestedOneWithoutWarpoolReservationsInput
-    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
-    activities?: WarpoolActivityCreateNestedManyWithoutReservationInput
   }
 
   export type WarpoolReservationUncheckedCreateWithoutEntryInput = {
@@ -100344,87 +98009,195 @@ export namespace Prisma {
     create: XOR<WarpoolReservationCreateWithoutEntryInput, WarpoolReservationUncheckedCreateWithoutEntryInput>
   }
 
-  export type WarpoolCaptureCreateWithoutEntryInput = {
+  export type UserCreateWithoutWarpoolEntriesInput = {
     id?: string
-    contract: string
-    tokenId: string
-    originalOwnerAddress: string
-    capturedAt: Date | string
-    status?: $Enums.WarpoolCaptureStatus
-    relistStatus?: $Enums.WarpoolRelistStatus
-    notes?: string | null
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    nft?: NFTCreateNestedOneWithoutWarpoolCapturesInput
-    originalOwner?: UserCreateNestedOneWithoutWarpoolCapturesAsOwnerInput
-    relistListing?: MarketplaceListingCreateNestedOneWithoutRelistCapturesInput
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
-  export type WarpoolCaptureUncheckedCreateWithoutEntryInput = {
+  export type UserUncheckedCreateWithoutWarpoolEntriesInput = {
     id?: string
-    nftId?: string | null
-    contract: string
-    tokenId: string
-    originalOwnerId?: string | null
-    originalOwnerAddress: string
-    capturedAt: Date | string
-    status?: $Enums.WarpoolCaptureStatus
-    relistStatus?: $Enums.WarpoolRelistStatus
-    relistListingId?: string | null
-    notes?: string | null
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type WarpoolCaptureCreateOrConnectWithoutEntryInput = {
-    where: WarpoolCaptureWhereUniqueInput
-    create: XOR<WarpoolCaptureCreateWithoutEntryInput, WarpoolCaptureUncheckedCreateWithoutEntryInput>
+  export type UserCreateOrConnectWithoutWarpoolEntriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
   }
 
-  export type WarpoolActivityCreateWithoutEntryInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    userAddress?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutActivitiesInput
-    user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
-  }
-
-  export type WarpoolActivityUncheckedCreateWithoutEntryInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    poolId?: string | null
-    reservationId?: string | null
-    userId?: string | null
-    userAddress?: string | null
-    nftId?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type WarpoolActivityCreateOrConnectWithoutEntryInput = {
+  export type WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput = {
     where: WarpoolActivityWhereUniqueInput
+    update: XOR<WarpoolActivityUpdateWithoutEntryInput, WarpoolActivityUncheckedUpdateWithoutEntryInput>
     create: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput>
   }
 
-  export type WarpoolActivityCreateManyEntryInputEnvelope = {
-    data: WarpoolActivityCreateManyEntryInput | WarpoolActivityCreateManyEntryInput[]
-    skipDuplicates?: boolean
+  export type WarpoolActivityUpdateWithWhereUniqueWithoutEntryInput = {
+    where: WarpoolActivityWhereUniqueInput
+    data: XOR<WarpoolActivityUpdateWithoutEntryInput, WarpoolActivityUncheckedUpdateWithoutEntryInput>
+  }
+
+  export type WarpoolActivityUpdateManyWithWhereWithoutEntryInput = {
+    where: WarpoolActivityScalarWhereInput
+    data: XOR<WarpoolActivityUpdateManyMutationInput, WarpoolActivityUncheckedUpdateManyWithoutEntryInput>
+  }
+
+  export type WarpoolCaptureUpsertWithoutEntryInput = {
+    update: XOR<WarpoolCaptureUpdateWithoutEntryInput, WarpoolCaptureUncheckedUpdateWithoutEntryInput>
+    create: XOR<WarpoolCaptureCreateWithoutEntryInput, WarpoolCaptureUncheckedCreateWithoutEntryInput>
+    where?: WarpoolCaptureWhereInput
+  }
+
+  export type WarpoolCaptureUpdateToOneWithWhereWithoutEntryInput = {
+    where?: WarpoolCaptureWhereInput
+    data: XOR<WarpoolCaptureUpdateWithoutEntryInput, WarpoolCaptureUncheckedUpdateWithoutEntryInput>
+  }
+
+  export type WarpoolCaptureUpdateWithoutEntryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contract?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    originalOwnerAddress?: StringFieldUpdateOperationsInput | string
+    capturedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumWarpoolCaptureStatusFieldUpdateOperationsInput | $Enums.WarpoolCaptureStatus
+    relistStatus?: EnumWarpoolRelistStatusFieldUpdateOperationsInput | $Enums.WarpoolRelistStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    nft?: NFTUpdateOneWithoutWarpoolCapturesNestedInput
+    originalOwner?: UserUpdateOneWithoutWarpoolCapturesAsOwnerNestedInput
+    relistListing?: MarketplaceListingUpdateOneWithoutRelistCapturesNestedInput
+  }
+
+  export type WarpoolCaptureUncheckedUpdateWithoutEntryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    originalOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
+    originalOwnerAddress?: StringFieldUpdateOperationsInput | string
+    capturedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumWarpoolCaptureStatusFieldUpdateOperationsInput | $Enums.WarpoolCaptureStatus
+    relistStatus?: EnumWarpoolRelistStatusFieldUpdateOperationsInput | $Enums.WarpoolRelistStatus
+    relistListingId?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NFTUpsertWithoutWarpoolEntriesInput = {
+    update: XOR<NFTUpdateWithoutWarpoolEntriesInput, NFTUncheckedUpdateWithoutWarpoolEntriesInput>
+    create: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
+    where?: NFTWhereInput
+  }
+
+  export type NFTUpdateToOneWithWhereWithoutWarpoolEntriesInput = {
+    where?: NFTWhereInput
+    data: XOR<NFTUpdateWithoutWarpoolEntriesInput, NFTUncheckedUpdateWithoutWarpoolEntriesInput>
+  }
+
+  export type NFTUpdateWithoutWarpoolEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    standard?: NullableStringFieldUpdateOperationsInput | string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
+    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUpdateManyWithoutNftNestedInput
+    listingEntries?: MarketplaceListingUpdateManyWithoutNftNestedInput
+    sales?: MarketplaceSaleUpdateManyWithoutNftNestedInput
+    collection?: CollectionUpdateOneWithoutNftsNestedInput
+    owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
+    single1155?: Single1155UpdateOneWithoutNftsNestedInput
+    single721?: Single721UpdateOneWithoutNftsNestedInput
+    activities?: NFTActivityUpdateManyWithoutNftNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
+    warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
+  }
+
+  export type NFTUncheckedUpdateWithoutWarpoolEntriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    standard?: NullableStringFieldUpdateOperationsInput | string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
+    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    collectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    single721Id?: NullableStringFieldUpdateOperationsInput | string | null
+    single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
+    listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
+    sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
+    activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
+    warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type WarpoolPoolUpsertWithoutEntriesInput = {
@@ -100484,9 +98257,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    reservations?: WarpoolReservationUpdateManyWithoutPoolNestedInput
     activities?: WarpoolActivityUpdateManyWithoutPoolNestedInput
     battle?: WarpoolBattleUpdateOneWithoutPoolNestedInput
+    reservations?: WarpoolReservationUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolPoolUncheckedUpdateWithoutEntriesInput = {
@@ -100535,149 +98308,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    reservations?: WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutPoolNestedInput
     battle?: WarpoolBattleUncheckedUpdateOneWithoutPoolNestedInput
-  }
-
-  export type UserUpsertWithoutWarpoolEntriesInput = {
-    update: XOR<UserUpdateWithoutWarpoolEntriesInput, UserUncheckedUpdateWithoutWarpoolEntriesInput>
-    create: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutWarpoolEntriesInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutWarpoolEntriesInput, UserUncheckedUpdateWithoutWarpoolEntriesInput>
-  }
-
-  export type UserUpdateWithoutWarpoolEntriesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutWarpoolEntriesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type NFTUpsertWithoutWarpoolEntriesInput = {
-    update: XOR<NFTUpdateWithoutWarpoolEntriesInput, NFTUncheckedUpdateWithoutWarpoolEntriesInput>
-    create: XOR<NFTCreateWithoutWarpoolEntriesInput, NFTUncheckedCreateWithoutWarpoolEntriesInput>
-    where?: NFTWhereInput
-  }
-
-  export type NFTUpdateToOneWithWhereWithoutWarpoolEntriesInput = {
-    where?: NFTWhereInput
-    data: XOR<NFTUpdateWithoutWarpoolEntriesInput, NFTUncheckedUpdateWithoutWarpoolEntriesInput>
-  }
-
-  export type NFTUpdateWithoutWarpoolEntriesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    standard?: NullableStringFieldUpdateOperationsInput | string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
-    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
-    retryCount?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUpdateManyWithoutNftNestedInput
-    listingEntries?: MarketplaceListingUpdateManyWithoutNftNestedInput
-    sales?: MarketplaceSaleUpdateManyWithoutNftNestedInput
-    collection?: CollectionUpdateOneWithoutNftsNestedInput
-    owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
-    single1155?: Single1155UpdateOneWithoutNftsNestedInput
-    single721?: Single721UpdateOneWithoutNftsNestedInput
-    activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
-    warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
-  }
-
-  export type NFTUncheckedUpdateWithoutWarpoolEntriesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    standard?: NullableStringFieldUpdateOperationsInput | string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
-    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
-    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionId?: NullableStringFieldUpdateOperationsInput | string | null
-    single721Id?: NullableStringFieldUpdateOperationsInput | string | null
-    single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
-    retryCount?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
-    listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
-    sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
-    activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    reservations?: WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolReservationUpsertWithoutEntryInput = {
@@ -100711,10 +98344,10 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
     pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
     user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
   }
 
   export type WarpoolReservationUncheckedUpdateWithoutEntryInput = {
@@ -100743,63 +98376,247 @@ export namespace Prisma {
     activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
   }
 
-  export type WarpoolCaptureUpsertWithoutEntryInput = {
-    update: XOR<WarpoolCaptureUpdateWithoutEntryInput, WarpoolCaptureUncheckedUpdateWithoutEntryInput>
-    create: XOR<WarpoolCaptureCreateWithoutEntryInput, WarpoolCaptureUncheckedCreateWithoutEntryInput>
-    where?: WarpoolCaptureWhereInput
+  export type UserUpsertWithoutWarpoolEntriesInput = {
+    update: XOR<UserUpdateWithoutWarpoolEntriesInput, UserUncheckedUpdateWithoutWarpoolEntriesInput>
+    create: XOR<UserCreateWithoutWarpoolEntriesInput, UserUncheckedCreateWithoutWarpoolEntriesInput>
+    where?: UserWhereInput
   }
 
-  export type WarpoolCaptureUpdateToOneWithWhereWithoutEntryInput = {
-    where?: WarpoolCaptureWhereInput
-    data: XOR<WarpoolCaptureUpdateWithoutEntryInput, WarpoolCaptureUncheckedUpdateWithoutEntryInput>
+  export type UserUpdateToOneWithWhereWithoutWarpoolEntriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutWarpoolEntriesInput, UserUncheckedUpdateWithoutWarpoolEntriesInput>
   }
 
-  export type WarpoolCaptureUpdateWithoutEntryInput = {
+  export type UserUpdateWithoutWarpoolEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    originalOwnerAddress?: StringFieldUpdateOperationsInput | string
-    capturedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumWarpoolCaptureStatusFieldUpdateOperationsInput | $Enums.WarpoolCaptureStatus
-    relistStatus?: EnumWarpoolRelistStatusFieldUpdateOperationsInput | $Enums.WarpoolRelistStatus
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    nft?: NFTUpdateOneWithoutWarpoolCapturesNestedInput
-    originalOwner?: UserUpdateOneWithoutWarpoolCapturesAsOwnerNestedInput
-    relistListing?: MarketplaceListingUpdateOneWithoutRelistCapturesNestedInput
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
   }
 
-  export type WarpoolCaptureUncheckedUpdateWithoutEntryInput = {
+  export type UserUncheckedUpdateWithoutWarpoolEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    originalOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
-    originalOwnerAddress?: StringFieldUpdateOperationsInput | string
-    capturedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    status?: EnumWarpoolCaptureStatusFieldUpdateOperationsInput | $Enums.WarpoolCaptureStatus
-    relistStatus?: EnumWarpoolRelistStatusFieldUpdateOperationsInput | $Enums.WarpoolRelistStatus
-    relistListingId?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type WarpoolActivityUpsertWithWhereUniqueWithoutEntryInput = {
+  export type WarpoolActivityCreateWithoutReservationInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    userAddress?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
+    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
+    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
+    user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
+  }
+
+  export type WarpoolActivityUncheckedCreateWithoutReservationInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    poolId?: string | null
+    entryId?: string | null
+    userId?: string | null
+    userAddress?: string | null
+    nftId?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type WarpoolActivityCreateOrConnectWithoutReservationInput = {
     where: WarpoolActivityWhereUniqueInput
-    update: XOR<WarpoolActivityUpdateWithoutEntryInput, WarpoolActivityUncheckedUpdateWithoutEntryInput>
-    create: XOR<WarpoolActivityCreateWithoutEntryInput, WarpoolActivityUncheckedCreateWithoutEntryInput>
+    create: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput>
   }
 
-  export type WarpoolActivityUpdateWithWhereUniqueWithoutEntryInput = {
-    where: WarpoolActivityWhereUniqueInput
-    data: XOR<WarpoolActivityUpdateWithoutEntryInput, WarpoolActivityUncheckedUpdateWithoutEntryInput>
+  export type WarpoolActivityCreateManyReservationInputEnvelope = {
+    data: WarpoolActivityCreateManyReservationInput | WarpoolActivityCreateManyReservationInput[]
+    skipDuplicates?: boolean
   }
 
-  export type WarpoolActivityUpdateManyWithWhereWithoutEntryInput = {
-    where: WarpoolActivityScalarWhereInput
-    data: XOR<WarpoolActivityUpdateManyMutationInput, WarpoolActivityUncheckedUpdateManyWithoutEntryInput>
+  export type WarpoolEntryCreateWithoutReservationInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
+    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
+    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
+    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
+  }
+
+  export type WarpoolEntryUncheckedCreateWithoutReservationInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    poolId: string
+    userId?: string | null
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
+    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
+  }
+
+  export type WarpoolEntryCreateOrConnectWithoutReservationInput = {
+    where: WarpoolEntryWhereUniqueInput
+    create: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
+  }
+
+  export type NFTCreateWithoutWarpoolReservationsInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
+    collection?: CollectionCreateNestedOneWithoutNftsInput
+    owner?: UserCreateNestedOneWithoutOwnedNFTsInput
+    single1155?: Single1155CreateNestedOneWithoutNftsInput
+    single721?: Single721CreateNestedOneWithoutNftsInput
+    activities?: NFTActivityCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTUncheckedCreateWithoutWarpoolReservationsInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    ownerId?: string | null
+    collectionId?: string | null
+    single721Id?: string | null
+    single1155Id?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
+    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTCreateOrConnectWithoutWarpoolReservationsInput = {
+    where: NFTWhereUniqueInput
+    create: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
   }
 
   export type WarpoolPoolCreateWithoutReservationsInput = {
@@ -100848,9 +98665,9 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    entries?: WarpoolEntryCreateNestedManyWithoutPoolInput
     activities?: WarpoolActivityCreateNestedManyWithoutPoolInput
     battle?: WarpoolBattleCreateNestedOneWithoutPoolInput
+    entries?: WarpoolEntryCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolUncheckedCreateWithoutReservationsInput = {
@@ -100899,9 +98716,9 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    entries?: WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput
     activities?: WarpoolActivityUncheckedCreateNestedManyWithoutPoolInput
     battle?: WarpoolBattleUncheckedCreateNestedOneWithoutPoolInput
+    entries?: WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolCreateOrConnectWithoutReservationsInput = {
@@ -100922,18 +98739,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
     collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolReservationsInput = {
@@ -100949,18 +98765,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
     warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolReservationsInput = {
@@ -100968,184 +98783,166 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutWarpoolReservationsInput, UserUncheckedCreateWithoutWarpoolReservationsInput>
   }
 
-  export type NFTCreateWithoutWarpoolReservationsInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
-    collection?: CollectionCreateNestedOneWithoutNftsInput
-    owner?: UserCreateNestedOneWithoutOwnedNFTsInput
-    single1155?: Single1155CreateNestedOneWithoutNftsInput
-    single721?: Single721CreateNestedOneWithoutNftsInput
-    activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
-  }
-
-  export type NFTUncheckedCreateWithoutWarpoolReservationsInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    ownerId?: string | null
-    collectionId?: string | null
-    single721Id?: string | null
-    single1155Id?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
-    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
-  }
-
-  export type NFTCreateOrConnectWithoutWarpoolReservationsInput = {
-    where: NFTWhereUniqueInput
-    create: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
-  }
-
-  export type WarpoolEntryCreateWithoutReservationInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
-    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
-    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryUncheckedCreateWithoutReservationInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    poolId: string
-    userId?: string | null
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutEntryInput
-  }
-
-  export type WarpoolEntryCreateOrConnectWithoutReservationInput = {
-    where: WarpoolEntryWhereUniqueInput
-    create: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
-  }
-
-  export type WarpoolActivityCreateWithoutReservationInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    userAddress?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    pool?: WarpoolPoolCreateNestedOneWithoutActivitiesInput
-    entry?: WarpoolEntryCreateNestedOneWithoutActivitiesInput
-    user?: UserCreateNestedOneWithoutWarpoolActivitiesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolActivitiesInput
-  }
-
-  export type WarpoolActivityUncheckedCreateWithoutReservationInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    poolId?: string | null
-    entryId?: string | null
-    userId?: string | null
-    userAddress?: string | null
-    nftId?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type WarpoolActivityCreateOrConnectWithoutReservationInput = {
+  export type WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput = {
     where: WarpoolActivityWhereUniqueInput
+    update: XOR<WarpoolActivityUpdateWithoutReservationInput, WarpoolActivityUncheckedUpdateWithoutReservationInput>
     create: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput>
   }
 
-  export type WarpoolActivityCreateManyReservationInputEnvelope = {
-    data: WarpoolActivityCreateManyReservationInput | WarpoolActivityCreateManyReservationInput[]
-    skipDuplicates?: boolean
+  export type WarpoolActivityUpdateWithWhereUniqueWithoutReservationInput = {
+    where: WarpoolActivityWhereUniqueInput
+    data: XOR<WarpoolActivityUpdateWithoutReservationInput, WarpoolActivityUncheckedUpdateWithoutReservationInput>
+  }
+
+  export type WarpoolActivityUpdateManyWithWhereWithoutReservationInput = {
+    where: WarpoolActivityScalarWhereInput
+    data: XOR<WarpoolActivityUpdateManyMutationInput, WarpoolActivityUncheckedUpdateManyWithoutReservationInput>
+  }
+
+  export type WarpoolEntryUpsertWithoutReservationInput = {
+    update: XOR<WarpoolEntryUpdateWithoutReservationInput, WarpoolEntryUncheckedUpdateWithoutReservationInput>
+    create: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
+    where?: WarpoolEntryWhereInput
+  }
+
+  export type WarpoolEntryUpdateToOneWithWhereWithoutReservationInput = {
+    where?: WarpoolEntryWhereInput
+    data: XOR<WarpoolEntryUpdateWithoutReservationInput, WarpoolEntryUncheckedUpdateWithoutReservationInput>
+  }
+
+  export type WarpoolEntryUpdateWithoutReservationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
+    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
+  }
+
+  export type WarpoolEntryUncheckedUpdateWithoutReservationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
+  }
+
+  export type NFTUpsertWithoutWarpoolReservationsInput = {
+    update: XOR<NFTUpdateWithoutWarpoolReservationsInput, NFTUncheckedUpdateWithoutWarpoolReservationsInput>
+    create: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
+    where?: NFTWhereInput
+  }
+
+  export type NFTUpdateToOneWithWhereWithoutWarpoolReservationsInput = {
+    where?: NFTWhereInput
+    data: XOR<NFTUpdateWithoutWarpoolReservationsInput, NFTUncheckedUpdateWithoutWarpoolReservationsInput>
+  }
+
+  export type NFTUpdateWithoutWarpoolReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    standard?: NullableStringFieldUpdateOperationsInput | string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
+    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUpdateManyWithoutNftNestedInput
+    listingEntries?: MarketplaceListingUpdateManyWithoutNftNestedInput
+    sales?: MarketplaceSaleUpdateManyWithoutNftNestedInput
+    collection?: CollectionUpdateOneWithoutNftsNestedInput
+    owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
+    single1155?: Single1155UpdateOneWithoutNftsNestedInput
+    single721?: Single721UpdateOneWithoutNftsNestedInput
+    activities?: NFTActivityUpdateManyWithoutNftNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
+    warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+  }
+
+  export type NFTUncheckedUpdateWithoutWarpoolReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    standard?: NullableStringFieldUpdateOperationsInput | string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
+    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    collectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    single721Id?: NullableStringFieldUpdateOperationsInput | string | null
+    single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
+    listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
+    sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
+    activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
+    warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type WarpoolPoolUpsertWithoutReservationsInput = {
@@ -101205,9 +99002,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: WarpoolEntryUpdateManyWithoutPoolNestedInput
     activities?: WarpoolActivityUpdateManyWithoutPoolNestedInput
     battle?: WarpoolBattleUpdateOneWithoutPoolNestedInput
+    entries?: WarpoolEntryUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolPoolUncheckedUpdateWithoutReservationsInput = {
@@ -101256,9 +99053,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entries?: WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutPoolNestedInput
     battle?: WarpoolBattleUncheckedUpdateOneWithoutPoolNestedInput
+    entries?: WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput
   }
 
   export type UserUpsertWithoutWarpoolReservationsInput = {
@@ -101285,18 +99082,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolReservationsInput = {
@@ -101312,180 +99108,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type NFTUpsertWithoutWarpoolReservationsInput = {
-    update: XOR<NFTUpdateWithoutWarpoolReservationsInput, NFTUncheckedUpdateWithoutWarpoolReservationsInput>
-    create: XOR<NFTCreateWithoutWarpoolReservationsInput, NFTUncheckedCreateWithoutWarpoolReservationsInput>
-    where?: NFTWhereInput
-  }
-
-  export type NFTUpdateToOneWithWhereWithoutWarpoolReservationsInput = {
-    where?: NFTWhereInput
-    data: XOR<NFTUpdateWithoutWarpoolReservationsInput, NFTUncheckedUpdateWithoutWarpoolReservationsInput>
-  }
-
-  export type NFTUpdateWithoutWarpoolReservationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    standard?: NullableStringFieldUpdateOperationsInput | string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
-    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
-    retryCount?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUpdateManyWithoutNftNestedInput
-    listingEntries?: MarketplaceListingUpdateManyWithoutNftNestedInput
-    sales?: MarketplaceSaleUpdateManyWithoutNftNestedInput
-    collection?: CollectionUpdateOneWithoutNftsNestedInput
-    owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
-    single1155?: Single1155UpdateOneWithoutNftsNestedInput
-    single721?: Single721UpdateOneWithoutNftsNestedInput
-    activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
-    warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
-  }
-
-  export type NFTUncheckedUpdateWithoutWarpoolReservationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    standard?: NullableStringFieldUpdateOperationsInput | string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
-    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
-    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionId?: NullableStringFieldUpdateOperationsInput | string | null
-    single721Id?: NullableStringFieldUpdateOperationsInput | string | null
-    single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
-    retryCount?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
-    listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
-    sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
-    activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
-  }
-
-  export type WarpoolEntryUpsertWithoutReservationInput = {
-    update: XOR<WarpoolEntryUpdateWithoutReservationInput, WarpoolEntryUncheckedUpdateWithoutReservationInput>
-    create: XOR<WarpoolEntryCreateWithoutReservationInput, WarpoolEntryUncheckedCreateWithoutReservationInput>
-    where?: WarpoolEntryWhereInput
-  }
-
-  export type WarpoolEntryUpdateToOneWithWhereWithoutReservationInput = {
-    where?: WarpoolEntryWhereInput
-    data: XOR<WarpoolEntryUpdateWithoutReservationInput, WarpoolEntryUncheckedUpdateWithoutReservationInput>
-  }
-
-  export type WarpoolEntryUpdateWithoutReservationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
-    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
-    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
-  }
-
-  export type WarpoolEntryUncheckedUpdateWithoutReservationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
-  }
-
-  export type WarpoolActivityUpsertWithWhereUniqueWithoutReservationInput = {
-    where: WarpoolActivityWhereUniqueInput
-    update: XOR<WarpoolActivityUpdateWithoutReservationInput, WarpoolActivityUncheckedUpdateWithoutReservationInput>
-    create: XOR<WarpoolActivityCreateWithoutReservationInput, WarpoolActivityUncheckedCreateWithoutReservationInput>
-  }
-
-  export type WarpoolActivityUpdateWithWhereUniqueWithoutReservationInput = {
-    where: WarpoolActivityWhereUniqueInput
-    data: XOR<WarpoolActivityUpdateWithoutReservationInput, WarpoolActivityUncheckedUpdateWithoutReservationInput>
-  }
-
-  export type WarpoolActivityUpdateManyWithWhereWithoutReservationInput = {
-    where: WarpoolActivityScalarWhereInput
-    data: XOR<WarpoolActivityUpdateManyMutationInput, WarpoolActivityUncheckedUpdateManyWithoutReservationInput>
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WarpoolPoolCreateWithoutBattleInput = {
@@ -101534,9 +99167,9 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    activities?: WarpoolActivityCreateNestedManyWithoutPoolInput
     entries?: WarpoolEntryCreateNestedManyWithoutPoolInput
     reservations?: WarpoolReservationCreateNestedManyWithoutPoolInput
-    activities?: WarpoolActivityCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolUncheckedCreateWithoutBattleInput = {
@@ -101585,9 +99218,9 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutPoolInput
     entries?: WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput
     reservations?: WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput
-    activities?: WarpoolActivityUncheckedCreateNestedManyWithoutPoolInput
   }
 
   export type WarpoolPoolCreateOrConnectWithoutBattleInput = {
@@ -101690,9 +99323,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUpdateManyWithoutPoolNestedInput
     entries?: WarpoolEntryUpdateManyWithoutPoolNestedInput
     reservations?: WarpoolReservationUpdateManyWithoutPoolNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolPoolUncheckedUpdateWithoutBattleInput = {
@@ -101741,9 +99374,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUncheckedUpdateManyWithoutPoolNestedInput
     entries?: WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput
     reservations?: WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput
-    activities?: WarpoolActivityUncheckedUpdateManyWithoutPoolNestedInput
   }
 
   export type WarpoolBattleMatchUpsertWithWhereUniqueWithoutBattleInput = {
@@ -101899,11 +99532,11 @@ export namespace Prisma {
     joinedTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
-    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
     activities?: WarpoolActivityCreateNestedManyWithoutEntryInput
+    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
+    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
+    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
   }
 
   export type WarpoolEntryUncheckedCreateWithoutCaptureInput = {
@@ -101968,9 +99601,9 @@ export namespace Prisma {
     single1155?: Single1155CreateNestedOneWithoutNftsInput
     single721?: Single721CreateNestedOneWithoutNftsInput
     activities?: NFTActivityCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
     warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutNftInput
   }
 
   export type NFTUncheckedCreateWithoutWarpoolCapturesInput = {
@@ -102000,9 +99633,9 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
     sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
     activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
     warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutNftInput
   }
 
   export type NFTCreateOrConnectWithoutWarpoolCapturesInput = {
@@ -102023,18 +99656,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
     collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
     warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolCapturesAsOwnerInput = {
@@ -102050,18 +99682,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
     warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolCapturesAsOwnerInput = {
@@ -102144,11 +99775,11 @@ export namespace Prisma {
     joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
-    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
     activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
+    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
   }
 
   export type WarpoolEntryUncheckedUpdateWithoutCaptureInput = {
@@ -102219,9 +99850,9 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
     warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutWarpoolCapturesInput = {
@@ -102251,9 +99882,9 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type UserUpsertWithoutWarpoolCapturesAsOwnerInput = {
@@ -102280,18 +99911,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
     warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolCapturesAsOwnerInput = {
@@ -102307,18 +99937,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type MarketplaceListingUpsertWithoutRelistCapturesInput = {
@@ -102368,6 +99997,140 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WarpoolEntryCreateWithoutActivitiesInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    userAddress: string
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
+    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
+    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
+    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
+    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
+  }
+
+  export type WarpoolEntryUncheckedCreateWithoutActivitiesInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    poolId: string
+    userId?: string | null
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    reservationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
+  }
+
+  export type WarpoolEntryCreateOrConnectWithoutActivitiesInput = {
+    where: WarpoolEntryWhereUniqueInput
+    create: XOR<WarpoolEntryCreateWithoutActivitiesInput, WarpoolEntryUncheckedCreateWithoutActivitiesInput>
+  }
+
+  export type NFTCreateWithoutWarpoolActivitiesInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
+    collection?: CollectionCreateNestedOneWithoutNftsInput
+    owner?: UserCreateNestedOneWithoutOwnedNFTsInput
+    single1155?: Single1155CreateNestedOneWithoutNftsInput
+    single721?: Single721CreateNestedOneWithoutNftsInput
+    activities?: NFTActivityCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTUncheckedCreateWithoutWarpoolActivitiesInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    ownerId?: string | null
+    collectionId?: string | null
+    single721Id?: string | null
+    single1155Id?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
+    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
+    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
+    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
+    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
+  }
+
+  export type NFTCreateOrConnectWithoutWarpoolActivitiesInput = {
+    where: NFTWhereUniqueInput
+    create: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
+  }
+
   export type WarpoolPoolCreateWithoutActivitiesInput = {
     id?: string
     chainId: number
@@ -102414,9 +100177,9 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    battle?: WarpoolBattleCreateNestedOneWithoutPoolInput
     entries?: WarpoolEntryCreateNestedManyWithoutPoolInput
     reservations?: WarpoolReservationCreateNestedManyWithoutPoolInput
-    battle?: WarpoolBattleCreateNestedOneWithoutPoolInput
   }
 
   export type WarpoolPoolUncheckedCreateWithoutActivitiesInput = {
@@ -102465,79 +100228,14 @@ export namespace Prisma {
     settleTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    battle?: WarpoolBattleUncheckedCreateNestedOneWithoutPoolInput
     entries?: WarpoolEntryUncheckedCreateNestedManyWithoutPoolInput
     reservations?: WarpoolReservationUncheckedCreateNestedManyWithoutPoolInput
-    battle?: WarpoolBattleUncheckedCreateNestedOneWithoutPoolInput
   }
 
   export type WarpoolPoolCreateOrConnectWithoutActivitiesInput = {
     where: WarpoolPoolWhereUniqueInput
     create: XOR<WarpoolPoolCreateWithoutActivitiesInput, WarpoolPoolUncheckedCreateWithoutActivitiesInput>
-  }
-
-  export type WarpoolEntryCreateWithoutActivitiesInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    userAddress: string
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    pool: WarpoolPoolCreateNestedOneWithoutEntriesInput
-    user?: UserCreateNestedOneWithoutWarpoolEntriesInput
-    nft?: NFTCreateNestedOneWithoutWarpoolEntriesInput
-    reservation?: WarpoolReservationCreateNestedOneWithoutEntryInput
-    capture?: WarpoolCaptureCreateNestedOneWithoutEntryInput
-  }
-
-  export type WarpoolEntryUncheckedCreateWithoutActivitiesInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    poolId: string
-    userId?: string | null
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    reservationId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    capture?: WarpoolCaptureUncheckedCreateNestedOneWithoutEntryInput
-  }
-
-  export type WarpoolEntryCreateOrConnectWithoutActivitiesInput = {
-    where: WarpoolEntryWhereUniqueInput
-    create: XOR<WarpoolEntryCreateWithoutActivitiesInput, WarpoolEntryUncheckedCreateWithoutActivitiesInput>
   }
 
   export type WarpoolReservationCreateWithoutActivitiesInput = {
@@ -102560,10 +100258,10 @@ export namespace Prisma {
     resolvedTxHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
+    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
     pool: WarpoolPoolCreateNestedOneWithoutReservationsInput
     user?: UserCreateNestedOneWithoutWarpoolReservationsInput
-    nft?: NFTCreateNestedOneWithoutWarpoolReservationsInput
-    entry?: WarpoolEntryCreateNestedOneWithoutReservationInput
   }
 
   export type WarpoolReservationUncheckedCreateWithoutActivitiesInput = {
@@ -102610,18 +100308,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
     collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
     warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
   }
 
   export type UserUncheckedCreateWithoutWarpoolActivitiesInput = {
@@ -102637,18 +100334,17 @@ export namespace Prisma {
     telegram?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
     collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
     holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
     ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
     rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
     stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
     warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
     warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
   }
 
   export type UserCreateOrConnectWithoutWarpoolActivitiesInput = {
@@ -102656,73 +100352,150 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutWarpoolActivitiesInput, UserUncheckedCreateWithoutWarpoolActivitiesInput>
   }
 
-  export type NFTCreateWithoutWarpoolActivitiesInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleCreateNestedManyWithoutNftInput
-    collection?: CollectionCreateNestedOneWithoutNftsInput
-    owner?: UserCreateNestedOneWithoutOwnedNFTsInput
-    single1155?: Single1155CreateNestedOneWithoutNftsInput
-    single721?: Single721CreateNestedOneWithoutNftsInput
-    activities?: NFTActivityCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureCreateNestedManyWithoutNftInput
+  export type WarpoolEntryUpsertWithoutActivitiesInput = {
+    update: XOR<WarpoolEntryUpdateWithoutActivitiesInput, WarpoolEntryUncheckedUpdateWithoutActivitiesInput>
+    create: XOR<WarpoolEntryCreateWithoutActivitiesInput, WarpoolEntryUncheckedCreateWithoutActivitiesInput>
+    where?: WarpoolEntryWhereInput
   }
 
-  export type NFTUncheckedCreateWithoutWarpoolActivitiesInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    ownerId?: string | null
-    collectionId?: string | null
-    single721Id?: string | null
-    single1155Id?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedCreateNestedManyWithoutNftInput
-    listingEntries?: MarketplaceListingUncheckedCreateNestedManyWithoutNftInput
-    sales?: MarketplaceSaleUncheckedCreateNestedManyWithoutNftInput
-    activities?: NFTActivityUncheckedCreateNestedManyWithoutNftInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutNftInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutNftInput
-    warpoolCaptures?: WarpoolCaptureUncheckedCreateNestedManyWithoutNftInput
+  export type WarpoolEntryUpdateToOneWithWhereWithoutActivitiesInput = {
+    where?: WarpoolEntryWhereInput
+    data: XOR<WarpoolEntryUpdateWithoutActivitiesInput, WarpoolEntryUncheckedUpdateWithoutActivitiesInput>
   }
 
-  export type NFTCreateOrConnectWithoutWarpoolActivitiesInput = {
-    where: NFTWhereUniqueInput
+  export type WarpoolEntryUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
+    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
+  }
+
+  export type WarpoolEntryUncheckedUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
+  }
+
+  export type NFTUpsertWithoutWarpoolActivitiesInput = {
+    update: XOR<NFTUpdateWithoutWarpoolActivitiesInput, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
     create: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
+    where?: NFTWhereInput
+  }
+
+  export type NFTUpdateToOneWithWhereWithoutWarpoolActivitiesInput = {
+    where?: NFTWhereInput
+    data: XOR<NFTUpdateWithoutWarpoolActivitiesInput, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
+  }
+
+  export type NFTUpdateWithoutWarpoolActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    standard?: NullableStringFieldUpdateOperationsInput | string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
+    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUpdateManyWithoutNftNestedInput
+    listingEntries?: MarketplaceListingUpdateManyWithoutNftNestedInput
+    sales?: MarketplaceSaleUpdateManyWithoutNftNestedInput
+    collection?: CollectionUpdateOneWithoutNftsNestedInput
+    owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
+    single1155?: Single1155UpdateOneWithoutNftsNestedInput
+    single721?: Single721UpdateOneWithoutNftsNestedInput
+    activities?: NFTActivityUpdateManyWithoutNftNestedInput
+    warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
+  }
+
+  export type NFTUncheckedUpdateWithoutWarpoolActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
+    contract?: StringFieldUpdateOperationsInput | string
+    standard?: NullableStringFieldUpdateOperationsInput | string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
+    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
+    collectionId?: NullableStringFieldUpdateOperationsInput | string | null
+    single721Id?: NullableStringFieldUpdateOperationsInput | string | null
+    single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
+    listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
+    sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
+    activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
+    warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type WarpoolPoolUpsertWithoutActivitiesInput = {
@@ -102782,9 +100555,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    battle?: WarpoolBattleUpdateOneWithoutPoolNestedInput
     entries?: WarpoolEntryUpdateManyWithoutPoolNestedInput
     reservations?: WarpoolReservationUpdateManyWithoutPoolNestedInput
-    battle?: WarpoolBattleUpdateOneWithoutPoolNestedInput
   }
 
   export type WarpoolPoolUncheckedUpdateWithoutActivitiesInput = {
@@ -102833,80 +100606,9 @@ export namespace Prisma {
     settleTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    battle?: WarpoolBattleUncheckedUpdateOneWithoutPoolNestedInput
     entries?: WarpoolEntryUncheckedUpdateManyWithoutPoolNestedInput
     reservations?: WarpoolReservationUncheckedUpdateManyWithoutPoolNestedInput
-    battle?: WarpoolBattleUncheckedUpdateOneWithoutPoolNestedInput
-  }
-
-  export type WarpoolEntryUpsertWithoutActivitiesInput = {
-    update: XOR<WarpoolEntryUpdateWithoutActivitiesInput, WarpoolEntryUncheckedUpdateWithoutActivitiesInput>
-    create: XOR<WarpoolEntryCreateWithoutActivitiesInput, WarpoolEntryUncheckedCreateWithoutActivitiesInput>
-    where?: WarpoolEntryWhereInput
-  }
-
-  export type WarpoolEntryUpdateToOneWithWhereWithoutActivitiesInput = {
-    where?: WarpoolEntryWhereInput
-    data: XOR<WarpoolEntryUpdateWithoutActivitiesInput, WarpoolEntryUncheckedUpdateWithoutActivitiesInput>
-  }
-
-  export type WarpoolEntryUpdateWithoutActivitiesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
-    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
-    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
-  }
-
-  export type WarpoolEntryUncheckedUpdateWithoutActivitiesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
   }
 
   export type WarpoolReservationUpsertWithoutActivitiesInput = {
@@ -102940,10 +100642,10 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
     pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
     user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
-    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
   }
 
   export type WarpoolReservationUncheckedUpdateWithoutActivitiesInput = {
@@ -102996,18 +100698,17 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
     warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWarpoolActivitiesInput = {
@@ -103023,93 +100724,131 @@ export namespace Prisma {
     telegram?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
     collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
     holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
     ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
     rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
     stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
     warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
     warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
-  export type NFTUpsertWithoutWarpoolActivitiesInput = {
-    update: XOR<NFTUpdateWithoutWarpoolActivitiesInput, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
-    create: XOR<NFTCreateWithoutWarpoolActivitiesInput, NFTUncheckedCreateWithoutWarpoolActivitiesInput>
-    where?: NFTWhereInput
+  export type UserCreateWithoutAdminProposalsCreatedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
   }
 
-  export type NFTUpdateToOneWithWhereWithoutWarpoolActivitiesInput = {
-    where?: NFTWhereInput
-    data: XOR<NFTUpdateWithoutWarpoolActivitiesInput, NFTUncheckedUpdateWithoutWarpoolActivitiesInput>
+  export type UserUncheckedCreateWithoutAdminProposalsCreatedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type NFTUpdateWithoutWarpoolActivitiesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    standard?: NullableStringFieldUpdateOperationsInput | string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
-    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
-    retryCount?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUpdateManyWithoutNftNestedInput
-    listingEntries?: MarketplaceListingUpdateManyWithoutNftNestedInput
-    sales?: MarketplaceSaleUpdateManyWithoutNftNestedInput
-    collection?: CollectionUpdateOneWithoutNftsNestedInput
-    owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
-    single1155?: Single1155UpdateOneWithoutNftsNestedInput
-    single721?: Single721UpdateOneWithoutNftsNestedInput
-    activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
-    warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+  export type UserCreateOrConnectWithoutAdminProposalsCreatedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
   }
 
-  export type NFTUncheckedUpdateWithoutWarpoolActivitiesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tokenId?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: NullableStringFieldUpdateOperationsInput | string | null
-    contract?: StringFieldUpdateOperationsInput | string
-    standard?: NullableStringFieldUpdateOperationsInput | string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: NullableIntFieldUpdateOperationsInput | number | null
-    royaltyRecipient?: NullableStringFieldUpdateOperationsInput | string | null
-    ownerId?: NullableStringFieldUpdateOperationsInput | string | null
-    collectionId?: NullableStringFieldUpdateOperationsInput | string | null
-    single721Id?: NullableStringFieldUpdateOperationsInput | string | null
-    single1155Id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumNftStatusFieldUpdateOperationsInput | $Enums.NftStatus
-    retryCount?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    rarityScore?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    auctionEntries?: AuctionUncheckedUpdateManyWithoutNftNestedInput
-    listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
-    sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
-    activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
-    warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+  export type UserCreateWithoutAdminProposalsEditedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminProposalsEditedInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminProposalsEditedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
   }
 
   export type MultisigSafeCreateWithoutAdminProposalsInput = {
@@ -103137,124 +100876,6 @@ export namespace Prisma {
   export type MultisigSafeCreateOrConnectWithoutAdminProposalsInput = {
     where: MultisigSafeWhereUniqueInput
     create: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
-  }
-
-  export type UserCreateWithoutAdminProposalsCreatedInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserUncheckedCreateWithoutAdminProposalsCreatedInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserCreateOrConnectWithoutAdminProposalsCreatedInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
-  }
-
-  export type UserCreateWithoutAdminProposalsEditedInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalEvents?: AdminProposalEventCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserUncheckedCreateWithoutAdminProposalsEditedInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalEvents?: AdminProposalEventUncheckedCreateNestedManyWithoutActorUserInput
-  }
-
-  export type UserCreateOrConnectWithoutAdminProposalsEditedInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
   }
 
   export type MultisigTxCreateWithoutLinkedAdminProposalsInput = {
@@ -103372,6 +100993,132 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserUpsertWithoutAdminProposalsCreatedInput = {
+    update: XOR<UserUpdateWithoutAdminProposalsCreatedInput, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
+    create: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminProposalsCreatedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminProposalsCreatedInput, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
+  }
+
+  export type UserUpdateWithoutAdminProposalsCreatedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminProposalsCreatedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUpsertWithoutAdminProposalsEditedInput = {
+    update: XOR<UserUpdateWithoutAdminProposalsEditedInput, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
+    create: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminProposalsEditedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminProposalsEditedInput, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
+  }
+
+  export type UserUpdateWithoutAdminProposalsEditedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminProposalsEditedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type MultisigSafeUpsertWithoutAdminProposalsInput = {
     update: XOR<MultisigSafeUpdateWithoutAdminProposalsInput, MultisigSafeUncheckedUpdateWithoutAdminProposalsInput>
     create: XOR<MultisigSafeCreateWithoutAdminProposalsInput, MultisigSafeUncheckedCreateWithoutAdminProposalsInput>
@@ -103403,136 +101150,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     owners?: MultisigOwnerUncheckedUpdateManyWithoutSafeNestedInput
     txs?: MultisigTxUncheckedUpdateManyWithoutSafeNestedInput
-  }
-
-  export type UserUpsertWithoutAdminProposalsCreatedInput = {
-    update: XOR<UserUpdateWithoutAdminProposalsCreatedInput, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
-    create: XOR<UserCreateWithoutAdminProposalsCreatedInput, UserUncheckedCreateWithoutAdminProposalsCreatedInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAdminProposalsCreatedInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAdminProposalsCreatedInput, UserUncheckedUpdateWithoutAdminProposalsCreatedInput>
-  }
-
-  export type UserUpdateWithoutAdminProposalsCreatedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAdminProposalsCreatedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type UserUpsertWithoutAdminProposalsEditedInput = {
-    update: XOR<UserUpdateWithoutAdminProposalsEditedInput, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
-    create: XOR<UserCreateWithoutAdminProposalsEditedInput, UserUncheckedCreateWithoutAdminProposalsEditedInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAdminProposalsEditedInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAdminProposalsEditedInput, UserUncheckedUpdateWithoutAdminProposalsEditedInput>
-  }
-
-  export type UserUpdateWithoutAdminProposalsEditedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUpdateManyWithoutActorUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAdminProposalsEditedInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalEvents?: AdminProposalEventUncheckedUpdateManyWithoutActorUserNestedInput
   }
 
   export type MultisigTxUpsertWithoutLinkedAdminProposalsInput = {
@@ -103659,9 +101276,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
     lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
     events?: AdminProposalEventCreateNestedManyWithoutProposalInput
   }
@@ -103741,9 +101358,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
     lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
     events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
   }
@@ -103781,6 +101398,63 @@ export namespace Prisma {
     events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
   }
 
+  export type UserCreateWithoutAdminProposalEventsInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
+    collections?: CollectionCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdminProposalEventsInput = {
+    id?: string
+    walletAddress: string
+    username: string
+    bio?: string | null
+    profileBanner?: string | null
+    profileAvatar: string
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    telegram?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
+    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
+    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
+    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
+    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
+    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
+    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
+    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
+    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdminProposalEventsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
+  }
+
   export type AdminProposalCreateWithoutEventsInput = {
     id?: string
     area: $Enums.AdminProposalArea
@@ -103807,9 +101481,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     createdByUser?: UserCreateNestedOneWithoutAdminProposalsCreatedInput
     lastEditedByUser?: UserCreateNestedOneWithoutAdminProposalsEditedInput
+    safe?: MultisigSafeCreateNestedOneWithoutAdminProposalsInput
     submittedMultisigTx?: MultisigTxCreateNestedOneWithoutLinkedAdminProposalsInput
     actions?: AdminProposalActionCreateNestedManyWithoutProposalInput
   }
@@ -103852,63 +101526,67 @@ export namespace Prisma {
     create: XOR<AdminProposalCreateWithoutEventsInput, AdminProposalUncheckedCreateWithoutEventsInput>
   }
 
-  export type UserCreateWithoutAdminProposalEventsInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalCreateNestedManyWithoutLastEditedByUserInput
-  }
-
-  export type UserUncheckedCreateWithoutAdminProposalEventsInput = {
-    id?: string
-    walletAddress: string
-    username: string
-    bio?: string | null
-    profileBanner?: string | null
-    profileAvatar: string
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    telegram?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    collections?: CollectionUncheckedCreateNestedManyWithoutCreatorInput
-    submissions?: CollectionSubmissionUncheckedCreateNestedManyWithoutSubmittedByInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedCreateNestedManyWithoutUserInput
-    ownedNFTs?: NFTUncheckedCreateNestedManyWithoutOwnerInput
-    rewardClaimLogs?: RewardClaimLogUncheckedCreateNestedManyWithoutUserInput
-    stolenReports?: StolenItemUncheckedCreateNestedManyWithoutReporterInput
-    warpoolEntries?: WarpoolEntryUncheckedCreateNestedManyWithoutUserInput
-    warpoolReservations?: WarpoolReservationUncheckedCreateNestedManyWithoutUserInput
-    warpoolActivities?: WarpoolActivityUncheckedCreateNestedManyWithoutUserInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedCreateNestedManyWithoutOriginalOwnerInput
-    adminProposalsCreated?: AdminProposalUncheckedCreateNestedManyWithoutCreatedByUserInput
-    adminProposalsEdited?: AdminProposalUncheckedCreateNestedManyWithoutLastEditedByUserInput
-  }
-
-  export type UserCreateOrConnectWithoutAdminProposalEventsInput = {
-    where: UserWhereUniqueInput
+  export type UserUpsertWithoutAdminProposalEventsInput = {
+    update: XOR<UserUpdateWithoutAdminProposalEventsInput, UserUncheckedUpdateWithoutAdminProposalEventsInput>
     create: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdminProposalEventsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdminProposalEventsInput, UserUncheckedUpdateWithoutAdminProposalEventsInput>
+  }
+
+  export type UserUpdateWithoutAdminProposalEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
+    collections?: CollectionUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdminProposalEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    walletAddress?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
+    profileAvatar?: StringFieldUpdateOperationsInput | string
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    website?: NullableStringFieldUpdateOperationsInput | string | null
+    telegram?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
+    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
+    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
+    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
+    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
+    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
+    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
+    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
+    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AdminProposalUpsertWithoutEventsInput = {
@@ -103948,9 +101626,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
     lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
     actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
   }
@@ -103986,269 +101664,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
-  }
-
-  export type UserUpsertWithoutAdminProposalEventsInput = {
-    update: XOR<UserUpdateWithoutAdminProposalEventsInput, UserUncheckedUpdateWithoutAdminProposalEventsInput>
-    create: XOR<UserCreateWithoutAdminProposalEventsInput, UserUncheckedCreateWithoutAdminProposalEventsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAdminProposalEventsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAdminProposalEventsInput, UserUncheckedUpdateWithoutAdminProposalEventsInput>
-  }
-
-  export type UserUpdateWithoutAdminProposalEventsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUpdateManyWithoutLastEditedByUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAdminProposalEventsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    walletAddress?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    bio?: NullableStringFieldUpdateOperationsInput | string | null
-    profileBanner?: NullableStringFieldUpdateOperationsInput | string | null
-    profileAvatar?: StringFieldUpdateOperationsInput | string
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    collections?: CollectionUncheckedUpdateManyWithoutCreatorNestedInput
-    submissions?: CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByNestedInput
-    holderRewardsMulti?: HolderRewardMultiUncheckedUpdateManyWithoutUserNestedInput
-    ownedNFTs?: NFTUncheckedUpdateManyWithoutOwnerNestedInput
-    rewardClaimLogs?: RewardClaimLogUncheckedUpdateManyWithoutUserNestedInput
-    stolenReports?: StolenItemUncheckedUpdateManyWithoutReporterNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutUserNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutUserNestedInput
-    warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutUserNestedInput
-    warpoolCapturesAsOwner?: WarpoolCaptureUncheckedUpdateManyWithoutOriginalOwnerNestedInput
-    adminProposalsCreated?: AdminProposalUncheckedUpdateManyWithoutCreatedByUserNestedInput
-    adminProposalsEdited?: AdminProposalUncheckedUpdateManyWithoutLastEditedByUserNestedInput
-  }
-
-  export type CollectionCreateManyCreatorInput = {
-    id?: string
-    name: string
-    symbol: string
-    contract: string
-    description?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    standard?: string
-    supply?: number | null
-    baseUri?: string | null
-    gatewayPref?: $Enums.GatewayPref
-    indexStatus?: $Enums.IndexStatus
-    x?: string | null
-    instagram?: string | null
-    website?: string | null
-    discord?: string | null
-    telegram?: string | null
-    floorPrice?: number
-    volume?: number
-    itemsCount?: number
-    ownersCount?: number
-    change24h?: number
-    ownerAddress: string
-    isOrphan?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type CollectionSubmissionCreateManySubmittedByInput = {
-    id?: string
-    contract: string
-    ownerAddress?: string | null
-    name?: string | null
-    symbol?: string | null
-    logoUrl?: string | null
-    coverUrl?: string | null
-    baseUri?: string | null
-    supply?: number | null
-    description?: string | null
-    website?: string | null
-    x?: string | null
-    instagram?: string | null
-    telegram?: string | null
-    feeTxHash?: string | null
-    feePaidWei?: Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: Date | string | null
-    ownershipVerified?: boolean
-    status?: $Enums.SubmissionStatus
-    statusReason?: string | null
-    reviewedByUserId?: string | null
-    reviewedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type HolderRewardMultiCreateManyUserInput = {
-    id?: string
-    walletAddress: string
-    currencyId: string
-    lastAccPerToken?: Decimal | DecimalJsLike | number | string
-    claimedAmount?: Decimal | DecimalJsLike | number | string
-    updatedAt?: Date | string
-  }
-
-  export type NFTCreateManyOwnerInput = {
-    id?: string
-    tokenId: string
-    name?: string | null
-    imageUrl?: string | null
-    description?: string | null
-    traits?: NullableJsonNullValueInput | InputJsonValue
-    attributes?: NullableJsonNullValueInput | InputJsonValue
-    tokenUri?: string | null
-    contract: string
-    standard?: string | null
-    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
-    royaltyBps?: number | null
-    royaltyRecipient?: string | null
-    collectionId?: string | null
-    single721Id?: string | null
-    single1155Id?: string | null
-    status?: $Enums.NftStatus
-    retryCount?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    rarityScore?: Decimal | DecimalJsLike | number | string | null
-  }
-
-  export type RewardClaimLogCreateManyUserInput = {
-    id?: string
-    walletAddress: string
-    currencyId: string
-    amount: Decimal | DecimalJsLike | number | string
-    txHash?: string | null
-    timestamp?: Date | string
-  }
-
-  export type StolenItemCreateManyReporterInput = {
-    id?: string
-    contract: string
-    tokenId: string
-    status?: $Enums.StolenStatus
-    source?: $Enums.StolenSource
-    reporterAddress?: string | null
-    evidenceUrl?: string | null
-    notes?: string | null
-    disputed?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WarpoolEntryCreateManyUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryIdOnChain: bigint | number
-    poolId: string
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract?: string | null
-    relicTokenId?: string | null
-    relicType?: $Enums.WarpoolRelicType
-    status: $Enums.WarpoolEntryStatus
-    placement?: number | null
-    selectedForBattle?: boolean
-    relicDiscountBps?: number | null
-    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
-    joinedAt: Date | string
-    joinedTxHash?: string | null
-    reservationId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WarpoolReservationCreateManyUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    reservationIdOnChain: bigint | number
-    poolId: string
-    userAddress: string
-    nftId?: string | null
-    comradeContract: string
-    comradeTokenId: string
-    relicContract: string
-    relicTokenId: string
-    status: $Enums.WarpoolReservationStatus
-    discountBps?: number | null
-    createdAtOnChain: Date | string
-    expiresAtOnChain: Date | string
-    consumedAt?: Date | string | null
-    expiredAt?: Date | string | null
-    createdTxHash?: string | null
-    resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WarpoolActivityCreateManyUserInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    poolId?: string | null
-    entryId?: string | null
-    reservationId?: string | null
-    userAddress?: string | null
-    nftId?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type WarpoolCaptureCreateManyOriginalOwnerInput = {
-    id?: string
-    entryId: string
-    nftId?: string | null
-    contract: string
-    tokenId: string
-    originalOwnerAddress: string
-    capturedAt: Date | string
-    status?: $Enums.WarpoolCaptureStatus
-    relistStatus?: $Enums.WarpoolRelistStatus
-    relistListingId?: string | null
-    notes?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
   export type AdminProposalCreateManyCreatedByUserInput = {
@@ -104321,6 +101736,401 @@ export namespace Prisma {
     note?: string | null
     payloadJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+  }
+
+  export type CollectionCreateManyCreatorInput = {
+    id?: string
+    name: string
+    symbol: string
+    contract: string
+    description?: string | null
+    logoUrl?: string | null
+    coverUrl?: string | null
+    standard?: string
+    supply?: number | null
+    baseUri?: string | null
+    gatewayPref?: $Enums.GatewayPref
+    indexStatus?: $Enums.IndexStatus
+    x?: string | null
+    instagram?: string | null
+    website?: string | null
+    discord?: string | null
+    telegram?: string | null
+    floorPrice?: number
+    volume?: number
+    itemsCount?: number
+    ownersCount?: number
+    change24h?: number
+    ownerAddress: string
+    isOrphan?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type HolderRewardMultiCreateManyUserInput = {
+    id?: string
+    walletAddress: string
+    currencyId: string
+    lastAccPerToken?: Decimal | DecimalJsLike | number | string
+    claimedAmount?: Decimal | DecimalJsLike | number | string
+    updatedAt?: Date | string
+  }
+
+  export type NFTCreateManyOwnerInput = {
+    id?: string
+    tokenId: string
+    name?: string | null
+    imageUrl?: string | null
+    description?: string | null
+    traits?: NullableJsonNullValueInput | InputJsonValue
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    tokenUri?: string | null
+    contract: string
+    standard?: string | null
+    rawMetadata?: NullableJsonNullValueInput | InputJsonValue
+    royaltyBps?: number | null
+    royaltyRecipient?: string | null
+    collectionId?: string | null
+    single721Id?: string | null
+    single1155Id?: string | null
+    status?: $Enums.NftStatus
+    retryCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rarityScore?: Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type RewardClaimLogCreateManyUserInput = {
+    id?: string
+    walletAddress: string
+    currencyId: string
+    amount: Decimal | DecimalJsLike | number | string
+    txHash?: string | null
+    timestamp?: Date | string
+  }
+
+  export type StolenItemCreateManyReporterInput = {
+    id?: string
+    contract: string
+    tokenId: string
+    status?: $Enums.StolenStatus
+    source?: $Enums.StolenSource
+    reporterAddress?: string | null
+    evidenceUrl?: string | null
+    notes?: string | null
+    disputed?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WarpoolActivityCreateManyUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    poolId?: string | null
+    entryId?: string | null
+    reservationId?: string | null
+    userAddress?: string | null
+    nftId?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type WarpoolCaptureCreateManyOriginalOwnerInput = {
+    id?: string
+    entryId: string
+    nftId?: string | null
+    contract: string
+    tokenId: string
+    originalOwnerAddress: string
+    capturedAt: Date | string
+    status?: $Enums.WarpoolCaptureStatus
+    relistStatus?: $Enums.WarpoolRelistStatus
+    relistListingId?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WarpoolEntryCreateManyUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryIdOnChain: bigint | number
+    poolId: string
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract?: string | null
+    relicTokenId?: string | null
+    relicType?: $Enums.WarpoolRelicType
+    status: $Enums.WarpoolEntryStatus
+    placement?: number | null
+    selectedForBattle?: boolean
+    relicDiscountBps?: number | null
+    baseStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw: Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: Decimal | DecimalJsLike | number | string | null
+    joinedAt: Date | string
+    joinedTxHash?: string | null
+    reservationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WarpoolReservationCreateManyUserInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    reservationIdOnChain: bigint | number
+    poolId: string
+    userAddress: string
+    nftId?: string | null
+    comradeContract: string
+    comradeTokenId: string
+    relicContract: string
+    relicTokenId: string
+    status: $Enums.WarpoolReservationStatus
+    discountBps?: number | null
+    createdAtOnChain: Date | string
+    expiresAtOnChain: Date | string
+    consumedAt?: Date | string | null
+    expiredAt?: Date | string | null
+    createdTxHash?: string | null
+    resolvedTxHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdminProposalUpdateWithoutCreatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutCreatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutCreatedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalUpdateWithoutLastEditedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
+    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
+    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateWithoutLastEditedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
+    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+  }
+
+  export type AdminProposalUncheckedUpdateManyWithoutLastEditedByUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
+    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    safeId?: NullableStringFieldUpdateOperationsInput | string | null
+    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
+    chainId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
+    actionCount?: IntFieldUpdateOperationsInput | number
+    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
+    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUpdateWithoutActorUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    proposal?: AdminProposalUpdateOneRequiredWithoutEventsNestedInput
+  }
+
+  export type AdminProposalEventUncheckedUpdateWithoutActorUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminProposalEventUncheckedUpdateManyWithoutActorUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    payloadJson?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CollectionUpdateWithoutCreatorInput = {
@@ -104420,87 +102230,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type CollectionSubmissionUpdateWithoutSubmittedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CollectionSubmissionUncheckedUpdateWithoutSubmittedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CollectionSubmissionUncheckedUpdateManyWithoutSubmittedByInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    contract?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    symbol?: NullableStringFieldUpdateOperationsInput | string | null
-    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    coverUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    baseUri?: NullableStringFieldUpdateOperationsInput | string | null
-    supply?: NullableIntFieldUpdateOperationsInput | number | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
-    x?: NullableStringFieldUpdateOperationsInput | string | null
-    instagram?: NullableStringFieldUpdateOperationsInput | string | null
-    telegram?: NullableStringFieldUpdateOperationsInput | string | null
-    feeTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    feePaidWei?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    feeVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ownershipVerified?: BoolFieldUpdateOperationsInput | boolean
-    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
-    statusReason?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type HolderRewardMultiUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     walletAddress?: StringFieldUpdateOperationsInput | string
@@ -104554,10 +102283,10 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutOwnerInput = {
@@ -104586,10 +102315,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateManyWithoutOwnerInput = {
@@ -104685,170 +102414,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WarpoolEntryUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
-    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
-  }
-
-  export type WarpoolEntryUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userAddress?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
-  }
-
-  export type WarpoolEntryUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userAddress?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WarpoolReservationUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: StringFieldUpdateOperationsInput | string
-    relicTokenId?: StringFieldUpdateOperationsInput | string
-    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
-    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
-    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
-  }
-
-  export type WarpoolReservationUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userAddress?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: StringFieldUpdateOperationsInput | string
-    relicTokenId?: StringFieldUpdateOperationsInput | string
-    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
-    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
-    activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
-  }
-
-  export type WarpoolReservationUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userAddress?: StringFieldUpdateOperationsInput | string
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: StringFieldUpdateOperationsInput | string
-    relicTokenId?: StringFieldUpdateOperationsInput | string
-    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
-    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type WarpoolActivityUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     chainId?: IntFieldUpdateOperationsInput | number
@@ -104861,10 +102426,10 @@ export namespace Prisma {
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     entry?: WarpoolEntryUpdateOneWithoutActivitiesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
     nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
+    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
   }
 
   export type WarpoolActivityUncheckedUpdateWithoutUserInput = {
@@ -104951,228 +102516,168 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AdminProposalUpdateWithoutCreatedByUserInput = {
+  export type WarpoolEntryUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
-    chainId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
-    actionCount?: IntFieldUpdateOperationsInput | number
-    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
-    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
-    lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
-    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
-    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
-    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
   }
 
-  export type AdminProposalUncheckedUpdateWithoutCreatedByUserInput = {
+  export type WarpoolEntryUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    safeId?: NullableStringFieldUpdateOperationsInput | string | null
-    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
-    chainId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
-    actionCount?: IntFieldUpdateOperationsInput | number
-    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
-    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
-    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
-    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+    activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
   }
 
-  export type AdminProposalUncheckedUpdateManyWithoutCreatedByUserInput = {
+  export type WarpoolEntryUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    safeId?: NullableStringFieldUpdateOperationsInput | string | null
-    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
-    chainId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
-    actionCount?: IntFieldUpdateOperationsInput | number
-    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
-    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
-    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AdminProposalUpdateWithoutLastEditedByUserInput = {
+  export type WarpoolReservationUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
-    chainId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
-    actionCount?: IntFieldUpdateOperationsInput | number
-    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
-    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: StringFieldUpdateOperationsInput | string
+    relicTokenId?: StringFieldUpdateOperationsInput | string
+    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
+    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
-    createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
-    submittedMultisigTx?: MultisigTxUpdateOneWithoutLinkedAdminProposalsNestedInput
-    actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
-    events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
+    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
   }
 
-  export type AdminProposalUncheckedUpdateWithoutLastEditedByUserInput = {
+  export type WarpoolReservationUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    safeId?: NullableStringFieldUpdateOperationsInput | string | null
-    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
-    chainId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
-    actionCount?: IntFieldUpdateOperationsInput | number
-    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
-    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
-    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: StringFieldUpdateOperationsInput | string
+    relicTokenId?: StringFieldUpdateOperationsInput | string
+    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
+    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    actions?: AdminProposalActionUncheckedUpdateManyWithoutProposalNestedInput
-    events?: AdminProposalEventUncheckedUpdateManyWithoutProposalNestedInput
+    activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
   }
 
-  export type AdminProposalUncheckedUpdateManyWithoutLastEditedByUserInput = {
+  export type WarpoolReservationUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    area?: EnumAdminProposalAreaFieldUpdateOperationsInput | $Enums.AdminProposalArea
-    kind?: EnumAdminProposalKindFieldUpdateOperationsInput | $Enums.AdminProposalKind
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: NullableStringFieldUpdateOperationsInput | string | null
-    summary?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    safeId?: NullableStringFieldUpdateOperationsInput | string | null
-    safeContract?: NullableStringFieldUpdateOperationsInput | string | null
-    chainId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdByUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    lastEditedByAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    basedOnConfigVersion?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    runtimeReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumAdminProposalStatusFieldUpdateOperationsInput | $Enums.AdminProposalStatus
-    actionCount?: IntFieldUpdateOperationsInput | number
-    submittedMultisigTxId?: NullableStringFieldUpdateOperationsInput | string | null
-    submittedMultisigNonce?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    snapshotJson?: NullableJsonNullValueInput | InputJsonValue
-    metadataJson?: NullableJsonNullValueInput | InputJsonValue
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: StringFieldUpdateOperationsInput | string
+    relicTokenId?: StringFieldUpdateOperationsInput | string
+    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
+    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AdminProposalEventUpdateWithoutActorUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: StringFieldUpdateOperationsInput | string
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    payloadJson?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    proposal?: AdminProposalUpdateOneRequiredWithoutEventsNestedInput
-  }
-
-  export type AdminProposalEventUncheckedUpdateWithoutActorUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    proposalId?: StringFieldUpdateOperationsInput | string
-    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: StringFieldUpdateOperationsInput | string
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    payloadJson?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AdminProposalEventUncheckedUpdateManyWithoutActorUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    proposalId?: StringFieldUpdateOperationsInput | string
-    actorAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: StringFieldUpdateOperationsInput | string
-    note?: NullableStringFieldUpdateOperationsInput | string | null
-    payloadJson?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AssetUploadCreateManyCollectionInput = {
@@ -105285,10 +102790,10 @@ export namespace Prisma {
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutCollectionInput = {
@@ -105317,10 +102822,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateManyWithoutCollectionInput = {
@@ -105424,6 +102929,40 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type WarpoolActivityCreateManyNftInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    poolId?: string | null
+    entryId?: string | null
+    reservationId?: string | null
+    userId?: string | null
+    userAddress?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type WarpoolCaptureCreateManyNftInput = {
+    id?: string
+    entryId: string
+    contract: string
+    tokenId: string
+    originalOwnerId?: string | null
+    originalOwnerAddress: string
+    capturedAt: Date | string
+    status?: $Enums.WarpoolCaptureStatus
+    relistStatus?: $Enums.WarpoolRelistStatus
+    relistListingId?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type WarpoolEntryCreateManyNftInput = {
     id?: string
     chainId: number
@@ -105472,40 +103011,6 @@ export namespace Prisma {
     expiredAt?: Date | string | null
     createdTxHash?: string | null
     resolvedTxHash?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type WarpoolActivityCreateManyNftInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    poolId?: string | null
-    entryId?: string | null
-    reservationId?: string | null
-    userId?: string | null
-    userAddress?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type WarpoolCaptureCreateManyNftInput = {
-    id?: string
-    entryId: string
-    contract: string
-    tokenId: string
-    originalOwnerId?: string | null
-    originalOwnerAddress: string
-    capturedAt: Date | string
-    status?: $Enums.WarpoolCaptureStatus
-    relistStatus?: $Enums.WarpoolRelistStatus
-    relistListingId?: string | null
-    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -105745,170 +103250,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WarpoolEntryUpdateWithoutNftInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
-    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
-    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
-  }
-
-  export type WarpoolEntryUncheckedUpdateWithoutNftInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
-  }
-
-  export type WarpoolEntryUncheckedUpdateManyWithoutNftInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
-    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
-    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
-    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
-    placement?: NullableIntFieldUpdateOperationsInput | number | null
-    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
-    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WarpoolReservationUpdateWithoutNftInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: StringFieldUpdateOperationsInput | string
-    relicTokenId?: StringFieldUpdateOperationsInput | string
-    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
-    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
-    user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
-    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
-  }
-
-  export type WarpoolReservationUncheckedUpdateWithoutNftInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: StringFieldUpdateOperationsInput | string
-    relicTokenId?: StringFieldUpdateOperationsInput | string
-    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
-    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
-    activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
-  }
-
-  export type WarpoolReservationUncheckedUpdateManyWithoutNftInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
-    poolId?: StringFieldUpdateOperationsInput | string
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: StringFieldUpdateOperationsInput | string
-    comradeContract?: StringFieldUpdateOperationsInput | string
-    comradeTokenId?: StringFieldUpdateOperationsInput | string
-    relicContract?: StringFieldUpdateOperationsInput | string
-    relicTokenId?: StringFieldUpdateOperationsInput | string
-    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
-    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
-    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type WarpoolActivityUpdateWithoutNftInput = {
     id?: StringFieldUpdateOperationsInput | string
     chainId?: IntFieldUpdateOperationsInput | number
@@ -105921,8 +103262,8 @@ export namespace Prisma {
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     entry?: WarpoolEntryUpdateOneWithoutActivitiesNestedInput
+    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
     user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
   }
@@ -106007,6 +103348,170 @@ export namespace Prisma {
     relistStatus?: EnumWarpoolRelistStatusFieldUpdateOperationsInput | $Enums.WarpoolRelistStatus
     relistListingId?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WarpoolEntryUpdateWithoutNftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutEntriesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
+    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
+  }
+
+  export type WarpoolEntryUncheckedUpdateWithoutNftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
+  }
+
+  export type WarpoolEntryUncheckedUpdateManyWithoutNftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: NullableStringFieldUpdateOperationsInput | string | null
+    relicTokenId?: NullableStringFieldUpdateOperationsInput | string | null
+    relicType?: EnumWarpoolRelicTypeFieldUpdateOperationsInput | $Enums.WarpoolRelicType
+    status?: EnumWarpoolEntryStatusFieldUpdateOperationsInput | $Enums.WarpoolEntryStatus
+    placement?: NullableIntFieldUpdateOperationsInput | number | null
+    selectedForBattle?: BoolFieldUpdateOperationsInput | boolean
+    relicDiscountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    baseStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    paidStakeAmountRaw?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    refundedStakeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    prizeAmountRaw?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WarpoolReservationUpdateWithoutNftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: StringFieldUpdateOperationsInput | string
+    relicTokenId?: StringFieldUpdateOperationsInput | string
+    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
+    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
+    pool?: WarpoolPoolUpdateOneRequiredWithoutReservationsNestedInput
+    user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
+  }
+
+  export type WarpoolReservationUncheckedUpdateWithoutNftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: StringFieldUpdateOperationsInput | string
+    relicTokenId?: StringFieldUpdateOperationsInput | string
+    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
+    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type WarpoolReservationUncheckedUpdateManyWithoutNftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    reservationIdOnChain?: BigIntFieldUpdateOperationsInput | bigint | number
+    poolId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: StringFieldUpdateOperationsInput | string
+    comradeContract?: StringFieldUpdateOperationsInput | string
+    comradeTokenId?: StringFieldUpdateOperationsInput | string
+    relicContract?: StringFieldUpdateOperationsInput | string
+    relicTokenId?: StringFieldUpdateOperationsInput | string
+    status?: EnumWarpoolReservationStatusFieldUpdateOperationsInput | $Enums.WarpoolReservationStatus
+    discountBps?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAtOnChain?: DateTimeFieldUpdateOperationsInput | Date | string
+    consumedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -106121,10 +103626,10 @@ export namespace Prisma {
     owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
     single1155?: Single1155UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutSingle721Input = {
@@ -106153,10 +103658,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateManyWithoutSingle721Input = {
@@ -106321,10 +103826,10 @@ export namespace Prisma {
     owner?: UserUpdateOneWithoutOwnedNFTsNestedInput
     single721?: Single721UpdateOneWithoutNftsNestedInput
     activities?: NFTActivityUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateWithoutSingle1155Input = {
@@ -106353,10 +103858,10 @@ export namespace Prisma {
     listingEntries?: MarketplaceListingUncheckedUpdateManyWithoutNftNestedInput
     sales?: MarketplaceSaleUncheckedUpdateManyWithoutNftNestedInput
     activities?: NFTActivityUncheckedUpdateManyWithoutNftNestedInput
-    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
-    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
     warpoolActivities?: WarpoolActivityUncheckedUpdateManyWithoutNftNestedInput
     warpoolCaptures?: WarpoolCaptureUncheckedUpdateManyWithoutNftNestedInput
+    warpoolEntries?: WarpoolEntryUncheckedUpdateManyWithoutNftNestedInput
+    warpoolReservations?: WarpoolReservationUncheckedUpdateManyWithoutNftNestedInput
   }
 
   export type NFTUncheckedUpdateManyWithoutSingle1155Input = {
@@ -106963,27 +104468,6 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type MultisigOwnerCreateManySafeInput = {
-    id?: string
-    ownerAddress: string
-    addedAt?: Date | string
-    removedAt?: Date | string | null
-  }
-
-  export type MultisigTxCreateManySafeInput = {
-    id?: string
-    nonce: number
-    to: string
-    valueWei?: Decimal | DecimalJsLike | number | string
-    dataHex?: string | null
-    operation?: number | null
-    submittedBy?: string | null
-    status?: $Enums.MultisigTxStatus
-    executedTxHash?: string | null
-    createdAt?: Date | string
-    executedAt?: Date | string | null
-  }
-
   export type AdminProposalCreateManySafeInput = {
     id?: string
     area: $Enums.AdminProposalArea
@@ -107015,71 +104499,25 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type MultisigOwnerUpdateWithoutSafeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    addedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type MultisigOwnerCreateManySafeInput = {
+    id?: string
+    ownerAddress: string
+    addedAt?: Date | string
+    removedAt?: Date | string | null
   }
 
-  export type MultisigOwnerUncheckedUpdateWithoutSafeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    addedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type MultisigOwnerUncheckedUpdateManyWithoutSafeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    addedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type MultisigTxUpdateWithoutSafeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nonce?: IntFieldUpdateOperationsInput | number
-    to?: StringFieldUpdateOperationsInput | string
-    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
-    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvals?: MultisigApprovalUpdateManyWithoutTxNestedInput
-    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
-  }
-
-  export type MultisigTxUncheckedUpdateWithoutSafeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nonce?: IntFieldUpdateOperationsInput | number
-    to?: StringFieldUpdateOperationsInput | string
-    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
-    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
-    linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
-  }
-
-  export type MultisigTxUncheckedUpdateManyWithoutSafeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nonce?: IntFieldUpdateOperationsInput | number
-    to?: StringFieldUpdateOperationsInput | string
-    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: NullableIntFieldUpdateOperationsInput | number | null
-    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
-    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  export type MultisigTxCreateManySafeInput = {
+    id?: string
+    nonce: number
+    to: string
+    valueWei?: Decimal | DecimalJsLike | number | string
+    dataHex?: string | null
+    operation?: number | null
+    submittedBy?: string | null
+    status?: $Enums.MultisigTxStatus
+    executedTxHash?: string | null
+    createdAt?: Date | string
+    executedAt?: Date | string | null
   }
 
   export type AdminProposalUpdateWithoutSafeInput = {
@@ -107179,11 +104617,71 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MultisigApprovalCreateManyTxInput = {
-    id?: string
-    ownerAddress: string
-    signature?: string | null
-    createdAt?: Date | string
+  export type MultisigOwnerUpdateWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerAddress?: StringFieldUpdateOperationsInput | string
+    addedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MultisigOwnerUncheckedUpdateWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerAddress?: StringFieldUpdateOperationsInput | string
+    addedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MultisigOwnerUncheckedUpdateManyWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerAddress?: StringFieldUpdateOperationsInput | string
+    addedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    removedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MultisigTxUpdateWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nonce?: IntFieldUpdateOperationsInput | number
+    to?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
+    operation?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
+    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    linkedAdminProposals?: AdminProposalUpdateManyWithoutSubmittedMultisigTxNestedInput
+    approvals?: MultisigApprovalUpdateManyWithoutTxNestedInput
+  }
+
+  export type MultisigTxUncheckedUpdateWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nonce?: IntFieldUpdateOperationsInput | number
+    to?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
+    operation?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
+    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    linkedAdminProposals?: AdminProposalUncheckedUpdateManyWithoutSubmittedMultisigTxNestedInput
+    approvals?: MultisigApprovalUncheckedUpdateManyWithoutTxNestedInput
+  }
+
+  export type MultisigTxUncheckedUpdateManyWithoutSafeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nonce?: IntFieldUpdateOperationsInput | number
+    to?: StringFieldUpdateOperationsInput | string
+    valueWei?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    dataHex?: NullableStringFieldUpdateOperationsInput | string | null
+    operation?: NullableIntFieldUpdateOperationsInput | number | null
+    submittedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumMultisigTxStatusFieldUpdateOperationsInput | $Enums.MultisigTxStatus
+    executedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type AdminProposalCreateManySubmittedMultisigTxInput = {
@@ -107217,25 +104715,11 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type MultisigApprovalUpdateWithoutTxInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    signature?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MultisigApprovalUncheckedUpdateWithoutTxInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    signature?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MultisigApprovalUncheckedUpdateManyWithoutTxInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    ownerAddress?: StringFieldUpdateOperationsInput | string
-    signature?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type MultisigApprovalCreateManyTxInput = {
+    id?: string
+    ownerAddress: string
+    signature?: string | null
+    createdAt?: Date | string
   }
 
   export type AdminProposalUpdateWithoutSubmittedMultisigTxInput = {
@@ -107264,9 +104748,9 @@ export namespace Prisma {
     metadataJson?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     createdByUser?: UserUpdateOneWithoutAdminProposalsCreatedNestedInput
     lastEditedByUser?: UserUpdateOneWithoutAdminProposalsEditedNestedInput
+    safe?: MultisigSafeUpdateOneWithoutAdminProposalsNestedInput
     actions?: AdminProposalActionUpdateManyWithoutProposalNestedInput
     events?: AdminProposalEventUpdateManyWithoutProposalNestedInput
   }
@@ -107335,6 +104819,45 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MultisigApprovalUpdateWithoutTxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerAddress?: StringFieldUpdateOperationsInput | string
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MultisigApprovalUncheckedUpdateWithoutTxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerAddress?: StringFieldUpdateOperationsInput | string
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MultisigApprovalUncheckedUpdateManyWithoutTxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ownerAddress?: StringFieldUpdateOperationsInput | string
+    signature?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WarpoolActivityCreateManyPoolInput = {
+    id?: string
+    chainId: number
+    coreContract: string
+    entryId?: string | null
+    reservationId?: string | null
+    userId?: string | null
+    userAddress?: string | null
+    nftId?: string | null
+    type: $Enums.WarpoolActivityType
+    txHash?: string | null
+    logIndex?: number | null
+    blockNumber?: number | null
+    timestamp: Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
   export type WarpoolEntryCreateManyPoolInput = {
     id?: string
     chainId: number
@@ -107387,22 +104910,58 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type WarpoolActivityCreateManyPoolInput = {
-    id?: string
-    chainId: number
-    coreContract: string
-    entryId?: string | null
-    reservationId?: string | null
-    userId?: string | null
-    userAddress?: string | null
-    nftId?: string | null
-    type: $Enums.WarpoolActivityType
-    txHash?: string | null
-    logIndex?: number | null
-    blockNumber?: number | null
-    timestamp: Date | string
+  export type WarpoolActivityUpdateWithoutPoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    userAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumWarpoolActivityTypeFieldUpdateOperationsInput | $Enums.WarpoolActivityType
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    logIndex?: NullableIntFieldUpdateOperationsInput | number | null
+    blockNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    entry?: WarpoolEntryUpdateOneWithoutActivitiesNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
+    reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
+    user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
+  }
+
+  export type WarpoolActivityUncheckedUpdateWithoutPoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryId?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumWarpoolActivityTypeFieldUpdateOperationsInput | $Enums.WarpoolActivityType
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    logIndex?: NullableIntFieldUpdateOperationsInput | number | null
+    blockNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WarpoolActivityUncheckedUpdateManyWithoutPoolInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    chainId?: IntFieldUpdateOperationsInput | number
+    coreContract?: StringFieldUpdateOperationsInput | string
+    entryId?: NullableStringFieldUpdateOperationsInput | string | null
+    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    nftId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumWarpoolActivityTypeFieldUpdateOperationsInput | $Enums.WarpoolActivityType
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    logIndex?: NullableIntFieldUpdateOperationsInput | number | null
+    blockNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    payload?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WarpoolEntryUpdateWithoutPoolInput = {
@@ -107428,11 +104987,11 @@ export namespace Prisma {
     joinedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
+    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
     nft?: NFTUpdateOneWithoutWarpoolEntriesNestedInput
     reservation?: WarpoolReservationUpdateOneWithoutEntryNestedInput
-    capture?: WarpoolCaptureUpdateOneWithoutEntryNestedInput
-    activities?: WarpoolActivityUpdateManyWithoutEntryNestedInput
+    user?: UserUpdateOneWithoutWarpoolEntriesNestedInput
   }
 
   export type WarpoolEntryUncheckedUpdateWithoutPoolInput = {
@@ -107461,8 +105020,8 @@ export namespace Prisma {
     reservationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutEntryNestedInput
+    capture?: WarpoolCaptureUncheckedUpdateOneWithoutEntryNestedInput
   }
 
   export type WarpoolEntryUncheckedUpdateManyWithoutPoolInput = {
@@ -107513,10 +105072,10 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
-    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
     activities?: WarpoolActivityUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUpdateOneWithoutReservationNestedInput
+    nft?: NFTUpdateOneWithoutWarpoolReservationsNestedInput
+    user?: UserUpdateOneWithoutWarpoolReservationsNestedInput
   }
 
   export type WarpoolReservationUncheckedUpdateWithoutPoolInput = {
@@ -107541,8 +105100,8 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
     activities?: WarpoolActivityUncheckedUpdateManyWithoutReservationNestedInput
+    entry?: WarpoolEntryUncheckedUpdateOneWithoutReservationNestedInput
   }
 
   export type WarpoolReservationUncheckedUpdateManyWithoutPoolInput = {
@@ -107567,60 +105126,6 @@ export namespace Prisma {
     resolvedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WarpoolActivityUpdateWithoutPoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    userAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: EnumWarpoolActivityTypeFieldUpdateOperationsInput | $Enums.WarpoolActivityType
-    txHash?: NullableStringFieldUpdateOperationsInput | string | null
-    logIndex?: NullableIntFieldUpdateOperationsInput | number | null
-    blockNumber?: NullableIntFieldUpdateOperationsInput | number | null
-    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    entry?: WarpoolEntryUpdateOneWithoutActivitiesNestedInput
-    reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
-    user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
-  }
-
-  export type WarpoolActivityUncheckedUpdateWithoutPoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryId?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: EnumWarpoolActivityTypeFieldUpdateOperationsInput | $Enums.WarpoolActivityType
-    txHash?: NullableStringFieldUpdateOperationsInput | string | null
-    logIndex?: NullableIntFieldUpdateOperationsInput | number | null
-    blockNumber?: NullableIntFieldUpdateOperationsInput | number | null
-    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type WarpoolActivityUncheckedUpdateManyWithoutPoolInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    chainId?: IntFieldUpdateOperationsInput | number
-    coreContract?: StringFieldUpdateOperationsInput | string
-    entryId?: NullableStringFieldUpdateOperationsInput | string | null
-    reservationId?: NullableStringFieldUpdateOperationsInput | string | null
-    userId?: NullableStringFieldUpdateOperationsInput | string | null
-    userAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    nftId?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: EnumWarpoolActivityTypeFieldUpdateOperationsInput | $Enums.WarpoolActivityType
-    txHash?: NullableStringFieldUpdateOperationsInput | string | null
-    logIndex?: NullableIntFieldUpdateOperationsInput | number | null
-    blockNumber?: NullableIntFieldUpdateOperationsInput | number | null
-    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
-    payload?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WarpoolActivityCreateManyEntryInput = {
@@ -107653,10 +105158,10 @@ export namespace Prisma {
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
     pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     reservation?: WarpoolReservationUpdateOneWithoutActivitiesNestedInput
     user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
-    nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
   }
 
   export type WarpoolActivityUncheckedUpdateWithoutEntryInput = {
@@ -107725,10 +105230,10 @@ export namespace Prisma {
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     payload?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
     entry?: WarpoolEntryUpdateOneWithoutActivitiesNestedInput
-    user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
     nft?: NFTUpdateOneWithoutWarpoolActivitiesNestedInput
+    pool?: WarpoolPoolUpdateOneWithoutActivitiesNestedInput
+    user?: UserUpdateOneWithoutWarpoolActivitiesNestedInput
   }
 
   export type WarpoolActivityUncheckedUpdateWithoutReservationInput = {

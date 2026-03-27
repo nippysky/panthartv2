@@ -20,35 +20,30 @@ model ChainState {
 }
 
 model User {
-  id                 String                 @id @default(cuid())
-  walletAddress      String                 @unique @db.Citext
-  username           String
-  bio                String?
-  profileBanner      String?
-  profileAvatar      String
-  x                  String?
-  instagram          String?
-  website            String?
-  telegram           String?
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  collections        Collection[]
-  submissions        CollectionSubmission[]
-  holderRewardsMulti HolderRewardMulti[]
-  ownedNFTs          NFT[]                  @relation("ownedNFTs")
-  rewardClaimLogs    RewardClaimLog[]
-  stolenReports      StolenItem[]           @relation("StolenReporter")
-
-  // Warpool
+  id                     String               @id @default(cuid())
+  walletAddress          String               @unique @db.Citext
+  username               String
+  bio                    String?
+  profileBanner          String?
+  profileAvatar          String
+  x                      String?
+  instagram              String?
+  website                String?
+  telegram               String?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  adminProposalsCreated  AdminProposal[]      @relation("AdminProposalCreatedByUser")
+  adminProposalsEdited   AdminProposal[]      @relation("AdminProposalLastEditedByUser")
+  adminProposalEvents    AdminProposalEvent[] @relation("AdminProposalEventActorUser")
+  collections            Collection[]
+  holderRewardsMulti     HolderRewardMulti[]
+  ownedNFTs              NFT[]                @relation("ownedNFTs")
+  rewardClaimLogs        RewardClaimLog[]
+  stolenReports          StolenItem[]         @relation("StolenReporter")
+  warpoolActivities      WarpoolActivity[]
+  warpoolCapturesAsOwner WarpoolCapture[]     @relation("WarpoolCaptureOriginalOwner")
   warpoolEntries         WarpoolEntry[]
   warpoolReservations    WarpoolReservation[]
-  warpoolActivities      WarpoolActivity[]
-  warpoolCapturesAsOwner WarpoolCapture[]   @relation("WarpoolCaptureOriginalOwner")
-
-  // Admin proposals
-  adminProposalsCreated AdminProposal[]      @relation("AdminProposalCreatedByUser")
-  adminProposalsEdited  AdminProposal[]      @relation("AdminProposalLastEditedByUser")
-  adminProposalEvents   AdminProposalEvent[] @relation("AdminProposalEventActorUser")
 }
 
 model Collection {
@@ -92,42 +87,40 @@ model Collection {
 }
 
 model NFT {
-  id               String               @id @default(cuid())
-  tokenId          String
-  name             String?
-  imageUrl         String?
-  description      String?
-  traits           Json?
-  attributes       Json?
-  tokenUri         String?
-  contract         String               @db.Citext
-  standard         String?
-  rawMetadata      Json?
-  royaltyBps       Int?
-  royaltyRecipient String?              @db.Citext
-  ownerId          String?
-  collectionId     String?
-  single721Id      String?
-  single1155Id     String?
-  status           NftStatus            @default(PENDING)
-  retryCount       Int                  @default(0)
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-  rarityScore      Decimal?             @db.Decimal(38, 18)
-  auctionEntries   Auction[]
-  listingEntries   MarketplaceListing[]
-  sales            MarketplaceSale[]
-  collection       Collection?          @relation(fields: [collectionId], references: [id])
-  owner            User?                @relation("ownedNFTs", fields: [ownerId], references: [id])
-  single1155       Single1155?          @relation(fields: [single1155Id], references: [id])
-  single721        Single721?           @relation(fields: [single721Id], references: [id])
-  activities       NFTActivity[]
-
-  // Warpool
-  warpoolEntries      WarpoolEntry[]
-  warpoolReservations WarpoolReservation[]
+  id                  String               @id @default(cuid())
+  tokenId             String
+  name                String?
+  imageUrl            String?
+  description         String?
+  traits              Json?
+  attributes          Json?
+  tokenUri            String?
+  contract            String               @db.Citext
+  standard            String?
+  rawMetadata         Json?
+  royaltyBps          Int?
+  royaltyRecipient    String?              @db.Citext
+  ownerId             String?
+  collectionId        String?
+  single721Id         String?
+  single1155Id        String?
+  status              NftStatus            @default(PENDING)
+  retryCount          Int                  @default(0)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  rarityScore         Decimal?             @db.Decimal(38, 18)
+  auctionEntries      Auction[]
+  listingEntries      MarketplaceListing[]
+  sales               MarketplaceSale[]
+  collection          Collection?          @relation(fields: [collectionId], references: [id])
+  owner               User?                @relation("ownedNFTs", fields: [ownerId], references: [id])
+  single1155          Single1155?          @relation(fields: [single1155Id], references: [id])
+  single721           Single721?           @relation(fields: [single721Id], references: [id])
+  activities          NFTActivity[]
   warpoolActivities   WarpoolActivity[]
   warpoolCaptures     WarpoolCapture[]
+  warpoolEntries      WarpoolEntry[]
+  warpoolReservations WarpoolReservation[]
 
   @@unique([contract, tokenId])
   @@unique([tokenId, contract, collectionId])
@@ -249,26 +242,24 @@ model Erc1155Holding {
 }
 
 model MarketplaceListing {
-  id               String        @id @default(cuid())
+  id               String           @id @default(cuid())
   nftId            String
-  sellerAddress    String        @db.Citext
-  quantity         Int           @default(1)
-  priceEtnWei      Decimal       @db.Decimal(65, 0)
+  sellerAddress    String           @db.Citext
+  quantity         Int              @default(1)
+  priceEtnWei      Decimal          @db.Decimal(65, 0)
   currencyId       String?
-  priceTokenAmount Decimal?      @db.Decimal(65, 0)
-  status           ListingStatus @default(ACTIVE)
-  startTime        DateTime      @default(now())
+  priceTokenAmount Decimal?         @db.Decimal(65, 0)
+  status           ListingStatus    @default(ACTIVE)
+  startTime        DateTime         @default(now())
   endTime          DateTime?
   txHashCreated    String?
   txHashFilled     String?
   txHashCancelled  String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  currency         Currency?     @relation(fields: [currencyId], references: [id])
-  nft              NFT           @relation(fields: [nftId], references: [id])
-
-  // Warpool
-  relistCaptures WarpoolCapture[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  currency         Currency?        @relation(fields: [currencyId], references: [id])
+  nft              NFT              @relation(fields: [nftId], references: [id])
+  relistCaptures   WarpoolCapture[]
 
   @@index([sellerAddress])
   @@index([status])
@@ -480,37 +471,6 @@ model AssetUpload {
   @@index([single1155Id])
 }
 
-model CollectionSubmission {
-  id                String           @id @default(cuid())
-  submittedByUserId String
-  contract          String           @unique @db.Citext
-  ownerAddress      String?          @db.Citext
-  name              String?
-  symbol            String?
-  logoUrl           String?
-  coverUrl          String?
-  baseUri           String?
-  supply            Int?
-  description       String?
-  website           String?
-  x                 String?
-  instagram         String?
-  telegram          String?
-  feeTxHash         String?          @unique
-  feePaidWei        Decimal?         @db.Decimal(65, 0)
-  feeVerifiedAt     DateTime?
-  ownershipVerified Boolean          @default(false)
-  status            SubmissionStatus @default(PENDING)
-  statusReason      String?
-  reviewedByUserId  String?
-  reviewedAt        DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  submittedBy       User             @relation(fields: [submittedByUserId], references: [id])
-
-  @@index([status, createdAt])
-}
-
 model NFTRarity {
   contract  String   @db.Citext
   tokenId   String
@@ -682,9 +642,9 @@ model MultisigSafe {
   threshold      Int
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  adminProposals AdminProposal[]
   owners         MultisigOwner[]
   txs            MultisigTx[]
-  adminProposals AdminProposal[]
 
   @@index([threshold])
 }
@@ -714,9 +674,9 @@ model MultisigTx {
   executedTxHash       String?
   createdAt            DateTime           @default(now())
   executedAt           DateTime?
+  linkedAdminProposals AdminProposal[]    @relation("AdminProposalSubmittedMultisigTx")
   approvals            MultisigApproval[]
   safe                 MultisigSafe       @relation(fields: [safeId], references: [id])
-  linkedAdminProposals AdminProposal[]    @relation("AdminProposalSubmittedMultisigTx")
 
   @@unique([safeId, nonce])
   @@index([status])
@@ -750,10 +710,6 @@ model PendingChainAction {
   @@index([status, createdAt])
   @@index([type, createdAt])
 }
-
-//
-// Warpool domain models
-//
 
 model WarpoolContract {
   id        String              @id @default(cuid())
@@ -877,12 +833,12 @@ model WarpoolPool {
   openTxHash            String?
   lockTxHash            String?
   settleTxHash          String?
-  entries               WarpoolEntry[]
-  reservations          WarpoolReservation[]
-  activities            WarpoolActivity[]
-  battle                WarpoolBattle?
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
+  activities            WarpoolActivity[]
+  battle                WarpoolBattle?
+  entries               WarpoolEntry[]
+  reservations          WarpoolReservation[]
 
   @@unique([chainId, coreContract, poolIdOnChain], map: "uq_warpool_pool_chain")
   @@index([queueKey, state])
@@ -896,12 +852,9 @@ model WarpoolEntry {
   coreContract           String              @db.Citext
   entryIdOnChain         BigInt
   poolId                 String
-  pool                   WarpoolPool         @relation(fields: [poolId], references: [id], onDelete: Cascade)
   userId                 String?
-  user                   User?               @relation(fields: [userId], references: [id])
   userAddress            String              @db.Citext
   nftId                  String?
-  nft                    NFT?                @relation(fields: [nftId], references: [id])
   comradeContract        String              @db.Citext
   comradeTokenId         String
   relicContract          String?             @db.Citext
@@ -918,11 +871,14 @@ model WarpoolEntry {
   joinedAt               DateTime
   joinedTxHash           String?
   reservationId          String?             @unique
-  reservation            WarpoolReservation? @relation(fields: [reservationId], references: [id])
-  capture                WarpoolCapture?
-  activities             WarpoolActivity[]
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
+  activities             WarpoolActivity[]
+  capture                WarpoolCapture?
+  nft                    NFT?                @relation(fields: [nftId], references: [id])
+  pool                   WarpoolPool         @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  reservation            WarpoolReservation? @relation(fields: [reservationId], references: [id])
+  user                   User?               @relation(fields: [userId], references: [id])
 
   @@unique([chainId, coreContract, entryIdOnChain], map: "uq_warpool_entry_chain")
   @@index([poolId, status])
@@ -937,12 +893,9 @@ model WarpoolReservation {
   coreContract         String                   @db.Citext
   reservationIdOnChain BigInt
   poolId               String
-  pool                 WarpoolPool              @relation(fields: [poolId], references: [id], onDelete: Cascade)
   userId               String?
-  user                 User?                    @relation(fields: [userId], references: [id])
   userAddress          String                   @db.Citext
   nftId                String?
-  nft                  NFT?                     @relation(fields: [nftId], references: [id])
   comradeContract      String                   @db.Citext
   comradeTokenId       String
   relicContract        String                   @db.Citext
@@ -955,10 +908,13 @@ model WarpoolReservation {
   expiredAt            DateTime?
   createdTxHash        String?
   resolvedTxHash       String?
-  entry                WarpoolEntry?
-  activities           WarpoolActivity[]
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
+  activities           WarpoolActivity[]
+  entry                WarpoolEntry?
+  nft                  NFT?                     @relation(fields: [nftId], references: [id])
+  pool                 WarpoolPool              @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  user                 User?                    @relation(fields: [userId], references: [id])
 
   @@unique([chainId, coreContract, reservationIdOnChain], map: "uq_warpool_reservation_chain")
   @@index([poolId, status, expiresAtOnChain])
@@ -968,7 +924,6 @@ model WarpoolReservation {
 model WarpoolBattle {
   id               String               @id @default(cuid())
   poolId           String               @unique
-  pool             WarpoolPool          @relation(fields: [poolId], references: [id], onDelete: Cascade)
   status           WarpoolBattleStatus  @default(PENDING)
   bracketSeed      String?              @db.Citext
   firstEntryId     String?
@@ -982,9 +937,10 @@ model WarpoolBattle {
   settledAt        DateTime?
   settlementTxHash String?
   rawOutcome       Json?
-  matches          WarpoolBattleMatch[]
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
+  pool             WarpoolPool          @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  matches          WarpoolBattleMatch[]
 
   @@index([status, updatedAt])
 }
@@ -992,7 +948,6 @@ model WarpoolBattle {
 model WarpoolBattleMatch {
   id            String        @id @default(cuid())
   battleId      String
-  battle        WarpoolBattle @relation(fields: [battleId], references: [id], onDelete: Cascade)
   roundNumber   Int
   matchNumber   Int
   slotAEntryId  String?
@@ -1003,6 +958,7 @@ model WarpoolBattleMatch {
   rawResult     Json?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  battle        WarpoolBattle @relation(fields: [battleId], references: [id], onDelete: Cascade)
 
   @@unique([battleId, roundNumber, matchNumber], map: "uq_warpool_match_round_number")
   @@index([battleId, roundNumber])
@@ -1011,22 +967,22 @@ model WarpoolBattleMatch {
 model WarpoolCapture {
   id                   String               @id @default(cuid())
   entryId              String               @unique
-  entry                WarpoolEntry         @relation(fields: [entryId], references: [id], onDelete: Cascade)
   nftId                String?
-  nft                  NFT?                 @relation(fields: [nftId], references: [id])
   contract             String               @db.Citext
   tokenId              String
   originalOwnerId      String?
-  originalOwner        User?                @relation("WarpoolCaptureOriginalOwner", fields: [originalOwnerId], references: [id])
   originalOwnerAddress String               @db.Citext
   capturedAt           DateTime
   status               WarpoolCaptureStatus @default(HELD)
   relistStatus         WarpoolRelistStatus  @default(NONE)
   relistListingId      String?
-  relistListing        MarketplaceListing?  @relation(fields: [relistListingId], references: [id])
   notes                String?
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
+  entry                WarpoolEntry         @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  nft                  NFT?                 @relation(fields: [nftId], references: [id])
+  originalOwner        User?                @relation("WarpoolCaptureOriginalOwner", fields: [originalOwnerId], references: [id])
+  relistListing        MarketplaceListing?  @relation(fields: [relistListingId], references: [id])
 
   @@unique([contract, tokenId, capturedAt], map: "uq_warpool_capture_asset_time")
   @@index([status, relistStatus])
@@ -1038,16 +994,11 @@ model WarpoolActivity {
   chainId       Int
   coreContract  String              @db.Citext
   poolId        String?
-  pool          WarpoolPool?        @relation(fields: [poolId], references: [id], onDelete: Cascade)
   entryId       String?
-  entry         WarpoolEntry?       @relation(fields: [entryId], references: [id], onDelete: SetNull)
   reservationId String?
-  reservation   WarpoolReservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
   userId        String?
-  user          User?               @relation(fields: [userId], references: [id])
   userAddress   String?             @db.Citext
   nftId         String?
-  nft           NFT?                @relation(fields: [nftId], references: [id])
   type          WarpoolActivityType
   txHash        String?             @db.Citext
   logIndex      Int?
@@ -1055,6 +1006,11 @@ model WarpoolActivity {
   timestamp     DateTime
   payload       Json?
   createdAt     DateTime            @default(now())
+  entry         WarpoolEntry?       @relation(fields: [entryId], references: [id])
+  nft           NFT?                @relation(fields: [nftId], references: [id])
+  pool          WarpoolPool?        @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  reservation   WarpoolReservation? @relation(fields: [reservationId], references: [id])
+  user          User?               @relation(fields: [userId], references: [id])
 
   @@unique([txHash, logIndex], map: "uq_warpool_activity_log")
   @@index([poolId, timestamp])
@@ -1062,34 +1018,26 @@ model WarpoolActivity {
   @@index([type, timestamp])
 }
 
-//
-// Admin proposal models
-//
-
 model AdminProposal {
-  id                     String               @id @default(cuid())
+  id                     String                @id @default(cuid())
   area                   AdminProposalArea
   kind                   AdminProposalKind
   title                  String
-  slug                   String?              @db.Citext
+  slug                   String?               @db.Citext
   summary                String?
   description            String?
   safeId                 String?
-  safe                   MultisigSafe?        @relation(fields: [safeId], references: [id])
-  safeContract           String?              @db.Citext
+  safeContract           String?               @db.Citext
   chainId                Int?
   createdByUserId        String?
-  createdByUser          User?                @relation("AdminProposalCreatedByUser", fields: [createdByUserId], references: [id])
-  createdByAddress       String?              @db.Citext
+  createdByAddress       String?               @db.Citext
   lastEditedByUserId     String?
-  lastEditedByUser       User?                @relation("AdminProposalLastEditedByUser", fields: [lastEditedByUserId], references: [id])
-  lastEditedByAddress    String?              @db.Citext
+  lastEditedByAddress    String?               @db.Citext
   basedOnConfigVersion   BigInt?
   runtimeReferenceId     String?
-  status                 AdminProposalStatus  @default(DRAFT)
-  actionCount            Int                  @default(0)
+  status                 AdminProposalStatus   @default(DRAFT)
+  actionCount            Int                   @default(0)
   submittedMultisigTxId  String?
-  submittedMultisigTx    MultisigTx?          @relation("AdminProposalSubmittedMultisigTx", fields: [submittedMultisigTxId], references: [id])
   submittedMultisigNonce Int?
   submittedAt            DateTime?
   approvedAt             DateTime?
@@ -1098,11 +1046,14 @@ model AdminProposal {
   failedAt               DateTime?
   snapshotJson           Json?
   metadataJson           Json?
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
-
-  actions AdminProposalAction[]
-  events  AdminProposalEvent[]
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  createdByUser          User?                 @relation("AdminProposalCreatedByUser", fields: [createdByUserId], references: [id])
+  lastEditedByUser       User?                 @relation("AdminProposalLastEditedByUser", fields: [lastEditedByUserId], references: [id])
+  safe                   MultisigSafe?         @relation(fields: [safeId], references: [id])
+  submittedMultisigTx    MultisigTx?           @relation("AdminProposalSubmittedMultisigTx", fields: [submittedMultisigTxId], references: [id])
+  actions                AdminProposalAction[]
+  events                 AdminProposalEvent[]
 
   @@index([area, kind, status, createdAt])
   @@index([safeContract, status, createdAt])
@@ -1113,7 +1064,6 @@ model AdminProposal {
 model AdminProposalAction {
   id           String                    @id @default(cuid())
   proposalId   String
-  proposal     AdminProposal             @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   orderIndex   Int
   label        String?
   summary      String?
@@ -1129,6 +1079,7 @@ model AdminProposalAction {
   failedAt     DateTime?
   createdAt    DateTime                  @default(now())
   updatedAt    DateTime                  @updatedAt
+  proposal     AdminProposal             @relation(fields: [proposalId], references: [id], onDelete: Cascade)
 
   @@unique([proposalId, orderIndex], map: "uq_admin_proposal_action_order")
   @@index([proposalId, status, orderIndex])
@@ -1137,14 +1088,14 @@ model AdminProposalAction {
 model AdminProposalEvent {
   id           String        @id @default(cuid())
   proposalId   String
-  proposal     AdminProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   actorUserId  String?
-  actorUser    User?         @relation("AdminProposalEventActorUser", fields: [actorUserId], references: [id])
   actorAddress String?       @db.Citext
   type         String
   note         String?
   payloadJson  Json?
   createdAt    DateTime      @default(now())
+  actorUser    User?         @relation("AdminProposalEventActorUser", fields: [actorUserId], references: [id])
+  proposal     AdminProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
 
   @@index([proposalId, createdAt])
   @@index([actorAddress, createdAt])
@@ -1194,12 +1145,6 @@ enum NftStatus {
   ERROR
 }
 
-enum SubmissionStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 enum GatewayPref {
   PUBLIC
   PINATA
@@ -1237,7 +1182,6 @@ enum PendingChainActionType {
   NFT_AUCTION_BID
   NFT_AUCTION_CANCEL
   NFT_AUCTION_FINALIZE
-
   WARPOOL_RESERVATION_EXPIRE
   WARPOOL_POOL_PROCESS_EXPIRED
   WARPOOL_POOL_MARK_BATTLE_READY
