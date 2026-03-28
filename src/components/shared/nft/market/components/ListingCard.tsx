@@ -15,6 +15,8 @@ export function ListingCard(props: {
   headline: string;
   subline?: string | null;
   sellerLabel?: string | null;
+  startLabel?: string | null;
+  endLabel?: string | null;
 
   loading: boolean;
   canCancel: boolean;
@@ -36,6 +38,8 @@ export function ListingCard(props: {
     headline,
     subline,
     sellerLabel,
+    startLabel,
+    endLabel,
     loading,
     canCancel,
     isSeller,
@@ -64,12 +68,36 @@ export function ListingCard(props: {
           ) : (
             <>
               <div className="mt-1 text-sm font-semibold">{headline}</div>
+
               {subline ? (
                 <div className="mt-1 text-xs text-muted-foreground">{subline}</div>
               ) : null}
+
               {sellerLabel ? (
                 <div className="mt-1 text-xs text-muted-foreground font-mono truncate">
                   Seller: {sellerLabel}
+                </div>
+              ) : null}
+
+              {hasListing ? (
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="rounded-xl border border-black/10 dark:border-white/10 bg-black/2.5 dark:bg-white/3 px-3 py-2">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Starts
+                    </div>
+                    <div className="mt-1 text-xs font-medium">
+                      {startLabel ?? "—"}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-black/10 dark:border-white/10 bg-black/2.5 dark:bg-white/3 px-3 py-2">
+                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Ends
+                    </div>
+                    <div className="mt-1 text-xs font-medium">
+                      {endLabel ?? "No expiry"}
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </>

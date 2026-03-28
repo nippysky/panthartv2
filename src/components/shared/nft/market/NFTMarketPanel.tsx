@@ -218,16 +218,16 @@ export default function NFTMarketPanel({
 
   const listingSeller =
     standard === "ERC1155"
-      ? (ownChainListing?.row.seller ?? listing?.seller?.address ?? listing?.sellerAddress ?? null)
-      : (listing?.seller?.address ?? listing?.sellerAddress ?? null);
+      ? ownChainListing?.row.seller ?? listing?.seller?.address ?? listing?.sellerAddress ?? null
+      : listing?.seller?.address ?? listing?.sellerAddress ?? null;
 
   const auctionSeller =
     standard === "ERC1155"
-      ? (ownChainAuction?.row.seller ??
-          (auction as any)?.seller?.address ??
-          (auction as any)?.sellerAddress ??
-          null)
-      : ((auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null);
+      ? ownChainAuction?.row.seller ??
+        (auction as any)?.seller?.address ??
+        (auction as any)?.sellerAddress ??
+        null
+      : (auction as any)?.seller?.address ?? (auction as any)?.sellerAddress ?? null;
 
   const isSellerForListing = !!account && !!listingSeller && safeEq(account, listingSeller);
   const isSellerForAuction = !!account && !!auctionSeller && safeEq(account, auctionSeller);
@@ -258,10 +258,6 @@ export default function NFTMarketPanel({
     if (!auction) return null;
 
     const sym = auction.currency?.symbol ?? "ETN";
-
-    // ✅ ERC721 fix:
-    // Use current bid only when there are actual bids.
-    // Otherwise use the auction start price.
     const bidsCount = Number((auction as any)?.bidsCount ?? chainAuction?.bidsCount ?? 0);
 
     const start =
@@ -292,8 +288,9 @@ export default function NFTMarketPanel({
     }
 
     if (!listing) return null;
-    if (listingNotStarted && listingStartMs)
+    if (listingNotStarted && listingStartMs) {
       return `Scheduled (Starts in ${formatCountdown(listingStartMs, nowMs)})`;
+    }
     if (listingEndedUi) return "Expired";
     return "Active";
   }, [standard, ownChainListing, listing, listingNotStarted, listingStartMs, listingEndedUi, nowMs]);
@@ -308,11 +305,40 @@ export default function NFTMarketPanel({
     }
 
     if (!auction) return null;
-    if (auctionNotStarted && auctionStartMs)
+    if (auctionNotStarted && auctionStartMs) {
       return `Scheduled (Starts in ${formatCountdown(auctionStartMs, nowMs)})`;
+    }
     if (auctionEndedUi) return "Ended";
     return "Active";
   }, [standard, ownChainAuction, auction, auctionNotStarted, auctionStartMs, auctionEndedUi, nowMs]);
+
+  const formatMarketDateTime = useCallback((ms: number | null) => {
+    if (!ms || !Number.isFinite(ms) || ms <= 0) return null;
+
+    try {
+      const date = new Date(ms);
+      const formatted = new Intl.DateTimeFormat("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Africa/Lagos",
+      }).format(date);
+
+      return `${formatted} WAT`;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const listingStartLabel = useMemo(() => {
+    if (!listing) return null;
+    return formatMarketDateTime(listingStartMs);
+  }, [listing, listingStartMs, formatMarketDateTime]);
+
+  const listingEndLabel = useMemo(() => {
+    if (!listing) return null;
+    if (!listingEndMs) return "No expiry";
+    return formatMarketDateTime(listingEndMs) ?? "No expiry";
+  }, [listing, listingEndMs, formatMarketDateTime]);
 
   const buyDisabled = loading || !listing || listingNotStarted || listingEndedUi;
 
@@ -341,16 +367,20 @@ export default function NFTMarketPanel({
 
   const activeListingChainId =
     standard === "ERC1155"
-      ? (ownChainListing ? ownChainListing.id.toString() : null)
-      : (listing?.id ?? null);
+      ? ownChainListing
+        ? ownChainListing.id.toString()
+        : null
+      : listing?.id ?? null;
 
   const activeAuctionChainId =
     standard === "ERC1155"
-      ? (ownChainAuction ? ownChainAuction.id.toString() : null)
-      : (auction?.id ?? null);
+      ? ownChainAuction
+        ? ownChainAuction.id.toString()
+        : null
+      : auction?.id ?? null;
 
   const buyNow = useCallback(async () => {
-    const listingIdStr = listing?.id;
+    const listingIdStr = activeListingChainId;
     if (!listingIdStr) return;
 
     if (!account) return requireWalletToast();
@@ -360,7 +390,7 @@ export default function NFTMarketPanel({
     setErr(null);
 
     try {
-      const maybeTx = (await (marketplace as any).buyListingByIdJustInTime(
+      const maybeTx = (await marketplace.buyListingByIdJustInTime(
         BigInt(listingIdStr)
       )) as unknown;
 
@@ -378,7 +408,7 @@ export default function NFTMarketPanel({
             txHashFilled,
             contract,
             tokenId: String(tokenId),
-            chainId: listing?.id ?? null,
+            chainId: listingIdStr,
           }),
         }).catch(() => null);
       }
@@ -396,6 +426,7 @@ export default function NFTMarketPanel({
       setLoading(false);
     }
   }, [
+    activeListingChainId,
     listing,
     account,
     requireWalletToast,
@@ -420,7 +451,7 @@ export default function NFTMarketPanel({
     setErr(null);
 
     try {
-      const maybeTx = (await (marketplace as any).cancelListing(BigInt(listingIdStr))) as unknown;
+      const maybeTx = (await marketplace.cancelListing(BigInt(listingIdStr))) as unknown;
 
       toast.success("Listing canceled.", { id: tId });
 
@@ -548,7 +579,7 @@ export default function NFTMarketPanel({
       const now = Math.floor(Date.now() / 1000);
       if (now <= endTime) throw new Error("Auction has not ended yet.");
 
-      const maybeTx = (await (marketplace as any).finalizeAuction(BigInt(auctionIdStr))) as unknown;
+      const maybeTx = (await marketplace.finalizeAuction(BigInt(auctionIdStr))) as unknown;
 
       toast.success("Auction finalized.", { id: tId });
 
@@ -609,6 +640,8 @@ export default function NFTMarketPanel({
         headline={listing ? listingPriceLabel ?? "Listing" : "No active listing"}
         subline={listing ? listingSubline : null}
         sellerLabel={displayListingSeller}
+        startLabel={listing ? listingStartLabel : null}
+        endLabel={listing ? listingEndLabel : null}
         loading={loading}
         canCancel={canCancelListing}
         isSeller={!!listing && isSellerForListing}
