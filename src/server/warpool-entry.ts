@@ -35,11 +35,102 @@ function lensAddress() {
   ).trim();
 }
 
-function formatDcnt(raw?: any): string {
+function scientificIntegerToPlain(value: string) {
+  const trimmed = value.trim().toLowerCase();
+
+  if (!/^\d+e\+\d+$/.test(trimmed)) return null;
+
+  const [base, exponentRaw] = trimmed.split("e+");
+  const exponent = Number(exponentRaw);
+
+  if (!Number.isFinite(exponent) || exponent < 0) return null;
+
+  return `${base}${"0".repeat(exponent)}`;
+}
+
+function normalizeRawIntegerString(raw: unknown): string | null {
+  if (raw === null || raw === undefined) return null;
+
+  if (typeof raw === "bigint") {
+    return raw.toString();
+  }
+
+  if (typeof raw === "number") {
+    if (!Number.isFinite(raw) || !Number.isInteger(raw)) return null;
+    return String(raw);
+  }
+
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+
+    if (/^\d+$/.test(trimmed)) return trimmed;
+
+    const scientific = scientificIntegerToPlain(trimmed);
+    if (scientific && /^\d+$/.test(scientific)) return scientific;
+
+    return null;
+  }
+
+  if (typeof raw === "object") {
+    const maybeDecimal = raw as {
+      toFixed?: (digits?: number) => string;
+      toString?: () => string;
+    };
+
+    try {
+      if (typeof maybeDecimal.toFixed === "function") {
+        const fixed = maybeDecimal.toFixed(0);
+        if (/^\d+$/.test(fixed)) return fixed;
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      if (typeof maybeDecimal.toString === "function") {
+        const text = maybeDecimal.toString();
+        if (/^\d+$/.test(text)) return text;
+
+        const scientific = scientificIntegerToPlain(text);
+        if (scientific && /^\d+$/.test(scientific)) return scientific;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
+function addThousandsSeparators(value: string) {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function formatDcnt(raw?: unknown): string {
+  const normalized = normalizeRawIntegerString(raw);
+
+  if (!normalized) return "0 DCNT";
+
   try {
-    return `${ethers.formatUnits(String(raw ?? 0), 18)} DCNT`;
+    const decimal = ethers.formatUnits(normalized, 18);
+    const [wholeRaw, fractionRaw = ""] = decimal.split(".");
+    const whole = addThousandsSeparators(wholeRaw);
+    const fraction = fractionRaw.slice(0, 4).replace(/0+$/, "");
+
+    return `${whole}${fraction ? `.${fraction}` : ""} DCNT`;
   } catch {
     return "0 DCNT";
+  }
+}
+
+function toBigIntSafe(raw: unknown): bigint {
+  const normalized = normalizeRawIntegerString(raw);
+  if (!normalized) return BigInt(0);
+  try {
+    return BigInt(normalized);
+  } catch {
+    return BigInt(0);
   }
 }
 
@@ -381,15 +472,16 @@ export async function getWarpoolLensPreview(params: {
     reservation?.expiresAtOnChain?.toISOString() ?? null;
   const discountBps = reservation?.discountBps ?? null;
 
+  const baseStakeRaw = toBigIntSafe(pool.stakeAmountRaw);
+
   const expectedStake = isToken11
     ? "0 DCNT"
     : reservation?.discountBps
       ? formatDcnt(
-          (BigInt(String(pool.stakeAmountRaw)) *
-            BigInt(10_000 - Number(reservation.discountBps))) /
+          (baseStakeRaw * BigInt(10_000 - Number(reservation.discountBps))) /
             BigInt(10_000)
         )
-      : formatDcnt(pool.stakeAmountRaw);
+      : formatDcnt(baseStakeRaw);
 
   const maybeRpc = rpcUrl();
   const maybeLens = lensAddress();
