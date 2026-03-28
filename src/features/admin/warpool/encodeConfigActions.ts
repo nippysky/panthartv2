@@ -7,7 +7,10 @@ import type {
   WarpoolConfigProposalDraft,
   WarpoolQueueSlug,
 } from "@/src/features/admin/warpool/multisig-types";
-import { WARPOOL_QUEUE_META } from "@/src/features/admin/warpool/constants";
+import {
+  WARPOOL_QUEUE_META,
+  formatTokenAmount,
+} from "@/src/features/admin/warpool/constants";
 import { WARPOOL_CONFIG_ABI } from "@/src/lib/abis/warpoolConfigAbi";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -236,6 +239,7 @@ export function encodeWarpoolConfigActions(params: {
     if (queue.openDurationSeconds <= 0) {
       warnings.push(`${queue.slug}: open duration must be greater than zero.`);
     }
+
     if (!/^\d+$/.test(queue.stakeAmountRaw)) {
       warnings.push(`${queue.slug}: stakeAmountRaw must be an integer string.`);
     } else {
@@ -408,6 +412,8 @@ export function encodeWarpoolConfigActions(params: {
 
     const meta = QUEUE_ENUM_MAP[queue.slug];
     const key = makeQueueKey(meta.tier, meta.mode);
+    const title = WARPOOL_QUEUE_META[queue.slug]?.title ?? queue.slug;
+    const humanStake = formatTokenAmount(queue.stakeAmountRaw);
 
     pushAction({
       actions,
@@ -431,11 +437,11 @@ export function encodeWarpoolConfigActions(params: {
           thirdPlaceBps: queue.thirdPlaceBps,
         },
       ],
-      summary: `Update queue config for ${WARPOOL_QUEUE_META[queue.slug]?.title ?? queue.slug}`,
+      summary: `Update queue config for ${title} (${humanStake} stake)`,
     });
 
     summaryLines.push(
-      `${WARPOOL_QUEUE_META[queue.slug]?.title ?? queue.slug} → ${queue.enabled ? "enabled" : "disabled"}, ${queue.targetSize}/${queue.minStartSize}, fee ${queue.platformFeeBps} bps, stake ${queue.stakeAmountRaw}`
+      `${title} → ${queue.enabled ? "enabled" : "disabled"}, ${queue.targetSize}/${queue.minStartSize}, fee ${queue.platformFeeBps} bps, stake ${humanStake}`
     );
   }
 

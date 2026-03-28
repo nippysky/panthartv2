@@ -18,7 +18,7 @@ const NAV: { title: string; items: FooterLink[] }[] = [
     title: "Directory",
     items: [
       { label: "Minting Now", href: "/minting-now" },
-      { label: "Live Auctions", href: "/auction" },
+      { label: "Live Auctions", href: "/auction-now" },
       { label: "Collections", href: "/collections" },
     ],
   },

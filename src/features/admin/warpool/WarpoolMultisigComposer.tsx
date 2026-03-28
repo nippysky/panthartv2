@@ -10,8 +10,6 @@ import {
   WARPOOL_QUEUE_ORDER,
   formatBps,
   formatDurationSeconds,
-  formatTokenAmount,
-  parseTokenDecimalToRaw,
 } from "@/src/features/admin/warpool/constants";
 import { encodeWarpoolConfigActions } from "@/src/features/admin/warpool/encodeConfigActions";
 import type {
@@ -61,6 +59,80 @@ type SaveState =
   | { kind: "success"; message: string }
   | { kind: "error"; message: string };
 
+function normalizeIntegerInput(value: string) {
+  return value.replace(/[^\d]/g, "");
+}
+
+function normalizeTokenDecimalInput(value: string) {
+  const cleaned = value.replace(/,/g, "").replace(/\s+/g, "");
+  if (!cleaned) return "";
+
+  const hasLeadingDot = cleaned.startsWith(".");
+  const [wholeRaw, ...fractionParts] = cleaned.split(".");
+  const whole = wholeRaw.replace(/[^\d]/g, "");
+  const fraction = fractionParts.join("").replace(/[^\d]/g, "");
+
+  if (hasLeadingDot) {
+    return fraction ? `0.${fraction}` : "0.";
+  }
+
+  if (fractionParts.length > 0) {
+    return `${whole || "0"}.${fraction}`;
+  }
+
+  return whole;
+}
+
+function scientificIntegerToPlain(value: string) {
+  const trimmed = value.trim().toLowerCase();
+
+  if (!/^\d+e\+\d+$/.test(trimmed)) return null;
+
+  const [base, exponentRaw] = trimmed.split("e+");
+  const exponent = Number(exponentRaw);
+  if (!Number.isFinite(exponent) || exponent < 0) return null;
+
+  return base + "0".repeat(exponent);
+}
+
+function decimalStringToRaw(value: string, decimals = 18) {
+  const normalized = normalizeTokenDecimalInput(value);
+
+  if (!normalized || normalized === ".") return "0";
+
+  try {
+    return ethers.parseUnits(normalized, decimals).toString();
+  } catch {
+    return "0";
+  }
+}
+
+function rawTokenToDecimalString(raw: string | number | bigint | null | undefined, decimals = 18) {
+  if (raw === null || raw === undefined) return "0";
+
+  const rawString = String(raw).trim();
+  if (!rawString) return "0";
+
+  const scientificPlain = scientificIntegerToPlain(rawString);
+  const normalizedRaw = scientificPlain ?? rawString;
+
+  if (!/^\d+$/.test(normalizedRaw)) {
+    const normalizedDecimal = normalizeTokenDecimalInput(rawString);
+    return normalizedDecimal || "0";
+  }
+
+  try {
+    return ethers.formatUnits(normalizedRaw, decimals);
+  } catch {
+    return "0";
+  }
+}
+
+function formatTokenDisplay(value: string, symbol = "DCNT") {
+  const normalized = normalizeTokenDecimalInput(value);
+  return `${normalized || "0"} ${symbol}`;
+}
+
 function normalizeQueueCards(queueCards: WarpoolAdminQueueCard[]) {
   const map = new Map(queueCards.map((item) => [item.slug, item]));
 
@@ -74,31 +146,13 @@ function normalizeQueueCards(queueCards: WarpoolAdminQueueCard[]) {
       targetSize: String(queue?.targetSize ?? 0),
       minStartSize: String(queue?.minStartSize ?? 0),
       openDurationSeconds: String(queue?.openDurationSeconds ?? 0),
-      stakeAmountDecimal: queue ? rawToDecimalString(queue.stakeAmountRaw, 18) : "0",
+      stakeAmountDecimal: rawTokenToDecimalString(queue?.stakeAmountRaw ?? "0", 18),
       platformFeeBps: String(queue?.platformFeeBps ?? 0),
       firstPlaceBps: String(queue?.firstPlaceBps ?? 0),
       secondPlaceBps: String(queue?.secondPlaceBps ?? 0),
       thirdPlaceBps: String(queue?.thirdPlaceBps ?? 0),
     } satisfies QueueDraft;
   });
-}
-
-function rawToDecimalString(raw: string, decimals = 18) {
-  if (!/^\d+$/.test(raw)) return raw;
-
-  const value = BigInt(raw);
-  const divisor = BigInt(10) ** BigInt(decimals);
-  const whole = value / divisor;
-  const fraction = value % divisor;
-
-  if (fraction === BigInt(0)) return whole.toString();
-
-  const fractionStr = fraction
-    .toString()
-    .padStart(decimals, "0")
-    .replace(/0+$/, "");
-
-  return `${whole.toString()}.${fractionStr}`;
 }
 
 function toJsonSafe<T>(value: T): T {
@@ -535,7 +589,7 @@ export default function WarpoolMultisigComposer({
         targetSize: Number(queue.targetSize || 0),
         minStartSize: Number(queue.minStartSize || 0),
         openDurationSeconds: Number(queue.openDurationSeconds || 0),
-        stakeAmountRaw: parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18),
+        stakeAmountRaw: decimalStringToRaw(queue.stakeAmountDecimal || "0", 18),
         platformFeeBps: Number(queue.platformFeeBps || 0),
         firstPlaceBps: Number(queue.firstPlaceBps || 0),
         secondPlaceBps: Number(queue.secondPlaceBps || 0),
@@ -604,24 +658,21 @@ export default function WarpoolMultisigComposer({
     [currentDraft, proposal, encodedPlan.summaryLines]
   );
 
-  function updateQueue(
-    slug: QueueDraft["slug"],
-    patch: Partial<QueueDraft>
-  ) {
+  function updateQueue(slug: QueueDraft["slug"], patch: Partial<QueueDraft>) {
     setQueues((current) =>
       current.map((item) => (item.slug === slug ? { ...item, ...patch } : item))
     );
   }
 
-async function resolveCreatorAddress() {
-  if (address) return address;
-  try {
-    const accounts = await dwGetAccounts();
-    return accounts?.[0] ?? null;
-  } catch {
-    return null;
+  async function resolveCreatorAddress() {
+    if (address) return address;
+    try {
+      const accounts = await dwGetAccounts();
+      return accounts?.[0] ?? null;
+    } catch {
+      return null;
+    }
   }
-}
 
   async function saveProposal(status: "DRAFT" | "READY") {
     try {
@@ -645,44 +696,44 @@ async function resolveCreatorAddress() {
       if (encodedPlan.warnings.length > 0) {
         throw new Error(encodedPlan.warnings[0]);
       }
-const res = await fetch(
-  `/api/admin/warpool/proposals?adminSlug=${encodeURIComponent(slug)}`,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-slug": slug,
-      "x-admin-wallet": creatorAddress,
-    },
-    body: JSON.stringify({
-      area: "WARPOOL",
-      kind: "CONFIG",
-      title: inferProposalTitle(proposal),
-      summary:
-        summaryLines.length > 0
-          ? summaryLines.slice(0, 3).join(" • ")
-          : "Warpool config proposal",
-      description:
-        summaryLines.length > 0 ? summaryLines.join("\n") : null,
-      status,
-      safeContract: defaultMultisigAddress,
-      chainId: latestConfigSnapshot?.chainId ?? null,
-      basedOnConfigVersion: proposal.basedOnConfigVersion,
-      snapshotJson: toJsonSafe(proposal),
-      createdByAddress: creatorAddress,
-      actions: encodedPlan.actions.map((action, index) => ({
-        orderIndex: index,
-        label: action.functionName,
-        summary: action.summary,
-        target: action.target,
-        valueWei: action.value,
-        dataHex: action.data,
-        functionName: action.functionName,
-        argsJson: toJsonSafe(action.args),
-      })),
-    }),
-  }
-);
+
+      const res = await fetch(
+        `/api/admin/warpool/proposals?adminSlug=${encodeURIComponent(slug)}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-slug": slug,
+            "x-admin-wallet": creatorAddress,
+          },
+          body: JSON.stringify({
+            area: "WARPOOL",
+            kind: "CONFIG",
+            title: inferProposalTitle(proposal),
+            summary:
+              summaryLines.length > 0
+                ? summaryLines.slice(0, 3).join(" • ")
+                : "Warpool config proposal",
+            description: summaryLines.length > 0 ? summaryLines.join("\n") : null,
+            status,
+            safeContract: defaultMultisigAddress,
+            chainId: latestConfigSnapshot?.chainId ?? null,
+            basedOnConfigVersion: proposal.basedOnConfigVersion,
+            snapshotJson: toJsonSafe(proposal),
+            createdByAddress: creatorAddress,
+            actions: encodedPlan.actions.map((action, index) => ({
+              orderIndex: index,
+              label: action.functionName,
+              summary: action.summary,
+              target: action.target,
+              valueWei: action.value,
+              dataHex: action.data,
+              functionName: action.functionName,
+              argsJson: toJsonSafe(action.args),
+            })),
+          }),
+        }
+      );
 
       const json = (await res.json()) as {
         ok?: boolean;
@@ -757,7 +808,7 @@ const res = await fetch(
               <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
                 Connected wallet
               </div>
-              <div className="mt-2 text-sm font-medium text-foreground break-all">
+              <div className="mt-2 break-all text-sm font-medium text-foreground">
                 {address ?? "Not connected"}
               </div>
             </div>
@@ -842,7 +893,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={token11FeeShareBps}
-                onChange={(e) => setToken11FeeShareBps(e.target.value)}
+                onChange={(e) =>
+                  setToken11FeeShareBps(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="5000"
               />
             </div>
@@ -861,7 +914,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={relicMinDiscountBps}
-                onChange={(e) => setRelicMinDiscountBps(e.target.value)}
+                onChange={(e) =>
+                  setRelicMinDiscountBps(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="1000"
               />
             </div>
@@ -873,7 +928,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={relicMaxDiscountBps}
-                onChange={(e) => setRelicMaxDiscountBps(e.target.value)}
+                onChange={(e) =>
+                  setRelicMaxDiscountBps(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="4000"
               />
             </div>
@@ -883,7 +940,7 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={discountSeatCap}
-                onChange={(e) => setDiscountSeatCap(e.target.value)}
+                onChange={(e) => setDiscountSeatCap(normalizeIntegerInput(e.target.value))}
                 placeholder="2"
               />
             </div>
@@ -893,7 +950,7 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={token11SeatCap}
-                onChange={(e) => setToken11SeatCap(e.target.value)}
+                onChange={(e) => setToken11SeatCap(normalizeIntegerInput(e.target.value))}
                 placeholder="1"
               />
             </div>
@@ -905,7 +962,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={reservationTtlSeconds}
-                onChange={(e) => setReservationTtlSeconds(e.target.value)}
+                onChange={(e) =>
+                  setReservationTtlSeconds(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="300"
               />
             </div>
@@ -922,7 +981,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={fatigueMaxConsecutive}
-                onChange={(e) => setFatigueMaxConsecutive(e.target.value)}
+                onChange={(e) =>
+                  setFatigueMaxConsecutive(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="1"
               />
             </div>
@@ -934,7 +995,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={fatigueCooldownSeconds}
-                onChange={(e) => setFatigueCooldownSeconds(e.target.value)}
+                onChange={(e) =>
+                  setFatigueCooldownSeconds(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="0"
               />
             </div>
@@ -951,7 +1014,7 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={roundsPerMatch}
-                onChange={(e) => setRoundsPerMatch(e.target.value)}
+                onChange={(e) => setRoundsPerMatch(normalizeIntegerInput(e.target.value))}
                 placeholder="3"
               />
             </div>
@@ -960,7 +1023,7 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={traitPowerMin}
-                onChange={(e) => setTraitPowerMin(e.target.value)}
+                onChange={(e) => setTraitPowerMin(normalizeIntegerInput(e.target.value))}
                 placeholder="48"
               />
             </div>
@@ -969,7 +1032,7 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={traitPowerMax}
-                onChange={(e) => setTraitPowerMax(e.target.value)}
+                onChange={(e) => setTraitPowerMax(normalizeIntegerInput(e.target.value))}
                 placeholder="68"
               />
             </div>
@@ -978,7 +1041,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={roundVarianceMax}
-                onChange={(e) => setRoundVarianceMax(e.target.value)}
+                onChange={(e) =>
+                  setRoundVarianceMax(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="12"
               />
             </div>
@@ -987,7 +1052,9 @@ const res = await fetch(
               <TextInput
                 inputMode="numeric"
                 value={microMomentumMax}
-                onChange={(e) => setMicroMomentumMax(e.target.value)}
+                onChange={(e) =>
+                  setMicroMomentumMax(normalizeIntegerInput(e.target.value))
+                }
                 placeholder="8"
               />
             </div>
@@ -1006,23 +1073,23 @@ const res = await fetch(
                   key={queue.slug}
                   className="rounded-[28px] border border-border bg-background/70 p-4 md:p-5"
                 >
-              <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-  <div>
-    <div className="text-base font-semibold text-foreground">
-      {meta.title}
-    </div>
-    <div className="mt-1 text-sm leading-6 text-muted">
-      {meta.description}
-    </div>
-  </div>
+                  <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="text-base font-semibold text-foreground">
+                        {meta.title}
+                      </div>
+                      <div className="mt-1 text-sm leading-6 text-muted">
+                        {meta.description}
+                      </div>
+                    </div>
 
-  <div className="flex flex-wrap gap-2">
-    <Pill tone={queue.enabled ? "good" : "warn"}>
-      {queue.enabled ? "Enabled" : "Disabled"}
-    </Pill>
-    <Pill>{queueRuntimeStateText(runtimeQueues, queue.slug)}</Pill>
-  </div>
-</div>
+                    <div className="flex flex-wrap gap-2">
+                      <Pill tone={queue.enabled ? "good" : "warn"}>
+                        {queue.enabled ? "Enabled" : "Disabled"}
+                      </Pill>
+                      <Pill>{queueRuntimeStateText(runtimeQueues, queue.slug)}</Pill>
+                    </div>
+                  </div>
 
                   <div className="mb-4">
                     <Toggle
@@ -1051,7 +1118,9 @@ const res = await fetch(
                         inputMode="numeric"
                         value={queue.targetSize}
                         onChange={(e) =>
-                          updateQueue(queue.slug, { targetSize: e.target.value })
+                          updateQueue(queue.slug, {
+                            targetSize: normalizeIntegerInput(e.target.value),
+                          })
                         }
                       />
                     </div>
@@ -1062,7 +1131,9 @@ const res = await fetch(
                         inputMode="numeric"
                         value={queue.minStartSize}
                         onChange={(e) =>
-                          updateQueue(queue.slug, { minStartSize: e.target.value })
+                          updateQueue(queue.slug, {
+                            minStartSize: normalizeIntegerInput(e.target.value),
+                          })
                         }
                       />
                     </div>
@@ -1076,27 +1147,26 @@ const res = await fetch(
                         value={queue.openDurationSeconds}
                         onChange={(e) =>
                           updateQueue(queue.slug, {
-                            openDurationSeconds: e.target.value,
+                            openDurationSeconds: normalizeIntegerInput(e.target.value),
                           })
                         }
                       />
                     </div>
 
                     <div>
-                      <Label
-                        hint={formatTokenAmount(
-                          parseTokenDecimalToRaw(queue.stakeAmountDecimal || "0", 18)
-                        )}
-                      >
+                      <Label hint={formatTokenDisplay(queue.stakeAmountDecimal, "DCNT")}>
                         Stake amount
                       </Label>
                       <TextInput
+                        inputMode="decimal"
                         value={queue.stakeAmountDecimal}
                         onChange={(e) =>
                           updateQueue(queue.slug, {
-                            stakeAmountDecimal: e.target.value,
+                            stakeAmountDecimal: normalizeTokenDecimalInput(e.target.value),
                           })
                         }
+                        placeholder="10000"
+                        autoComplete="off"
                       />
                     </div>
 
@@ -1109,7 +1179,7 @@ const res = await fetch(
                         value={queue.platformFeeBps}
                         onChange={(e) =>
                           updateQueue(queue.slug, {
-                            platformFeeBps: e.target.value,
+                            platformFeeBps: normalizeIntegerInput(e.target.value),
                           })
                         }
                       />
@@ -1124,7 +1194,7 @@ const res = await fetch(
                         value={queue.firstPlaceBps}
                         onChange={(e) =>
                           updateQueue(queue.slug, {
-                            firstPlaceBps: e.target.value,
+                            firstPlaceBps: normalizeIntegerInput(e.target.value),
                           })
                         }
                       />
@@ -1139,7 +1209,7 @@ const res = await fetch(
                         value={queue.secondPlaceBps}
                         onChange={(e) =>
                           updateQueue(queue.slug, {
-                            secondPlaceBps: e.target.value,
+                            secondPlaceBps: normalizeIntegerInput(e.target.value),
                           })
                         }
                       />
@@ -1154,7 +1224,7 @@ const res = await fetch(
                         value={queue.thirdPlaceBps}
                         onChange={(e) =>
                           updateQueue(queue.slug, {
-                            thirdPlaceBps: e.target.value,
+                            thirdPlaceBps: normalizeIntegerInput(e.target.value),
                           })
                         }
                       />

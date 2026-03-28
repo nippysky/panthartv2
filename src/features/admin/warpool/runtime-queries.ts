@@ -53,12 +53,12 @@ function makeQueueKey(tier: number, mode: number) {
   );
 }
 
-function toNum(value: bigint | number | null | undefined) {
+function toSafeNumber(value: bigint | number | null | undefined) {
   if (value === null || value === undefined) return null;
   return Number(value);
 }
 
-function toStr(value: bigint | string | null | undefined) {
+function toSafeString(value: bigint | string | null | undefined) {
   if (value === null || value === undefined) return null;
   return String(value);
 }
@@ -147,24 +147,26 @@ export async function getWarpoolRuntimeOverviewData(): Promise<WarpoolRuntimeOve
           return {
             ...queue,
             poolId:
-              result.poolId && BigInt(result.poolId) > BigInt(0) ? String(result.poolId) : null,
-            state: toNum(result.state),
+              result.poolId && BigInt(result.poolId) > BigInt(0)
+                ? String(result.poolId)
+                : null,
+            state: toSafeNumber(result.state),
             singleEntryPerWallet:
               typeof result.singleEntryPerWallet === "boolean"
                 ? result.singleEntryPerWallet
                 : null,
-            entrantCount: toNum(result.entrantCount),
-            runnableSize: toNum(result.runnableSize),
-            targetSize: toNum(result.targetSize),
-            minStartSize: toNum(result.minStartSize),
-            stakeAmountRaw: toStr(result.stakeAmount),
-            openedAt: toNum(result.openedAt),
-            expiresAt: toNum(result.expiresAt),
-            lockedAt: toNum(result.lockedAt),
-            seedBlockNumber: toNum(result.seedBlockNumber),
-            discountSeatsUsed: toNum(result.discountSeatsUsed),
-            discountSeatsReserved: toNum(result.discountSeatsReserved),
-            token11SeatsUsed: toNum(result.token11SeatsUsed),
+            entrantCount: toSafeNumber(result.entrantCount),
+            runnableSize: toSafeNumber(result.runnableSize),
+            targetSize: toSafeNumber(result.targetSize),
+            minStartSize: toSafeNumber(result.minStartSize),
+            stakeAmountRaw: toSafeString(result.stakeAmount),
+            openedAt: toSafeNumber(result.openedAt),
+            expiresAt: toSafeNumber(result.expiresAt),
+            lockedAt: toSafeNumber(result.lockedAt),
+            seedBlockNumber: toSafeNumber(result.seedBlockNumber),
+            discountSeatsUsed: toSafeNumber(result.discountSeatsUsed),
+            discountSeatsReserved: toSafeNumber(result.discountSeatsReserved),
+            token11SeatsUsed: toSafeNumber(result.token11SeatsUsed),
           } satisfies WarpoolRuntimeQueueStatus;
         } catch {
           warnings.push(`Failed to read live queue status for ${queue.slug}.`);

@@ -1,5 +1,7 @@
 // src/features/admin/warpool/constants.ts
 
+import { ethers } from "ethers";
+
 export const WARPOOL_QUEUE_META = {
   FORGE_SAFEGUARD: {
     title: "Forge Safeguard",
@@ -30,6 +32,32 @@ export const WARPOOL_QUEUE_ORDER = [
   "CROWN_VAULTBOUND",
 ] as const;
 
+function scientificIntegerToPlain(value: string) {
+  const trimmed = value.trim().toLowerCase();
+  if (!/^\d+e\+\d+$/.test(trimmed)) return null;
+
+  const [base, exponentRaw] = trimmed.split("e+");
+  const exponent = Number(exponentRaw);
+
+  if (!Number.isFinite(exponent) || exponent < 0) return null;
+  return `${base}${"0".repeat(exponent)}`;
+}
+
+function normalizeIntegerString(value: string | number | bigint) {
+  const raw = String(value).trim();
+  if (!raw) return null;
+
+  const scientificPlain = scientificIntegerToPlain(raw);
+  const normalized = scientificPlain ?? raw;
+
+  if (!/^\d+$/.test(normalized)) return null;
+  return normalized;
+}
+
+function addThousandsSeparators(value: string) {
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 export function formatBps(bps: number) {
   return `${(bps / 100).toFixed(2)}%`;
 }
@@ -46,36 +74,33 @@ export function shortenAddress(address: string | null | undefined) {
 
 export function formatInteger(value: number | string | bigint | null | undefined) {
   if (value === null || value === undefined) return "—";
-  return new Intl.NumberFormat("en-US").format(Number(value));
+
+  const normalized = normalizeIntegerString(value);
+  if (!normalized) return String(value);
+
+  return addThousandsSeparators(normalized);
 }
 
-export function formatTokenAmount(value: string | number | bigint | null | undefined) {
+export function formatTokenAmount(
+  value: string | number | bigint | null | undefined,
+  decimals = 18,
+  symbol = "DCNT"
+) {
   if (value === null || value === undefined) return "—";
 
-  const raw = typeof value === "string" ? value : String(value);
+  const normalized = normalizeIntegerString(value);
+  if (!normalized) return String(value);
 
-  if (!/^\d+$/.test(raw)) return raw;
+  try {
+    const decimal = ethers.formatUnits(normalized, decimals);
+    const [wholeRaw, fractionRaw = ""] = decimal.split(".");
+    const whole = addThousandsSeparators(wholeRaw);
+    const fraction = fractionRaw.slice(0, 4).replace(/0+$/, "");
 
-  const rawBigInt = BigInt(raw);
-  const decimals = BigInt(18);
-  const divisor = BigInt(10) ** decimals;
-
-  const whole = rawBigInt / divisor;
-  const fraction = rawBigInt % divisor;
-
-  if (fraction === BigInt(0)) {
-    return `${new Intl.NumberFormat("en-US").format(Number(whole))} DCNT`;
+    return `${whole}${fraction ? `.${fraction}` : ""} ${symbol}`;
+  } catch {
+    return String(value);
   }
-
-  const fractionStr = fraction
-    .toString()
-    .padStart(Number(decimals), "0")
-    .slice(0, 4)
-    .replace(/0+$/, "");
-
-  return `${new Intl.NumberFormat("en-US").format(Number(whole))}${
-    fractionStr ? `.${fractionStr}` : ""
-  } DCNT`;
 }
 
 export function formatDurationSeconds(seconds: number | null | undefined) {
@@ -87,12 +112,14 @@ export function formatDurationSeconds(seconds: number | null | undefined) {
 }
 
 export function parseTokenDecimalToRaw(value: string, decimals = 18): string {
-  const trimmed = value.trim();
+  const trimmed = value.trim().replace(/,/g, "");
+
   if (!trimmed) return "0";
   if (!/^\d+(\.\d+)?$/.test(trimmed)) return "0";
 
-  const [wholePart, fractionPart = ""] = trimmed.split(".");
-  const paddedFraction = `${fractionPart}${"0".repeat(decimals)}`.slice(0, decimals);
-  const normalized = `${wholePart}${paddedFraction}`.replace(/^0+/, "") || "0";
-  return normalized;
+  try {
+    return ethers.parseUnits(trimmed, decimals).toString();
+  } catch {
+    return "0";
+  }
 }
