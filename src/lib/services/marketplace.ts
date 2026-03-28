@@ -9,7 +9,7 @@
  * - "Just in time" checks (time window, settled state)
  * - Currency helpers for bid minimum display
  * - Optional marketplace start delay before listing/auction starts
- * - Better buy() revert surfacing
+ * - Better revert/error surfacing for buy/bid/cancel/finalize flows
  */
 
 import { ethers } from "ethers";
@@ -94,6 +94,7 @@ function extractErrParts(err: unknown): string[] {
   if (typeof err === "string") return [err];
 
   const e = err as any;
+
   const parts = [
     e?.shortMessage,
     e?.reason,
@@ -103,12 +104,79 @@ function extractErrParts(err: unknown): string[] {
     e?.info?.error?.message,
     e?.info?.error?.reason,
     e?.data?.message,
+    e?.data?.originalError?.message,
+    e?.cause?.message,
   ].filter((x) => typeof x === "string" && x.trim().length > 0) as string[];
 
-  return parts;
+  return Array.from(new Set(parts));
+}
+
+function hasPattern(raw: string, patterns: RegExp[]) {
+  return patterns.some((rx) => rx.test(raw));
+}
+
+function normalizeCommonWalletError(err: unknown): string | null {
+  const parts = extractErrParts(err);
+  const raw = parts.join(" | ");
+
+  if (!raw) return null;
+
+  if (
+    hasPattern(raw, [
+      /insufficient funds/i,
+      /intrinsic gas too low/i,
+      /intrinsic transaction cost/i,
+      /gas required exceeds allowance/i,
+      /gas \* price \+ value/i,
+      /funds for gas/i,
+      /not enough funds/i,
+      /exceeds balance/i,
+    ])
+  ) {
+    return "Not enough ETN in this wallet to cover the NFT price plus gas.";
+  }
+
+  if (
+    hasPattern(raw, [
+      /user rejected/i,
+      /user denied/i,
+      /rejected the request/i,
+      /ACTION_REJECTED/i,
+      /denied transaction/i,
+      /cancelled by user/i,
+    ])
+  ) {
+    return "Transaction was cancelled in the wallet.";
+  }
+
+  if (
+    hasPattern(raw, [
+      /wrong network/i,
+      /unsupported chain/i,
+      /chain mismatch/i,
+      /switch to the supported chain/i,
+    ])
+  ) {
+    return "Wrong network. Switch to the supported chain and try again.";
+  }
+
+  if (
+    hasPattern(raw, [
+      /wallet mismatch/i,
+      /Connected wallet mismatch/i,
+      /signer resolved/i,
+    ])
+  ) {
+    return "Connected wallet mismatch. Reconnect the intended wallet and try again.";
+  }
+
+  return null;
 }
 
 function normalizeBuyError(err: unknown): string {
+  const commonWallet = normalizeCommonWalletError(err);
+  if (commonWallet) return commonWallet;
+
   const parts = extractErrParts(err);
   const raw = parts.join(" | ");
 
@@ -116,27 +184,123 @@ function normalizeBuyError(err: unknown): string {
     return "Transaction reverted on-chain while buying the listing.";
   }
 
-  if (/TimeWindow/i.test(raw) || /Not started yet/i.test(raw) || /Expired/i.test(raw)) {
-    return "This listing is outside its live window. Please refresh and try again.";
+  if (hasPattern(raw, [/TimeWindow/i, /Not started yet/i])) {
+    return "This listing has not started yet.";
   }
 
-  if (/Inactive/i.test(raw) || /no longer active/i.test(raw)) {
+  if (hasPattern(raw, [/Expired/i])) {
+    return "This listing has expired.";
+  }
+
+  if (hasPattern(raw, [/Inactive/i, /no longer active/i])) {
     return "This listing is no longer active on-chain.";
   }
 
-  if (/PriceMismatch/i.test(raw)) {
+  if (hasPattern(raw, [/PriceMismatch/i, /payment amount does not match/i])) {
     return "The on-chain payment amount does not match the listing price.";
   }
 
-  if (/TransferFailed/i.test(raw)) {
-    return "Payment transfer failed on-chain. Check wallet balance/allowance and try again.";
+  if (hasPattern(raw, [/TransferFailed/i])) {
+    return "Payment transfer failed on-chain. Check wallet balance and try again.";
   }
 
-  if (/StolenAsset/i.test(raw)) {
+  if (hasPattern(raw, [/StolenAsset/i])) {
     return "This asset is currently blocked from trading.";
   }
 
-  if (/pause|EnforcedPause/i.test(raw)) {
+  if (hasPattern(raw, [/pause/i, /EnforcedPause/i])) {
+    return "Marketplace actions are currently paused.";
+  }
+
+  if (hasPattern(raw, [/execution reverted/i, /call exception/i])) {
+    return raw;
+  }
+
+  return raw;
+}
+
+function normalizeBidError(err: unknown): string {
+  const commonWallet = normalizeCommonWalletError(err);
+  if (commonWallet) return commonWallet;
+
+  const parts = extractErrParts(err);
+  const raw = parts.join(" | ");
+
+  if (!raw) return "Bid failed.";
+
+  if (hasPattern(raw, [/Auction is already settled/i, /AlreadySettled/i])) {
+    return "This auction is already settled.";
+  }
+
+  if (hasPattern(raw, [/TimeWindow/i, /Not started yet/i])) {
+    return "This auction is not currently open for bidding.";
+  }
+
+  if (hasPattern(raw, [/Bid too low/i, /PriceMismatch/i])) {
+    return raw;
+  }
+
+  if (hasPattern(raw, [/TransferFailed/i])) {
+    return "Payment transfer failed on-chain. Check wallet balance or token allowance and try again.";
+  }
+
+  if (hasPattern(raw, [/StolenAsset/i])) {
+    return "This asset is currently blocked from trading.";
+  }
+
+  if (hasPattern(raw, [/pause/i, /EnforcedPause/i])) {
+    return "Marketplace actions are currently paused.";
+  }
+
+  return raw;
+}
+
+function normalizeCancelError(err: unknown, kind: "listing" | "auction"): string {
+  const commonWallet = normalizeCommonWalletError(err);
+  if (commonWallet) return commonWallet;
+
+  const parts = extractErrParts(err);
+  const raw = parts.join(" | ");
+
+  if (!raw) return `Cancel ${kind} failed.`;
+
+  if (hasPattern(raw, [/NotSeller/i])) {
+    return `Only the seller can cancel this ${kind}.`;
+  }
+
+  if (hasPattern(raw, [/Inactive/i])) {
+    return `This ${kind} is no longer active.`;
+  }
+
+  if (hasPattern(raw, [/AlreadySettled/i])) {
+    return "This auction is already settled.";
+  }
+
+  if (hasPattern(raw, [/pause/i, /EnforcedPause/i])) {
+    return "Marketplace actions are currently paused.";
+  }
+
+  return raw;
+}
+
+function normalizeFinalizeError(err: unknown): string {
+  const commonWallet = normalizeCommonWalletError(err);
+  if (commonWallet) return commonWallet;
+
+  const parts = extractErrParts(err);
+  const raw = parts.join(" | ");
+
+  if (!raw) return "Finalize failed.";
+
+  if (hasPattern(raw, [/AlreadySettled/i])) {
+    return "Auction is already settled.";
+  }
+
+  if (hasPattern(raw, [/Auction has not ended yet/i, /TimeWindow/i])) {
+    return "Auction has not ended yet.";
+  }
+
+  if (hasPattern(raw, [/pause/i, /EnforcedPause/i])) {
     return "Marketplace actions are currently paused.";
   }
 
@@ -260,107 +424,127 @@ export const marketplace = {
   },
 
   async cancelListing(listingId: bigint): Promise<string> {
-    const rc = await cancelListingOnChain(listingId);
-    return rc.txHash;
+    try {
+      const rc = await cancelListingOnChain(listingId);
+      return rc.txHash;
+    } catch (err: unknown) {
+      throw new Error(normalizeCancelError(err, "listing"));
+    }
   },
 
   async cancelAuction(auctionId: bigint): Promise<string> {
-    const rc = await cancelAuctionOnChain(auctionId);
-    return rc.txHash;
+    try {
+      const rc = await cancelAuctionOnChain(auctionId);
+      return rc.txHash;
+    } catch (err: unknown) {
+      throw new Error(normalizeCancelError(err, "auction"));
+    }
   },
 
   async finalizeAuction(auctionId: bigint): Promise<string> {
-    const { signer } = await import("@/src/lib/evm/getSigner").then((m) =>
-      m.getBrowserSigner()
-    );
-    const { MARKETPLACE_CORE_ABI } = await import(
-      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
-    );
+    try {
+      const { signer } = await import("@/src/lib/evm/getSigner").then((m) =>
+        m.getBrowserSigner()
+      );
+      const { MARKETPLACE_CORE_ABI } = await import(
+        "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+      );
 
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+      const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+      const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
 
-    const on = await readAuctionById(auctionId);
-    if (!on) throw new Error("Auction not found on-chain.");
-    if (on.row.settled) throw new Error("Auction is already settled.");
+      const on = await readAuctionById(auctionId);
+      if (!on) throw new Error("Auction not found on-chain.");
+      if (on.row.settled) throw new Error("Auction is already settled.");
 
-    const n = Number(nowSec());
-    const end = Number(on.row.end);
-    if (end > 0 && n <= end) throw new Error("Auction has not ended yet.");
+      const n = Number(nowSec());
+      const end = Number(on.row.end);
+      if (end > 0 && n <= end) throw new Error("Auction has not ended yet.");
 
-    const tx = await mkt.finalize(auctionId);
-    await tx.wait();
-    return String(tx.hash);
+      const tx = await mkt.finalize(auctionId);
+      await tx.wait();
+      return String(tx.hash);
+    } catch (err: unknown) {
+      throw new Error(normalizeFinalizeError(err));
+    }
   },
 
   async buyListingByIdJustInTime(listingId: bigint): Promise<string> {
-    const { signer } = await import("@/src/lib/evm/getSigner").then((m) =>
-      m.getBrowserSigner()
-    );
-    const { MARKETPLACE_CORE_ABI } = await import(
-      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
-    );
-
-    const on = await readListingById(listingId);
-    if (!on) throw new Error("Listing not found on-chain.");
-
-    requireWindowActive({ start: on.row.start, end: on.row.end });
-
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    if (!mktAddr || !ethers.isAddress(mktAddr)) {
-      throw new Error("Missing marketplace address.");
-    }
-
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-
-    const raw = await mkt.listings(listingId).catch(() => null);
-    if (!raw) throw new Error("Listing not found on-chain.");
-
-    const seller = String(raw[0] ?? "");
-    const currency = (String(raw[5] ?? on.row.currency) || on.row.currency) as `0x${string}`;
-    const price = (raw[6] as bigint | undefined) ?? on.row.price;
-    const start = (raw[7] as bigint | undefined) ?? on.row.start;
-    const end = (raw[8] as bigint | undefined) ?? on.row.end;
-    const active = Boolean(raw[9]);
-
-    if (!active) {
-      throw new Error("This listing is no longer active on-chain.");
-    }
-
-    if (!seller || seller === ZERO_ADDR) {
-      throw new Error("Listing seller is invalid on-chain.");
-    }
-
-    const n = nowSec();
-    if (start > BigInt(0) && n < start) {
-      throw new Error(`Not started yet. Starts at ${formatUtcFromSec(start)}.`);
-    }
-    if (end > BigInt(0) && n > end) {
-      throw new Error(`Expired. Ended at ${formatUtcFromSec(end)}.`);
-    }
-
-    const isNative = currency === ZERO_ADDR;
-
-    if (!isNative) {
-      const ERC20_ABI = [
-        "function allowance(address owner, address spender) view returns (uint256)",
-        "function approve(address spender, uint256 amount) returns (bool)",
-      ] as const;
-
-      const token = new ethers.Contract(currency, ERC20_ABI, signer);
-      const owner = (await signer.getAddress()) as `0x${string}`;
-
-      const allowance: bigint = await token.allowance(owner, mktAddr);
-      if (allowance < price) {
-        const txA = await token.approve(mktAddr, price);
-        await txA.wait();
-      }
-    }
-
-    const overrides: Record<string, bigint> = {};
-    if (isNative) overrides.value = price;
-
     try {
+      const { signer, provider } = await import("@/src/lib/evm/getSigner").then((m) =>
+        m.getBrowserSigner()
+      );
+      const { MARKETPLACE_CORE_ABI } = await import(
+        "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+      );
+
+      const on = await readListingById(listingId);
+      if (!on) throw new Error("Listing not found on-chain.");
+
+      requireWindowActive({ start: on.row.start, end: on.row.end });
+
+      const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+      if (!mktAddr || !ethers.isAddress(mktAddr)) {
+        throw new Error("Missing marketplace address.");
+      }
+
+      const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+
+      const raw = await mkt.listings(listingId).catch(() => null);
+      if (!raw) throw new Error("Listing not found on-chain.");
+
+      const seller = String(raw[0] ?? "");
+      const currency = (String(raw[5] ?? on.row.currency) || on.row.currency) as `0x${string}`;
+      const price = (raw[6] as bigint | undefined) ?? on.row.price;
+      const start = (raw[7] as bigint | undefined) ?? on.row.start;
+      const end = (raw[8] as bigint | undefined) ?? on.row.end;
+      const active = Boolean(raw[9]);
+
+      if (!active) {
+        throw new Error("This listing is no longer active on-chain.");
+      }
+
+      if (!seller || seller === ZERO_ADDR) {
+        throw new Error("Listing seller is invalid on-chain.");
+      }
+
+      const n = nowSec();
+      if (start > BigInt(0) && n < start) {
+        throw new Error(`Not started yet. Starts at ${formatUtcFromSec(start)}.`);
+      }
+      if (end > BigInt(0) && n > end) {
+        throw new Error(`Expired. Ended at ${formatUtcFromSec(end)}.`);
+      }
+
+      const isNative = currency === ZERO_ADDR;
+
+      if (isNative) {
+        const buyer = await signer.getAddress();
+        const balance = await provider.getBalance(buyer);
+        if (balance < price) {
+          throw new Error("Insufficient funds for NFT price.");
+        }
+      }
+
+      if (!isNative) {
+        const ERC20_ABI = [
+          "function allowance(address owner, address spender) view returns (uint256)",
+          "function approve(address spender, uint256 amount) returns (bool)",
+        ] as const;
+
+        const token = new ethers.Contract(currency, ERC20_ABI, signer);
+        const owner = (await signer.getAddress()) as `0x${string}`;
+
+        const allowance: bigint = await token.allowance(owner, mktAddr);
+        if (allowance < price) {
+          const txA = await token.approve(mktAddr, price);
+          await txA.wait();
+        }
+      }
+
+      const overrides: Record<string, bigint> = {};
+      if (isNative) overrides.value = price;
+
       if (typeof (mkt.buy as any).staticCall === "function") {
         await (mkt.buy as any).staticCall(listingId, overrides);
       }
@@ -379,36 +563,40 @@ export const marketplace = {
     standard: Standard;
     seller: `0x${string}`;
   }): Promise<string> {
-    const { signer } = await import("@/src/lib/evm/getSigner").then((m) =>
-      m.getBrowserSigner()
-    );
-    const { MARKETPLACE_CORE_ABI } = await import(
-      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
-    );
-
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    if (!mktAddr || !ethers.isAddress(mktAddr)) {
-      throw new Error("Missing marketplace address.");
-    }
-
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-
-    let listingId: bigint;
-    if (args.standard === "ERC1155") {
-      listingId = await mkt.activeListing1155BySeller(
-        args.collection,
-        args.tokenId,
-        args.seller
+    try {
+      const { signer } = await import("@/src/lib/evm/getSigner").then((m) =>
+        m.getBrowserSigner()
       );
-    } else {
-      listingId = await mkt.activeListingForToken(args.collection, args.tokenId);
-    }
+      const { MARKETPLACE_CORE_ABI } = await import(
+        "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+      );
 
-    if (!listingId || listingId === BigInt(0)) {
-      throw new Error("This listing is no longer active on-chain.");
-    }
+      const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+      if (!mktAddr || !ethers.isAddress(mktAddr)) {
+        throw new Error("Missing marketplace address.");
+      }
 
-    return await marketplace.buyListingByIdJustInTime(listingId);
+      const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+
+      let listingId: bigint;
+      if (args.standard === "ERC1155") {
+        listingId = await mkt.activeListing1155BySeller(
+          args.collection,
+          args.tokenId,
+          args.seller
+        );
+      } else {
+        listingId = await mkt.activeListingForToken(args.collection, args.tokenId);
+      }
+
+      if (!listingId || listingId === BigInt(0)) {
+        throw new Error("This listing is no longer active on-chain.");
+      }
+
+      return await marketplace.buyListingByIdJustInTime(listingId);
+    } catch (err: unknown) {
+      throw new Error(normalizeBuyError(err));
+    }
   },
 
   async getBidMinimum(auctionId: bigint): Promise<{
@@ -432,40 +620,52 @@ export const marketplace = {
     auctionId: bigint;
     amountHuman: string;
   }): Promise<void> {
-    const on = await readAuctionById(args.auctionId);
-    if (!on) throw new Error("Auction not found on-chain.");
+    try {
+      const on = await readAuctionById(args.auctionId);
+      if (!on) throw new Error("Auction not found on-chain.");
 
-    if (on.row.settled) throw new Error("Auction is already settled.");
-    requireWindowActive({ start: on.row.start, end: on.row.end });
+      if (on.row.settled) throw new Error("Auction is already settled.");
+      requireWindowActive({ start: on.row.start, end: on.row.end });
 
-    const { symbol, decimals } = await resolveCurrencyMeta(on.row.currency);
+      const { symbol, decimals } = await resolveCurrencyMeta(on.row.currency);
 
-    const amountWei = parseUnitsSafe(args.amountHuman, decimals);
-    if (amountWei <= BigInt(0)) throw new Error("Invalid bid amount.");
+      const amountWei = parseUnitsSafe(args.amountHuman, decimals);
+      if (amountWei <= BigInt(0)) throw new Error("Invalid bid amount.");
 
-    const base = on.row.highestBid > BigInt(0) ? on.row.highestBid : on.row.startPrice;
-    const minWei = base + on.row.minIncrement;
-    if (amountWei < minWei) {
-      const minHuman = formatUnitsSafe(minWei, decimals);
-      throw new Error(`Bid too low. Minimum is ${minHuman} ${symbol}.`);
+      const base = on.row.highestBid > BigInt(0) ? on.row.highestBid : on.row.startPrice;
+      const minWei = base + on.row.minIncrement;
+      if (amountWei < minWei) {
+        const minHuman = formatUnitsSafe(minWei, decimals);
+        throw new Error(`Bid too low. Minimum is ${minHuman} ${symbol}.`);
+      }
+
+      const { signer, provider } = await import("@/src/lib/evm/getSigner").then((m) =>
+        m.getBrowserSigner()
+      );
+      const { MARKETPLACE_CORE_ABI } = await import(
+        "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
+      );
+
+      const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
+      const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
+
+      const isNative = on.row.currency === ZERO_ADDR;
+      if (isNative) {
+        const bidder = await signer.getAddress();
+        const balance = await provider.getBalance(bidder);
+        if (balance < amountWei) {
+          throw new Error("Insufficient funds for bid amount.");
+        }
+      }
+
+      const overrides: Record<string, bigint> = {};
+      if (isNative) overrides.value = amountWei;
+
+      const tx = await mkt.bid(args.auctionId, amountWei, overrides);
+      await tx.wait();
+    } catch (err: unknown) {
+      throw new Error(normalizeBidError(err));
     }
-
-    const { signer } = await import("@/src/lib/evm/getSigner").then((m) =>
-      m.getBrowserSigner()
-    );
-    const { MARKETPLACE_CORE_ABI } = await import(
-      "@/src/lib/abis/marketplace-core/marketPlaceCoreABI"
-    );
-
-    const mktAddr = process.env.NEXT_PUBLIC_MARKETPLACE_CORE_ADDRESS as `0x${string}`;
-    const mkt = new ethers.Contract(mktAddr, MARKETPLACE_CORE_ABI, signer);
-
-    const isNative = on.row.currency === ZERO_ADDR;
-    const overrides: Record<string, bigint> = {};
-    if (isNative) overrides.value = amountWei;
-
-    const tx = await mkt.bid(args.auctionId, amountWei, overrides);
-    await tx.wait();
   },
 
   async transferNft(args: {
