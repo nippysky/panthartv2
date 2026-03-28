@@ -10,6 +10,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock3,
+  Gem,
   Lock,
   Search,
   Shield,
@@ -69,6 +70,7 @@ type LockableAsset = WarpoolOwnedAsset & {
   lockQueueTitle?: string | null;
   fatigueUntil?: string | null;
   isFatigued?: boolean;
+  rarityRank?: number | null;
 };
 
 type QueueEntrantPreview = {
@@ -95,21 +97,6 @@ const STEPS = [
   { id: 2, label: "Select relic" },
   { id: 3, label: "Review & enter" },
 ] as const;
-
-function formatRarity(value: unknown): string | null {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value.toFixed(1);
-  }
-
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) {
-      return parsed.toFixed(1);
-    }
-  }
-
-  return null;
-}
 
 function formatCompactAmount(value: string | number | null | undefined) {
   if (value == null) return "0";
@@ -290,7 +277,10 @@ function AssetCard({
   disabledLabel?: string;
   footerLabel?: string | null;
 }) {
-  const rarity = formatRarity(asset.rarityScore);
+  const rarityRank =
+    accent === "comrade" && typeof asset.rarityRank === "number"
+      ? asset.rarityRank
+      : null;
 
   return (
     <button
@@ -335,13 +325,23 @@ function AssetCard({
           `${accent === "relic" ? "Relic" : "Comrade"} #${asset.tokenId}`}
       </div>
 
-      <div className="mt-1 text-xs text-foreground/50">Token #{asset.tokenId}</div>
-
-      {rarity ? (
-        <div className="mt-1 text-xs text-foreground/42">
-          Rarity {rarity}
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <div className="min-w-0 text-xs text-foreground/50">
+          Token #{asset.tokenId}
         </div>
-      ) : null}
+
+        {typeof rarityRank === "number" ? (
+          <div
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card/90 px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-sm"
+            title={`Rarity Rank #${rarityRank}`}
+            aria-label={`Rarity Rank ${rarityRank}`}
+          >
+            <Gem className="h-3 w-3" />
+            <span className="hidden sm:inline">Rank</span>
+            <span>#{rarityRank}</span>
+          </div>
+        ) : null}
+      </div>
 
       {footerLabel ? (
         <div className="mt-2 text-xs text-foreground/55">{footerLabel}</div>

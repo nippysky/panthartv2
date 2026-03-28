@@ -306,6 +306,28 @@ export async function listOwnedWarpoolAssets(
     .filter((nft) => nft.contract.toLowerCase() === normalizedComrades)
     .map((nft) => String(nft.tokenId));
 
+  const rarityRows = nfts.length
+    ? await prisma.nFTRarity.findMany({
+        where: {
+          OR: nfts.map((nft) => ({
+            contract: String(nft.contract),
+            tokenId: String(nft.tokenId),
+          })),
+        },
+        select: {
+          contract: true,
+          tokenId: true,
+          rank: true,
+        },
+      })
+    : [];
+
+  const rarityRankMap = new Map<string, number>();
+  for (const row of rarityRows) {
+    const key = `${String(row.contract).toLowerCase()}::${String(row.tokenId)}`;
+    rarityRankMap.set(key, Number(row.rank));
+  }
+
   const activeLocks = comradeNftIds.length
     ? await prisma.warpoolEntry.findMany({
         where: {
@@ -355,11 +377,18 @@ export async function listOwnedWarpoolAssets(
     });
   }
 
-  const mapAsset = (
-    nft: any
-  ): WarpoolOwnedAsset => {
+  const mapAsset = (nft: {
+    id: string;
+    contract: string;
+    tokenId: string;
+    name: string | null;
+    imageUrl: string | null;
+    rarityScore: unknown;
+  }): WarpoolOwnedAsset => {
     const lock = lockMap.get(String(nft.id));
-    const isComrade = String(nft.contract).toLowerCase() === normalizedComrades;
+    const normalizedContract = String(nft.contract).toLowerCase();
+    const rarityKey = `${normalizedContract}::${String(nft.tokenId)}`;
+    const isComrade = normalizedContract === normalizedComrades;
     const usage = isComrade ? fighterUsageMap.get(String(nft.tokenId)) : null;
 
     return {
@@ -369,6 +398,7 @@ export async function listOwnedWarpoolAssets(
       name: nft.name ?? null,
       imageUrl: nft.imageUrl ?? null,
       rarityScore: nft.rarityScore ? String(nft.rarityScore) : null,
+      rarityRank: rarityRankMap.get(rarityKey) ?? null,
 
       isLockedInWarpool: lock?.isLockedInWarpool ?? false,
       lockReason: lock?.lockReason ?? null,

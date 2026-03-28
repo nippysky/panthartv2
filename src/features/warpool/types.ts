@@ -186,6 +186,7 @@ export type WarpoolOwnedAsset = {
   name: string | null;
   imageUrl: string | null;
   rarityScore: string | null;
+  rarityRank?: number | null;
 
   isLockedInWarpool?: boolean;
   lockReason?: string | null;

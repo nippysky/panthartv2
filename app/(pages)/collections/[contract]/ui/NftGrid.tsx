@@ -16,6 +16,7 @@ type Item = {
   isListed: boolean;
   isAuctioned: boolean;
   createdAt: string;
+  rarityRank?: number | null;
 };
 
 function toNumTokenId(t: string) {
@@ -82,7 +83,9 @@ export default function NftGrid({
           const base = replace ? [] : prev;
           const seen = new Set(base.map((x) => x.id));
           const merged = [...base];
-          for (const it of next) if (!seen.has(it.id)) merged.push(it);
+          for (const it of next) {
+            if (!seen.has(it.id)) merged.push(it);
+          }
 
           if (sortMode === "oldest") {
             merged.sort((a, b) => toNumTokenId(a.tokenId) - toNumTokenId(b.tokenId));
@@ -150,7 +153,8 @@ export default function NftGrid({
           : items.map((it, idx) => (
               <NftCard
                 key={it.id}
-                item={it as any}
+                contract={contract}
+                item={it}
                 onOpen={() => setOpen(it)}
                 priority={idx < 8}
               />
