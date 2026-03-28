@@ -121,16 +121,36 @@ function formatCompactAmount(value: string | number | null | undefined) {
   const raw = String(value).trim();
   if (!raw) return "0";
 
-  const match = raw.match(/^([+-]?\d*\.?\d+)\s*(.*)$/);
+  const match = raw.match(/^([+-]?\d[\d,]*\.?\d*)\s*(.*)$/);
   if (!match) return raw;
 
-  const numeric = Number(match[1]);
+  const numeric = Number(match[1].replace(/,/g, ""));
   const suffix = match[2]?.trim();
 
   if (!Number.isFinite(numeric)) return raw;
 
   const compact = formatNumber(numeric, { min: 0, max: 2 });
   return suffix ? `${compact} ${suffix}` : compact;
+}
+
+function parseTokenLabelToRaw(
+  value: string | null | undefined,
+  decimals = 18
+): bigint {
+  if (!value) return BigInt(0);
+
+  const cleaned = value
+    .replace(/\s*DCNT$/i, "")
+    .replace(/,/g, "")
+    .trim();
+
+  if (!cleaned) return BigInt(0);
+
+  try {
+    return ethers.parseUnits(cleaned, decimals);
+  } catch {
+    return BigInt(0);
+  }
 }
 
 function decodeWarpoolError(error: unknown) {
@@ -142,6 +162,10 @@ function decodeWarpoolError(error: unknown) {
         : "Unable to complete the Warpool action.";
 
   const lower = message.toLowerCase();
+
+  if (lower.includes("invalid fixednumber string value")) {
+    return "Stake formatting was invalid for this entry attempt. Refresh the queue and try again.";
+  }
 
   if (lower.includes("token 11") && lower.includes("seat")) {
     return "The god Relic seat is no longer open for this live pool.";
@@ -982,12 +1006,7 @@ export default function QueueJoinCard({
       const expectedStakeRaw =
         selectedRelic?.tokenId === "11"
           ? BigInt(0)
-          : preview?.expectedStake
-            ? ethers.parseUnits(
-                preview.expectedStake.replace(/\s*DCNT$/i, "").trim(),
-                18
-              )
-            : BigInt(0);
+          : parseTokenLabelToRaw(preview?.expectedStake, 18);
 
       if (expectedStakeRaw > BigInt(0)) {
         await ensureErc20Approval({
