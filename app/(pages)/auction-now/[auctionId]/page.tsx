@@ -59,6 +59,24 @@ function formatEndsIn(endISO?: string | null): string | undefined {
   return `${s}s`;
 }
 
+async function getRarityRank(base: string, contract: string, tokenId: string) {
+  try {
+    const res = await fetch(
+      `${base}/api/nft/${encodeURIComponent(contract)}/${encodeURIComponent(tokenId)}/rarity`,
+      { cache: "no-store" }
+    );
+
+    if (!res.ok) return null;
+
+    const json = await res.json().catch(() => null);
+    const rank = json && typeof json === "object" ? (json as any).rank : null;
+
+    return typeof rank === "number" ? rank : null;
+  } catch {
+    return null;
+  }
+}
+
 /* ----------------------------------------------------------------------------
  * SEO
  * -------------------------------------------------------------------------- */
@@ -157,6 +175,7 @@ export default async function AuctionNowDetails(ctx: PageContext) {
   let jsonLdProduct: any = null;
   let escrowed = false;
   let initialAuction: any = null;
+  let initialRarityRank: number | null = null;
 
   try {
     const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/+$/, "");
@@ -189,13 +208,13 @@ export default async function AuctionNowDetails(ctx: PageContext) {
           },
         };
 
-        // Escrow badge check (best-effort)
         if (a?.nft?.contract && a?.nft?.tokenId) {
           try {
             const infoRes = await fetch(
               `${base}/api/nft/${a.nft.contract}/${a.nft.tokenId}`,
               { cache: "no-store" }
             );
+
             if (infoRes.ok) {
               const info = await infoRes.json();
               const ownerAddr = (info?.owner?.walletAddress || "").toLowerCase();
@@ -205,6 +224,8 @@ export default async function AuctionNowDetails(ctx: PageContext) {
           } catch {
             /* ignore */
           }
+
+          initialRarityRank = await getRarityRank(base, a.nft.contract, a.nft.tokenId);
         }
       }
     }
@@ -222,8 +243,10 @@ export default async function AuctionNowDetails(ctx: PageContext) {
         />
       )}
 
-      {/* ✅ Remove the old mt-20; spacing is handled inside the client page for consistency */}
-      <NFTAuctionNowPage initialAuction={initialAuction} />
+      <NFTAuctionNowPage
+        initialAuction={initialAuction}
+        initialRarityRank={initialRarityRank}
+      />
     </>
   );
 }

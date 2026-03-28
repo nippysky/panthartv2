@@ -4,7 +4,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname} from "next/navigation";
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import {
   BadgeCheck,
@@ -14,6 +14,7 @@ import {
   XCircle,
   Gavel,
   Sparkles,
+  Gem,
 } from "lucide-react";
 import { useActiveAccount } from "thirdweb/react";
 import { ethers } from "ethers";
@@ -225,7 +226,6 @@ async function sniffMediaType(url: string, signal: AbortSignal): Promise<SmartMe
   if (!url) return "unknown";
   if (mediaTypeCache.has(url)) return mediaTypeCache.get(url)!;
 
-  // Fast heuristics first
   if (looksLikeVideoUrl(url)) {
     mediaTypeCache.set(url, "video");
     return "video";
@@ -235,8 +235,6 @@ async function sniffMediaType(url: string, signal: AbortSignal): Promise<SmartMe
     return "image";
   }
 
-  // IPFS gateways often don’t include extensions; we sniff Content-Type.
-  // Use a small ranged GET so we avoid pulling entire files.
   try {
     const res = await fetch(url, {
       method: "GET",
@@ -256,7 +254,6 @@ async function sniffMediaType(url: string, signal: AbortSignal): Promise<SmartMe
       return "image";
     }
 
-    // Some gateways omit it; fallback to unknown (we’ll render as image).
     mediaTypeCache.set(url, "unknown");
     return "unknown";
   } catch {
@@ -309,7 +306,6 @@ function SmartMedia({
     );
   }
 
-  // Default to image (works for unknown, and is cheaper than video).
   return (
     <Image
       src={src}
@@ -497,7 +493,13 @@ function reducer(state: State, action: Action): State {
 
 /* ====================================================================== */
 
-export default function NFTAuctionNowPage({ initialAuction }: { initialAuction?: any | null }) {
+export default function NFTAuctionNowPage({
+  initialAuction,
+  initialRarityRank = null,
+}: {
+  initialAuction?: any | null;
+  initialRarityRank?: number | null;
+}) {
   const pathname = usePathname();
   const account = useActiveAccount();
   const loader = useLoaderStore();
@@ -507,30 +509,28 @@ export default function NFTAuctionNowPage({ initialAuction }: { initialAuction?:
     booted: !!initialAuction,
   });
 
+  const [rarityRank, setRarityRank] = React.useState<number | null>(
+    typeof initialRarityRank === "number" ? initialRarityRank : null
+  );
+
   const bidderCache = React.useRef<Map<string, BidderMeta>>(new Map());
   const decimalsRef = React.useRef<number>(18);
 
-  // ✅ lock UI during bid / cancel to prevent double wallet popups
   const [isTxBusy, setIsTxBusy] = React.useState(false);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const refreshOffTimer = React.useRef<number | null>(null);
 
-// ✅ full-page refresh feel (skeleton) for refresh button
-const [isRefreshing, setIsRefreshing] = React.useState(false);
-const refreshOffTimer = React.useRef<number | null>(null);
+  const isRefreshingRef = React.useRef(false);
+  React.useEffect(() => {
+    isRefreshingRef.current = isRefreshing;
+  }, [isRefreshing]);
 
-// ✅ ref to avoid stale-closure deps hell
-const isRefreshingRef = React.useRef(false);
-React.useEffect(() => {
-  isRefreshingRef.current = isRefreshing;
-}, [isRefreshing]);
+  const endRefreshingSoon = React.useCallback(() => {
+    if (!isRefreshingRef.current) return;
 
-
-const endRefreshingSoon = React.useCallback(() => {
-  // ✅ read from ref => no need to depend on isRefreshing
-  if (!isRefreshingRef.current) return;
-
-  if (refreshOffTimer.current) window.clearTimeout(refreshOffTimer.current);
-  refreshOffTimer.current = window.setTimeout(() => setIsRefreshing(false), 350);
-}, []);
+    if (refreshOffTimer.current) window.clearTimeout(refreshOffTimer.current);
+    refreshOffTimer.current = window.setTimeout(() => setIsRefreshing(false), 350);
+  }, []);
 
   const auctionIdParam = React.useMemo(() => {
     const segs = pathname.split("/").filter(Boolean);
@@ -560,7 +560,6 @@ const endRefreshingSoon = React.useCallback(() => {
     }
   }, []);
 
-  /* ---------- Seed from SSR on first render ---------- */
   React.useEffect(() => {
     if (!initialAuction) return;
     dispatch({ type: "BOOT_FROM_API", payload: initialAuction, auctionIdFallback: auctionIdParam });
@@ -571,12 +570,8 @@ const endRefreshingSoon = React.useCallback(() => {
     decimalsRef.current = currencyDecimals;
 
     if (initialAuction?.highestBidder) warmMeta(initialAuction.highestBidder);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialAuction, auctionIdParam]);
+  }, [initialAuction, auctionIdParam, warmMeta]);
 
-  /* --------------------------------
-   * Load auction by ID (client) — skipped if SSR provided it
-   * -------------------------------- */
   React.useEffect(() => {
     if (initialAuction) return;
     if (!auctionIdParam) return;
@@ -611,9 +606,41 @@ const endRefreshingSoon = React.useCallback(() => {
     };
   }, [auctionIdParam, initialAuction, warmMeta]);
 
-  /* --------------------------------
-   * On-chain auction snapshot (secondary/authoritative)
-   * -------------------------------- */
+  React.useEffect(() => {
+    if (typeof rarityRank === "number") return;
+    if (!state.contract || !state.tokenId) return;
+
+    let alive = true;
+    const ac = new AbortController();
+
+    (async () => {
+      try {
+        const r = await fetch(
+          `/api/nft/${encodeURIComponent(state.contract)}/${encodeURIComponent(state.tokenId)}/rarity`,
+          {
+            cache: "no-store",
+            signal: ac.signal,
+          }
+        );
+
+        if (!r.ok) return;
+
+        const json = await r.json().catch(() => null);
+        if (!alive) return;
+
+        const rank = json && typeof json === "object" ? (json as any).rank : null;
+        if (typeof rank === "number") setRarityRank(rank);
+      } catch {
+        /* noop */
+      }
+    })();
+
+    return () => {
+      alive = false;
+      ac.abort();
+    };
+  }, [rarityRank, state.contract, state.tokenId]);
+
   React.useEffect(() => {
     let cancel = false;
 
@@ -683,7 +710,6 @@ const endRefreshingSoon = React.useCallback(() => {
       } catch {
         if (!cancel) dispatch({ type: "SET_ONCHAIN_ID", id: null });
       } finally {
-        // ✅ if we were showing refresh skeleton, end it as soon as we have fresh data
         if (isRefreshing) endRefreshingSoon();
       }
     })();
@@ -694,9 +720,6 @@ const endRefreshingSoon = React.useCallback(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.contract, state.tokenId, state.nft?.standard, state.apiAuctionSeller]);
 
-  /* --------------------------------
-   * Countdown
-   * -------------------------------- */
   const [now, setNow] = React.useState<number>(() => Date.now());
   React.useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000);
@@ -715,9 +738,6 @@ const endRefreshingSoon = React.useCallback(() => {
   const { d: sd, h: sh, m: sm, s: ss } = msParts(startDeltaMs);
   const { d, h, m, s } = msParts(endDeltaMs);
 
-  /* --------------------------------
-   * Confirmed bids (REST) + interval
-   * -------------------------------- */
   const fetchRecentBids = React.useCallback(async () => {
     try {
       if (!auctionIdParam) return;
@@ -747,12 +767,12 @@ const endRefreshingSoon = React.useCallback(() => {
         }
       }
       if (snap.highestBidder) warmMeta(snap.highestBidder);
-  } catch {
-    /* noop */
-  } finally {
-    if (isRefreshingRef.current) endRefreshingSoon();
-  }
-}, [auctionIdParam, warmMeta, snap.highestBidder, endRefreshingSoon]);
+    } catch {
+      /* noop */
+    } finally {
+      if (isRefreshingRef.current) endRefreshingSoon();
+    }
+  }, [auctionIdParam, warmMeta, snap.highestBidder, endRefreshingSoon]);
 
   React.useEffect(() => {
     if (!auctionIdParam) return;
@@ -782,9 +802,6 @@ const endRefreshingSoon = React.useCallback(() => {
     };
   }, [auctionIdParam, fetchRecentBids]);
 
-  /* --------------------------------
-   * Merge bids
-   * -------------------------------- */
   const mergedBids = React.useMemo(() => {
     const map = new Map<string, ConfirmedBidRow | PendingBidRow>();
     const keyFor = (b: any) => (b.txHash && typeof b.txHash === "string" ? b.txHash : `${keyOf(b.bidder)}-${b.time}`);
@@ -795,9 +812,6 @@ const endRefreshingSoon = React.useCallback(() => {
       .slice(0, 50);
   }, [state.pendingBids, state.confirmedBids]);
 
-  /* --------------------------------
-   * SSE wiring
-   * -------------------------------- */
   useAuctionSSE(state.auctionIdDb ?? undefined, account?.address, {
     onReady: () => {},
     onBidPending: (ev) => {
@@ -878,9 +892,6 @@ const endRefreshingSoon = React.useCallback(() => {
     },
   });
 
-  /* --------------------------------
-   * Bid logic
-   * -------------------------------- */
   const minRequiredHuman = React.useMemo(() => {
     const start = parseFloat(snap.startPriceHuman ?? "0") || 0;
     const inc = parseFloat(snap.minIncrementHuman ?? "0") || 0;
@@ -916,7 +927,7 @@ const endRefreshingSoon = React.useCallback(() => {
   }
 
   async function placeBid() {
-    if (isTxBusy) return; // ✅ double-click guard
+    if (isTxBusy) return;
 
     try {
       if (!account?.address) return toast.info("Connect your wallet to place a bid.");
@@ -969,7 +980,6 @@ const endRefreshingSoon = React.useCallback(() => {
         tx = await contractMkt.bid(BigInt(state.auctionIdOnChain), wei, { value: wei });
       }
 
-      // non-blocking server notify
       try {
         await fetch("/api/pending-actions", {
           method: "POST",
@@ -1050,10 +1060,6 @@ const endRefreshingSoon = React.useCallback(() => {
     }
   }
 
-
-  /* --------------------------------
-   * Share
-   * -------------------------------- */
   const shareTitle =
     state.nft?.name ||
     (state.nft?.tokenId ? `NFT #${state.nft.tokenId}` : `Auction #${auctionIdParam?.slice(0, 6)}…`);
@@ -1076,9 +1082,6 @@ const endRefreshingSoon = React.useCallback(() => {
     }
   };
 
-  /* --------------------------------
-   * Render helpers
-   * -------------------------------- */
   const highestBidderMeta = React.useMemo(() => {
     const w = snap.highestBidder || "";
     if (!w) return null;
@@ -1106,10 +1109,7 @@ const endRefreshingSoon = React.useCallback(() => {
     return ((t - start) / (end - start)) * 100;
   }, [snap.startISO, snap.endISO, now]);
 
-  // ✅ show skeleton both while booting and while refreshing
   if (!state.booted || isRefreshing) return <AuctionNowSkeleton />;
-
-  // ✅ also guard “booted but missing essentials”
   if (!state.contract || !state.tokenId) return <AuctionNowSkeleton />;
 
   const uiDisabled = isTxBusy || isRefreshing;
@@ -1117,7 +1117,6 @@ const endRefreshingSoon = React.useCallback(() => {
   return (
     <section className="pt-8 pb-10">
       <Container>
-        {/* ✅ space from global header + a calmer top row */}
         <div className="flex items-center justify-between gap-3">
           <BackButton fallbackHref="/auction" variant="ghost" />
           <div className="flex items-center gap-2">
@@ -1142,52 +1141,71 @@ const endRefreshingSoon = React.useCallback(() => {
           />
         </div>
 
-        {/* Hero header */}
         <div className="mt-4 relative overflow-hidden rounded-[28px] border border-border bg-card p-5 sm:p-7">
           <div className="absolute inset-0 pointer-events-none [background:radial-gradient(circle_at_20%_10%,rgba(16,185,129,0.14),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.10),transparent_38%)]" />
-          <div className="relative flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              {headerBadge}
-              {isEscrowOwner ? (
-                <Badge variant="soft" className="gap-1">
-                  <BadgeCheck className="h-3.5 w-3.5" /> Escrowed
-                </Badge>
+
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {headerBadge}
+                {isEscrowOwner ? (
+                  <Badge variant="soft" className="gap-1">
+                    <BadgeCheck className="h-3.5 w-3.5" /> Escrowed
+                  </Badge>
+                ) : null}
+                {is1155 && editionQty > 1 ? <Badge variant="outline">Edition of {editionQty}</Badge> : null}
+              </div>
+
+              <h1 className="mt-3 text-2xl sm:text-3xl font-semibold leading-tight wrap-break-word">
+                {state.nft?.name || (state.tokenId ? `NFT #${state.tokenId}` : `Auction #${auctionIdParam?.slice(0, 6)}…`)}
+              </h1>
+
+              {state.nft?.description ? (
+                <p className="mt-2 text-sm text-muted leading-6 max-w-3xl line-clamp-3">{state.nft.description}</p>
               ) : null}
-              {is1155 && editionQty > 1 ? <Badge variant="outline">Edition of {editionQty}</Badge> : null}
+
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted">
+                <Link
+                  href={`/collections/${state.contract}/${state.tokenId}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/50 px-3 py-1.5 hover:bg-background transition"
+                >
+                  <Gavel className="h-3.5 w-3.5" />
+                  <span className="font-mono">
+                    {state.contract.slice(0, 6)}…{state.contract.slice(-4)} #{state.tokenId}
+                  </span>
+                </Link>
+
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/50 px-3 py-1.5">
+                  Seller:{" "}
+                  <span className="font-mono">
+                    {(snap.seller ?? state.apiAuctionSeller ?? "—").slice(0, 6)}…{(snap.seller ?? state.apiAuctionSeller ?? "—").slice(-4)}
+                  </span>
+                </span>
+              </div>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-semibold leading-tight wrap-break-word">
-              {state.nft?.name || (state.tokenId ? `NFT #${state.tokenId}` : `Auction #${auctionIdParam?.slice(0, 6)}…`)}
-            </h1>
+            {typeof rarityRank === "number" ? (
+              <div className="shrink-0 self-start sm:pl-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-4 py-2.5 shadow-sm backdrop-blur">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground/6">
+                    <Gem className="h-4 w-4" />
+                  </span>
 
-            {state.nft?.description ? (
-              <p className="text-sm text-muted leading-6 max-w-3xl line-clamp-3">{state.nft.description}</p>
+                  <div className="leading-tight">
+                    <div className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                      Rarity Rank
+                    </div>
+                    <div className="text-sm font-semibold text-foreground">
+                      #{rarityRank}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : null}
-
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
-              <Link
-                href={`/collections/${state.contract}/${state.tokenId}`}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/50 px-3 py-1.5 hover:bg-background transition"
-              >
-                <Gavel className="h-3.5 w-3.5" />
-                <span className="font-mono">
-                  {state.contract.slice(0, 6)}…{state.contract.slice(-4)} #{state.tokenId}
-                </span>
-              </Link>
-
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/50 px-3 py-1.5">
-                Seller:{" "}
-                <span className="font-mono">
-                  {(snap.seller ?? state.apiAuctionSeller ?? "—").slice(0, 6)}…{(snap.seller ?? state.apiAuctionSeller ?? "—").slice(-4)}
-                </span>
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* Main layout */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
-          {/* Media */}
           <div className="lg:col-span-5 min-w-0">
             <div className="relative w-full aspect-square rounded-[28px] overflow-hidden bg-foreground/5 ring-1 ring-border flex items-center justify-center">
               {state.nft?.image ? (
@@ -1208,7 +1226,6 @@ const endRefreshingSoon = React.useCallback(() => {
             <div className="mt-5 grid grid-cols-2 gap-3 text-xs sm:text-sm">
               <InfoPill label="Standard" value={(state.nft?.standard ?? "ERC721").toString()} />
 
-              {/* ✅ Royalties: only show if real */}
               {typeof state.nft?.royaltyBps === "number" ? (
                 <InfoPill label="Royalties" value={`${(state.nft.royaltyBps / 100).toFixed(2)}%`} />
               ) : null}
@@ -1233,13 +1250,10 @@ const endRefreshingSoon = React.useCallback(() => {
             </div>
           </div>
 
-          {/* Right column */}
           <div className="lg:col-span-7 flex flex-col gap-6 min-w-0">
-            {/* Stats + Bid Card */}
             <div className="rounded-[28px] border border-border bg-card p-5 sm:p-6 relative overflow-hidden">
               <div className="absolute inset-0 pointer-events-none [background:radial-gradient(circle_at_90%_10%,rgba(16,185,129,0.12),transparent_42%)]" />
 
-              {/* ✅ Make Minimum Bid the most obvious */}
               <div className="relative grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 <StatBlock
                   label="Highest Bid"
@@ -1316,7 +1330,6 @@ const endRefreshingSoon = React.useCallback(() => {
                 />
               </div>
 
-              {/* Bid form */}
               <div className="relative mt-5 rounded-3xl border border-border bg-background/50 p-4">
                 {isSeller ? (
                   <div className="mb-3 rounded-[18px] border border-border bg-card px-4 py-3 text-xs text-muted">
@@ -1370,7 +1383,6 @@ const endRefreshingSoon = React.useCallback(() => {
                   </Button>
                 </div>
 
-                {/* ✅ Minimum bid made visually louder */}
                 <div className="mt-3 rounded-2xl border border-border bg-card px-4 py-3">
                   <div className="text-[11px] text-muted">Minimum bid required</div>
                   <div className="mt-0.5 text-lg font-semibold text-foreground">
@@ -1400,7 +1412,6 @@ const endRefreshingSoon = React.useCallback(() => {
               </div>
             </div>
 
-            {/* Live bids */}
             <div className="rounded-[28px] border border-border bg-card p-5 sm:p-6">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
