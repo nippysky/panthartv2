@@ -218,8 +218,6 @@ export default async function LiveAuctionsSection({
 }) {
   const { items, now, ok } = await fetchActiveAuctions(Math.max(4, limit));
 
-  const live = items.filter((x) => x.isLive);
-
   return (
     <section className="pt-10 sm:pt-14">
       <Container>
@@ -230,7 +228,6 @@ export default async function LiveAuctionsSection({
           </div>
 
           <div className="flex items-center justify-between gap-3 sm:justify-end">
-            <Badge variant="outline">{live.length} live</Badge>
 
             <Link href="/auction-now">
               <Button variant="secondary" size="sm" className="gap-2">
