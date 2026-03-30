@@ -130,15 +130,53 @@ async function getRarity(contract: string, tokenId: string) {
   return typeof rank === "number" ? rank : null;
 }
 
+/**
+ * ✅ FAANG-grade metadata:
+ * - Only override description at page level
+ * - Use NFT metadata description directly
+ * - Sanitize + trim to optimal SEO length (~155 chars)
+ * - No noisy fallbacks
+ */
 export async function generateMetadata(ctx: PageContext) {
   const { contract, tokenId } = await ctx.params;
+
+  const baseUrl = await getBaseUrlFromHeaders();
   const token = await getTokenDetails(contract, tokenId);
 
-  const title = token?.name ? `${token.name}` : `Token #${tokenId}`;
-  const description = token?.description?.slice(0, 160) ?? `View token #${tokenId} on Panth.art.`;
+  const description = token?.description
+    ? token.description.replace(/\s+/g, " ").trim().slice(0, 155)
+    : undefined;
 
-  return { title, description };
+  const title = token?.name || `Token #${tokenId}`;
+
+  const ogImageUrl = `${baseUrl}/api/og/nft/${contract}/${tokenId}`;
+
+  return {
+    description,
+
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  };
 }
+
 
 export default async function Page(ctx: PageContext) {
   const { contract, tokenId } = await ctx.params;
